@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.internals;
 
 import de.terrarier.netlistening.Application;
+import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.encryption.*;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ClientImpl;
@@ -28,8 +29,9 @@ public final class InternalPayLoad_Handshake extends InternalPayload {
 
 	@Override
 	protected void write(@NotNull Application application, @NotNull ByteBuf buffer) {
-		checkWriteable(application, buffer, 1 + 1 + 1 + 1);
-		buffer.writeBoolean(application.isVarIntCompressionEnabled());
+		checkWriteable(application, buffer, 1 + 1 + 1 + 1 + 1);
+		buffer.writeBoolean(application.getCompressionSetting().isVarIntCompression());
+		buffer.writeBoolean(application.getCompressionSetting().isNibbleCompression());
 		buffer.writeByte(application.getPacketSynchronization().ordinal());
 		final Charset charset = application.getStringEncoding();
 		final boolean utf8 = charset.equals(UTF_8);
@@ -67,8 +69,9 @@ public final class InternalPayLoad_Handshake extends InternalPayload {
 			throw new IllegalStateException("The connection " + channel.toString() + " has sent invalid data!");
 		}
 		final IntContainer required = new IntContainer();
-		checkReadable(buffer, required.getAndAdd(3), 1 + 1 + 1 + 1);
+		checkReadable(buffer, required.getAndAdd(4), 1 + 1 + 1 + 1 + 1);
 		final boolean varIntCompression = buffer.readBoolean();
+		final boolean nibbleCompression = buffer.readBoolean();
 		final byte packetSyncId = buffer.readByte();
 		Charset charset = null;
 		if(buffer.readBoolean()) {
@@ -100,7 +103,8 @@ public final class InternalPayLoad_Handshake extends InternalPayload {
 		}
 		final ClientImpl client = (ClientImpl) application;
 		final PacketSynchronization packetSynchronization = PacketSynchronization.fromId(packetSyncId);
-		client.receiveHandshake(varIntCompression, packetSynchronization, charset, encryptionSetting, serverKey);
+		final CompressionSetting compressionSetting = new CompressionSetting().varIntCompression(varIntCompression).nibbleCompression(nibbleCompression);
+		client.receiveHandshake(compressionSetting, packetSynchronization, charset, encryptionSetting, serverKey);
 		final ByteBuf initBuffer = Unpooled.buffer();
 		DataType.getDTCP().write0(application, initBuffer, ENCRYPTION_INIT);
 		client.sendRawData(initBuffer);

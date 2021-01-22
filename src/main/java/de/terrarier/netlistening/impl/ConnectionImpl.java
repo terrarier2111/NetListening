@@ -4,6 +4,7 @@ import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
+import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.encryption.EncryptionOptions;
 import de.terrarier.netlistening.api.encryption.SymmetricEncryptionContext;
 import de.terrarier.netlistening.api.encryption.SymmetricEncryptionUtil;
@@ -13,7 +14,6 @@ import de.terrarier.netlistening.network.PacketCache;
 import de.terrarier.netlistening.network.PacketSkeleton;
 import de.terrarier.netlistening.network.PacketSynchronization;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
-import de.terrarier.netlistening.api.PacketCaching;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -258,7 +258,7 @@ public final class ConnectionImpl implements Connection {
 					preConnectionCache.clear();
 				}
 
-				final ByteBuf buffer = Unpooled.buffer(application.isVarIntCompressionEnabled() ? 1 : 4);
+				final ByteBuf buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 1 : 4);
 				InternalUtil.writeInt(application, buffer, 0x2);
 				channel.writeAndFlush(buffer);
 				finishedSendCachedData.set(true);
@@ -304,7 +304,7 @@ public final class ConnectionImpl implements Connection {
 
 			preConnectionCache.clear();
 		}
-		final ByteBuf buffer = Unpooled.buffer(application.isVarIntCompressionEnabled() ? 1 : 4);
+		final ByteBuf buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 1 : 4);
 		InternalUtil.writeInt(application, buffer, 0x2);
 		channel.writeAndFlush(buffer);
 		finishedSendCachedData.set(true);

@@ -2,11 +2,12 @@ package de.terrarier.netlistening;
 
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
+import de.terrarier.netlistening.api.PacketCaching;
+import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.event.Listener;
 import de.terrarier.netlistening.network.PacketCache;
 import de.terrarier.netlistening.network.PacketSynchronization;
-import de.terrarier.netlistening.api.PacketCaching;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,11 +19,6 @@ import java.util.Set;
  * @author Terrarier2111
  */
 public interface Application {
-
-	/**
-	 * @return if VarInt compression is enabled.
-	 */
-	boolean isVarIntCompressionEnabled();
 
 	/**
 	 * @return if the application is a client!
@@ -65,6 +61,13 @@ public interface Application {
 	 * which was marked to encrypt.
 	 */
 	EncryptionSetting getEncryptionSetting();
+
+	/**
+	 * @return the compression setting containing information
+	 * about which compression techniques should be applied on
+	 * specific data.
+	 */
+	CompressionSetting getCompressionSetting();
 
 	/**
 	 * Registers a listener which can be used to perform an action chosen by the user

@@ -1,4 +1,4 @@
-package de.terrarier.netlistening.utils;
+package de.terrarier.netlistening.api.compression;
 
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;

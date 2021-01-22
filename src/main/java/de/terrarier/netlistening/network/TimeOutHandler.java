@@ -48,7 +48,7 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 					counter = Byte.MIN_VALUE;
 				}
 
-				final ByteBuf buffer = Unpooled.buffer(application.isVarIntCompressionEnabled() ? 2 : 5);
+				final ByteBuf buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 2 : 5);
 
 				InternalUtil.writeInt(application, buffer, 0x1);
 				buffer.writeByte(counter++);

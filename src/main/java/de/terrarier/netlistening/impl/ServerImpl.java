@@ -4,13 +4,14 @@ import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
+import de.terrarier.netlistening.api.PacketCaching;
+import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.SymmetricEncryptionUtil;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
 import de.terrarier.netlistening.api.event.*;
 import de.terrarier.netlistening.network.*;
 import de.terrarier.netlistening.utils.ChannelUtil;
-import de.terrarier.netlistening.api.PacketCaching;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
@@ -44,7 +45,7 @@ public final class ServerImpl implements Server {
     private PacketSynchronization packetSynchronization = PacketSynchronization.NONE;
     private final DataHandler handler = new DataHandler(this);
     private final EventManager eventManager;
-    private boolean useVarIntCompression;
+    private CompressionSetting compressionSetting = new CompressionSetting();
     private Thread server;
     private Charset stringEncoding = StandardCharsets.UTF_8;
     private EncryptionSetting encryptionSetting;
@@ -53,11 +54,6 @@ public final class ServerImpl implements Server {
         this.port = port;
         cache = new PacketCache();
         eventManager = new EventManager(handler);
-    }
-
-    @Override
-    public boolean isVarIntCompressionEnabled() {
-        return useVarIntCompression;
     }
 
     @Override
@@ -229,6 +225,11 @@ public final class ServerImpl implements Server {
     }
 
     @Override
+    public CompressionSetting getCompressionSetting() {
+        return compressionSetting;
+    }
+
+    @Override
     public void registerListener(@NotNull Listener<?> listener) {
         eventManager.registerListener(listener);
     }
@@ -271,9 +272,9 @@ public final class ServerImpl implements Server {
             server.packetSynchronization = packetSynchronization;
         }
 
-        public void varIntCompression(boolean enabled) {
+        public void compression(CompressionSetting compressionSetting) {
             validate();
-            server.useVarIntCompression = enabled;
+            server.compressionSetting = compressionSetting;
         }
 
         public void stringEncoding(@NotNull Charset charset) {

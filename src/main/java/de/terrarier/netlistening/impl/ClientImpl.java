@@ -4,6 +4,8 @@ import de.terrarier.netlistening.Client;
 import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
+import de.terrarier.netlistening.api.PacketCaching;
+import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.ServerKey;
 import de.terrarier.netlistening.api.encryption.hash.HashUtil;
@@ -13,7 +15,6 @@ import de.terrarier.netlistening.api.proxy.Proxy;
 import de.terrarier.netlistening.api.proxy.ProxyType;
 import de.terrarier.netlistening.network.*;
 import de.terrarier.netlistening.utils.ChannelUtil;
-import de.terrarier.netlistening.api.PacketCaching;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
@@ -50,7 +51,7 @@ public final class ClientImpl implements Client {
     private int localPort;
     private int buffer = 256;
     private final EventManager eventManager;
-    private boolean useVarIntCompression;
+    private CompressionSetting compressionSetting = new CompressionSetting();
     private boolean receivedHandshake;
     private List<DataContainer> preCachedData = new ArrayList<>();
     private Thread client;
@@ -149,11 +150,6 @@ public final class ClientImpl implements Client {
     }
 
     @Override
-    public boolean isVarIntCompressionEnabled() {
-        return useVarIntCompression;
-    }
-
-    @Override
     public @NotNull PacketCache getCache() {
         return cache;
     }
@@ -178,9 +174,9 @@ public final class ClientImpl implements Client {
         return stringEncoding;
     }
 
-    public void receiveHandshake(boolean useVarIntCompression, @NotNull PacketSynchronization packetSynchronization,
+    public void receiveHandshake(CompressionSetting compressionSetting, @NotNull PacketSynchronization packetSynchronization,
                                  Charset stringEncoding, EncryptionSetting encryptionSetting, byte[] serverKey) {
-        this.useVarIntCompression = useVarIntCompression;
+        this.compressionSetting = compressionSetting;
         this.packetSynchronization = packetSynchronization;
 
         if (stringEncoding != null) {
@@ -222,12 +218,12 @@ public final class ClientImpl implements Client {
     }
 
     @Override
-    public void sendData(@NotNull DataContainer data, int connectionID) {
+    public void sendData(@NotNull DataContainer data, int connectionId) {
         sendData(data);
     }
 
     @Override
-    public void sendData(@NotNull DataComponent<?> data, int connectionID) {
+    public void sendData(@NotNull DataComponent<?> data, int connectionId) {
         sendData(data, null);
     }
 
@@ -256,6 +252,11 @@ public final class ClientImpl implements Client {
     @Override
     public EncryptionSetting getEncryptionSetting() {
         return encryptionSetting;
+    }
+
+    @Override
+    public CompressionSetting getCompressionSetting() {
+        return compressionSetting;
     }
 
     @Override

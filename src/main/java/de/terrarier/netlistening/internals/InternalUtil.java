@@ -1,9 +1,9 @@
 package de.terrarier.netlistening.internals;
 
 import de.terrarier.netlistening.Application;
+import de.terrarier.netlistening.api.compression.VarIntUtil;
+import de.terrarier.netlistening.api.compression.VarIntUtil.VarIntParseException;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
-import de.terrarier.netlistening.utils.VarIntUtil;
-import de.terrarier.netlistening.utils.VarIntUtil.VarIntParseException;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +17,7 @@ public final class InternalUtil {
 
 	public static void writeInt(@NotNull Application application, @NotNull ByteBuf buffer, int value) {
 		ByteBufUtilExtension.correctSize(buffer, getSize(application, value), application.getBuffer());
-		if (!application.isVarIntCompressionEnabled()) {
+		if (!application.getCompressionSetting().isVarIntCompression()) {
 			buffer.writeInt(value);
 			return;
 		}
@@ -25,7 +25,7 @@ public final class InternalUtil {
 	}
 	
 	public static int readInt(@NotNull Application application, @NotNull ByteBuf buffer) throws VarIntParseException {
-		if(application.isVarIntCompressionEnabled()) {
+		if(application.getCompressionSetting().isVarIntCompression()) {
 			return VarIntUtil.getVarInt(buffer);
 		}
 		if(buffer.readableBytes() < 4) {
@@ -35,7 +35,7 @@ public final class InternalUtil {
 	}
 	
 	public static int getSize(@NotNull Application application, int value) {
-		return application.isVarIntCompressionEnabled() ? VarIntUtil.varIntSize(value) : 4;
+		return application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.varIntSize(value) : 4;
 	}
 
 }

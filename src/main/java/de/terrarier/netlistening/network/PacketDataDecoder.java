@@ -3,6 +3,7 @@ package de.terrarier.netlistening.network;
 import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.DataComponent;
+import de.terrarier.netlistening.api.compression.VarIntUtil;
 import de.terrarier.netlistening.api.event.*;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ClientImpl;
@@ -12,7 +13,6 @@ import de.terrarier.netlistening.internals.DataTypeInternalPayload;
 import de.terrarier.netlistening.internals.InternalUtil;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import de.terrarier.netlistening.utils.ConversionUtil;
-import de.terrarier.netlistening.utils.VarIntUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledHeapByteBuf;
@@ -133,7 +133,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             if (!application.isClient()) {
                 eventManager.callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE, (EventManager.EventProvider<InvalidDataEvent>) () -> {
                     final Connection connection = application.getConnection(ctx.channel());
-                    final byte[] data = application.isVarIntCompressionEnabled() ? VarIntUtil.toVarInt(0x2) : ConversionUtil.intToByteArray(0x2);
+                    final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(0x2) : ConversionUtil.intToByteArray(0x2);
                     return new InvalidDataEvent(connection, DataInvalidReason.MALICIOUS_ACTION, data);
                 });
                 throw new IllegalStateException("Received malicious data! (0x2)");
@@ -149,7 +149,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         if (!buffer.isReadable()) {
             eventManager.callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE, (EventManager.EventProvider<InvalidDataEvent>) () -> {
                 final Connection connection = application.getConnection(ctx.channel());
-                final byte[] data = application.isVarIntCompressionEnabled() ? VarIntUtil.toVarInt(id) : ConversionUtil.intToByteArray(id);
+                final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id) : ConversionUtil.intToByteArray(id);
                 return new InvalidDataEvent(connection, DataInvalidReason.INCOMPLETE_PACKET, data);
             });
 
@@ -167,7 +167,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         if (packet == null) {
 
             eventManager.callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE, (EventManager.EventProvider<InvalidDataEvent>) () -> {
-                final byte[] data = application.isVarIntCompressionEnabled() ? VarIntUtil.toVarInt(id) : ConversionUtil.intToByteArray(id);
+                final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id) : ConversionUtil.intToByteArray(id);
                 return new InvalidDataEvent(connection, DataInvalidReason.INVALID_ID, data);
             });
 

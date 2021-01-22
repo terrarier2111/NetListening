@@ -94,7 +94,7 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
             }
             connection.setSymmetricKey(symmetricOptions,
                     AsymmetricEncryptionUtil.decrypt(key, encryptionSetting.getEncryptionData()));
-            final ByteBuf finishBuffer = Unpooled.buffer(application.isVarIntCompressionEnabled() ? 2 : 5);
+            final ByteBuf finishBuffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 2 : 5);
             DataType.getDTCP().write0(application, finishBuffer, ENCRYPTION_FINISH);
             ((ClientImpl) application).sendRawData(finishBuffer);
         } else {

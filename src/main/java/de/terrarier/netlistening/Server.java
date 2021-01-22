@@ -2,11 +2,13 @@ package de.terrarier.netlistening;
 
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
+import de.terrarier.netlistening.api.PacketCaching;
+import de.terrarier.netlistening.api.compression.CompressionSetting;
+import de.terrarier.netlistening.api.compression.CompressionSettingWrapper;
 import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.EncryptionSettingWrapper;
 import de.terrarier.netlistening.impl.ServerImpl;
 import de.terrarier.netlistening.network.PacketSynchronization;
-import de.terrarier.netlistening.api.PacketCaching;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import org.jetbrains.annotations.NotNull;
@@ -111,19 +113,6 @@ public interface Server extends Application {
         }
 
         /**
-         * Sets if VarInt compression should be used to compress internal data
-         * like packetIds.
-         *
-         * @param enabled if VarInt compression should be used.
-         * @return the local reference.
-         */
-        @NotNull
-        public Builder varIntCompression(boolean enabled) {
-            impl.varIntCompression(enabled);
-            return this;
-        }
-
-        /**
          * Sets the encoding which should be used to encode/decode Strings.
          *
          * @param charset the charset which should be used to encode/decode Strings.
@@ -133,6 +122,30 @@ public interface Server extends Application {
         public Builder stringEncoding(@NotNull Charset charset) {
             impl.stringEncoding(charset);
             return this;
+        }
+
+        /**
+         * Sets the compression setting which should be used to compress
+         * specific data.
+         *
+         * @param compressionSetting the compression setting which should be used.
+         * @return the local reference.
+         */
+        @NotNull
+        public Builder compression(@NotNull CompressionSetting compressionSetting) {
+            impl.compression(compressionSetting);
+            return this;
+        }
+
+        /**
+         * Creates a compression setting wrapper which can be used to
+         * adjust the compression settings.
+         *
+         * @return a compression setting wrapper.
+         */
+        @NotNull
+        public CompressionSettingWrapper compression() {
+            return new CompressionSettingWrapper(this);
         }
 
         /**
