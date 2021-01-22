@@ -105,7 +105,7 @@ public final class ServerImpl implements Server {
         return cache;
     }
 
-    private <T> void start(long timeout, Map<ChannelOption<T>, T> options) {
+    private <T> void start(long timeout, @NotNull Map<ChannelOption<T>, T> options) {
         if (group != null) {
             throw new IllegalStateException("The server is already started!");
         }
@@ -225,7 +225,7 @@ public final class ServerImpl implements Server {
     }
 
     @Override
-    public CompressionSetting getCompressionSetting() {
+    public @NotNull CompressionSetting getCompressionSetting() {
         return compressionSetting;
     }
 
@@ -272,7 +272,7 @@ public final class ServerImpl implements Server {
             server.packetSynchronization = packetSynchronization;
         }
 
-        public void compression(CompressionSetting compressionSetting) {
+        public void compression(@NotNull CompressionSetting compressionSetting) {
             validate();
             server.compressionSetting = compressionSetting;
         }
@@ -288,7 +288,7 @@ public final class ServerImpl implements Server {
         }
 
         @SuppressWarnings("unchecked")
-        public <T> void option(ChannelOption<T> option, T value) {
+        public <T> void option(@NotNull ChannelOption<T> option, T value) {
             validate();
             options.put(option, value);
         }

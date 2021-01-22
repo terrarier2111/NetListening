@@ -102,7 +102,7 @@ public final class ConnectionImpl implements Connection {
 			
 			final ByteBuf buffer = connected ? Unpooled.buffer() : preConnectionBuffer;
 			buffer.writeInt(0x0);
-			final DataType<InternalPayload> dtcp = DataType.getDTCP();
+			final DataType<InternalPayload> dtcp = DataType.getDTIP();
 			((DataTypeInternalPayload) dtcp).write(application, buffer, InternalPayload.HANDSHAKE);
 			if (application.getCaching() == PacketCaching.GLOBAL) {
 
@@ -110,12 +110,10 @@ public final class ConnectionImpl implements Connection {
 				final Map<Integer, PacketSkeleton> inPackets = cache.getInPackets();
 				final int outPacketsSize = outPackets.size();
 				final int inPacketsSize = inPackets.size();
-				final boolean hasOutPackets = outPacketsSize > 1;
-				final boolean hasInPackets = inPacketsSize > 2;
-				if (hasOutPackets || hasInPackets) {
+				if (outPacketsSize > 1 || inPacketsSize > 2) {
 					final boolean simpleSynchronization = application.getPacketSynchronization() == PacketSynchronization.SIMPLE;
 
-					if(hasOutPackets) {
+					if(outPacketsSize > 1) {
 						for (int out = 5; out < outPacketsSize + 4; out++) {
 							final DataType<?>[] data = outPackets.get(out).getData();
 							dtcp.write0(application, buffer, simpleSynchronization ?
@@ -123,7 +121,7 @@ public final class ConnectionImpl implements Connection {
 						}
 					}
 
-					if(hasInPackets) {
+					if(inPacketsSize > 2) {
 						for (int in = 5; in < inPacketsSize + 3; in++) {
 							final DataType<?>[] data = inPackets.get(in).getData();
 							dtcp.write0(application, buffer, simpleSynchronization ?

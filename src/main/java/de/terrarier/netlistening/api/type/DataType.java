@@ -31,7 +31,7 @@ public abstract class DataType<T> {
 	public static final DataType<java.util.UUID> UUID = new DataTypeUUID();
 	public static final DataType<Float> FLOAT = new DataTypeFloat();
 
-	private static final DataType<InternalPayload> CUSTOM_PAYLOAD = new DataTypeInternalPayload();
+	private static final DataType<InternalPayload> INTERNAL_PAYLOAD = new DataTypeInternalPayload();
 	private static final DataType<Void> ENCRYPT = new DataTypeEncrypt();
 	private static final DataType<Void> HMAC = new DataTypeHmac();
 
@@ -66,11 +66,13 @@ public abstract class DataType<T> {
 	public final boolean isPublished() {
 		return published;
 	}
-	
+
+	@Deprecated
 	public final int getMinSize() {
 		return minSize;
 	}
 
+	@Deprecated
 	@NotNull
 	public final DataComponent<T> newComponent(T content) {
 		return new DataComponent<>(this, content);
@@ -95,7 +97,7 @@ public abstract class DataType<T> {
 		ByteBufUtilExtension.correctSize(buffer, length, application.getBuffer());
 	}
 
-	// TODO: Check if an array instead of the switch case would be faster!
+	// TODO: Check if an array instead of this switch case would be faster!
 	@NotNull
 	public static DataType<?> fromId(byte id) {
 			switch (id) {
@@ -128,8 +130,8 @@ public abstract class DataType<T> {
 	}
 
 	@NotNull
-	public static DataType<InternalPayload> getDTCP() {
-		return CUSTOM_PAYLOAD;
+	public static DataType<InternalPayload> getDTIP() {
+		return INTERNAL_PAYLOAD;
 	}
 
 	@NotNull

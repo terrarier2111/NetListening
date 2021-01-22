@@ -2,6 +2,10 @@ package de.terrarier.netlistening.api.compression;
 
 import de.terrarier.netlistening.Server;
 
+/**
+ * @since 1.0
+ * @author Terrarier2111
+ */
 public final class CompressionSettingWrapper {
 
     private final CompressionSetting compressionSetting = new CompressionSetting();
@@ -11,11 +15,17 @@ public final class CompressionSettingWrapper {
         this.builder = builder;
     }
 
+    /**
+     * @see CompressionSetting
+     */
     public CompressionSettingWrapper varIntCompression(boolean enabled) {
         compressionSetting.varIntCompression(enabled);
         return this;
     }
 
+    /**
+     * @see CompressionSetting
+     */
     public CompressionSettingWrapper nibbleCompression(boolean enabled) {
         compressionSetting.nibbleCompression(enabled);
         return this;

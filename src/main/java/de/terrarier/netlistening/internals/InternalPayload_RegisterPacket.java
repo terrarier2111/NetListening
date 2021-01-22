@@ -9,7 +9,6 @@ import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.network.PacketCache;
 import de.terrarier.netlistening.network.PacketSynchronization;
-import de.terrarier.netlistening.utils.ArrayUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -22,12 +21,12 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
     protected DataType<?>[] types;
     private int packetId;
 
-    protected InternalPayload_RegisterPacket(byte id, DataType<?>... types) {
+    protected InternalPayload_RegisterPacket(byte id, @NotNull DataType<?>... types) {
         super(id);
         this.types = types;
     }
 
-    protected InternalPayload_RegisterPacket(byte id, int packetId, DataType<?>... types) {
+    protected InternalPayload_RegisterPacket(byte id, int packetId, @NotNull DataType<?>... types) {
         super(id);
         this.packetId = packetId;
         this.types = types;
@@ -35,34 +34,24 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
 
     @Override
     protected final void write(@NotNull Application application, @NotNull ByteBuf buffer) {
-        int reduction = 0;
         for(DataType<?> type : types) {
-            if(type.getId() == 0x0) {
-                reduction++;
+            if (type.getId() < 0x1) {
+                throw new IllegalArgumentException("Tried to send a packet containing an internal payload!");
             }
         }
-        final int size = types.length - reduction;
 
-        if(size == 0) {
-            throw new IllegalStateException("Detected a corrupted packet!"); // TODO: Call invalid data event.
-            // separate messages:
-            // Tried to send a corrupted packet!
-            // Received a corrupted packet!
+        if(types.length == 0) {
+            throw new IllegalStateException("Tried to send an empty packet!");
         }
 
-        final boolean nibbleCompression = application.getCompressionSetting().isNibbleCompression();
-        final int byteSize = nibbleCompression ? NibbleUtil.nibbleToByteSize(size) : size;
+        checkWriteable(application, buffer, getSize(application));
 
-        final boolean simplePacketSync = packetId != 0x0;
-        final int additionalBufferSpace = simplePacketSync ? InternalUtil.getSize(application, packetId) : 0;
-
-        checkWriteable(application, buffer, byteSize + 2 + additionalBufferSpace);
-
-        if(simplePacketSync) {
+        if(packetId != 0x0) {
             InternalUtil.writeInt(application, buffer, packetId);
         }
+        buffer.writeShort(types.length);
 
-        buffer.writeShort(size);
+        final boolean nibbleCompression = application.getCompressionSetting().isNibbleCompression();
 
         final int increment = nibbleCompression ? 2 : 1;
         for(int i = 0; i < types.length; i += increment) {
@@ -115,9 +104,8 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
 
         types = new DataType[size];
 
-        int reduction = 0;
         byte nibblePair = 0;
-        for(int i = 0; i < size - reduction; i++) {
+        for(int i = 0; i < size; i++) {
             byte id;
             if(nibbleCompression) {
                 if(nibblePair != 0) {
@@ -131,24 +119,21 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
                 id = buffer.readByte();
             }
             if(id < 0x0) {
-                i--;
-                reduction++;
-                continue;
+                throw new IllegalStateException("The connection tried to register a packet containing an internal payload!");
             }
             types[i] = DataType.fromId((byte) (id + 1));
         }
 
-        if(reduction > 0) {
-            types = ArrayUtil.reduceSize(types, reduction);
-        }
         register0(((ConnectionImpl) application.getConnection(channel)).getCache(), packetId);
 
         // TODO: Check for an empty buffer and setting as an initial buffer although the init phase is already over
         if (application.getCaching() == PacketCaching.GLOBAL) {
             final Set<Connection> connections = application.getConnections();
             if (connections.size() > 1) {
-                final ByteBuf registerBuffer = Unpooled.buffer();
-                DataType.getDTCP().write0(application, registerBuffer, getPayload(packetId));
+                final InternalPayload_RegisterPacket payload = getPayload(packetId);
+                final ByteBuf registerBuffer = Unpooled.buffer(
+                        (application.getCompressionSetting().isVarIntCompression() ? 2 : 5) + payload.getSize(application));
+                DataType.getDTIP().write0(application, registerBuffer, payload);
 
                 for (Connection connection : connections) {
                     if (packetId != 0x0 || !connection.getChannel().equals(channel)) {
@@ -165,8 +150,22 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
         }
     }
 
-    protected abstract void register0(PacketCache cache, int packetId);
+    protected abstract void register0(@NotNull PacketCache cache, int packetId);
 
-    protected abstract InternalPayload getPayload(int packetId);
+    @NotNull
+    protected abstract InternalPayload_RegisterPacket getPayload(int packetId);
+
+    private int getSize(@NotNull Application application) {
+        int size = 2;
+        if(packetId != 0x0) {
+            size += InternalUtil.getSize(application, packetId);
+        }
+        if(application.getCompressionSetting().isNibbleCompression()) {
+            size += NibbleUtil.nibbleToByteSize(types.length);
+        }else {
+            size += types.length;
+        }
+        return size;
+    }
 
 }

@@ -1,5 +1,9 @@
 package de.terrarier.netlistening.api.compression;
 
+/**
+ * @since 1.0
+ * @author Terrarier2111
+ */
 public final class CompressionSetting {
 
     private boolean varIntCompression;

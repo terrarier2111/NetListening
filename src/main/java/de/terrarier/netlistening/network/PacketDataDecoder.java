@@ -236,7 +236,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     // TODO: Check if payloads can be framed correctly!
     private void readPayLoad(@NotNull ByteBuf buffer, @NotNull Channel channel) {
         try {
-            ((DataTypeInternalPayload) DataType.getDTCP()).read(application, channel, buffer);
+            ((DataTypeInternalPayload) DataType.getDTIP()).read(application, channel, buffer);
         } catch (CancelReadingSignal signal) {
             // prepare framing of payload
             holdingBuffer = Unpooled.buffer(signal.size + 1);

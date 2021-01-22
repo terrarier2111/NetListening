@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.internals;
 
 import de.terrarier.netlistening.Application;
+import de.terrarier.netlistening.api.compression.NibbleUtil;
 import de.terrarier.netlistening.api.compression.VarIntUtil;
 import de.terrarier.netlistening.api.compression.VarIntUtil.VarIntParseException;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
@@ -21,7 +22,7 @@ public final class InternalUtil {
 			buffer.writeInt(value);
 			return;
 		}
-		VarIntUtil.putVarInt(value, buffer);
+		VarIntUtil.writeVarInt(value, buffer);
 	}
 	
 	public static int readInt(@NotNull Application application, @NotNull ByteBuf buffer) throws VarIntParseException {
@@ -29,13 +30,17 @@ public final class InternalUtil {
 			return VarIntUtil.getVarInt(buffer);
 		}
 		if(buffer.readableBytes() < 4) {
-			throw VarIntUtil.FOUR_BYTES_PARSE_EXCEPTION;
+			throw VarIntParseException.FOUR_BYTES;
 		}
 		return buffer.readInt();
 	}
 	
 	public static int getSize(@NotNull Application application, int value) {
 		return application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.varIntSize(value) : 4;
+	}
+
+	public static int getDataTypesInBytes(@NotNull Application application, int dataTypes) {
+		return application.getCompressionSetting().isNibbleCompression() ? NibbleUtil.nibbleToByteSize(dataTypes) : dataTypes;
 	}
 
 }

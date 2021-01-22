@@ -2,6 +2,7 @@ package de.terrarier.netlistening.internals;
 
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.network.PacketCache;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @since 1.0
@@ -18,7 +19,7 @@ public final class InternalPayLoad_RegisterOutPacket extends InternalPayload_Reg
 	}
 
 	@Override
-	protected void register0(PacketCache cache, int packetId) {
+	protected void register0(@NotNull PacketCache cache, int packetId) {
 		if(packetId == 0) {
 			cache.registerOutPacket(types).register();
 		}else {
@@ -27,7 +28,7 @@ public final class InternalPayLoad_RegisterOutPacket extends InternalPayload_Reg
 	}
 
 	@Override
-	protected InternalPayload getPayload(int packetId) {
+	protected @NotNull InternalPayload_RegisterPacket getPayload(int packetId) {
 		return new InternalPayLoad_RegisterInPacket(packetId, types);
 	}
 

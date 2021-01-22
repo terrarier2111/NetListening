@@ -95,7 +95,7 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
             connection.setSymmetricKey(symmetricOptions,
                     AsymmetricEncryptionUtil.decrypt(key, encryptionSetting.getEncryptionData()));
             final ByteBuf finishBuffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 2 : 5);
-            DataType.getDTCP().write0(application, finishBuffer, ENCRYPTION_FINISH);
+            DataType.getDTIP().write0(application, finishBuffer, ENCRYPTION_FINISH);
             ((ClientImpl) application).sendRawData(finishBuffer);
         } else {
             try {
@@ -103,7 +103,7 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
                 final PublicKey publicKey = AsymmetricEncryptionUtil.readPublicKey(key, encryptionSetting.getAsymmetricSetting());
                 final ByteBuf initBuffer = Unpooled.buffer();
                 final ConnectionImpl connection = (ConnectionImpl) application.getConnection(channel);
-                DataType.getDTCP().write0(application, initBuffer,
+                DataType.getDTIP().write0(application, initBuffer,
                         new InternalPayload_EncryptionInit(
                                 new SymmetricEncryptionData(encryptionSetting.getSymmetricSetting(),
                                         connection.getEncryptionContext().getSecretKey()), publicKey, connection.getHmacKey()));

@@ -59,7 +59,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 				final InternalPayLoad_RegisterInPacket register = new InternalPayLoad_RegisterInPacket(
 						application.getPacketSynchronization() == PacketSynchronization.SIMPLE ? packet.getId() : 0, types);
 				final ByteBuf registerBuffer = Unpooled.buffer(5 + rawDataLength);
-				DataType.getDTCP().write0(application, registerBuffer, register);
+				DataType.getDTIP().write0(application, registerBuffer, register);
 				buffer.writeBytes(ByteBufUtilExtension.getBytes(registerBuffer));
 				if (application.getCaching() == PacketCaching.GLOBAL) {
 					final Set<Connection> connections = application.getConnections();

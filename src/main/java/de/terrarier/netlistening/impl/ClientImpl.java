@@ -68,7 +68,7 @@ public final class ClientImpl implements Client {
         eventManager = new EventManager(handler);
     }
 
-    private <T> void start(long timeout, Map<ChannelOption<T>, T> options, Proxy proxy) {
+    private <T> void start(long timeout, @NotNull Map<ChannelOption<T>, T> options, Proxy proxy) {
         if (group != null) {
             throw new IllegalStateException("The client is already started!");
         }
@@ -174,7 +174,7 @@ public final class ClientImpl implements Client {
         return stringEncoding;
     }
 
-    public void receiveHandshake(CompressionSetting compressionSetting, @NotNull PacketSynchronization packetSynchronization,
+    public void receiveHandshake(@NotNull CompressionSetting compressionSetting, @NotNull PacketSynchronization packetSynchronization,
                                  Charset stringEncoding, EncryptionSetting encryptionSetting, byte[] serverKey) {
         this.compressionSetting = compressionSetting;
         this.packetSynchronization = packetSynchronization;
@@ -254,6 +254,7 @@ public final class ClientImpl implements Client {
         return encryptionSetting;
     }
 
+    @NotNull
     @Override
     public CompressionSetting getCompressionSetting() {
         return compressionSetting;

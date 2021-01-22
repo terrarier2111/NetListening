@@ -67,6 +67,7 @@ public interface Application {
 	 * about which compression techniques should be applied on
 	 * specific data.
 	 */
+	@NotNull
 	CompressionSetting getCompressionSetting();
 
 	/**

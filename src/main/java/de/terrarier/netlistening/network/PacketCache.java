@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class PacketCache {
 
-	private static final PacketSkeleton CUSTOM_PAYLOAD_PACKET_SKELETON = new PacketSkeleton(0x0, DataType.getDTCP());
+	private static final PacketSkeleton INTERNAL_PAYLOAD_PACKET_SKELETON = new PacketSkeleton(0x0, DataType.getDTIP());
 	private static final PacketSkeleton ENCRYPTION_PACKET_SKELETON = new PacketSkeleton(0x3, DataType.getDTE());
 	private static final PacketSkeleton HMAC_PACKET_SKELETON = new PacketSkeleton(0x4, DataType.getDTHMAC());
 	private final Map<Integer, PacketSkeleton> inPackets = new ConcurrentHashMap<>();
@@ -22,7 +22,7 @@ public final class PacketCache {
 	private final AtomicInteger outId = new AtomicInteger(5);
 	
 	public PacketCache() {
-		outPackets.put(0x0, CUSTOM_PAYLOAD_PACKET_SKELETON);
+		outPackets.put(0x0, INTERNAL_PAYLOAD_PACKET_SKELETON);
 		inPackets.put(0x3, ENCRYPTION_PACKET_SKELETON);
 		inPackets.put(0x4, HMAC_PACKET_SKELETON);
 	}
