@@ -249,17 +249,7 @@ public final class ConnectionImpl implements Connection {
 			}
 
 			if(application.getEncryptionSetting() == null) {
-				if(preConnectionCache != null) {
-					for (DataContainer data : preConnectionCache) {
-						channel.writeAndFlush(data);
-					}
-					preConnectionCache.clear();
-				}
-
-				final ByteBuf buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 1 : 4);
-				InternalUtil.writeInt(application, buffer, 0x2);
-				channel.writeAndFlush(buffer);
-				finishedSendCachedData.set(true);
+				prepare();
 				if (finalBuffer != null) {
 					channel.writeAndFlush(finalBuffer);
 					finalBuffer = null;
@@ -295,6 +285,13 @@ public final class ConnectionImpl implements Connection {
 	}
 
 	public void receivedEncryptionFinish() {
+		prepare();
+		if(finalBuffer != null) {
+			channel.writeAndFlush(finalBuffer);
+		}
+	}
+
+	private void prepare() {
 		if(preConnectionCache != null) {
 			for (DataContainer data : preConnectionCache) {
 				channel.writeAndFlush(data);
@@ -306,9 +303,6 @@ public final class ConnectionImpl implements Connection {
 		InternalUtil.writeInt(application, buffer, 0x2);
 		channel.writeAndFlush(buffer);
 		finishedSendCachedData.set(true);
-		if(finalBuffer != null) {
-			channel.writeAndFlush(finalBuffer);
-		}
 	}
 	
 }

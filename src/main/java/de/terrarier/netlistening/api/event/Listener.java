@@ -1,7 +1,5 @@
 package de.terrarier.netlistening.api.event;
 
-import org.jetbrains.annotations.NotNull;
-
 /**
  * @since 1.0
  * @author Terrarier2111
@@ -15,6 +13,6 @@ public interface Listener<T> {
 	 *
 	 * @param value the event which is called.
 	 */
-	void trigger(@NotNull T value);
+	void trigger(T value);
 	
 }
