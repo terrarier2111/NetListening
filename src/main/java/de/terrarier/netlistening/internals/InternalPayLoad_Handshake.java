@@ -105,16 +105,7 @@ public final class InternalPayLoad_Handshake extends InternalPayload {
 		final PacketSynchronization packetSynchronization = PacketSynchronization.fromId(packetSyncId);
 		final CompressionSetting compressionSetting = new CompressionSetting().varIntCompression(varIntCompression).nibbleCompression(nibbleCompression);
 		client.receiveHandshake(compressionSetting, packetSynchronization, charset, encryptionSetting, serverKey);
-		/*final ByteBuf initBuffer;
-		if(encryptionSetting != null) {
-			initBuffer = Unpooled.buffer();
-			DataType.getDTIP().write0(application, initBuffer, ENCRYPTION_INIT);
-		}else {
-			initBuffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 2 : 5);
-			DataType.getDTIP().write0(application, initBuffer, ENCRYPTION_FINISH);
-		}
 
-		client.sendRawData(initBuffer);*/
 		if(encryptionSetting != null) {
 			final ByteBuf initBuffer = Unpooled.buffer();
 			DataType.getDTIP().write0(application, initBuffer, ENCRYPTION_INIT);
