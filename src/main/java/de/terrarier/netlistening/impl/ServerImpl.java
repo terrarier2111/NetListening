@@ -131,7 +131,7 @@ public final class ServerImpl implements Server {
                                     try {
                                         connection.setSymmetricKey(ServerImpl.this, SymmetricEncryptionUtil.generate(encryptionSetting.getSymmetricSetting()).getSecretKey());
 
-                                        HmacSetting hmacSetting = encryptionSetting.getHmacSetting();
+                                        final HmacSetting hmacSetting = encryptionSetting.getHmacSetting();
                                         if (hmacSetting != null) {
                                             connection.setHmacKey(SymmetricEncryptionUtil.generate(hmacSetting.getEncryptionSetting()).getSecretKey());
                                         }
@@ -318,11 +318,13 @@ public final class ServerImpl implements Server {
 
         private void validate() {
             if (built) {
-                throw new ServerAlreadyBuiltException();
+                throw ServerAlreadyBuiltException.INSTANCE;
             }
         }
 
         private static final class ServerAlreadyBuiltException extends IllegalStateException {
+
+            private static final ServerAlreadyBuiltException INSTANCE = new ServerAlreadyBuiltException();
 
             public ServerAlreadyBuiltException() {
                 super("The builder can't be used anymore because the server was already built!");

@@ -31,7 +31,8 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 	private Timer timer;
 	private byte counter = Byte.MIN_VALUE;
 	
-	public TimeOutHandler(@NotNull Application application, @NotNull EventManager eventManager, @NotNull ConnectionImpl connection, long timeout) {
+	public TimeOutHandler(@NotNull Application application, @NotNull EventManager eventManager,
+						  @NotNull ConnectionImpl connection, long timeout) {
 		this(application, eventManager, timeout);
 		final long delay = timeout / 2;
 

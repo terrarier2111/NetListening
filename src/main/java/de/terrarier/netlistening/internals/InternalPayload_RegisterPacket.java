@@ -141,7 +141,7 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
                         if (connection.isConnected()) {
                             connection.getChannel().writeAndFlush(registerBuffer);
                         } else {
-                            ((ConnectionImpl) connection).addInitialBuffer(registerBuffer);
+                            ((ConnectionImpl) connection).writeToInitialBuffer(registerBuffer);
                         }
                     }
                 }

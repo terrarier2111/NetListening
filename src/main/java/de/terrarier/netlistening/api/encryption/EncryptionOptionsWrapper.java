@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class EncryptionOptionsWrapper<T> {
 
-    private final EncryptionOptions encryptionOptions;
     private final EncryptionOptionsSuperBuilder<T> encryptionBuilder;
+    private final EncryptionOptions encryptionOptions;
 
     public EncryptionOptionsWrapper(EncryptionOptionsSuperBuilder<T> encryptionBuilder) {
         this.encryptionBuilder = encryptionBuilder;

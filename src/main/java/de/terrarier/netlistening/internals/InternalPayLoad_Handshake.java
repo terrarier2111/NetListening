@@ -68,6 +68,7 @@ public final class InternalPayLoad_Handshake extends InternalPayload {
 		if(!application.isClient()) {
 			throw new IllegalStateException("The connection " + channel.toString() + " has sent invalid data!");
 		}
+
 		final IntContainer required = new IntContainer();
 		checkReadable(buffer, required.getAndAdd(4), 1 + 1 + 1 + 1 + 1);
 		final boolean varIntCompression = buffer.readBoolean();
@@ -111,7 +112,6 @@ public final class InternalPayLoad_Handshake extends InternalPayload {
 			DataType.getDTIP().write0(application, initBuffer, ENCRYPTION_INIT);
 			client.sendRawData(initBuffer);
 		}
-
 	}
 
 }

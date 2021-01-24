@@ -9,6 +9,13 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class EncryptionOptionsSuperBuilder<T> {
 
+    /**
+     * Sets the EncryptionOptions for the underlying builder to
+     * the setting passed as the parameter.
+     *
+     * @param encryption the EncryptionOptions which get set for the underlying builder.
+     * @return the underlying builder.
+     */
     @NotNull
     protected abstract T encryptionOptions(@NotNull EncryptionOptions encryption);
 

@@ -292,7 +292,7 @@ public final class ClientImpl implements Client {
         return setServerKey(serverKey);
     }
 
-    private boolean setServerKey(ServerKey serverKey) {
+    private boolean setServerKey(@NotNull ServerKey serverKey) {
         if(!eventManager.callEvent(ListenerType.KEY_CHANGE, EventManager.CancelAction.IGNORE, (EventManager.EventProvider<KeyChangeEvent>) () -> {
             final boolean replace = this.serverKey != null;
             final boolean hashChanged = replace && !HashUtil.isHashMatching(this.serverKey.getKeyHash(), serverKey.getKeyHash());
@@ -379,13 +379,15 @@ public final class ClientImpl implements Client {
 
         private void validate() {
             if (built) {
-                throw new ClientAlreadyBuiltException();
+                throw ClientAlreadyBuiltException.INSTANCE;
             }
         }
 
         private static final class ClientAlreadyBuiltException extends IllegalStateException {
 
-            public ClientAlreadyBuiltException() {
+            private static final ClientAlreadyBuiltException INSTANCE = new ClientAlreadyBuiltException();
+
+            private ClientAlreadyBuiltException() {
                 super("The builder can't be used anymore because the client was already built!");
             }
 

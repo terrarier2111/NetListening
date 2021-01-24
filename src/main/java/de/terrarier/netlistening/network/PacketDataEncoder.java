@@ -72,7 +72,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 								if (connection.isConnected()) {
 									connection.getChannel().writeAndFlush(registerBuffer);
 								} else {
-									((ConnectionImpl) connection).addInitialBuffer(registerBuffer);
+									((ConnectionImpl) connection).writeToInitialBuffer(registerBuffer);
 								}
 							}
 						}

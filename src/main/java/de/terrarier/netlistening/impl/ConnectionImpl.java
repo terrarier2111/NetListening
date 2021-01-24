@@ -35,12 +35,12 @@ public final class ConnectionImpl implements Connection {
 	private final Channel channel;
 	private final int id;
 	private final PacketCache cache;
-	private ByteBuf preConnectionBuffer;
-	private Queue<DataContainer> preConnectionCache;
-	private ByteBuf finalBuffer;
 	private final AtomicBoolean receivedPacket = new AtomicBoolean();
 	private final AtomicBoolean sentCachedData = new AtomicBoolean();
 	private final AtomicBoolean finishedSendCachedData = new AtomicBoolean();
+	private ByteBuf preConnectionBuffer;
+	private Queue<DataContainer> preConnectionCache;
+	private ByteBuf finalBuffer;
 	private SymmetricEncryptionContext encryptionContext;
 	private byte[] hmacKey;
 	
@@ -250,15 +250,11 @@ public final class ConnectionImpl implements Connection {
 
 			if(application.getEncryptionSetting() == null) {
 				prepare();
-				if (finalBuffer != null) {
-					channel.writeAndFlush(finalBuffer);
-					finalBuffer = null;
-				}
 			}
 		}
 	}
 	
-	public void addInitialBuffer(@NotNull ByteBuf buffer) {
+	public void writeToInitialBuffer(@NotNull ByteBuf buffer) {
 		if (!sentCachedData.get()) {
 			final boolean receivedBefore = receivedPacket.get();
 			checkReceived();
@@ -284,25 +280,22 @@ public final class ConnectionImpl implements Connection {
 		}
 	}
 
-	public void receivedEncryptionFinish() {
-		prepare();
-		if(finalBuffer != null) {
-			channel.writeAndFlush(finalBuffer);
-		}
-	}
-
-	private void prepare() {
+	public void prepare() {
 		if(preConnectionCache != null) {
 			for (DataContainer data : preConnectionCache) {
 				channel.writeAndFlush(data);
 			}
-
 			preConnectionCache.clear();
 		}
+
 		final ByteBuf buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 1 : 4);
 		InternalUtil.writeInt(application, buffer, 0x2);
 		channel.writeAndFlush(buffer);
 		finishedSendCachedData.set(true);
+		if (finalBuffer != null) {
+			channel.writeAndFlush(finalBuffer);
+			finalBuffer = null;
+		}
 	}
 	
 }
