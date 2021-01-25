@@ -88,6 +88,7 @@ public final class ServerKey {
      * @param client the Client the ServerKey gets created for.
      * @return the ServerKey generated from the hash.
      */
+    @NotNull
     public static ServerKey fromHash(byte[] keyHash, Client client) {
         return fromHash(keyHash, ((ClientImpl) client).getServerKeyHashing());
     }
@@ -97,6 +98,7 @@ public final class ServerKey {
      * @param hashingAlgorithm the HashingAlgorithm used to hash the ServerKey.
      * @return the ServerKey generated from the hash.
      */
+    @NotNull
     public static ServerKey fromHash(byte[] keyHash, HashingAlgorithm hashingAlgorithm) {
         return new ServerKey(null, keyHash, hashingAlgorithm);
     }

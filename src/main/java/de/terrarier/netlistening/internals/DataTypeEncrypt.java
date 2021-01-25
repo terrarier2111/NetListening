@@ -33,7 +33,7 @@ public final class DataTypeEncrypt extends DataType<Void> {
         final ConnectionImpl connection = (ConnectionImpl) application.getConnection(null);
         final byte[] decrypted = connection.getEncryptionContext().decrypt(ByteBufUtilExtension.readBytes(buffer, size));
         final ByteBuf dataBuffer = Unpooled.wrappedBuffer(decrypted);
-        decoder.setReleaseNext();
+        decoder.releaseNext();
         decoder.decode(ctx, dataBuffer, data);
         return null;
     }

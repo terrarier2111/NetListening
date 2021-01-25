@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * @since 1.0
  * @author Terrarier2111
- * @param <T>
+ * @param <T> the type which this DataType represents.
  */
 public abstract class DataType<T> {
 	
@@ -83,17 +83,17 @@ public abstract class DataType<T> {
 		write0(application, buf, (T) data);
 	}
 
-	public final void checkReadable(@NotNull ByteBuf buffer, int length) throws CancelReadingSignal {
+	protected static void checkReadable(@NotNull ByteBuf buffer, int length) throws CancelReadingSignal {
 		checkReadable(buffer, length, false);
 	}
 
-	public final void checkReadable(@NotNull ByteBuf buffer, int length, boolean array) throws CancelReadingSignal {
+	protected static void checkReadable(@NotNull ByteBuf buffer, int length, boolean array) throws CancelReadingSignal {
 		if (buffer.readableBytes() < length) {
 			throw new CancelReadingSignal(length, array);
 		}
 	}
 
-	public final void checkWriteable(@NotNull Application application, @NotNull ByteBuf buffer, int length) {
+	protected static void checkWriteable(@NotNull Application application, @NotNull ByteBuf buffer, int length) {
 		ByteBufUtilExtension.correctSize(buffer, length, application.getBuffer());
 	}
 

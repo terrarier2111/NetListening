@@ -14,7 +14,7 @@ public final class EncryptionSettingWrapper extends EncryptionOptionsSuperBuilde
     private final EncryptionSetting encryptionSetting = new EncryptionSetting();
     private final Server.Builder builder;
 
-    public EncryptionSettingWrapper(Server.Builder builder) {
+    public EncryptionSettingWrapper(@NotNull Server.Builder builder) {
         this.builder = builder;
     }
 

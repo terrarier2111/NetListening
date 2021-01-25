@@ -114,7 +114,8 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
         }
     }
 
-    private EncryptionOptions readOptions(ByteBuf buffer, IntContainer required, int increment)
+    @NotNull
+    private static EncryptionOptions readOptions(@NotNull ByteBuf buffer, @NotNull IntContainer required, int increment)
             throws CancelReadingSignal {
         checkReadable(buffer, required.getAndAdd(increment), increment);
         final byte type = buffer.readByte();
@@ -129,7 +130,8 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
         return encryptionOptions;
     }
 
-    private void writeOptions(EncryptionOptions options, byte[] key, ByteBuf buffer, Application application) {
+    private static void writeOptions(@NotNull EncryptionOptions options, byte[] key, @NotNull ByteBuf buffer,
+                              @NotNull Application application) {
         writeKey(key, buffer, application);
         checkWriteable(application, buffer, 1 + 4 + 1 + 1);
         buffer.writeByte(options.getType().ordinal());
@@ -138,14 +140,14 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
         buffer.writeByte(options.getPadding().ordinal());
     }
 
-    private void writeKey(byte[] key, ByteBuf buffer, Application application) {
+    private static void writeKey(byte[] key, @NotNull ByteBuf buffer, @NotNull Application application) {
         final int keyLength = key.length;
         checkWriteable(application, buffer, 4 + keyLength);
         buffer.writeInt(keyLength);
         buffer.writeBytes(key);
     }
 
-    private byte[] readKey(ByteBuf buffer, IntContainer required) throws CancelReadingSignal {
+    private static byte[] readKey(@NotNull ByteBuf buffer, @NotNull IntContainer required) throws CancelReadingSignal {
         checkReadable(buffer, required.getAndAdd(4), 4);
         final int keyLength = buffer.readInt();
         checkReadable(buffer, required.getAndAdd(keyLength), keyLength);

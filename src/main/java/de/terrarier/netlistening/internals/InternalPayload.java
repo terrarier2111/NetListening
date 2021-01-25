@@ -57,7 +57,7 @@ public abstract class InternalPayload {
         }
     }
 
-    protected final void checkReadable(@NotNull ByteBuf buffer, int required, int additional)
+    protected static void checkReadable(@NotNull ByteBuf buffer, int required, int additional)
             throws CancelReadingSignal {
         if (buffer.readableBytes() < additional) {
             buffer.readerIndex(buffer.readerIndex() - required);
@@ -65,7 +65,7 @@ public abstract class InternalPayload {
         }
     }
 
-    protected final void checkWriteable(@NotNull Application application, @NotNull ByteBuf buffer, int length) {
+    protected static void checkWriteable(@NotNull Application application, @NotNull ByteBuf buffer, int length) {
         ByteBufUtilExtension.correctSize(buffer, length, application.getBuffer());
     }
 

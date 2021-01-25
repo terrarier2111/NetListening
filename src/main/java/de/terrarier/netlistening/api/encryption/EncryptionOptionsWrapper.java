@@ -11,12 +11,12 @@ public final class EncryptionOptionsWrapper<T> {
     private final EncryptionOptionsSuperBuilder<T> encryptionBuilder;
     private final EncryptionOptions encryptionOptions;
 
-    public EncryptionOptionsWrapper(EncryptionOptionsSuperBuilder<T> encryptionBuilder) {
+    public EncryptionOptionsWrapper(@NotNull EncryptionOptionsSuperBuilder<T> encryptionBuilder) {
         this.encryptionBuilder = encryptionBuilder;
         this.encryptionOptions = new EncryptionOptions();
     }
 
-    public EncryptionOptionsWrapper(EncryptionOptionsSuperBuilder<T> encryptionBuilder, EncryptionOptions encryptionOptions) {
+    public EncryptionOptionsWrapper(@NotNull EncryptionOptionsSuperBuilder<T> encryptionBuilder, @NotNull EncryptionOptions encryptionOptions) {
         this.encryptionBuilder = encryptionBuilder;
         this.encryptionOptions = encryptionOptions;
     }

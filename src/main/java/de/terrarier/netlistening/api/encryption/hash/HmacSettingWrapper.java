@@ -15,7 +15,7 @@ public final class HmacSettingWrapper extends EncryptionOptionsSuperBuilder<Hmac
     private final HmacSetting hmacSetting = new HmacSetting();
     private final EncryptionSettingWrapper builder;
 
-    public HmacSettingWrapper(EncryptionSettingWrapper builder) {
+    public HmacSettingWrapper(@NotNull EncryptionSettingWrapper builder) {
         this.builder = builder;
     }
 

@@ -56,19 +56,15 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             final ByteBuf tmp = holdingBuffer;
             final int writable = tmp.writableBytes();
             if (writable > readable) {
-                byte[] remaining = ByteBufUtilExtension.readBytes(buffer, readable);
-                if (remaining.length != 0) {
+                final byte[] remaining = ByteBufUtilExtension.readBytes(buffer, readable);
+                if (remaining.length != 0) { // check for an empty packet, should never occur
                     tmp.writeBytes(remaining);
-                } else {
-                    // empty packet, should never occur
                 }
                 return;
             }
-            byte[] remaining = ByteBufUtilExtension.readBytes(buffer, writable);
-            if (remaining.length != 0) {
+            final byte[] remaining = ByteBufUtilExtension.readBytes(buffer, writable);
+            if (remaining.length != 0) { // check for an empty packet, should never occur
                 tmp.writeBytes(remaining);
-            } else {
-                // empty packet, should never occur
             }
             framing = false;
             boolean release = false;
@@ -196,7 +192,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             try {
                 readSingle(ctx, comp, dataCollection, useOptionalBuffer ? framingBuffer : buffer, packet, i);
             } catch (CancelReadingSignal signal) {
-                // This is here in order to end the method execution if framing is required
+                // This is here in order to interrupt the method execution if framing is required
                 return;
             }
             if (useOptionalBuffer) {
@@ -262,7 +258,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         framing = true;
     }
 
-    public void setReleaseNext() {
+    public void releaseNext() {
         release = true;
     }
 
