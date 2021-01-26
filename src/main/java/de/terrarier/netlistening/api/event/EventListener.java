@@ -15,6 +15,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface EventListener {
 
+    /**
+     * @return the priority which defines in which order the listener is to be called.
+     */
     @NotNull
     Priority priority() default Priority.MEDIUM;
 

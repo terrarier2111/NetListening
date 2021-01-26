@@ -5,8 +5,9 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @since 1.0
  * @author Terrarier2111
+ * @param <T>
  */
-public final class EncryptionOptionsWrapper<T> {
+public final class EncryptionOptionsWrapper<T extends EncryptionOptionsSuperBuilder<T>> {
 
     private final EncryptionOptionsSuperBuilder<T> encryptionBuilder;
     private final EncryptionOptions encryptionOptions;

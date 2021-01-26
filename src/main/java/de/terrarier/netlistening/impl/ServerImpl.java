@@ -35,42 +35,52 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class ServerImpl implements Server {
 
-    private final Map<Integer, Connection> connections = new ConcurrentHashMap<>();
-    private EventLoopGroup group;
+    private final Map<Integer, ConnectionImpl> connections = new ConcurrentHashMap<>();
     private final AtomicInteger id = new AtomicInteger();
-    private final PacketCache cache;
+    private final PacketCache cache = new PacketCache();
+    private final DataHandler handler = new DataHandler(this);
+    private final EventManager eventManager = new EventManager(handler);
     private final int port;
     private int buffer = 256;
     private PacketCaching caching = PacketCaching.NONE;
     private PacketSynchronization packetSynchronization = PacketSynchronization.NONE;
-    private final DataHandler handler = new DataHandler(this);
-    private final EventManager eventManager;
     private CompressionSetting compressionSetting = new CompressionSetting();
+    private EventLoopGroup group;
     private Thread server;
     private Charset stringEncoding = StandardCharsets.UTF_8;
     private EncryptionSetting encryptionSetting;
 
     private ServerImpl(int port) {
         this.port = port;
-        cache = new PacketCache();
-        eventManager = new EventManager(handler);
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public @NotNull PacketCaching getCaching() {
         return caching;
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public @NotNull PacketSynchronization getPacketSynchronization() {
         return packetSynchronization;
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public @NotNull Charset getStringEncoding() {
         return stringEncoding;
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void sendData(@NotNull DataContainer data, int connectionId) {
         final Connection connection = connections.get(connectionId);
@@ -82,6 +92,9 @@ public final class ServerImpl implements Server {
         connection.sendData(data);
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void sendData(@NotNull DataComponent<?> data, int connectionId) {
         final DataContainer container = new DataContainer();
@@ -89,10 +102,12 @@ public final class ServerImpl implements Server {
         sendData(container, connectionId);
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public Connection getConnection(@NotNull Channel channel) {
-        for (Integer connectionId : connections.keySet()) {
-            final Connection connection = connections.get(connectionId);
+        for (Connection connection : connections.values()) {
             if (connection.getChannel().equals(channel)) {
                 return connection;
             }
@@ -100,6 +115,9 @@ public final class ServerImpl implements Server {
         return null;
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public @NotNull PacketCache getCache() {
         return cache;
@@ -161,6 +179,9 @@ public final class ServerImpl implements Server {
         server.start();
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void stop() throws IllegalStateException {
         if (group == null) {
@@ -178,6 +199,9 @@ public final class ServerImpl implements Server {
         server = null;
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void disconnect(@NotNull Connection connection) {
         if (!connection.isConnected()) {
@@ -185,14 +209,20 @@ public final class ServerImpl implements Server {
                     "The connection " + Integer.toHexString(connection.getId()) + " is not connected!");
         }
 
-        ((ConnectionImpl) connections.remove(connection.getId())).disconnect0();
+        connections.remove(connection.getId()).disconnect0();
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void sendData(@NotNull DataContainer data, @NotNull Connection connection) {
         connection.sendData(data);
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void sendData(@NotNull DataComponent<?> data, @NotNull Connection connection) {
         final DataContainer container = new DataContainer();
@@ -200,6 +230,9 @@ public final class ServerImpl implements Server {
         sendData(container, connection);
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void sendData(@NotNull DataContainer data) {
         for (Connection connection : connections.values()) {
@@ -207,6 +240,9 @@ public final class ServerImpl implements Server {
         }
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void sendData(@NotNull DataComponent<?> data) {
         for (Connection connection : connections.values()) {
@@ -214,26 +250,41 @@ public final class ServerImpl implements Server {
         }
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public int getBuffer() {
         return buffer;
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public EncryptionSetting getEncryptionSetting() {
         return encryptionSetting;
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public @NotNull CompressionSetting getCompressionSetting() {
         return compressionSetting;
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void registerListener(@NotNull Listener<?> listener) {
         eventManager.registerListener(listener);
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public @NotNull Set<Connection> getConnections() {
         return Collections.unmodifiableSet(new HashSet<>(connections.values()));
@@ -242,8 +293,8 @@ public final class ServerImpl implements Server {
     public static class Builder {
 
         private final ServerImpl server;
-        private long timeout;
         private final Map options = new HashMap<>();
+        private long timeout;
         private boolean built;
 
         @SuppressWarnings("unchecked")
@@ -324,9 +375,9 @@ public final class ServerImpl implements Server {
 
         private static final class ServerAlreadyBuiltException extends IllegalStateException {
 
-            private static final ServerAlreadyBuiltException INSTANCE = new ServerAlreadyBuiltException();
+            private static transient final ServerAlreadyBuiltException INSTANCE = new ServerAlreadyBuiltException();
 
-            public ServerAlreadyBuiltException() {
+            private ServerAlreadyBuiltException() {
                 super("The builder can't be used anymore because the server was already built!");
             }
 

@@ -39,8 +39,4 @@ public final class InternalUtil {
 		return application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.varIntSize(value) : 4;
 	}
 
-	public static int getDataTypesInBytes(@NotNull Application application, int dataTypes) {
-		return application.getCompressionSetting().isNibbleCompression() ? NibbleUtil.nibbleToByteSize(dataTypes) : dataTypes;
-	}
-
 }

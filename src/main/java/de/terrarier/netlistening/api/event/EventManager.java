@@ -55,12 +55,14 @@ public final class EventManager {
 		return callEvent(listenerType, CancelAction.IGNORE, event);
 	}
 
-	public boolean callEvent(@NotNull ListenerType listenerType, @NotNull CancelAction cancelAction, @NotNull Event event) {
+	public boolean callEvent(@NotNull ListenerType listenerType, @NotNull CancelAction cancelAction,
+							 @NotNull Event event) {
 		return callEvent(listenerType, cancelAction, new NoopEventProvider(event));
 	}
 
 	@SuppressWarnings("unchecked")
-	public boolean callEvent(@NotNull ListenerType listenerType, @NotNull CancelAction cancelAction, @NotNull EventProvider<?> eventProvider) {
+	public boolean callEvent(@NotNull ListenerType listenerType, @NotNull CancelAction cancelAction,
+							 @NotNull EventProvider<?> eventProvider) {
 		boolean cancellable = false;
 		Event event = null;
 		final Set<Listener<?>>[] listeners = this.listeners.get(listenerType);
@@ -95,7 +97,7 @@ public final class EventManager {
 	@NotNull
 	private EventListener.Priority resolvePriority(@NotNull Listener<?> listener) {
 		try {
-			final Method method = listener.getClass().getDeclaredMethod("trigger", Object.class);
+			final Method method = listener.getClass().getDeclaredMethod("trigger", Event.class);
 			final EventListener eventListener = method.getAnnotation(EventListener.class);
 			if(eventListener != null) {
 				return eventListener.priority();

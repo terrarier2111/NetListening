@@ -3,9 +3,9 @@ package de.terrarier.netlistening.api.event;
 /**
  * @since 1.0
  * @author Terrarier2111
- * @param <T>
+ * @param <T> the event which is handled by the listener.
  */
-public interface Listener<T> {
+public interface Listener<T extends Event> {
 
 	/**
 	 * This method is getting called each time the event

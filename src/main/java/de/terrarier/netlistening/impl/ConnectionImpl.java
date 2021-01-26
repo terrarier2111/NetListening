@@ -23,7 +23,6 @@ import javax.crypto.SecretKey;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @since 1.0
@@ -35,9 +34,9 @@ public final class ConnectionImpl implements Connection {
 	private final Channel channel;
 	private final int id;
 	private final PacketCache cache;
-	private final AtomicBoolean receivedPacket = new AtomicBoolean();
-	private final AtomicBoolean sentCachedData = new AtomicBoolean();
-	private final AtomicBoolean finishedSendCachedData = new AtomicBoolean();
+	private volatile boolean receivedPacket;
+	private volatile boolean sentCachedData;
+	private volatile boolean finishedSendCachedData;
 	private ByteBuf preConnectionBuffer;
 	private Queue<DataContainer> preConnectionCache;
 	private ByteBuf finalBuffer;
@@ -64,10 +63,10 @@ public final class ConnectionImpl implements Connection {
 			application.sendData(data);
 			return;
 		}
-		boolean connected = isConnected();
+		final boolean connected = isConnected();
 		checkReceived();
-		if(connected && sentCachedData.get()) {
-			if(finishedSendCachedData.get()) {
+		if(connected && sentCachedData) {
+			if(finishedSendCachedData) {
 				channel.writeAndFlush(data);
 			}else {
 				// TODO: Handle stuff incoming before!
@@ -92,8 +91,8 @@ public final class ConnectionImpl implements Connection {
 	}
 	
 	private void checkReceived() {
-		if (!receivedPacket.get()) {
-			receivedPacket.set(true);
+		if (!receivedPacket) {
+			receivedPacket = true;
 			final boolean connected = isConnected();
 			
 			if(!connected && preConnectionBuffer == null) {
@@ -230,7 +229,7 @@ public final class ConnectionImpl implements Connection {
 	}
 
 	public boolean isStable() {
-		return sentCachedData.get() && receivedPacket.get();
+		return sentCachedData && receivedPacket;
 	}
 
 	@NotNull
@@ -239,8 +238,8 @@ public final class ConnectionImpl implements Connection {
 	}
 	
 	public void check() {
-		if(!sentCachedData.get()) {
-			sentCachedData.set(true);
+		if(!sentCachedData) {
+			sentCachedData = true;
 
 			if (preConnectionBuffer != null && preConnectionBuffer.writerIndex() > 0) {
 				channel.writeAndFlush(preConnectionBuffer);
@@ -255,8 +254,8 @@ public final class ConnectionImpl implements Connection {
 	}
 	
 	public void writeToInitialBuffer(@NotNull ByteBuf buffer) {
-		if (!sentCachedData.get()) {
-			final boolean receivedBefore = receivedPacket.get();
+		if (!sentCachedData) {
+			final boolean receivedBefore = receivedPacket;
 			checkReceived();
 			if (receivedBefore) {
 				final int readable = buffer.readableBytes();
@@ -266,7 +265,7 @@ public final class ConnectionImpl implements Connection {
 			}
 			buffer.release();
 		} else {
-			if(finishedSendCachedData.get()) {
+			if(finishedSendCachedData) {
 				channel.writeAndFlush(buffer);
 			}else {
 				// TODO: Test logic to send data delayed!
@@ -291,7 +290,7 @@ public final class ConnectionImpl implements Connection {
 		final ByteBuf buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 1 : 4);
 		InternalUtil.writeInt(application, buffer, 0x2);
 		channel.writeAndFlush(buffer);
-		finishedSendCachedData.set(true);
+		finishedSendCachedData = true;
 		if (finalBuffer != null) {
 			channel.writeAndFlush(finalBuffer);
 			finalBuffer = null;

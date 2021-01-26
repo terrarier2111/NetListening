@@ -124,7 +124,9 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
             types[i] = DataType.fromId((byte) (id + 1));
         }
 
-        register0(((ConnectionImpl) application.getConnection(channel)).getCache(), packetId);
+        final PacketCache cache = application.getCaching() != PacketCaching.INDIVIDUAL ? application.getCache() :
+                ((ConnectionImpl) application.getConnection(channel)).getCache();
+        register0(cache, packetId);
 
         // TODO: Check for an empty buffer and setting as an initial buffer although the init phase is already over
         if (application.getCaching() == PacketCaching.GLOBAL) {
@@ -150,11 +152,6 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
         }
     }
 
-    protected abstract void register0(@NotNull PacketCache cache, int packetId);
-
-    @NotNull
-    protected abstract InternalPayload_RegisterPacket getPayload(int packetId);
-
     private int getSize(@NotNull Application application) {
         int size = 2;
         if(packetId != 0x0) {
@@ -167,5 +164,10 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
         }
         return size;
     }
+
+    protected abstract void register0(@NotNull PacketCache cache, int packetId);
+
+    @NotNull
+    protected abstract InternalPayload_RegisterPacket getPayload(int packetId);
 
 }

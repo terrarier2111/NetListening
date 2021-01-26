@@ -2,6 +2,7 @@ package de.terrarier.netlistening.network;
 
 import de.terrarier.netlistening.api.Type;
 import de.terrarier.netlistening.api.event.DecodeListener;
+import de.terrarier.netlistening.api.event.Event;
 import de.terrarier.netlistening.api.event.PacketListener;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,7 +21,7 @@ public final class PreparedListener {
 	public PreparedListener(@NotNull DecodeListener listener) {
 		wrapped = listener;
 		try {
-			final Method method = listener.getClass().getDeclaredMethod("trigger", Object.class);
+			final Method method = listener.getClass().getDeclaredMethod("trigger", Event.class);
 			final PacketListener packetListener = method.getAnnotation(PacketListener.class);
 			if(packetListener != null) {
 				types = packetListener.dataTypes();

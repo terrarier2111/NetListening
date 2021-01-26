@@ -39,18 +39,18 @@ import java.util.*;
  */
 public final class ClientImpl implements Client {
 
-    private EventLoopGroup group;
-    private Channel channel;
-    private ConnectionImpl connection;
-    private final PacketCache cache;
-    private final DataHandler handler = new DataHandler(this);
     private static final PacketCaching CACHING = PacketCaching.NONE;
-    private PacketSynchronization packetSynchronization = PacketSynchronization.NONE;
+    private final PacketCache cache = new PacketCache();
+    private final DataHandler handler = new DataHandler(this);
+    private final EventManager eventManager = new EventManager(handler);
     private final String host;
     private final int targetPort;
     private int localPort;
+    private EventLoopGroup group;
+    private Channel channel;
+    private ConnectionImpl connection;
+    private PacketSynchronization packetSynchronization = PacketSynchronization.NONE;
     private int buffer = 256;
-    private final EventManager eventManager;
     private CompressionSetting compressionSetting = new CompressionSetting();
     private boolean receivedHandshake;
     private List<DataContainer> preCachedData = new ArrayList<>();
@@ -63,9 +63,6 @@ public final class ClientImpl implements Client {
     public ClientImpl(@NotNull String host, int targetPort) {
         this.host = host;
         this.targetPort = targetPort;
-
-        cache = new PacketCache();
-        eventManager = new EventManager(handler);
     }
 
     private <T> void start(long timeout, @NotNull Map<ChannelOption<T>, T> options, Proxy proxy) {
@@ -135,6 +132,9 @@ public final class ClientImpl implements Client {
         receivedHandshake = true;
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void sendData(@NotNull DataContainer data) {
         if (!receivedHandshake) {
@@ -149,26 +149,50 @@ public final class ClientImpl implements Client {
         channel.writeAndFlush(data);
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public @NotNull PacketCache getCache() {
         return cache;
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public Connection getConnection(Channel channel) {
         return connection;
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
+    @NotNull
+    @Override
+    public Set<Connection> getConnections() {
+        return Collections.singleton(connection);
+    }
+
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public @NotNull PacketSynchronization getPacketSynchronization() {
         return packetSynchronization;
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public @NotNull PacketCaching getCaching() {
         return CACHING;
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public @NotNull Charset getStringEncoding() {
         return stringEncoding;
@@ -194,6 +218,9 @@ public final class ClientImpl implements Client {
         }
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void stop() throws IllegalStateException {
         if (group == null) {
@@ -207,6 +234,9 @@ public final class ClientImpl implements Client {
         client.interrupt();
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void disconnect(@NotNull Connection connection) {
         if (!connection.isConnected()) {
@@ -217,21 +247,33 @@ public final class ClientImpl implements Client {
         ((ConnectionImpl) connection).disconnect0();
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void sendData(@NotNull DataContainer data, int connectionId) {
         sendData(data);
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void sendData(@NotNull DataComponent<?> data, int connectionId) {
         sendData(data, null);
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void sendData(@NotNull DataContainer data, Connection connection) {
         sendData(data);
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void sendData(@NotNull DataComponent<?> data, Connection connection) {
         final DataContainer container = new DataContainer();
@@ -239,44 +281,59 @@ public final class ClientImpl implements Client {
         sendData(container);
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void sendData(@NotNull DataComponent<?> data) {
         sendData(data, null);
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public int getBuffer() {
         return buffer;
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public EncryptionSetting getEncryptionSetting() {
         return encryptionSetting;
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @NotNull
     @Override
     public CompressionSetting getCompressionSetting() {
         return compressionSetting;
     }
 
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void registerListener(@NotNull Listener<?> listener) {
         eventManager.registerListener(listener);
     }
 
-    public boolean hasReceivedHandshake() {
-        return receivedHandshake;
-    }
-
+    /**
+     * @see Client
+     */
+    @Override
     public ServerKey getServerKey() {
         return serverKey;
     }
 
-    public HashingAlgorithm getServerKeyHashing() {
-        return serverKeyHashing;
-    }
-
+    /**
+     * @see Client
+     */
+    @Override
     public boolean setServerKey(byte[] data) {
         return setServerKey(new ServerKey(data));
     }
@@ -307,17 +364,19 @@ public final class ClientImpl implements Client {
         return true;
     }
 
-    @NotNull
-    @Override
-    public Set<Connection> getConnections() {
-        return Collections.singleton(connection);
+    public HashingAlgorithm getServerKeyHashing() {
+        return serverKeyHashing;
+    }
+
+    public boolean hasReceivedHandshake() {
+        return receivedHandshake;
     }
 
     public static class Builder {
 
         private final ClientImpl client;
-        private long timeout;
         private final Map options = new HashMap<>();
+        private long timeout;
         private boolean changedHashingAlgorithm;
         private Proxy proxy;
         private boolean built;
@@ -385,7 +444,7 @@ public final class ClientImpl implements Client {
 
         private static final class ClientAlreadyBuiltException extends IllegalStateException {
 
-            private static final ClientAlreadyBuiltException INSTANCE = new ClientAlreadyBuiltException();
+            private static transient final ClientAlreadyBuiltException INSTANCE = new ClientAlreadyBuiltException();
 
             private ClientAlreadyBuiltException() {
                 super("The builder can't be used anymore because the client was already built!");

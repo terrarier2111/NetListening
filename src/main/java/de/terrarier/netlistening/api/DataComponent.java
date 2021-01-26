@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @since 1.0
  * @author Terrarier2111
- * @param <T>
+ * @param <T> the type of the data contained in this DataComponent.
  */
 public final class DataComponent<T> {
 

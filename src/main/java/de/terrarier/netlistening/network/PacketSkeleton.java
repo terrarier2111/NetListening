@@ -13,7 +13,7 @@ public final class PacketSkeleton {
 	
 	private final DataType<?>[] data;
 	private final int id;
-	private final AtomicBoolean registered = new AtomicBoolean();
+	private volatile boolean registered;
 	
 	public PacketSkeleton(int id, @NotNull DataType<?>... data) {
 		this.data = data;
@@ -30,11 +30,11 @@ public final class PacketSkeleton {
 	}
 
 	protected boolean isRegistered() {
-		return registered.get();
+		return registered;
 	}
 
 	public void register() {
-		registered.set(true);
+		registered = true;
 	}
 
 }

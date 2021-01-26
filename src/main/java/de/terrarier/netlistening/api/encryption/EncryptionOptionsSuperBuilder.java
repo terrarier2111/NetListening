@@ -5,9 +5,9 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @since 1.0
  * @author Terrarier2111
- * @param <T>
+ * @param <T> the type of the underlying builder.
  */
-public abstract class EncryptionOptionsSuperBuilder<T> {
+public abstract class EncryptionOptionsSuperBuilder<T extends EncryptionOptionsSuperBuilder<T>> {
 
     /**
      * Sets the EncryptionOptions for the underlying builder to
