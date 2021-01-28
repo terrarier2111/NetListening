@@ -38,7 +38,6 @@ public final class EventManager {
 		}
 
 		final EventListener.Priority priority = resolvePriority(listener);
-
 		final Set<Listener<?>>[] listenerPriorities = listeners.get(type);
 		final int ordinal = priority.ordinal();
 		Set<Listener<?>> demanded = listenerPriorities[ordinal];

@@ -43,31 +43,27 @@ public final class ClientImpl implements Client {
     private final PacketCache cache = new PacketCache();
     private final DataHandler handler = new DataHandler(this);
     private final EventManager eventManager = new EventManager(handler);
-    private final String host;
-    private final int targetPort;
-    private int localPort;
     private EventLoopGroup group;
+    private Thread client;
     private Channel channel;
     private ConnectionImpl connection;
     private PacketSynchronization packetSynchronization = PacketSynchronization.NONE;
     private int buffer = 256;
     private CompressionSetting compressionSetting = new CompressionSetting();
     private boolean receivedHandshake;
-    private List<DataContainer> preCachedData = new ArrayList<>();
-    private Thread client;
+    private List<DataContainer> preConnectData;
     private Charset stringEncoding = StandardCharsets.UTF_8;
     private EncryptionSetting encryptionSetting;
     private HashingAlgorithm serverKeyHashing = HashingAlgorithm.SHA_256;
     private ServerKey serverKey;
 
-    public ClientImpl(@NotNull String host, int targetPort) {
-        this.host = host;
-        this.targetPort = targetPort;
-    }
-
-    private <T> void start(long timeout, @NotNull Map<ChannelOption<T>, T> options, Proxy proxy) {
+    private <T> void start(long timeout, int localPort, @NotNull Map<ChannelOption<T>, T> options, @NotNull SocketAddress remoteAddress, Proxy proxy) {
         if (group != null) {
             throw new IllegalStateException("The client is already started!");
+        }
+
+        if (receivedHandshake) {
+            throw new IllegalStateException("The client is already stopped!");
         }
 
         final boolean epoll = Epoll.isAvailable();
@@ -81,14 +77,15 @@ public final class ClientImpl implements Client {
                             protected void initChannel(Channel channel) {
                                 if(eventManager.callEvent(ListenerType.PRE_INIT, EventManager.CancelAction.INTERRUPT, new ConnectionPreInitEvent(channel))) {
                                     channel.close();
+                                    return;
                                 }
                                 ChannelUtil.prepare(channel, options);
 
-                                final ConnectionImpl newConnection = new ConnectionImpl(ClientImpl.this, channel, 0x0);
+                                final ConnectionImpl connection = new ConnectionImpl(ClientImpl.this, channel, 0x0);
 
                                 if (timeout > 0) {
                                     channel.pipeline().addLast("readTimeOutHandler",
-                                            new TimeOutHandler(ClientImpl.this, eventManager, newConnection, timeout));
+                                            new TimeOutHandler(ClientImpl.this, eventManager, connection, timeout));
                                 }
 
                                 channel.pipeline().addLast("decoder", new PacketDataDecoder(ClientImpl.this, handler, eventManager))
@@ -98,17 +95,16 @@ public final class ClientImpl implements Client {
                                     channel.pipeline().addFirst("proxyHandler", proxy.getHandler());
                                 }
 
-                                connection = newConnection;
-                                eventManager.callEvent(ListenerType.POST_INIT, new ConnectionPostInitEvent(newConnection));
+                                ClientImpl.this.connection = connection;
+                                eventManager.callEvent(ListenerType.POST_INIT, new ConnectionPostInitEvent(connection));
                             }
                         });
                 ChannelFuture channelFuture;
                 if (localPort > 0) {
                     final SocketAddress localAddress = new InetSocketAddress("localhost", localPort);
-                    final SocketAddress remoteAddress = new InetSocketAddress(host, targetPort);
                     channelFuture = bootstrap.connect(remoteAddress, localAddress);
                 } else {
-                    channelFuture = bootstrap.connect(host, targetPort);
+                    channelFuture = bootstrap.connect(remoteAddress);
                 }
                 channel = channelFuture.sync().syncUninterruptibly().channel();
             } catch (InterruptedException e) {
@@ -119,17 +115,23 @@ public final class ClientImpl implements Client {
     }
 
     public void pushCachedData() {
-        if (preCachedData == null) {
+        if (receivedHandshake) {
             throw new IllegalStateException("An internal error occurred - duplicate push request");
         }
 
-        for (DataContainer data : preCachedData) {
-            channel.writeAndFlush(data);
-        }
+        if(preConnectData != null) {
+            for (DataContainer data : preConnectData) {
+                channel.writeAndFlush(data);
+            }
 
-        preCachedData.clear();
-        preCachedData = null;
+            preConnectData.clear();
+            preConnectData = null;
+        }
         receivedHandshake = true;
+    }
+
+    public void sendRawData(@NotNull ByteBuf data) {
+        channel.writeAndFlush(data);
     }
 
     /**
@@ -138,14 +140,13 @@ public final class ClientImpl implements Client {
     @Override
     public void sendData(@NotNull DataContainer data) {
         if (!receivedHandshake) {
-            preCachedData.add(data);
+            if(preConnectData == null) {
+                preConnectData = new ArrayList<>();
+            }
+            preConnectData.add(data);
             return;
         }
 
-        channel.writeAndFlush(data);
-    }
-
-    public void sendRawData(@NotNull ByteBuf data) {
         channel.writeAndFlush(data);
     }
 
@@ -258,6 +259,7 @@ public final class ClientImpl implements Client {
     /**
      * @see de.terrarier.netlistening.Application
      */
+    @Deprecated
     @Override
     public void sendData(@NotNull DataComponent<?> data, int connectionId) {
         sendData(data, null);
@@ -274,6 +276,7 @@ public final class ClientImpl implements Client {
     /**
      * @see de.terrarier.netlistening.Application
      */
+    @Deprecated
     @Override
     public void sendData(@NotNull DataComponent<?> data, Connection connection) {
         final DataContainer container = new DataContainer();
@@ -338,15 +341,15 @@ public final class ClientImpl implements Client {
         return setServerKey(new ServerKey(data));
     }
 
-    private boolean setServerKey(byte[] serverKeyData, @NotNull HashingAlgorithm hashingAlgorithm) {
+    private void setServerKey(byte[] serverKeyData, @NotNull HashingAlgorithm hashingAlgorithm) {
         ServerKey serverKey;
         try {
             serverKey = new ServerKey(serverKeyData, hashingAlgorithm);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
-            return false;
+            return;
         }
-        return setServerKey(serverKey);
+        setServerKey(serverKey);
     }
 
     private boolean setServerKey(@NotNull ServerKey serverKey) {
@@ -376,14 +379,17 @@ public final class ClientImpl implements Client {
 
         private final ClientImpl client;
         private final Map options = new HashMap<>();
+        private final SocketAddress remoteAddress;
         private long timeout;
+        private int localPort;
         private boolean changedHashingAlgorithm;
         private Proxy proxy;
         private boolean built;
 
         @SuppressWarnings("unchecked")
-        public Builder(@NotNull String host, int targetPort) {
-            client = new ClientImpl(host, targetPort);
+        public Builder(@NotNull SocketAddress remoteAddress) {
+            client = new ClientImpl();
+            this.remoteAddress = remoteAddress;
             options.put(ChannelOption.IP_TOS, 0x18);
         }
 
@@ -394,7 +400,7 @@ public final class ClientImpl implements Client {
 
         public void localPort(int localPort) {
             validate();
-            client.localPort = localPort;
+            this.localPort = localPort;
         }
 
         public void buffer(int buffer) {
@@ -424,7 +430,7 @@ public final class ClientImpl implements Client {
 
         public void proxy(@NotNull SocketAddress address, @NotNull ProxyType proxyType) {
             validate();
-            this.proxy = proxyType.getInstance(address);
+            proxy = proxyType.getInstance(address);
         }
 
         @SuppressWarnings("unchecked")
@@ -432,7 +438,7 @@ public final class ClientImpl implements Client {
         public ClientImpl build() {
             validate();
             built = true;
-            client.start(timeout, options, proxy);
+            client.start(timeout, localPort, options, remoteAddress, proxy);
             return client;
         }
 

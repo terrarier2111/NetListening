@@ -5,7 +5,7 @@ import de.terrarier.netlistening.api.DataContainer;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Called when any kind of packet(data) is decoded.
+ * This event is called when a packet gets decoded.
  *
  * @since 1.0
  * @author Terrarier2111

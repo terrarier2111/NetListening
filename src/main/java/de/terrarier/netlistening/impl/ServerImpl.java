@@ -40,19 +40,14 @@ public final class ServerImpl implements Server {
     private final PacketCache cache = new PacketCache();
     private final DataHandler handler = new DataHandler(this);
     private final EventManager eventManager = new EventManager(handler);
-    private final int port;
     private int buffer = 256;
     private PacketCaching caching = PacketCaching.NONE;
     private PacketSynchronization packetSynchronization = PacketSynchronization.NONE;
-    private CompressionSetting compressionSetting = new CompressionSetting();
+    private CompressionSetting compressionSetting;
     private EventLoopGroup group;
     private Thread server;
     private Charset stringEncoding = StandardCharsets.UTF_8;
     private EncryptionSetting encryptionSetting;
-
-    private ServerImpl(int port) {
-        this.port = port;
-    }
 
     /**
      * @see de.terrarier.netlistening.Application
@@ -95,6 +90,7 @@ public final class ServerImpl implements Server {
     /**
      * @see de.terrarier.netlistening.Application
      */
+    @Deprecated
     @Override
     public void sendData(@NotNull DataComponent<?> data, int connectionId) {
         final DataContainer container = new DataContainer();
@@ -123,7 +119,7 @@ public final class ServerImpl implements Server {
         return cache;
     }
 
-    private <T> void start(long timeout, @NotNull Map<ChannelOption<T>, T> options) {
+    private <T> void start(long timeout, int port, @NotNull Map<ChannelOption<T>, T> options) {
         if (group != null) {
             throw new IllegalStateException("The server is already started!");
         }
@@ -139,6 +135,7 @@ public final class ServerImpl implements Server {
                             protected void initChannel(Channel channel) {
                                 if(eventManager.callEvent(ListenerType.PRE_INIT, EventManager.CancelAction.INTERRUPT, new ConnectionPreInitEvent(channel))) {
                                     channel.close();
+                                    return;
                                 }
                                 ChannelUtil.prepare(channel, options);
 
@@ -188,8 +185,8 @@ public final class ServerImpl implements Server {
             throw new IllegalStateException("The server is already stopped!");
         }
 
-        for (Connection connection : connections.values()) {
-            ((ConnectionImpl) connection).disconnect0();
+        for (ConnectionImpl connection : connections.values()) {
+            connection.disconnect0();
         }
         connections.clear();
         handler.unregisterListeners();
@@ -223,6 +220,7 @@ public final class ServerImpl implements Server {
     /**
      * @see de.terrarier.netlistening.Application
      */
+    @Deprecated
     @Override
     public void sendData(@NotNull DataComponent<?> data, @NotNull Connection connection) {
         final DataContainer container = new DataContainer();
@@ -243,6 +241,7 @@ public final class ServerImpl implements Server {
     /**
      * @see de.terrarier.netlistening.Application
      */
+    @Deprecated
     @Override
     public void sendData(@NotNull DataComponent<?> data) {
         for (Connection connection : connections.values()) {
@@ -294,12 +293,14 @@ public final class ServerImpl implements Server {
 
         private final ServerImpl server;
         private final Map options = new HashMap<>();
+        private final int port;
         private long timeout;
         private boolean built;
 
         @SuppressWarnings("unchecked")
         public Builder(int port) {
-            server = new ServerImpl(port);
+            server = new ServerImpl();
+            this.port = port;
             options.put(ChannelOption.IP_TOS, 0x18);
         }
 
@@ -353,6 +354,10 @@ public final class ServerImpl implements Server {
                 server.caching = PacketCaching.GLOBAL;
             }
 
+            if(server.compressionSetting == null) {
+                server.compressionSetting = new CompressionSetting();
+            }
+
             if (server.encryptionSetting != null) {
                 if(!server.encryptionSetting.isInitialized()) {
                     try {
@@ -363,7 +368,7 @@ public final class ServerImpl implements Server {
                     }
                 }
             }
-            server.start(timeout, options);
+            server.start(timeout, port, options);
             return server;
         }
 

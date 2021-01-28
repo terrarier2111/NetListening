@@ -23,6 +23,7 @@ public interface Connection {
      *
      * @param data the data to be sent to the connection
      */
+    @Deprecated
     void sendData(@NotNull DataComponent<?> data);
 
     /**

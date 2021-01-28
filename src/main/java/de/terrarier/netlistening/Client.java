@@ -7,6 +7,7 @@ import de.terrarier.netlistening.impl.ClientImpl;
 import io.netty.channel.ChannelOption;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
 /**
@@ -43,8 +44,12 @@ public interface Client extends Application {
 
         private final ClientImpl.Builder impl;
 
-        public Builder(@NotNull String host, int targetPort) {
-            this.impl = new ClientImpl.Builder(host, targetPort);
+        public Builder(@NotNull String host, int remotePort) {
+            this(new InetSocketAddress(host, remotePort));
+        }
+
+        public Builder(@NotNull SocketAddress remoteAddress) {
+            this.impl = new ClientImpl.Builder(remoteAddress);
         }
 
         /**

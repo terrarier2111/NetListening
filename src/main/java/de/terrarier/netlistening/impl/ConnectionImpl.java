@@ -37,8 +37,8 @@ public final class ConnectionImpl implements Connection {
 	private volatile boolean receivedPacket;
 	private volatile boolean sentCachedData;
 	private volatile boolean finishedSendCachedData;
-	private ByteBuf preConnectionBuffer;
-	private Queue<DataContainer> preConnectionCache;
+	private ByteBuf preConnectBuffer;
+	private Queue<DataContainer> preConnectSendQueue;
 	private ByteBuf finalBuffer;
 	private SymmetricEncryptionContext encryptionContext;
 	private byte[] hmacKey;
@@ -73,16 +73,17 @@ public final class ConnectionImpl implements Connection {
 				// TODO: And check if this is really needed!
 			}
 		}else {
-			if(preConnectionCache == null) {
-				preConnectionCache = new ConcurrentLinkedQueue<>();
+			if(preConnectSendQueue == null) {
+				preConnectSendQueue = new ConcurrentLinkedQueue<>();
 			}
-			preConnectionCache.add(data);
+			preConnectSendQueue.add(data);
 		}
 	}
 
 	/**
 	 * @see Connection
 	 */
+	@Deprecated
 	@Override
 	public void sendData(@NotNull DataComponent<?> data) {
 		final DataContainer container = new DataContainer();
@@ -95,11 +96,11 @@ public final class ConnectionImpl implements Connection {
 			receivedPacket = true;
 			final boolean connected = isConnected();
 			
-			if(!connected && preConnectionBuffer == null) {
-				preConnectionBuffer = Unpooled.buffer();
+			if(!connected && preConnectBuffer == null) {
+				preConnectBuffer = Unpooled.buffer();
 			}
 			
-			final ByteBuf buffer = connected ? Unpooled.buffer() : preConnectionBuffer;
+			final ByteBuf buffer = connected ? Unpooled.buffer() : preConnectBuffer;
 			buffer.writeInt(0x0);
 			final DataType<InternalPayload> dtcp = DataType.getDTIP();
 			((DataTypeInternalPayload) dtcp).write(application, buffer, InternalPayload.HANDSHAKE);
@@ -241,8 +242,8 @@ public final class ConnectionImpl implements Connection {
 		if(!sentCachedData) {
 			sentCachedData = true;
 
-			if (preConnectionBuffer != null && preConnectionBuffer.writerIndex() > 0) {
-				channel.writeAndFlush(preConnectionBuffer);
+			if (preConnectBuffer != null && preConnectBuffer.writerIndex() > 0) {
+				channel.writeAndFlush(preConnectBuffer);
 			} else {
 				checkReceived();
 			}
@@ -259,9 +260,9 @@ public final class ConnectionImpl implements Connection {
 			checkReceived();
 			if (receivedBefore) {
 				final int readable = buffer.readableBytes();
-				ByteBufUtilExtension.correctSize(preConnectionBuffer, readable,
+				ByteBufUtilExtension.correctSize(preConnectBuffer, readable,
 						application.getBuffer());
-				preConnectionBuffer.writeBytes(ByteBufUtilExtension.getBytes(buffer, readable));
+				preConnectBuffer.writeBytes(ByteBufUtilExtension.getBytes(buffer, readable));
 			}
 			buffer.release();
 		} else {
@@ -280,11 +281,11 @@ public final class ConnectionImpl implements Connection {
 	}
 
 	public void prepare() {
-		if(preConnectionCache != null) {
-			for (DataContainer data : preConnectionCache) {
+		if(preConnectSendQueue != null) {
+			for (DataContainer data : preConnectSendQueue) {
 				channel.writeAndFlush(data);
 			}
-			preConnectionCache.clear();
+			preConnectSendQueue.clear();
 		}
 
 		final ByteBuf buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 1 : 4);

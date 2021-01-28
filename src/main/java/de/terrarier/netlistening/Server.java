@@ -36,6 +36,7 @@ public interface Server extends Application {
     /**
      * @see Application
      */
+    @Deprecated
     @Override
     void sendData(@NotNull DataComponent<?> data, @NotNull Connection connection);
 

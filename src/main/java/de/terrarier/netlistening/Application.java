@@ -121,6 +121,7 @@ public interface Application {
 	 * @param data the data which gets sent.
 	 * @param connectionId the id of the connection the data gets sent to.
 	 */
+	@Deprecated
 	void sendData(@NotNull DataComponent<?> data, int connectionId);
 
 	/**
@@ -137,6 +138,7 @@ public interface Application {
 	 * @param data the data which gets sent.
 	 * @param connection the connection the data gets sent to.
 	 */
+	@Deprecated
 	void sendData(@NotNull DataComponent<?> data, Connection connection);
 
 	/**
@@ -151,6 +153,7 @@ public interface Application {
 	 *
 	 * @param data the data which gets sent.
 	 */
+	@Deprecated
 	void sendData(@NotNull DataComponent<?> data);
 	
 }

@@ -2,6 +2,7 @@ package de.terrarier.netlistening.api;
 
 import de.terrarier.netlistening.api.type.DataType;
 import io.netty.channel.Channel;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -23,10 +24,12 @@ public final class DataContainer {
 		data = new ArrayList<>();
 	}
 
+	@Deprecated
 	public DataContainer(@NotNull DataComponent<?>... components) {
-		data = new ArrayList<>(Arrays.asList(components)); // TODO: Check if manually adding is better in terms of performance!
+		data = new ArrayList<>(Arrays.asList(components));
 	}
-	
+
+	@ApiStatus.Internal
 	public DataContainer(@NotNull List<DataComponent<?>> components) {
 		data = components;
 	}
@@ -43,6 +46,7 @@ public final class DataContainer {
 	 *
 	 * @param component the component which should be added.
 	 */
+	@ApiStatus.Internal
 	public void addComponent(@NotNull DataComponent<?> component) {
 		data.add(component);
 	}
@@ -103,6 +107,7 @@ public final class DataContainer {
 	 * @return a list containing the data contained in the container.
 	 */
 	@NotNull
+	@ApiStatus.Internal
 	public List<DataComponent<?>> getData() {
 		return data;
 	}
@@ -162,6 +167,7 @@ public final class DataContainer {
 	 * readerIndex, if no component is available null.
 	 */
 	@SuppressWarnings("unchecked")
+	@ApiStatus.Internal
 	public <T> DataComponent<T> readRaw() {
 		if(!isReadable()) {
 			return null;
@@ -185,9 +191,10 @@ public final class DataContainer {
 
 	/**
 	 * @param index the index specifying which element is to be returned.
-	 * @return the element in the DataContainer at the index passed as the parameter.
+	 * @return the element at the index passed as the parameter.
 	 */
 	@SuppressWarnings("unchecked")
+	@ApiStatus.Internal
 	@NotNull
 	public <T> DataComponent<T> get(int index) {
 		return (DataComponent<T>) data.get(index);
