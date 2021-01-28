@@ -59,7 +59,7 @@ public final class ClientImpl implements Client {
 
     private <T> void start(long timeout, int localPort, @NotNull Map<ChannelOption<T>, T> options, @NotNull SocketAddress remoteAddress, Proxy proxy) {
         if (group != null) {
-            throw new IllegalStateException("The client is already started!");
+            throw new IllegalStateException("The client is already running!");
         }
 
         if (receivedHandshake) {
@@ -99,7 +99,7 @@ public final class ClientImpl implements Client {
                                 eventManager.callEvent(ListenerType.POST_INIT, new ConnectionPostInitEvent(connection));
                             }
                         });
-                ChannelFuture channelFuture;
+                final ChannelFuture channelFuture;
                 if (localPort > 0) {
                     final SocketAddress localAddress = new InetSocketAddress("localhost", localPort);
                     channelFuture = bootstrap.connect(remoteAddress, localAddress);
@@ -120,11 +120,10 @@ public final class ClientImpl implements Client {
         }
 
         if(preConnectData != null) {
-            for (DataContainer data : preConnectData) {
-                channel.writeAndFlush(data);
+            for (Iterator<DataContainer> iterator = preConnectData.iterator(); iterator.hasNext();) {
+                channel.writeAndFlush(iterator.next());
+                iterator.remove();
             }
-
-            preConnectData.clear();
             preConnectData = null;
         }
         receivedHandshake = true;
@@ -163,6 +162,14 @@ public final class ClientImpl implements Client {
      */
     @Override
     public Connection getConnection(Channel channel) {
+        return connection;
+    }
+
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
+    @Override
+    public Connection getConnection(int id) {
         return connection;
     }
 
@@ -225,7 +232,7 @@ public final class ClientImpl implements Client {
     @Override
     public void stop() throws IllegalStateException {
         if (group == null) {
-            throw new IllegalStateException("The client is already stopped!");
+            throw new IllegalStateException("The client is not running!");
         }
 
         connection.disconnect0();
@@ -251,6 +258,7 @@ public final class ClientImpl implements Client {
     /**
      * @see de.terrarier.netlistening.Application
      */
+    @Deprecated
     @Override
     public void sendData(@NotNull DataContainer data, int connectionId) {
         sendData(data);
@@ -342,7 +350,7 @@ public final class ClientImpl implements Client {
     }
 
     private void setServerKey(byte[] serverKeyData, @NotNull HashingAlgorithm hashingAlgorithm) {
-        ServerKey serverKey;
+        final ServerKey serverKey;
         try {
             serverKey = new ServerKey(serverKeyData, hashingAlgorithm);
         } catch (NoSuchAlgorithmException e) {
@@ -367,10 +375,17 @@ public final class ClientImpl implements Client {
         return true;
     }
 
+    /**
+     * @return the hashing algorithm used to hash the server key.
+     */
     public HashingAlgorithm getServerKeyHashing() {
         return serverKeyHashing;
     }
 
+    /**
+     * @return if the client has already received a handshake (and push request)
+     * from the server.
+     */
     public boolean hasReceivedHandshake() {
         return receivedHandshake;
     }
@@ -393,27 +408,42 @@ public final class ClientImpl implements Client {
             options.put(ChannelOption.IP_TOS, 0x18);
         }
 
+        /**
+         * @see Client.Builder
+         */
         public void timeout(long timeout) {
             validate();
             this.timeout = timeout;
         }
 
+        /**
+         * @see Client.Builder
+         */
         public void localPort(int localPort) {
             validate();
             this.localPort = localPort;
         }
 
+        /**
+         * @see Client.Builder
+         */
         public void buffer(int buffer) {
             validate();
             client.buffer = buffer;
         }
 
+        /**
+         * @see Client.Builder
+         */
         public void serverKeyHashingAlgorithm(@NotNull HashingAlgorithm hashingAlgorithm) {
             validate();
             client.serverKeyHashing = hashingAlgorithm;
             changedHashingAlgorithm = true;
         }
 
+        /**
+         * @see Client.Builder
+         */
         public void serverKeyHash(byte[] bytes) {
             validate();
             client.serverKey = new ServerKey(bytes);
@@ -422,17 +452,26 @@ public final class ClientImpl implements Client {
             }
         }
 
+        /**
+         * @see Client.Builder
+         */
         @SuppressWarnings("unchecked")
         public <T> void option(@NotNull ChannelOption<T> option, T value) {
             validate();
             options.put(option, value);
         }
 
+        /**
+         * @see Client.Builder
+         */
         public void proxy(@NotNull SocketAddress address, @NotNull ProxyType proxyType) {
             validate();
             proxy = proxyType.getInstance(address);
         }
 
+        /**
+         * @see Client.Builder
+         */
         @SuppressWarnings("unchecked")
         @NotNull
         public ClientImpl build() {

@@ -82,10 +82,19 @@ public interface Application {
 	 * Maps a specific channel to the connection wrapping the specified channel.
 	 *
 	 * @param channel the channel which underlies the connection.
-	 * @return the Connection which wraps the passed channel and
+	 * @return the connection which wraps the passed channel and
 	 * if not available, null.
 	 */
 	Connection getConnection(Channel channel);
+
+	/**
+	 * Maps a specific id to the connection being identified with this id.
+	 *
+	 * @param id the id of the requested connection.
+	 * @return the connection which is identified with the passed id and
+	 * if not available, null.
+	 */
+	Connection getConnection(int id);
 
 	/**
 	 * @return a list of all active connections.
@@ -113,6 +122,7 @@ public interface Application {
 	 * @param data the data which gets sent.
 	 * @param connectionId the id of the connection the data gets sent to.
 	 */
+	@Deprecated
 	void sendData(@NotNull DataContainer data, int connectionId);
 
 	/**

@@ -14,7 +14,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Set;
+import java.util.Collection;
 
 public abstract class InternalPayload_RegisterPacket extends InternalPayload {
 
@@ -40,7 +40,9 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
             }
         }
 
-        if(types.length == 0) {
+        final int typesLength = types.length;
+
+        if(typesLength == 0) {
             throw new IllegalStateException("Tried to send an empty packet!");
         }
 
@@ -49,12 +51,12 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
         if(packetId != 0x0) {
             InternalUtil.writeInt(application, buffer, packetId);
         }
-        buffer.writeShort(types.length);
+        buffer.writeShort(typesLength);
 
         final boolean nibbleCompression = application.getCompressionSetting().isNibbleCompression();
 
         final int increment = nibbleCompression ? 2 : 1;
-        for(int i = 0; i < types.length; i += increment) {
+        for(int i = 0; i < typesLength; i += increment) {
             final byte id = (byte) (types[i].getId() - 1);
             if(id == -1) {
                 i--;
@@ -62,7 +64,7 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
             }
 
             if(nibbleCompression) {
-                if(types.length > i + 1) {
+                if(typesLength > i + 1) {
                     final byte other = (byte) (types[i + 1].getId() - 1);
                     if(other == -1) {
                         buffer.writeByte(id);
@@ -130,7 +132,7 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
 
         // TODO: Check for an empty buffer and setting as an initial buffer although the init phase is already over
         if (application.getCaching() == PacketCaching.GLOBAL) {
-            final Set<Connection> connections = application.getConnections();
+            final Collection<Connection> connections = application.getConnections();
             if (connections.size() > 1) {
                 final InternalPayload_RegisterPacket payload = getPayload(packetId);
                 final ByteBuf registerBuffer = Unpooled.buffer(

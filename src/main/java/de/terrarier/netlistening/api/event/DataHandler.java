@@ -9,9 +9,8 @@ import de.terrarier.netlistening.network.PreparedListener;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @since 1.0
@@ -19,7 +18,7 @@ import java.util.Set;
  */
 public final class DataHandler {
 
-	private final Set<PreparedListener> listeners = new HashSet<>();
+	private final List<PreparedListener> listeners = new ArrayList<>();
 	private final Application application;
 	
 	public DataHandler(@NotNull Application application) {
@@ -35,7 +34,9 @@ public final class DataHandler {
 		final Connection connection = application.getConnection(channel);
 		final DataContainer container = new DataContainer(data);
 		final DecodeEvent event = new DecodeEvent(connection, container);
-		for (PreparedListener listener : listeners) {
+		final int listenerSize = listeners.size();
+		for (int i = 0; i < listenerSize; i++) {
+			final PreparedListener listener = listeners.get(i);
 			final Type[] types = listener.getTypes();
 			final int length = types.length;
 			if (length != 0) {
@@ -45,7 +46,8 @@ public final class DataHandler {
 
 				int index = 0;
 				boolean passedCheck = true;
-				for (DataComponent<?> comp : data) {
+				for (int id = 0; id < dataSize; id++) {
+					final DataComponent<?> comp = data.get(id);
 					if (types[index++].getId() != comp.getType().getId()) {
 						passedCheck = false;
 						break;

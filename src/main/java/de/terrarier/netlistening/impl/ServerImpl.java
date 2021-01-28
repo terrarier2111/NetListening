@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class ServerImpl implements Server {
 
-    private final Map<Integer, ConnectionImpl> connections = new ConcurrentHashMap<>();
+    private final Map<Channel, ConnectionImpl> connections = new ConcurrentHashMap<>();
     private final AtomicInteger id = new AtomicInteger();
     private final PacketCache cache = new PacketCache();
     private final DataHandler handler = new DataHandler(this);
@@ -76,9 +76,10 @@ public final class ServerImpl implements Server {
     /**
      * @see de.terrarier.netlistening.Application
      */
+    @Deprecated
     @Override
     public void sendData(@NotNull DataContainer data, int connectionId) {
-        final Connection connection = connections.get(connectionId);
+        final Connection connection = getConnection(connectionId);
 
         if (connection == null) {
             throw new IllegalArgumentException("There is no connection with the id " + Integer.toHexString(connectionId) + ".");
@@ -103,8 +104,16 @@ public final class ServerImpl implements Server {
      */
     @Override
     public Connection getConnection(@NotNull Channel channel) {
+        return connections.get(channel);
+    }
+
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
+    @Override
+    public Connection getConnection(int id) {
         for (Connection connection : connections.values()) {
-            if (connection.getChannel().equals(channel)) {
+            if (connection.getId() == id) {
                 return connection;
             }
         }
@@ -162,7 +171,7 @@ public final class ServerImpl implements Server {
                                 pipeline.addLast("decoder", new PacketDataDecoder(ServerImpl.this, handler, eventManager))
                                         .addAfter("decoder", "encoder", new PacketDataEncoder(ServerImpl.this));
 
-                                connections.put(connectionId, connection);
+                                connections.put(channel, connection);
                                 eventManager.callEvent(ListenerType.POST_INIT, new ConnectionPostInitEvent(connection));
 
                             }
@@ -185,10 +194,10 @@ public final class ServerImpl implements Server {
             throw new IllegalStateException("The server is already stopped!");
         }
 
-        for (ConnectionImpl connection : connections.values()) {
-            connection.disconnect0();
+        for (Iterator<ConnectionImpl> iterator = connections.values().iterator(); iterator.hasNext();) {
+            iterator.next().disconnect0();
+            iterator.remove();
         }
-        connections.clear();
         handler.unregisterListeners();
         group.shutdownGracefully();
         group = null;
@@ -206,7 +215,7 @@ public final class ServerImpl implements Server {
                     "The connection " + Integer.toHexString(connection.getId()) + " is not connected!");
         }
 
-        connections.remove(connection.getId()).disconnect0();
+        connections.remove(connection.getChannel()).disconnect0();
     }
 
     /**

@@ -1,7 +1,6 @@
 package de.terrarier.netlistening.internals;
 
 import de.terrarier.netlistening.Application;
-import de.terrarier.netlistening.api.compression.NibbleUtil;
 import de.terrarier.netlistening.api.compression.VarIntUtil;
 import de.terrarier.netlistening.api.compression.VarIntUtil.VarIntParseException;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;

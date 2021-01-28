@@ -23,8 +23,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -45,25 +45,26 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 	@Override
 	protected void encode(@NotNull ChannelHandlerContext ctx, @NotNull DataContainer data, @NotNull ByteBuf buffer) {
 		final List<DataComponent<?>> containedData = data.getData();
+		final int dataSize = containedData.size();
 
-		if (containedData.size() > 0) {
-			final DataComponent<?>[] rawData = containedData.toArray(EMPTY_DATA_COMPONENTS);
-			final int rawDataLength = rawData.length;
-			final DataType<?>[] types = new DataType<?>[rawDataLength];
-			for (int index = 0; index < rawDataLength; index++) {
+		if (dataSize > 0) {
+			final DataComponent<?>[] rawData = containedData.toArray(EMPTY_DATA_COMPONENTS); // TODO: Check if directly accessing the list would be faster
+			final DataType<?>[] types = new DataType<?>[dataSize];
+			for (int index = 0; index < dataSize; index++) {
 				types[index] = rawData[index].getType();
 			}
+
 			final PacketCache cache = application.getCache();
 			PacketSkeleton packet = cache.getOutPacket(types);
 			if (packet == null) {
 				packet = cache.registerOutPacket(types);
 				final InternalPayLoad_RegisterInPacket register = new InternalPayLoad_RegisterInPacket(
 						application.getPacketSynchronization() == PacketSynchronization.SIMPLE ? packet.getId() : 0, types);
-				final ByteBuf registerBuffer = Unpooled.buffer(5 + rawDataLength);
+				final ByteBuf registerBuffer = Unpooled.buffer(5 + dataSize);
 				DataType.getDTIP().write0(application, registerBuffer, register);
 				buffer.writeBytes(ByteBufUtilExtension.getBytes(registerBuffer));
 				if (application.getCaching() == PacketCaching.GLOBAL) {
-					final Set<Connection> connections = application.getConnections();
+					final Collection<Connection> connections = application.getConnections();
 					if (connections.size() > 1) {
 						final Channel channel = ctx.channel();
 						for (Connection connection : connections) {
@@ -129,7 +130,10 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 
 	private void writeToBuffer(@NotNull ByteBuf buffer, @NotNull DataContainer data, int packetId) {
 		InternalUtil.writeInt(application, buffer, packetId);
-		for (DataComponent<?> component : data.getData()) {
+		final List<DataComponent<?>> dataComponentList = data.getData();
+		final int dataSize = dataComponentList.size();
+		for (int i = 0; i < dataSize; i++) {
+			final DataComponent<?> component = dataComponentList.get(i);
 			component.getType().writeUnchecked(application, buffer, component.getData());
 		}
 	}

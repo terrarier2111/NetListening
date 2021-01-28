@@ -89,7 +89,7 @@ public final class ServerKey {
      * @return the ServerKey generated from the hash.
      */
     @NotNull
-    public static ServerKey fromHash(byte[] keyHash, Client client) {
+    public static ServerKey fromHash(byte[] keyHash, @NotNull Client client) {
         return fromHash(keyHash, ((ClientImpl) client).getServerKeyHashing());
     }
 
@@ -99,7 +99,7 @@ public final class ServerKey {
      * @return the ServerKey generated from the hash.
      */
     @NotNull
-    public static ServerKey fromHash(byte[] keyHash, HashingAlgorithm hashingAlgorithm) {
+    public static ServerKey fromHash(byte[] keyHash, @NotNull HashingAlgorithm hashingAlgorithm) {
         return new ServerKey(null, keyHash, hashingAlgorithm);
     }
 

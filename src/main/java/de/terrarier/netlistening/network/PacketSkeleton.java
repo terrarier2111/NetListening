@@ -3,8 +3,6 @@ package de.terrarier.netlistening.network;
 import de.terrarier.netlistening.api.type.DataType;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 /**
  * @since 1.0
  * @author Terrarier2111
