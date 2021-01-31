@@ -128,7 +128,7 @@ public final class ServerImpl implements Server {
         return cache;
     }
 
-    private <T> void start(long timeout, int port, @NotNull Map<ChannelOption<T>, T> options) {
+    private void start(long timeout, int port, Map<ChannelOption<?>, Object> options) {
         if (group != null) {
             throw new IllegalStateException("The server is already started!");
         }
@@ -153,7 +153,8 @@ public final class ServerImpl implements Server {
 
                                 if (encryptionSetting != null) {
                                     try {
-                                        connection.setSymmetricKey(ServerImpl.this, SymmetricEncryptionUtil.generate(encryptionSetting.getSymmetricSetting()).getSecretKey());
+                                        connection.setSymmetricKey(ServerImpl.this,
+                                                SymmetricEncryptionUtil.generate(encryptionSetting.getSymmetricSetting()).getSecretKey());
 
                                         final HmacSetting hmacSetting = encryptionSetting.getHmacSetting();
                                         if (hmacSetting != null) {
@@ -166,7 +167,8 @@ public final class ServerImpl implements Server {
                                 final ChannelPipeline pipeline = channel.pipeline();
 
                                 if (timeout > 0) {
-                                    pipeline.addLast("readTimeOutHandler", new TimeOutHandler(ServerImpl.this, eventManager, connection, timeout));
+                                    pipeline.addLast("readTimeOutHandler",
+                                            new TimeOutHandler(ServerImpl.this, eventManager, connection, timeout));
                                 }
                                 pipeline.addLast("decoder", new PacketDataDecoder(ServerImpl.this, handler, eventManager))
                                         .addAfter("decoder", "encoder", new PacketDataEncoder(ServerImpl.this));
@@ -301,60 +303,84 @@ public final class ServerImpl implements Server {
     public static class Builder {
 
         private final ServerImpl server;
-        private final Map options = new HashMap<>();
+        private final Map<ChannelOption<?>, Object> options = new HashMap<>();
         private final int port;
         private long timeout;
         private boolean built;
 
-        @SuppressWarnings("unchecked")
         public Builder(int port) {
             server = new ServerImpl();
             this.port = port;
             options.put(ChannelOption.IP_TOS, 0x18);
         }
 
+        /**
+         * @see Server.Builder
+         */
         public void caching(@NotNull PacketCaching caching) {
             validate();
             server.caching = caching;
         }
 
+        /**
+         * @see Server.Builder
+         */
         public void timeout(long timeout) {
             validate();
             this.timeout = timeout;
         }
 
+        /**
+         * @see Server.Builder
+         */
         public void buffer(int buffer) {
             validate();
             server.buffer = buffer;
         }
 
+        /**
+         * @see Server.Builder
+         */
         public void packetSynchronization(@NotNull PacketSynchronization packetSynchronization) {
             validate();
             server.packetSynchronization = packetSynchronization;
         }
 
+        /**
+         * @see Server.Builder
+         */
         public void compression(@NotNull CompressionSetting compressionSetting) {
             validate();
             server.compressionSetting = compressionSetting;
         }
 
+        /**
+         * @see Server.Builder
+         */
         public void stringEncoding(@NotNull Charset charset) {
             validate();
             server.stringEncoding = charset;
         }
 
+        /**
+         * @see Server.Builder
+         */
         public void encryption(@NotNull EncryptionSetting encryptionSetting) {
             validate();
             server.encryptionSetting = encryptionSetting;
         }
 
-        @SuppressWarnings("unchecked")
+        /**
+         * @see Server.Builder
+         */
         public <T> void option(@NotNull ChannelOption<T> option, T value) {
             validate();
             options.put(option, value);
         }
 
-        @SuppressWarnings("unchecked")
+        /**
+         * @see Server.Builder
+         */
         public ServerImpl build() {
             validate();
             built = true;

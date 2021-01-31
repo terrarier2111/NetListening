@@ -18,6 +18,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.jetbrains.annotations.NotNull;
 
@@ -27,6 +28,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @since 1.0
@@ -90,6 +92,9 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 				}
 				// Sending data delayed, awaiting the packet's registration to finish
 				while (!packet.isRegistered());
+				if(delayedExecutor == null || delayedExecutor.isShutdown()) {
+					return;
+				}
 				delayedExecutor.execute(() -> channel.writeAndFlush(data));
 				return;
 			}
@@ -138,24 +143,50 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 		}
 	}
 
-	private void appendHmac(@NotNull ByteBuf src, @NotNull ByteBuf dst, @NotNull Application application, @NotNull ConnectionImpl connection) {
+	private void appendHmac(@NotNull ByteBuf src, @NotNull ByteBuf dst, @NotNull Application application,
+							@NotNull ConnectionImpl connection) {
 		final byte[] data = ByteBufUtilExtension.getBytes(src);
 		src.release();
 		try {
-			final byte[] hash = HashUtil.calculateHMAC(data, connection.getHmacKey(), application.getEncryptionSetting().getHmacSetting().getHashingAlgorithm());
+			final byte[] hash = HashUtil.calculateHMAC(data, connection.getHmacKey(),
+					application.getEncryptionSetting().getHmacSetting().getHashingAlgorithm());
 			final int buffer = application.getBuffer();
 			InternalUtil.writeInt(application, dst, 0x4);
-			ByteBufUtilExtension.correctSize(dst, 6, buffer);
 			final int dataLength = data.length;
 			final short hashLength = (short) hash.length;
+			ByteBufUtilExtension.correctSize(dst, 6 + dataLength + hashLength, buffer);
 			dst.writeInt(dataLength);
 			dst.writeShort(hashLength);
-			ByteBufUtilExtension.correctSize(dst, dataLength, buffer);
 			dst.writeBytes(data);
-			ByteBufUtilExtension.correctSize(dst, hashLength, buffer);
 			dst.writeBytes(hash);
 		} catch (NoSuchAlgorithmException | InvalidKeyException e) {
 			e.printStackTrace(); // TODO: Handle this better!
+		}
+	}
+
+	@Override
+	public void handlerRemoved(@NotNull ChannelHandlerContext ctx) throws Exception {
+		shutdown();
+		super.handlerRemoved(ctx);
+	}
+
+	@Override
+	public void close(@NotNull ChannelHandlerContext ctx, @NotNull ChannelPromise promise) throws Exception {
+		shutdown();
+		super.close(ctx, promise);
+	}
+
+	private void shutdown() {
+		if(delayedExecutor != null && !delayedExecutor.isShutdown()) {
+			delayedExecutor.shutdown();
+			try {
+				if (!delayedExecutor.awaitTermination(250, TimeUnit.MILLISECONDS)) {
+					delayedExecutor.shutdownNow();
+				}
+			} catch (InterruptedException e) {
+				delayedExecutor.shutdownNow();
+			}
+			delayedExecutor = null;
 		}
 	}
 

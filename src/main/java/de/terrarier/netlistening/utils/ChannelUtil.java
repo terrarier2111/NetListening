@@ -22,10 +22,11 @@ public final class ChannelUtil {
 	 * @param channel the channel getting optimized.
 	 * @see <a href="https://en.wikipedia.org/wiki/Type_of_service">https://en.wikipedia.org/wiki/Type_of_service</a>
 	 */
-	public static <T> void prepare(@NotNull Channel channel, @NotNull Map<ChannelOption<T>, T> options) {
+	@SuppressWarnings("unchecked")
+	public static void prepare(@NotNull Channel channel, @NotNull Map<ChannelOption<?>, Object> options) {
 		try {
 			final ChannelConfig config = channel.config();
-			for(ChannelOption<T> option : options.keySet()) {
+			for(ChannelOption option : options.keySet()) {
 				config.setOption(option, options.get(option));
 			}
 		} catch (ChannelException ignored) {}

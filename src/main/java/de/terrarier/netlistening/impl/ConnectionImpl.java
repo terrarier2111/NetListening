@@ -178,7 +178,8 @@ public final class ConnectionImpl implements Connection {
 	}
 
 	/**
-	 * Sets an internal symmetric key of the connection!
+	 * Defines the encryption context for this connection which determines
+	 * how data sent to/received from this connection gets en-/decrypted.
 	 *
 	 * @param options the options which should be used to interpret the key data.
 	 * @param symmetricKey the data which should be used to generate the key.
@@ -189,10 +190,11 @@ public final class ConnectionImpl implements Connection {
 	}
 
 	/**
-	 * Sets an internal symmetric key of the connection!
+	 * Defines the encryption context for this connection which determines
+	 * how data sent to/received from this connection gets en-/decrypted.
 	 *
-	 * @param application the application to which this connection is referring to.
-	 * @param secretKey the SecretKey which should be used to encrypt data.
+	 * @param application the application to which this connection is related to.
+	 * @param secretKey the secret key which should be used to encrypt data.
 	 */
 	public void setSymmetricKey(@NotNull Application application, @NotNull SecretKey secretKey) {
 		final EncryptionOptions options = application.getEncryptionSetting().getSymmetricSetting();

@@ -26,41 +26,41 @@ public final class DataHandler {
 	}
 
 	public void processData(@NotNull List<DataComponent<?>> data, @NotNull Channel channel) {
-		final int dataSize = data.size();
-		if(dataSize == 0) {
-			return;
-		}
-		
-		final Connection connection = application.getConnection(channel);
-		final DataContainer container = new DataContainer(data);
-		final DecodeEvent event = new DecodeEvent(connection, container);
-		final int listenerSize = listeners.size();
-		for (int i = 0; i < listenerSize; i++) {
-			final PreparedListener listener = listeners.get(i);
-			final Type[] types = listener.getTypes();
-			final int length = types.length;
-			if (length != 0) {
-				if (length != dataSize) {
-					continue;
-				}
+        final int dataSize = data.size();
+        if (dataSize == 0) {
+            return;
+        }
 
-				int index = 0;
-				boolean passedCheck = true;
-				for (int id = 0; id < dataSize; id++) {
-					final DataComponent<?> comp = data.get(id);
-					if (types[index++].getId() != comp.getType().getId()) {
-						passedCheck = false;
-						break;
-					}
-				}
-				
-				if(!passedCheck) {
-					continue;
-				}
-			}
-			container.resetReaderIndex();
-			listener.getWrapped().trigger(event);
-		}
+        final Connection connection = application.getConnection(channel);
+        final DataContainer container = new DataContainer(data);
+        final DecodeEvent event = new DecodeEvent(connection, container);
+        final int listenerSize = listeners.size();
+        for (int i = 0; i < listenerSize; i++) {
+            final PreparedListener listener = listeners.get(i);
+            final Type[] types = listener.getTypes();
+            final int length = types.length;
+            if (length != 0) {
+                if (length != dataSize) {
+                    continue;
+                }
+
+                int index = 0;
+                boolean passedCheck = true;
+                for (int id = 0; id < dataSize; id++) {
+                    final DataComponent<?> comp = data.get(id);
+                    if (types[index++].getId() != comp.getType().getId()) {
+                        passedCheck = false;
+                        break;
+                    }
+                }
+
+                if (!passedCheck) {
+                    continue;
+                }
+            }
+            container.resetReaderIndex();
+            listener.getWrapped().trigger(event);
+        }
 	}
 
 	public void addListener(@NotNull DecodeListener listener) {

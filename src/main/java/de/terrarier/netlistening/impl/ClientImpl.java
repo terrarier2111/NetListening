@@ -57,7 +57,7 @@ public final class ClientImpl implements Client {
     private HashingAlgorithm serverKeyHashing = HashingAlgorithm.SHA_256;
     private ServerKey serverKey;
 
-    private <T> void start(long timeout, int localPort, @NotNull Map<ChannelOption<T>, T> options, @NotNull SocketAddress remoteAddress, Proxy proxy) {
+    private void start(long timeout, int localPort, @NotNull Map<ChannelOption<?>, Object> options, @NotNull SocketAddress remoteAddress, Proxy proxy) {
         if (group != null) {
             throw new IllegalStateException("The client is already running!");
         }
@@ -75,24 +75,25 @@ public final class ClientImpl implements Client {
                         .handler(new ChannelInitializer<Channel>() {
                             @Override
                             protected void initChannel(Channel channel) {
-                                if(eventManager.callEvent(ListenerType.PRE_INIT, EventManager.CancelAction.INTERRUPT, new ConnectionPreInitEvent(channel))) {
+                                if (eventManager.callEvent(ListenerType.PRE_INIT, EventManager.CancelAction.INTERRUPT, new ConnectionPreInitEvent(channel))) {
                                     channel.close();
                                     return;
                                 }
                                 ChannelUtil.prepare(channel, options);
 
                                 final ConnectionImpl connection = new ConnectionImpl(ClientImpl.this, channel, 0x0);
+                                final ChannelPipeline pipeline = channel.pipeline();
 
                                 if (timeout > 0) {
-                                    channel.pipeline().addLast("readTimeOutHandler",
+                                    pipeline.addLast("readTimeOutHandler",
                                             new TimeOutHandler(ClientImpl.this, eventManager, connection, timeout));
                                 }
 
-                                channel.pipeline().addLast("decoder", new PacketDataDecoder(ClientImpl.this, handler, eventManager))
+                                pipeline.addLast("decoder", new PacketDataDecoder(ClientImpl.this, handler, eventManager))
                                         .addAfter("decoder", "encoder", new PacketDataEncoder(ClientImpl.this));
 
-                                if(proxy != null) {
-                                    channel.pipeline().addFirst("proxyHandler", proxy.getHandler());
+                                if (proxy != null) {
+                                    pipeline.addFirst("proxyHandler", proxy.getHandler());
                                 }
 
                                 ClientImpl.this.connection = connection;
@@ -393,7 +394,7 @@ public final class ClientImpl implements Client {
     public static class Builder {
 
         private final ClientImpl client;
-        private final Map options = new HashMap<>();
+        private final Map<ChannelOption<?>, Object> options = new HashMap<>();
         private final SocketAddress remoteAddress;
         private long timeout;
         private int localPort;
@@ -401,7 +402,6 @@ public final class ClientImpl implements Client {
         private Proxy proxy;
         private boolean built;
 
-        @SuppressWarnings("unchecked")
         public Builder(@NotNull SocketAddress remoteAddress) {
             client = new ClientImpl();
             this.remoteAddress = remoteAddress;
@@ -455,7 +455,6 @@ public final class ClientImpl implements Client {
         /**
          * @see Client.Builder
          */
-        @SuppressWarnings("unchecked")
         public <T> void option(@NotNull ChannelOption<T> option, T value) {
             validate();
             options.put(option, value);
@@ -472,7 +471,6 @@ public final class ClientImpl implements Client {
         /**
          * @see Client.Builder
          */
-        @SuppressWarnings("unchecked")
         @NotNull
         public ClientImpl build() {
             validate();

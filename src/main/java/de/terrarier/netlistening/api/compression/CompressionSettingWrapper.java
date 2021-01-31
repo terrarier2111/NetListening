@@ -34,6 +34,12 @@ public final class CompressionSettingWrapper {
         return this;
     }
 
+    /**
+     * Sets the compression setting for the builder
+     * and returns it.
+     *
+     * @return the builder which was used before.
+     */
     @NotNull
     public Server.Builder build() {
         return builder.compression(compressionSetting);

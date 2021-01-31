@@ -126,7 +126,7 @@ public abstract class DataType<T> {
 				case 0xC:
 					return FLOAT;
 			}
-		throw new IllegalArgumentException("Tried to parse a DataType with an invalid id! (" + Integer.toHexString(id) + ")");
+		throw new IllegalArgumentException("Tried to resolve a data type with an invalid id! (" + Integer.toHexString(id) + ")");
 	}
 
 	@NotNull
