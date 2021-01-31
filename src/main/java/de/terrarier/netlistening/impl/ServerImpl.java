@@ -128,7 +128,7 @@ public final class ServerImpl implements Server {
         return cache;
     }
 
-    private void start(long timeout, int port, Map<ChannelOption<?>, Object> options) {
+    private void start(long timeout, int port, @NotNull Map<ChannelOption<?>, Object> options) {
         if (group != null) {
             throw new IllegalStateException("The server is already started!");
         }

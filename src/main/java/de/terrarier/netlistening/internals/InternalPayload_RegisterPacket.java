@@ -77,12 +77,6 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
             }else {
                 buffer.writeByte(id);
             }
-            /*if(chain + open + closed - 1 > longest) {
-                longest = chain + open + closed - 1;
-            }
-            if(longest < (chain + (open + closed - (open - closed)))) {
-                return chain + (open + closed - (open - closed));
-            }*/
         }
     }
 
