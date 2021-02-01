@@ -44,6 +44,6 @@ public final class DataTypeEncrypt extends DataType<Void> {
     }
 
     @Override
-    public void write(@NotNull Application application, @NotNull ByteBuf buffer, Void empty) {}
+    protected void write(@NotNull Application application, @NotNull ByteBuf buffer, Void empty) {}
 
 }

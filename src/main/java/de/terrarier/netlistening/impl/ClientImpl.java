@@ -296,6 +296,7 @@ public final class ClientImpl implements Client {
     /**
      * @see de.terrarier.netlistening.Application
      */
+    @Deprecated
     @Override
     public void sendData(@NotNull DataComponent<?> data) {
         sendData(data, null);
@@ -391,7 +392,7 @@ public final class ClientImpl implements Client {
         return receivedHandshake;
     }
 
-    public static class Builder {
+    public static final class Builder {
 
         private final ClientImpl client;
         private final Map<ChannelOption<?>, Object> options = new HashMap<>();

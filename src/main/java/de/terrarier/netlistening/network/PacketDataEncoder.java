@@ -117,7 +117,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 				target.writeBytes(encryptedData);
 
 				if(hmac) {
-					appendHmac(target, buffer, application, connection);
+					appendHmac(target, buffer, connection);
 				}
 				return;
 			}
@@ -128,7 +128,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 			final ByteBuf target = hmac ? Unpooled.buffer() : buffer;
 			writeToBuffer(target, data, packet.getId());
 			if(hmac) {
-				appendHmac(target, buffer, application, (ConnectionImpl) application.getConnection(ctx.channel()));
+				appendHmac(target, buffer, (ConnectionImpl) application.getConnection(ctx.channel()));
 			}
 		}
 	}
@@ -143,8 +143,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 		}
 	}
 
-	private void appendHmac(@NotNull ByteBuf src, @NotNull ByteBuf dst, @NotNull Application application,
-							@NotNull ConnectionImpl connection) {
+	private void appendHmac(@NotNull ByteBuf src, @NotNull ByteBuf dst, @NotNull ConnectionImpl connection) {
 		final byte[] data = ByteBufUtilExtension.getBytes(src);
 		src.release();
 		try {

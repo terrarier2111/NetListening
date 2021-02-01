@@ -300,7 +300,7 @@ public final class ServerImpl implements Server {
         return Collections.unmodifiableSet(new HashSet<>(connections.values()));
     }
 
-    public static class Builder {
+    public static final class Builder {
 
         private final ServerImpl server;
         private final Map<ChannelOption<?>, Object> options = new HashMap<>();

@@ -158,7 +158,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             return;
         }
 
-        final ConnectionImpl connection = ((ConnectionImpl) application.getConnection(ctx.channel()));
+        final ConnectionImpl connection = (ConnectionImpl) application.getConnection(ctx.channel());
         final PacketSkeleton packet = connection.getCache().getInPacketFromId(id);
         if (packet == null) {
 

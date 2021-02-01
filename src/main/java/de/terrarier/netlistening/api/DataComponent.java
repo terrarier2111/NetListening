@@ -13,6 +13,7 @@ public final class DataComponent<T> {
 	private final DataType<T> type;
 	private T content;
 
+	@Deprecated
 	public DataComponent(@NotNull DataType<T> type) {
 		this.type = type;
 	}
@@ -38,10 +39,11 @@ public final class DataComponent<T> {
 	}
 
 	/**
-	 * Sets tha passed data as the content.
+	 * Sets the passed data as the content.
 	 *
 	 * @param data the new content value.
 	 */
+	@Deprecated
 	public void setData(T data) {
 		content = data;
 	}

@@ -10,11 +10,11 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class InternalPayLoad_RegisterInPacket extends InternalPayload_RegisterPacket {
 	
-	public InternalPayLoad_RegisterInPacket(DataType<?>... types) {
+	public InternalPayLoad_RegisterInPacket(@NotNull DataType<?>... types) {
 		super((byte) 0x1, types);
 	}
 	
-	public InternalPayLoad_RegisterInPacket(int id, DataType<?>... types) {
+	public InternalPayLoad_RegisterInPacket(int id, @NotNull DataType<?>... types) {
 		super((byte) 0x1, id, types);
 	}
 
