@@ -70,7 +70,7 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
                         buffer.writeByte(id);
                         continue;
                     }
-                    buffer.writeByte(NibbleUtil.buildByte(id, other));
+                    buffer.writeByte(NibbleUtil.buildNibblePair(id, other));
                 }else {
                     buffer.writeByte(id);
                 }
@@ -100,7 +100,7 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
 
         final short size = buffer.readShort();
         final boolean nibbleCompression = application.getCompressionSetting().isNibbleCompression();
-        final int byteSize = nibbleCompression ? NibbleUtil.nibbleToByteSize(size) : size;
+        final int byteSize = nibbleCompression ? NibbleUtil.nibbleToByteCount(size) : size;
 
         checkReadable(buffer, 2 + idSize, byteSize);
 
@@ -160,7 +160,7 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
             size += InternalUtil.getSize(application, packetId);
         }
         if(application.getCompressionSetting().isNibbleCompression()) {
-            size += NibbleUtil.nibbleToByteSize(types.length);
+            size += NibbleUtil.nibbleToByteCount(types.length);
         }else {
             size += types.length;
         }

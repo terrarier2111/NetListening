@@ -102,7 +102,7 @@ public final class EventManager {
 				return eventListener.priority();
 			}
 		} catch (NoSuchMethodException e) {
-			e.printStackTrace(); // TODO: Handle this better cuz it's something what shouldn't occur at all
+			e.printStackTrace(); // TODO: Handle this better because it's something what shouldn't occur at all.
 		}
 		return EventListener.Priority.MEDIUM;
 	}

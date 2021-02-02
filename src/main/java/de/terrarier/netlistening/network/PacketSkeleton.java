@@ -8,23 +8,23 @@ import org.jetbrains.annotations.NotNull;
  * @author Terrarier2111
  */
 public final class PacketSkeleton {
-	
-	private final DataType<?>[] data;
+
 	private final int id;
+	private final DataType<?>[] data;
 	private volatile boolean registered;
 	
 	public PacketSkeleton(int id, @NotNull DataType<?>... data) {
-		this.data = data;
 		this.id = id;
+		this.data = data;
+	}
+	
+	protected int getId() {
+		return id;
 	}
 
 	@NotNull
 	public DataType<?>[] getData() {
 		return data;
-	}
-	
-	protected int getId() {
-		return id;
 	}
 
 	protected boolean isRegistered() {

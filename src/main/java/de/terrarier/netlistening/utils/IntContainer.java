@@ -8,8 +8,6 @@ public final class IntContainer {
 
     private int value;
 
-    public IntContainer() {}
-
     public int get() {
         return value;
     }

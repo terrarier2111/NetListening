@@ -33,7 +33,11 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 	
 	public TimeOutHandler(@NotNull Application application, @NotNull EventManager eventManager,
 						  @NotNull ConnectionImpl connection, long timeout) {
-		this(application, eventManager, timeout);
+		super(timeout, TimeUnit.MILLISECONDS);
+		this.application = application;
+		this.eventManager = eventManager;
+		timer = new Timer();
+
 		final long delay = timeout / 2;
 
 		timer.schedule(new TimerTask() {
@@ -57,13 +61,6 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 				connection.getChannel().writeAndFlush(buffer);
 			}
 		}, delay, delay);
-	}
-	
-	private TimeOutHandler(@NotNull Application application, @NotNull EventManager eventManager, long timeout) {
-		super(timeout, TimeUnit.MILLISECONDS);
-		this.application = application;
-		this.eventManager = eventManager;
-		timer = new Timer();
 	}
 
 	@Override

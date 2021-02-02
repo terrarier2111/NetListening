@@ -302,14 +302,13 @@ public final class ServerImpl implements Server {
 
     public static final class Builder {
 
-        private final ServerImpl server;
+        private final ServerImpl server = new ServerImpl();
         private final Map<ChannelOption<?>, Object> options = new HashMap<>();
         private final int port;
         private long timeout;
         private boolean built;
 
         public Builder(int port) {
-            server = new ServerImpl();
             this.port = port;
             options.put(ChannelOption.IP_TOS, 0x18);
         }

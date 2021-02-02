@@ -271,7 +271,7 @@ public final class ClientImpl implements Client {
     @Deprecated
     @Override
     public void sendData(@NotNull DataComponent<?> data, int connectionId) {
-        sendData(data, null);
+        sendData(data);
     }
 
     /**
@@ -299,7 +299,7 @@ public final class ClientImpl implements Client {
     @Deprecated
     @Override
     public void sendData(@NotNull DataComponent<?> data) {
-        sendData(data, null);
+        sendData(data);
     }
 
     /**
@@ -394,7 +394,7 @@ public final class ClientImpl implements Client {
 
     public static final class Builder {
 
-        private final ClientImpl client;
+        private final ClientImpl client = new ClientImpl();
         private final Map<ChannelOption<?>, Object> options = new HashMap<>();
         private final SocketAddress remoteAddress;
         private long timeout;
@@ -404,7 +404,6 @@ public final class ClientImpl implements Client {
         private boolean built;
 
         public Builder(@NotNull SocketAddress remoteAddress) {
-            client = new ClientImpl();
             this.remoteAddress = remoteAddress;
             options.put(ChannelOption.IP_TOS, 0x18);
         }
