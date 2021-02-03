@@ -3,6 +3,7 @@ package de.terrarier.netlistening;
 import de.terrarier.netlistening.api.encryption.ServerKey;
 import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
 import de.terrarier.netlistening.api.proxy.ProxyType;
+import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.impl.ClientImpl;
 import io.netty.channel.ChannelOption;
 import org.jetbrains.annotations.NotNull;
@@ -132,6 +133,20 @@ public interface Client extends Application {
         }
 
         /**
+         * Sets the serialization provider which is to be used to
+         * perform serialization operations.
+         *
+         * @param serializationProvider the serialization provider which provides
+         * an implementation for serialization operations.
+         * @return the local reference.
+         */
+        @NotNull
+        public Builder serialization(@NotNull SerializationProvider serializationProvider) {
+            impl.serialization(serializationProvider);
+            return this;
+        }
+
+        /**
          * Sets a proxy to which the client connects to in order
          * to hide its identity.
          *
@@ -148,7 +163,7 @@ public interface Client extends Application {
         /**
          * Builds the client, sets its default values and starts it.
          *
-         * @return the started Client.
+         * @return the started client.
          */
         @NotNull
         public Client build() {

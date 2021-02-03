@@ -10,6 +10,7 @@ import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.SymmetricEncryptionUtil;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
 import de.terrarier.netlistening.api.event.*;
+import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.network.*;
 import de.terrarier.netlistening.utils.ChannelUtil;
 import io.netty.bootstrap.ServerBootstrap;
@@ -48,6 +49,7 @@ public final class ServerImpl implements Server {
     private Thread server;
     private Charset stringEncoding = StandardCharsets.UTF_8;
     private EncryptionSetting encryptionSetting;
+    private SerializationProvider serializationProvider = SerializationProvider.DEFAULT_SERIALIZATION_PROVIDER;
 
     /**
      * @see de.terrarier.netlistening.Application
@@ -132,6 +134,7 @@ public final class ServerImpl implements Server {
         if (group != null) {
             throw new IllegalStateException("The server is already started!");
         }
+        serializationProvider.setEventManager(eventManager);
 
         final boolean epoll = Epoll.isAvailable();
         group = epoll ? new EpollEventLoopGroup() : new NioEventLoopGroup();
@@ -287,6 +290,15 @@ public final class ServerImpl implements Server {
     /**
      * @see de.terrarier.netlistening.Application
      */
+    @NotNull
+    @Override
+    public SerializationProvider getSerializationProvider() {
+        return serializationProvider;
+    }
+
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void registerListener(@NotNull Listener<?> listener) {
         eventManager.registerListener(listener);
@@ -375,6 +387,14 @@ public final class ServerImpl implements Server {
         public <T> void option(@NotNull ChannelOption<T> option, T value) {
             validate();
             options.put(option, value);
+        }
+
+        /**
+         * @see Server.Builder
+         */
+        public void serialization(@NotNull SerializationProvider serializationProvider) {
+            validate();
+            server.serializationProvider = serializationProvider;
         }
 
         /**

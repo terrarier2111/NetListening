@@ -22,7 +22,7 @@ public final class CancelReadingSignal extends Exception {
 
 	@NotNull
 	@Override
-	public Throwable initCause(@NotNull Throwable cause) {
+	public Throwable initCause(Throwable cause) {
 		return this;
 	}
 

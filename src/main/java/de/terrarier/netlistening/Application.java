@@ -6,6 +6,7 @@ import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.event.Listener;
+import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.network.PacketCache;
 import de.terrarier.netlistening.network.PacketSynchronization;
 import io.netty.channel.Channel;
@@ -69,6 +70,13 @@ public interface Application {
 	 */
 	@NotNull
 	CompressionSetting getCompressionSetting();
+
+	/**
+	 * @return the serialization provider which handles the serialization
+	 * of specific data.
+	 */
+	@NotNull
+	SerializationProvider getSerializationProvider();
 
 	/**
 	 * Registers a listener which can be used to perform an action chosen by the user

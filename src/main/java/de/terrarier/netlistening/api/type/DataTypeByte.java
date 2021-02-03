@@ -1,7 +1,6 @@
 package de.terrarier.netlistening.api.type;
 
 import de.terrarier.netlistening.Application;
-import de.terrarier.netlistening.internals.CancelReadingSignal;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
@@ -17,8 +16,7 @@ public final class DataTypeByte extends DataType<Byte> {
 	}
 
 	@Override
-	protected Byte read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer)
-			throws CancelReadingSignal {
+	protected Byte read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer) {
 		return buffer.readByte();
 	}
 

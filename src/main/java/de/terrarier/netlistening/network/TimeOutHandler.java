@@ -28,7 +28,7 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 
 	private final Application application;
 	private final EventManager eventManager;
-	private Timer timer;
+	private Timer timer = new Timer();
 	private byte counter = Byte.MIN_VALUE;
 	
 	public TimeOutHandler(@NotNull Application application, @NotNull EventManager eventManager,
@@ -36,16 +36,17 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 		super(timeout, TimeUnit.MILLISECONDS);
 		this.application = application;
 		this.eventManager = eventManager;
-		timer = new Timer();
 
 		final long delay = timeout / 2;
+		final boolean client = application.isClient();
+		final int bufferSize = application.getCompressionSetting().isVarIntCompression() ? 2 : 5;
 
 		timer.schedule(new TimerTask() {
 
 			@Override
 			public void run() {
-				if((!application.isClient() && !connection.isStable())
-						|| (application.isClient() && !((ClientImpl) application).hasReceivedHandshake())) {
+				if((!client && !connection.isStable())
+						|| (client && !((ClientImpl) application).hasReceivedHandshake())) {
 					return;
 				}
 				
@@ -53,7 +54,7 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 					counter = Byte.MIN_VALUE;
 				}
 
-				final ByteBuf buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 2 : 5);
+				final ByteBuf buffer = Unpooled.buffer(bufferSize);
 
 				InternalUtil.writeInt(application, buffer, 0x1);
 				buffer.writeByte(counter++);

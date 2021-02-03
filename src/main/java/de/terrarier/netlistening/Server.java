@@ -7,6 +7,7 @@ import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.compression.CompressionSettingWrapper;
 import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.EncryptionSettingWrapper;
+import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.impl.ServerImpl;
 import de.terrarier.netlistening.network.PacketSynchronization;
 import io.netty.channel.Channel;
@@ -189,9 +190,23 @@ public interface Server extends Application {
         }
 
         /**
+         * Sets the serialization provider which is to be used to
+         * perform serialization operations.
+         *
+         * @param serializationProvider the serialization provider which provides
+         * an implementation for serialization operations.
+         * @return the local reference.
+         */
+        @NotNull
+        public Builder serialization(@NotNull SerializationProvider serializationProvider) {
+            impl.serialization(serializationProvider);
+            return this;
+        }
+
+        /**
          * Builds the server, sets its default values and starts it.
          *
-         * @return the started Server.
+         * @return the started server.
          */
         @NotNull
         public Server build() {

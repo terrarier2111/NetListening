@@ -13,6 +13,7 @@ import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
 import de.terrarier.netlistening.api.event.*;
 import de.terrarier.netlistening.api.proxy.Proxy;
 import de.terrarier.netlistening.api.proxy.ProxyType;
+import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.network.*;
 import de.terrarier.netlistening.utils.ChannelUtil;
 import io.netty.bootstrap.Bootstrap;
@@ -56,6 +57,7 @@ public final class ClientImpl implements Client {
     private EncryptionSetting encryptionSetting;
     private HashingAlgorithm serverKeyHashing = HashingAlgorithm.SHA_256;
     private ServerKey serverKey;
+    private SerializationProvider serializationProvider = SerializationProvider.DEFAULT_SERIALIZATION_PROVIDER;
 
     private void start(long timeout, int localPort, @NotNull Map<ChannelOption<?>, Object> options, @NotNull SocketAddress remoteAddress, Proxy proxy) {
         if (group != null) {
@@ -65,6 +67,7 @@ public final class ClientImpl implements Client {
         if (receivedHandshake) {
             throw new IllegalStateException("The client is already stopped!");
         }
+        serializationProvider.setEventManager(eventManager);
 
         final boolean epoll = Epoll.isAvailable();
         group = epoll ? new EpollEventLoopGroup() : new NioEventLoopGroup();
@@ -330,6 +333,15 @@ public final class ClientImpl implements Client {
     /**
      * @see de.terrarier.netlistening.Application
      */
+    @NotNull
+    @Override
+    public SerializationProvider getSerializationProvider() {
+        return serializationProvider;
+    }
+
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
     @Override
     public void registerListener(@NotNull Listener<?> listener) {
         eventManager.registerListener(listener);
@@ -458,6 +470,14 @@ public final class ClientImpl implements Client {
         public <T> void option(@NotNull ChannelOption<T> option, T value) {
             validate();
             options.put(option, value);
+        }
+
+        /**
+         * @see Client.Builder
+         */
+        public void serialization(@NotNull SerializationProvider serializationProvider) {
+            validate();
+            client.serializationProvider = serializationProvider;
         }
 
         /**
