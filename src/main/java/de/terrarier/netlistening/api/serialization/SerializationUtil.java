@@ -12,36 +12,42 @@ public final class SerializationUtil {
     private SerializationUtil() {}
 
     public static byte[] serialize(@NotNull Application application, @NotNull Object obj) {
-        SerializationProvider provider = application.getSerializationProvider();
+        final SerializationProvider mainProvider = application.getSerializationProvider();
+        SerializationProvider provider = mainProvider;
         while(provider != null) {
             if(provider.isSerializable(obj)) {
                 try {
                     return provider.serialize(obj);
                 } catch (Exception exception) {
-                    application.getSerializationProvider().handleException(exception);
+                    mainProvider.handleException(exception);
                     return null;
                 }
             }else {
                 provider = provider.getFallback();
             }
         }
+        mainProvider.handleException(new UnsupportedOperationException(
+                "There is no serialization provider available which can serialize this Object."));
         return null;
     }
 
     public static Object deserialize(@NotNull Application application, byte[] data) {
-        SerializationProvider provider = application.getSerializationProvider();
+        final SerializationProvider mainProvider = application.getSerializationProvider();
+        SerializationProvider provider = mainProvider;
         while(provider != null) {
             if(provider.isDeserializable(data)) {
                 try {
                     return provider.deserialize(data);
                 } catch (Exception exception) {
-                    application.getSerializationProvider().handleException(exception);
+                    mainProvider.handleException(exception);
                     return null;
                 }
             }else {
                 provider = provider.getFallback();
             }
         }
+        mainProvider.handleException(new UnsupportedOperationException(
+                "There is no serialization provider available which can deserialize this Object."));
         return null;
     }
 

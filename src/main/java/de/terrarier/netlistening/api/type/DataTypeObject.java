@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.api.type;
 
 import de.terrarier.netlistening.Application;
+import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.api.serialization.SerializationUtil;
 import de.terrarier.netlistening.internals.CancelReadingSignal;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
@@ -23,15 +24,29 @@ public final class DataTypeObject extends DataType<Object> {
 			throws CancelReadingSignal {
 		final int length = buffer.readInt();
 
+		if(length == 0) {
+			return SerializationProvider.SERIALIZATION_ERROR;
+		}
 		checkReadable(buffer, length, true);
 
 		final byte[] bytes = ByteBufUtilExtension.readBytes(buffer, length);
-		return SerializationUtil.deserialize(application, bytes);
+		final Object deserialized = SerializationUtil.deserialize(application, bytes);
+
+		if(deserialized == null) {
+			return SerializationProvider.SERIALIZATION_ERROR;
+		}
+
+		return deserialized;
 	}
 
 	@Override
 	public void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull Object data) {
-		ByteBufUtilExtension.writeBytes(buffer, SerializationUtil.serialize(application, data), application.getBuffer());
+		final byte[] serialized = SerializationUtil.serialize(application, data);
+		if(serialized == null) {
+			buffer.writeInt(0);
+			return;
+		}
+		ByteBufUtilExtension.writeBytes(buffer, serialized, application.getBuffer());
 	}
 
 }

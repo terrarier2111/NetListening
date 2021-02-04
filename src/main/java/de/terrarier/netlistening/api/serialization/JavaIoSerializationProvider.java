@@ -31,8 +31,8 @@ public final class JavaIoSerializationProvider extends SerializationProvider {
      */
     @Override
     public boolean isDeserializable(byte[] data) {
-        // No special conditions to check here so always return true
-        // TODO: Look for possible conditions which could be checked
+        // No special conditions to check here so always return true.
+        // TODO: Look for possible conditions which could be checked.
         return true;
     }
 
