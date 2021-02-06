@@ -4,6 +4,8 @@ import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * This event gets called before a connection is established.
+ *
  * @since 1.0
  * @author Terrarier2111
  */

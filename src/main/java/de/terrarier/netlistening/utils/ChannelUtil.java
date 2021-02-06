@@ -17,10 +17,9 @@ public final class ChannelUtil {
 	private ChannelUtil() {}
 
 	/**
-	 * Applies options chosen by the user or default to the channel.
+	 * Applies the options chosen by the user or set by default to the channel.
 	 *
 	 * @param channel the channel getting optimized.
-	 * @see <a href="https://en.wikipedia.org/wiki/Type_of_service">https://en.wikipedia.org/wiki/Type_of_service</a>
 	 */
 	@SuppressWarnings("unchecked")
 	public static void prepare(@NotNull Channel channel, @NotNull Map<ChannelOption<?>, Object> options) {

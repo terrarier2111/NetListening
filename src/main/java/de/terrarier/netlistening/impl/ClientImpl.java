@@ -417,6 +417,7 @@ public final class ClientImpl implements Client {
 
         public Builder(@NotNull SocketAddress remoteAddress) {
             this.remoteAddress = remoteAddress;
+            // https://en.wikipedia.org/wiki/Type_of_service
             options.put(ChannelOption.IP_TOS, 0x18);
         }
 

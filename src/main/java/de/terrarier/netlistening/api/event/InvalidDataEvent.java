@@ -4,6 +4,8 @@ import de.terrarier.netlistening.Connection;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * This event gets called when invalid data was received.
+ *
  * @since 1.0
  * @author Terrarier2111
  */

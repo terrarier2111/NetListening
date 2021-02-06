@@ -13,15 +13,11 @@ public enum ProxyType {
     SOCKS4, SOCKS5;
 
     public Proxy getInstance(@NotNull SocketAddress address) {
-        return getInstance(this, address);
-    }
-
-    private static Proxy getInstance(@NotNull ProxyType type, @NotNull SocketAddress address) {
-        switch (type) {
+        switch (this) {
             case SOCKS4:
-                return new Socks4Proxy(address, type);
+                return new Socks4Proxy(address, this);
             case SOCKS5:
-                return new Socks5Proxy(address, type);
+                return new Socks5Proxy(address, this);
             default:
                 return null;
         }

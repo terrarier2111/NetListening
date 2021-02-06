@@ -45,12 +45,14 @@ public abstract class DataType<T> {
 		this.published = published;
 	}
 	
-	public T read0(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> data, @NotNull Application application, @NotNull ByteBuf buffer) throws Exception {
+	public T read0(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> data, @NotNull Application application,
+				   @NotNull ByteBuf buffer) throws Exception {
 		checkReadable(buffer, minSize);
 		return read(application, ctx.channel(), buffer);
 	}
 
-	protected abstract T read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer) throws CancelReadingSignal;
+	protected abstract T read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer)
+			throws CancelReadingSignal;
 
 	public void write0(@NotNull Application application, @NotNull ByteBuf buffer, T data) {
 		checkWriteable(application, buffer, minSize);

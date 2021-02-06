@@ -322,6 +322,7 @@ public final class ServerImpl implements Server {
 
         public Builder(int port) {
             this.port = port;
+            // https://en.wikipedia.org/wiki/Type_of_service
             options.put(ChannelOption.IP_TOS, 0x18);
         }
 

@@ -21,7 +21,7 @@ public final class ByteBufUtilExtension {
 			newNettyVersion = true;
 		}catch(NoSuchMethodException ignored) {
 			// Apparently we are using an old version of netty and we have to support
-			// getBytes on our own and can't rely on netty's ByteBufUtil#getBytes method.
+			// getBytes on our own and can't rely on Netty's ByteBufUtil#getBytes method.
 		}
 	}
 	

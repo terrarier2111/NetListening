@@ -4,6 +4,8 @@ import de.terrarier.netlistening.Connection;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * This event gets called after a connection was established.
+ *
  * @since 1.0
  * @author Terrarier2111
  */

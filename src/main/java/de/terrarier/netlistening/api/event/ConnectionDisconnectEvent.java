@@ -4,6 +4,8 @@ import de.terrarier.netlistening.Connection;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * This event is called when a connection is closed.
+ *
  * @since 1.0
  * @author Terrarier2111
  */

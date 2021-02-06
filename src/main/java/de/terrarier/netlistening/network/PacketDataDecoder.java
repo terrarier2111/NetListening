@@ -121,6 +121,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
 
         if (id == 0x1) {
+            // Dropping the keep alive packet content
             buffer.readByte();
             return;
         }

@@ -3,6 +3,8 @@ package de.terrarier.netlistening.api.event;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * This event gets called when a exception is thrown.
+ *
  * @since 1.0
  * @author Terrarier2111
  */
