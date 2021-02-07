@@ -35,13 +35,12 @@ public final class ConnectionImpl implements Connection {
 	private final int id;
 	private final PacketCache cache;
 	private volatile boolean receivedPacket;
-	private volatile boolean sentCachedData;
-	private volatile boolean finishedSendCachedData;
+	private volatile DataSendState dataSendState = DataSendState.IDLE;
 	private ByteBuf preConnectBuffer;
 	private Queue<DataContainer> preConnectSendQueue;
-	private ByteBuf finalBuffer;
 	private SymmetricEncryptionContext encryptionContext;
 	private byte[] hmacKey;
+	// TODO: Improve and test delayed data sending mechanics.
 	
 	public ConnectionImpl(@NotNull Application application, @NotNull Channel channel, int id) {
 		this.application = application;
@@ -65,12 +64,11 @@ public final class ConnectionImpl implements Connection {
 		}
 		final boolean connected = isConnected();
 		checkReceived();
-		if(connected && sentCachedData) {
-			if(finishedSendCachedData) {
+		if(connected && dataSendState.isAtLeast(DataSendState.SENDING)) {
+			if(dataSendState.isAtLeast(DataSendState.FINISHED)) {
 				channel.writeAndFlush(data);
 			}else {
 				// TODO: Handle stuff incoming before!
-				// TODO: And check if this is really needed!
 			}
 		}else {
 			if(preConnectSendQueue == null) {
@@ -89,51 +87,6 @@ public final class ConnectionImpl implements Connection {
 		final DataContainer container = new DataContainer();
 		container.addComponent(data);
 		sendData(container);
-	}
-	
-	private void checkReceived() {
-		if (!receivedPacket) {
-			receivedPacket = true;
-			final boolean connected = isConnected();
-			
-			if(!connected && preConnectBuffer == null) {
-				preConnectBuffer = Unpooled.buffer();
-			}
-			
-			final ByteBuf buffer = connected ? Unpooled.buffer() : preConnectBuffer;
-			buffer.writeInt(0x0);
-			final DataType<InternalPayload> dtip = DataType.getDTIP();
-			((DataTypeInternalPayload) dtip).write(application, buffer, InternalPayload.HANDSHAKE);
-			if (application.getCaching() == PacketCaching.GLOBAL) {
-
-				final Map<Integer, PacketSkeleton> outPackets = cache.getOutPackets();
-				final Map<Integer, PacketSkeleton> inPackets = cache.getInPackets();
-				final int outPacketsSize = outPackets.size();
-				final int inPacketsSize = inPackets.size();
-				if (outPacketsSize > 1 || inPacketsSize > 2) {
-					final boolean simpleSynchronization = application.getPacketSynchronization() == PacketSynchronization.SIMPLE;
-
-					if(outPacketsSize > 1) {
-						for (int out = 5; out < outPacketsSize + 4; out++) {
-							final DataType<?>[] data = outPackets.get(out).getData();
-							dtip.write0(application, buffer, simpleSynchronization ?
-									new InternalPayLoad_RegisterInPacket(out, data) : new InternalPayLoad_RegisterInPacket(data));
-						}
-					}
-
-					if(inPacketsSize > 2) {
-						for (int in = 5; in < inPacketsSize + 3; in++) {
-							final DataType<?>[] data = inPackets.get(in).getData();
-							dtip.write0(application, buffer, simpleSynchronization ?
-									new InternalPayLoad_RegisterOutPacket(in, data) : new InternalPayLoad_RegisterOutPacket(data));
-						}
-					}
-				}
-			}
-			if(connected) {
-				channel.writeAndFlush(buffer);
-			}
-		}
 	}
 
 	/**
@@ -232,72 +185,152 @@ public final class ConnectionImpl implements Connection {
 	}
 
 	public boolean isStable() {
-		return sentCachedData && receivedPacket;
+		return dataSendState.isAtLeast(DataSendState.SENDING) && receivedPacket;
 	}
 
 	@NotNull
 	public PacketCache getCache() {
 		return cache;
 	}
-	
+
+	private void checkReceived() {
+		if (!receivedPacket) {
+			receivedPacket = true;
+			final boolean connected = isConnected();
+
+			if(!connected && preConnectBuffer == null) {
+				preConnectBuffer = Unpooled.buffer();
+			}
+
+			final ByteBuf buffer = connected ? Unpooled.buffer() : preConnectBuffer;
+			buffer.writeInt(0x0);
+			final DataType<InternalPayload> dtip = DataType.getDTIP();
+			((DataTypeInternalPayload) dtip).write(application, buffer, InternalPayload.HANDSHAKE);
+			if (application.getCaching() == PacketCaching.GLOBAL) {
+
+				final Map<Integer, PacketSkeleton> outPackets = cache.getOutPackets();
+				final Map<Integer, PacketSkeleton> inPackets = cache.getInPackets();
+				final int outPacketsSize = outPackets.size();
+				final int inPacketsSize = inPackets.size();
+				if (outPacketsSize > 1 || inPacketsSize > 2) {
+					final boolean simpleSynchronization = application.getPacketSynchronization() == PacketSynchronization.SIMPLE;
+
+					if(outPacketsSize > 1) {
+						for (int out = 5; out < outPacketsSize + 4; out++) {
+							final DataType<?>[] data = outPackets.get(out).getData();
+							dtip.write0(application, buffer, simpleSynchronization ?
+									new InternalPayLoad_RegisterInPacket(out, data) : new InternalPayLoad_RegisterInPacket(data));
+						}
+					}
+
+					if(inPacketsSize > 2) {
+						for (int in = 5; in < inPacketsSize + 3; in++) {
+							final DataType<?>[] data = inPackets.get(in).getData();
+							dtip.write0(application, buffer, simpleSynchronization ?
+									new InternalPayLoad_RegisterOutPacket(in, data) : new InternalPayLoad_RegisterOutPacket(data));
+						}
+					}
+				}
+			}
+			if(connected) {
+				channel.writeAndFlush(buffer);
+			}
+		}
+	}
+
 	public void check() {
-		if(!sentCachedData) {
-			sentCachedData = true;
+		if(!dataSendState.isAtLeast(DataSendState.SENDING)) {
+			dataSendState = DataSendState.SENDING;
 
 			if (preConnectBuffer != null && preConnectBuffer.writerIndex() > 0) {
 				channel.writeAndFlush(preConnectBuffer);
+				preConnectBuffer = null;
 			} else {
+				// writing the init data to the channel (without hitting the pre connect buffer)
 				checkReceived();
 			}
 
 			if(application.getEncryptionSetting() == null) {
 				prepare();
-			}
-		}
-	}
-	
-	public void writeToInitialBuffer(@NotNull ByteBuf buffer) {
-		if (!sentCachedData) {
-			final boolean receivedBefore = receivedPacket;
-			checkReceived();
-			if (receivedBefore) {
-				final int readable = buffer.readableBytes();
-				ByteBufUtilExtension.correctSize(preConnectBuffer, readable,
-						application.getBuffer());
-				preConnectBuffer.writeBytes(ByteBufUtilExtension.getBytes(buffer, readable));
-			}
-			buffer.release();
-		} else {
-			if(finishedSendCachedData) {
-				channel.writeAndFlush(buffer);
 			}else {
-				// TODO: Test logic to send data delayed!
-				if(finalBuffer == null) {
-					finalBuffer = Unpooled.buffer();
-				}
-				final int readable = buffer.readableBytes();
-				ByteBufUtilExtension.correctSize(finalBuffer, readable, application.getBuffer());
-				finalBuffer.writeBytes(ByteBufUtilExtension.readBytes(buffer, readable));
+				dataSendState = DataSendState.WAITING_FOR_FINISH;
 			}
 		}
 	}
 
+	public void writeToInitialBuffer(@NotNull ByteBuf buffer) {
+		final DataSendState dataSendState = this.dataSendState; // caching volatile field get result
+		if (!dataSendState.isAtLeast(DataSendState.SENDING)) {
+			// TODO: Test if we have to discard the first pre connect buffer.
+			checkReceived();
+			transferData(buffer);
+		} else {
+			if(!trySend(buffer)) {
+				// TODO: Test logic to send data delayed!
+				if(dataSendState != DataSendState.WAITING_FOR_FINISH) { // check if it's not waiting for a response from the other end of the connection
+					while(true) {
+						if(this.dataSendState == DataSendState.WAITING_FOR_FINISH) {
+							break;
+						}else if(trySend(buffer)) {
+							return;
+						}
+					}
+				}
+				if(preConnectBuffer == null) {
+					preConnectBuffer = Unpooled.buffer();
+				}
+				transferData(buffer);
+			}
+		}
+	}
+
+	private boolean trySend(@NotNull ByteBuf buffer) {
+		final DataSendState dataSendState = this.dataSendState; // caching volatile field get result
+		if(dataSendState.isAtLeast(DataSendState.FINISHING)) {
+			if(dataSendState == DataSendState.FINISHING) {
+				while(this.dataSendState != DataSendState.FINISHED); // we are waiting until the execution of the prepare method has finished
+			}
+			channel.writeAndFlush(buffer);
+			return true;
+		}
+		return false;
+	}
+
+	private void transferData(@NotNull ByteBuf buffer) {
+		final int readable = buffer.readableBytes();
+		ByteBufUtilExtension.correctSize(preConnectBuffer, readable, application.getBuffer());
+		preConnectBuffer.writeBytes(ByteBufUtilExtension.readBytes(buffer, readable));
+		buffer.release();
+	}
+
 	public void prepare() {
+		dataSendState = DataSendState.FINISHING;
 		if(preConnectSendQueue != null) {
 			for (DataContainer data : preConnectSendQueue) {
 				channel.writeAndFlush(data);
 			}
 			preConnectSendQueue.clear();
+			preConnectSendQueue = null;
 		}
 
 		final ByteBuf buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 1 : 4);
 		InternalUtil.writeInt(application, buffer, 0x2);
 		channel.writeAndFlush(buffer);
-		finishedSendCachedData = true;
-		if (finalBuffer != null) {
-			channel.writeAndFlush(finalBuffer);
-			finalBuffer = null;
+		if (preConnectBuffer != null) {
+			channel.writeAndFlush(preConnectBuffer);
+			preConnectBuffer = null;
 		}
+		dataSendState = DataSendState.FINISHED;
+	}
+
+	enum DataSendState {
+
+		IDLE, SENDING, WAITING_FOR_FINISH, FINISHING, FINISHED;
+
+		boolean isAtLeast(@NotNull DataSendState state) {
+			return ordinal() >= state.ordinal();
+		}
+
 	}
 	
 }

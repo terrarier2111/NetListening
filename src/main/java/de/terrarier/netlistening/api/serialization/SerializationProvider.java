@@ -11,8 +11,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class SerializationProvider {
 
-    public static final JavaIoSerializationProvider DEFAULT_SERIALIZATION_PROVIDER = new JavaIoSerializationProvider();
     public static final Object SERIALIZATION_ERROR = new Object();
+    protected SerializationProvider fallback;
     private EventManager eventManager;
 
     /**
@@ -21,7 +21,11 @@ public abstract class SerializationProvider {
      * if there is no fallback, return null.
      */
     protected SerializationProvider getFallback() {
-        return DEFAULT_SERIALIZATION_PROVIDER;
+        if(fallback == null) {
+            fallback = new JavaIoSerializationProvider();
+            fallback.setEventManager(eventManager);
+        }
+        return fallback;
     }
 
     /**

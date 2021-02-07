@@ -13,6 +13,7 @@ import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
 import de.terrarier.netlistening.api.event.*;
 import de.terrarier.netlistening.api.proxy.Proxy;
 import de.terrarier.netlistening.api.proxy.ProxyType;
+import de.terrarier.netlistening.api.serialization.JavaIoSerializationProvider;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.network.*;
 import de.terrarier.netlistening.utils.ChannelUtil;
@@ -57,7 +58,8 @@ public final class ClientImpl implements Client {
     private EncryptionSetting encryptionSetting;
     private HashingAlgorithm serverKeyHashing = HashingAlgorithm.SHA_256;
     private ServerKey serverKey;
-    private SerializationProvider serializationProvider = SerializationProvider.DEFAULT_SERIALIZATION_PROVIDER;
+    private SerializationProvider serializationProvider = new JavaIoSerializationProvider();
+    // TODO: Improve and test delayed data sending mechanics.
 
     private void start(long timeout, int localPort, @NotNull Map<ChannelOption<?>, Object> options, @NotNull SocketAddress remoteAddress, Proxy proxy) {
         if (group != null) {
@@ -116,6 +118,26 @@ public final class ClientImpl implements Client {
             }
         });
         client.start();
+    }
+
+    public void receiveHandshake(@NotNull CompressionSetting compressionSetting, @NotNull PacketSynchronization packetSynchronization,
+                                 Charset stringEncoding, EncryptionSetting encryptionSetting, byte[] serverKey) {
+        this.compressionSetting = compressionSetting;
+        this.packetSynchronization = packetSynchronization;
+
+        if (stringEncoding != null) {
+            this.stringEncoding = stringEncoding;
+        }
+
+        if(encryptionSetting != null) {
+            try {
+                encryptionSetting.init(null);
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                e.printStackTrace();
+            }
+            this.encryptionSetting = encryptionSetting;
+            setServerKey(serverKey, serverKeyHashing);
+        }
     }
 
     public void pushCachedData() {
@@ -208,26 +230,6 @@ public final class ClientImpl implements Client {
     @Override
     public @NotNull Charset getStringEncoding() {
         return stringEncoding;
-    }
-
-    public void receiveHandshake(@NotNull CompressionSetting compressionSetting, @NotNull PacketSynchronization packetSynchronization,
-                                 Charset stringEncoding, EncryptionSetting encryptionSetting, byte[] serverKey) {
-        this.compressionSetting = compressionSetting;
-        this.packetSynchronization = packetSynchronization;
-
-        if (stringEncoding != null) {
-            this.stringEncoding = stringEncoding;
-        }
-
-        if(encryptionSetting != null) {
-            try {
-                encryptionSetting.init(null);
-            } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                e.printStackTrace();
-            }
-            this.encryptionSetting = encryptionSetting;
-            setServerKey(serverKey, serverKeyHashing);
-        }
     }
 
     /**

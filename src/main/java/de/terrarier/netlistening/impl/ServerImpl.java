@@ -10,6 +10,7 @@ import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.SymmetricEncryptionUtil;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
 import de.terrarier.netlistening.api.event.*;
+import de.terrarier.netlistening.api.serialization.JavaIoSerializationProvider;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.network.*;
 import de.terrarier.netlistening.utils.ChannelUtil;
@@ -49,7 +50,7 @@ public final class ServerImpl implements Server {
     private Thread server;
     private Charset stringEncoding = StandardCharsets.UTF_8;
     private EncryptionSetting encryptionSetting;
-    private SerializationProvider serializationProvider = SerializationProvider.DEFAULT_SERIALIZATION_PROVIDER;
+    private SerializationProvider serializationProvider = new JavaIoSerializationProvider();
 
     /**
      * @see de.terrarier.netlistening.Application

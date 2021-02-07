@@ -11,6 +11,7 @@ public final class SerializationUtil {
 
     private SerializationUtil() {}
 
+    // TODO: Probably reduce code duplication!
     public static byte[] serialize(@NotNull Application application, @NotNull Object obj) {
         final SerializationProvider mainProvider = application.getSerializationProvider();
         SerializationProvider provider = mainProvider;
