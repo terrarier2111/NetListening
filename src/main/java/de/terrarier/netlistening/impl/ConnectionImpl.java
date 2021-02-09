@@ -306,11 +306,12 @@ public final class ConnectionImpl implements Connection {
 	public void prepare() {
 		dataSendState = DataSendState.FINISHING;
 		if(preConnectSendQueue != null) {
-			for (DataContainer data : preConnectSendQueue) {
+			final Queue<DataContainer> sendQueue = preConnectSendQueue;
+			preConnectSendQueue = null;
+			for (DataContainer data : sendQueue) {
 				channel.writeAndFlush(data);
 			}
-			preConnectSendQueue.clear();
-			preConnectSendQueue = null;
+			sendQueue.clear();
 		}
 
 		final ByteBuf buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 1 : 4);

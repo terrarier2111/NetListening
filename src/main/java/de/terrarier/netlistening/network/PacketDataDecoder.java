@@ -90,24 +90,21 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
 
         if (readable == 0) {
-            eventManager.callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE, (EventManager.EventProvider<InvalidDataEvent>) () -> {
+            eventManager.callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+                    (EventManager.EventProvider<InvalidDataEvent>) () -> {
                 final Connection connection = application.getConnection(ctx.channel());
                 return new InvalidDataEvent(connection, DataInvalidReason.EMPTY_PACKET, EmptyArrays.EMPTY_BYTES);
             });
             throw new IllegalStateException("Received an empty packet!");
         }
-        readPacket(ctx, buffer, dataComp);
-    }
-
-    private void readPacket(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf buffer, @NotNull List<Object> dataComp) throws Exception {
-        readPacket(ctx, buffer, dataComp, null, null);
+        readPacket(ctx, buffer, dataComp, buffer, null);
     }
 
     private void readPacket(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf buffer, @NotNull List<Object> dataComp,
-                            ByteBuf idBuffer, boolean[] packetIdReadValidator) throws Exception {
+                            @NotNull ByteBuf idBuffer, boolean[] packetIdReadValidator) throws Exception {
         int id;
         try {
-            id = InternalUtil.readInt(application, idBuffer != null ? idBuffer : buffer);
+            id = InternalUtil.readInt(application, idBuffer);
             if (packetIdReadValidator != null) {
                 packetIdReadValidator[0] = true;
             }
@@ -128,7 +125,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
         if (id == 0x2) {
             if (!application.isClient()) {
-                eventManager.callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE, (EventManager.EventProvider<InvalidDataEvent>) () -> {
+                eventManager.callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+                        (EventManager.EventProvider<InvalidDataEvent>) () -> {
                     final Connection connection = application.getConnection(ctx.channel());
                     final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(0x2) : ConversionUtil.intToByteArray(0x2);
                     return new InvalidDataEvent(connection, DataInvalidReason.MALICIOUS_ACTION, data);
@@ -144,14 +142,16 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
 
         if (!buffer.isReadable()) {
-            eventManager.callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE, (EventManager.EventProvider<InvalidDataEvent>) () -> {
+            eventManager.callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+                    (EventManager.EventProvider<InvalidDataEvent>) () -> {
                 final Connection connection = application.getConnection(ctx.channel());
                 final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id) : ConversionUtil.intToByteArray(id);
                 return new InvalidDataEvent(connection, DataInvalidReason.INCOMPLETE_PACKET, data);
             });
 
             throw new IllegalStateException(
-                    "An error occurred while decoding - the packet to decode was empty! (skipping current packet with id: " + Integer.toHexString(id) + ")");
+                    "An error occurred while decoding - the packet to decode was empty! (skipping current packet with id: "
+                            + Integer.toHexString(id) + ")");
         }
 
         if (id == 0x0) {
@@ -162,17 +162,18 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         final ConnectionImpl connection = (ConnectionImpl) application.getConnection(ctx.channel());
         final PacketSkeleton packet = connection.getCache().getInPacketFromId(id);
         if (packet == null) {
-
-            eventManager.callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE, (EventManager.EventProvider<InvalidDataEvent>) () -> {
+            eventManager.callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+                    (EventManager.EventProvider<InvalidDataEvent>) () -> {
                 final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id) : ConversionUtil.intToByteArray(id);
                 return new InvalidDataEvent(connection, DataInvalidReason.INVALID_ID, data);
             });
 
             throw new IllegalStateException(
-                    "An error occurred while decoding - the packet to decode wasn't recognizable because it wasn't registered before! (" + Integer.toHexString(id) + ")");
+                    "An error occurred while decoding - the packet to decode wasn't recognizable because it wasn't registered before! ("
+                            + Integer.toHexString(id) + ")");
         }
 
-        read(ctx, dataComp, new ArrayList<>(), buffer, packet, 0, null);
+        read(ctx, dataComp, new ArrayList<>(packet.getData().length), buffer, packet, 0, null);
     }
 
     private void read(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> comp, @NotNull ArrayList<DataComponent<?>> dataCollection,
@@ -185,16 +186,29 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             final DataType<?> data = dataArray[i];
             if (!data.isPublished()) {
                 if (length != 1) {
-                    throw new IllegalStateException("Received illegal data - probably the connection tried to send a malicious packet!");
+                    throw new IllegalStateException(
+                            "Received illegal data - probably the connection tried to send a malicious packet!");
                 }
                 ignore = true;
             }
             final boolean useOptionalBuffer = framingBuffer != null;
+            final ByteBuf decodeBuffer = useOptionalBuffer ? framingBuffer : buffer;
             try {
-                readSingle(ctx, comp, dataCollection, useOptionalBuffer ? framingBuffer : buffer, packet, i);
+                dataCollection.add(new DataComponent(data, data.read0(ctx, comp, application, decodeBuffer)));
             } catch (CancelReadingSignal signal) {
-                // This is here in order to interrupt the method execution if framing is required
-                return;
+                // prepare framing of data
+                final int signalSize = signal.size;
+                final boolean array = signal.array;
+                holdingBuffer = Unpooled.buffer((array ? 4 : 0) + signalSize);
+                if (array) {
+                    holdingBuffer.writeInt(signalSize);
+                }
+                transferRemaining(decodeBuffer);
+                this.packet = packet;
+                this.index = index;
+                storedData = dataCollection;
+                hasId = true;
+                throw signal;
             }
             if (useOptionalBuffer) {
                 framingBuffer = null;
@@ -204,29 +218,6 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         tryRelease(buffer);
         if (!ignore) {
             handler.processData(dataCollection, ctx.channel());
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    private void readSingle(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> comp, @NotNull ArrayList<DataComponent<?>> dataCollection,
-                            @NotNull ByteBuf buffer, @NotNull PacketSkeleton packet, int index) throws Exception {
-        final DataType<?> data = packet.getData()[index];
-        try {
-            dataCollection.add(new DataComponent(data, data.read0(ctx, comp, application, buffer)));
-        } catch (CancelReadingSignal signal) {
-            // prepare framing of data
-            final int signalSize = signal.size;
-            final boolean array = signal.array;
-            holdingBuffer = Unpooled.buffer((array ? 4 : 0) + signalSize);
-            if (array) {
-                holdingBuffer.writeInt(signalSize);
-            }
-            transferRemaining(buffer);
-            this.packet = packet;
-            this.index = index;
-            storedData = dataCollection;
-            hasId = true;
-            throw signal;
         }
     }
 

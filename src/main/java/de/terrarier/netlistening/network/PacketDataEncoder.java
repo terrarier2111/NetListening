@@ -150,9 +150,9 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 			final byte[] hash = HashUtil.calculateHMAC(data, connection.getHmacKey(),
 					application.getEncryptionSetting().getHmacSetting().getHashingAlgorithm());
 			final int buffer = application.getBuffer();
-			InternalUtil.writeInt(application, dst, 0x4);
 			final int dataLength = data.length;
 			final short hashLength = (short) hash.length;
+			InternalUtil.writeInt(application, dst, 0x4);
 			ByteBufUtilExtension.correctSize(dst, 6 + dataLength + hashLength, buffer);
 			dst.writeInt(dataLength);
 			dst.writeShort(hashLength);
