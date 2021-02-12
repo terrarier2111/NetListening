@@ -79,32 +79,6 @@ public final class ServerImpl implements Server {
     /**
      * @see de.terrarier.netlistening.Application
      */
-    @Deprecated
-    @Override
-    public void sendData(@NotNull DataContainer data, int connectionId) {
-        final Connection connection = getConnection(connectionId);
-
-        if (connection == null) {
-            throw new IllegalArgumentException("There is no connection with the id " + Integer.toHexString(connectionId) + ".");
-        }
-
-        connection.sendData(data);
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Deprecated
-    @Override
-    public void sendData(@NotNull DataComponent<?> data, int connectionId) {
-        final DataContainer container = new DataContainer();
-        container.addComponent(data);
-        sendData(container, connectionId);
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
     @Override
     public Connection getConnection(@NotNull Channel channel) {
         return connections.get(channel);

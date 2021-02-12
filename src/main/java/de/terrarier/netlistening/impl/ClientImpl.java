@@ -264,24 +264,6 @@ public final class ClientImpl implements Client {
     /**
      * @see de.terrarier.netlistening.Application
      */
-    @Deprecated
-    @Override
-    public void sendData(@NotNull DataContainer data, int connectionId) {
-        sendData(data);
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Deprecated
-    @Override
-    public void sendData(@NotNull DataComponent<?> data, int connectionId) {
-        sendData(data);
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
     @Override
     public void sendData(@NotNull DataContainer data, Connection connection) {
         sendData(data);
@@ -304,7 +286,9 @@ public final class ClientImpl implements Client {
     @Deprecated
     @Override
     public void sendData(@NotNull DataComponent<?> data) {
-        sendData(data);
+        final DataContainer container = new DataContainer();
+        container.add(data);
+        sendData(container);
     }
 
     /**

@@ -126,24 +126,6 @@ public interface Application {
 	 * Sends data to a connection with a specific id.
 	 *
 	 * @param data the data which gets sent.
-	 * @param connectionId the id of the connection the data gets sent to.
-	 */
-	@Deprecated
-	void sendData(@NotNull DataContainer data, int connectionId);
-
-	/**
-	 * Sends data to a connection with a specific id.
-	 *
-	 * @param data the data which gets sent.
-	 * @param connectionId the id of the connection the data gets sent to.
-	 */
-	@Deprecated
-	void sendData(@NotNull DataComponent<?> data, int connectionId);
-
-	/**
-	 * Sends data to a connection with a specific id.
-	 *
-	 * @param data the data which gets sent.
 	 * @param connection the connection the data gets sent to.
 	 */
 	void sendData(@NotNull DataContainer data, Connection connection);
