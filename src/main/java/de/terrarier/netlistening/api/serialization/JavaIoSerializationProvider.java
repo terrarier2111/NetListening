@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.serialization;
 
+import de.terrarier.netlistening.utils.ConversionUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -31,9 +32,10 @@ public final class JavaIoSerializationProvider extends SerializationProvider {
      */
     @Override
     public boolean isDeserializable(byte[] data) {
-        // No special conditions to check here so always return true.
-        // TODO: Look for possible conditions which could be checked.
-        return true;
+        // Common stream header in hex ACED0005
+        return data.length >= 5
+                && ConversionUtil.getShortFromByteArray(data, 0) == ObjectStreamConstants.STREAM_MAGIC
+                && ConversionUtil.getShortFromByteArray(data, 2) == ObjectStreamConstants.STREAM_VERSION;
     }
 
     /**
