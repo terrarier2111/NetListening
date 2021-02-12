@@ -16,7 +16,7 @@ public final class DataTypeString extends DataType<String> {
 	private static final String EMPTY_STRING = "";
 
 	protected DataTypeString() {
-		super((byte) 0x7, 4, true);
+		super((byte) 0x7, (byte) 4, true);
 	}
 	
 	@Override

@@ -125,10 +125,10 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 				hmac = hmacSetting.getUseCase() == HmacUseCase.ALL;
 			}
 
-			final ByteBuf target = hmac ? Unpooled.buffer() : buffer;
-			writeToBuffer(target, data, packet.getId());
+			final ByteBuf dst = hmac ? Unpooled.buffer() : buffer;
+			writeToBuffer(dst, data, packet.getId());
 			if(hmac) {
-				appendHmac(target, buffer, (ConnectionImpl) application.getConnection(ctx.channel()));
+				appendHmac(dst, buffer, (ConnectionImpl) application.getConnection(ctx.channel()));
 			}
 		}
 	}

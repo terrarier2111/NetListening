@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 public final class DataTypeInternalPayload extends DataType<InternalPayload> {
 
 	public DataTypeInternalPayload() {
-		super((byte) 0x0, 1, false);
+		super((byte) 0x0, (byte) 1, false);
 	}
 	
 	@Override

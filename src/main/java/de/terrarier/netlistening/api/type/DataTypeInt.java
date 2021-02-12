@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public final class DataTypeInt extends DataType<Integer> {
 	
 	protected DataTypeInt() {
-		super((byte) 0x5, 4, true);
+		super((byte) 0x5, (byte) 4, true);
 	}
 
 	@Override

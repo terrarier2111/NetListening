@@ -56,7 +56,7 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 
 				final ByteBuf buffer = Unpooled.buffer(bufferSize);
 
-				InternalUtil.writeInt(application, buffer, 0x1);
+				InternalUtil.writeIntUnchecked(application, buffer, 0x1);
 				buffer.writeByte(counter++);
 
 				connection.getChannel().writeAndFlush(buffer);

@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public final class DataTypeShort extends DataType<Short> {
 	
 	protected DataTypeShort() {
-		super((byte) 0x6, 2, true);
+		super((byte) 0x6, (byte) 2, true);
 	}
 
 	@Override

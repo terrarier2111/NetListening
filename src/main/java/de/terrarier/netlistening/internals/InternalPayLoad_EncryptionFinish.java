@@ -29,8 +29,7 @@ public final class InternalPayLoad_EncryptionFinish extends InternalPayload {
         if(application.isClient()) {
             throw new UnsupportedOperationException("The server sent an invalid payload!");
         }
-        final ConnectionImpl connection = (ConnectionImpl) application.getConnection(channel);
-        connection.prepare();
+        ((ConnectionImpl) application.getConnection(channel)).prepare();
     }
 
 }

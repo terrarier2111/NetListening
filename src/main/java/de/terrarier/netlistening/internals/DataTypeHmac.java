@@ -22,7 +22,7 @@ import java.util.List;
 public final class DataTypeHmac extends DataType<Void> {
 
     public DataTypeHmac() {
-        super((byte) 0xF, 6, false);
+        super((byte) 0xF, (byte) 6, false);
     }
 
     @Override

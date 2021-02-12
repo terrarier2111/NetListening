@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public final class DataTypeChar extends DataType<Character> {
 	
 	protected DataTypeChar() {
-		super((byte) 0x4, 2, true);
+		super((byte) 0x4, (byte) 2, true);
 	}
 
 	@Override

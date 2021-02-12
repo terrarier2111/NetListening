@@ -36,10 +36,10 @@ public abstract class DataType<T> {
 	private static final DataType<Void> HMAC = new DataTypeHmac();
 
 	private final byte id;
-	private final int minSize;
+	private final byte minSize;
 	private final boolean published;
 
-	public DataType(byte id, int minSize, boolean published) {
+	public DataType(byte id, byte minSize, boolean published) {
 		this.id = id;
 		this.minSize = minSize;
 		this.published = published;

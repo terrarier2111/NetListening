@@ -17,6 +17,10 @@ public final class InternalUtil {
 
 	public static void writeInt(@NotNull Application application, @NotNull ByteBuf buffer, int value) {
 		ByteBufUtilExtension.correctSize(buffer, getSize(application, value), application.getBuffer());
+		writeIntUnchecked(application, buffer, value);
+	}
+
+	public static void writeIntUnchecked(@NotNull Application application, @NotNull ByteBuf buffer, int value) {
 		if (!application.getCompressionSetting().isVarIntCompression()) {
 			buffer.writeInt(value);
 			return;

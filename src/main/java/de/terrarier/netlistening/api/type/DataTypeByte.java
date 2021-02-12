@@ -12,7 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public final class DataTypeByte extends DataType<Byte> {
 	
 	protected DataTypeByte() {
-		super((byte) 0x2, 1, true);
+		super((byte) 0x2, (byte) 1, true);
 	}
 
 	@Override

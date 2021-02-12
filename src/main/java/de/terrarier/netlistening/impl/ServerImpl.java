@@ -195,7 +195,7 @@ public final class ServerImpl implements Server {
      * @see de.terrarier.netlistening.Application
      */
     @Override
-    public void stop() throws IllegalStateException {
+    public void stop() {
         if (group == null) {
             throw new IllegalStateException("The server is already stopped!");
         }
@@ -429,9 +429,8 @@ public final class ServerImpl implements Server {
         }
 
         private void validate() {
-            if (built) {
+            if (built)
                 throw ServerAlreadyBuiltException.INSTANCE;
-            }
         }
 
         private static final class ServerAlreadyBuiltException extends IllegalStateException {

@@ -95,6 +95,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 final Connection connection = application.getConnection(ctx.channel());
                 return new InvalidDataEvent(connection, DataInvalidReason.EMPTY_PACKET, EmptyArrays.EMPTY_BYTES);
             });
+
             throw new IllegalStateException("Received an empty packet!");
         }
         readPacket(ctx, buffer, dataComp, buffer, null);
@@ -131,6 +132,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                     final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(0x2) : ConversionUtil.intToByteArray(0x2);
                     return new InvalidDataEvent(connection, DataInvalidReason.MALICIOUS_ACTION, data);
                 });
+
                 throw new IllegalStateException("Received malicious data! (0x2)");
             }
 

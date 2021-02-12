@@ -315,7 +315,7 @@ public final class ConnectionImpl implements Connection {
 		}
 
 		final ByteBuf buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 1 : 4);
-		InternalUtil.writeInt(application, buffer, 0x2);
+		InternalUtil.writeIntUnchecked(application, buffer, 0x2);
 		channel.writeAndFlush(buffer);
 		if (preConnectBuffer != null) {
 			channel.writeAndFlush(preConnectBuffer);

@@ -236,7 +236,7 @@ public final class ClientImpl implements Client {
      * @see de.terrarier.netlistening.Application
      */
     @Override
-    public void stop() throws IllegalStateException {
+    public void stop() {
         if (group == null) {
             throw new IllegalStateException("The client is not running!");
         }
@@ -503,9 +503,8 @@ public final class ClientImpl implements Client {
         }
 
         private void validate() {
-            if (built) {
+            if (built)
                 throw ClientAlreadyBuiltException.INSTANCE;
-            }
         }
 
         private static final class ClientAlreadyBuiltException extends IllegalStateException {

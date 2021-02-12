@@ -30,8 +30,9 @@ public final class InternalPayLoad_Handshake extends InternalPayload {
 	@Override
 	protected void write(@NotNull Application application, @NotNull ByteBuf buffer) {
 		checkWriteable(application, buffer, 1 + 1 + 1 + 1 + 1);
-		buffer.writeBoolean(application.getCompressionSetting().isVarIntCompression());
-		buffer.writeBoolean(application.getCompressionSetting().isNibbleCompression());
+		final CompressionSetting compressionSetting = application.getCompressionSetting();
+		buffer.writeBoolean(compressionSetting.isVarIntCompression());
+		buffer.writeBoolean(compressionSetting.isNibbleCompression());
 		buffer.writeByte(application.getPacketSynchronization().ordinal());
 		final Charset charset = application.getStringEncoding();
 		final boolean utf8 = charset.equals(UTF_8);
@@ -50,14 +51,13 @@ public final class InternalPayLoad_Handshake extends InternalPayload {
 		buffer.writeBoolean(encryption);
 		if(encryption) {
 			final EncryptionOptions options = encryptionSetting.getAsymmetricSetting();
-			checkWriteable(application, buffer, 1 + 4 + 1 + 1);
+			final byte[] serverKey = encryptionSetting.getEncryptionData().getPublicKey().getEncoded();
+			final int serverKeyLength = serverKey.length;
+			checkWriteable(application, buffer, 1 + 4 + 1 + 1 + 4 + serverKeyLength);
 			buffer.writeByte(options.getType().ordinal());
 			buffer.writeInt(options.getKeySize());
 			buffer.writeByte(options.getMode().ordinal());
 			buffer.writeByte(options.getPadding().ordinal());
-			final byte[] serverKey = encryptionSetting.getEncryptionData().getPublicKey().getEncoded();
-			final int serverKeyLength = serverKey.length;
-			checkWriteable(application, buffer, 4 + serverKeyLength);
 			buffer.writeInt(serverKeyLength);
 			buffer.writeBytes(serverKey);
 		}

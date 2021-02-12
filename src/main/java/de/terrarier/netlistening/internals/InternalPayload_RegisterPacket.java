@@ -49,7 +49,7 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
         checkWriteable(application, buffer, getSize(application));
 
         if(packetId != 0x0) {
-            InternalUtil.writeInt(application, buffer, packetId);
+            InternalUtil.writeIntUnchecked(application, buffer, packetId);
         }
         buffer.writeShort(typesLength);
 

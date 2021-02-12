@@ -20,7 +20,7 @@ import java.util.List;
 public final class DataTypeEncrypt extends DataType<Void> {
 
     public DataTypeEncrypt() {
-        super((byte) 0xD, 4, false);
+        super((byte) 0xD, (byte) 4, false);
     }
 
     @Override

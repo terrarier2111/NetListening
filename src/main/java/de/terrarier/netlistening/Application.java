@@ -112,10 +112,8 @@ public interface Application {
 
 	/**
 	 * Stops the application and closes all connections.
-	 *
-	 * @throws IllegalStateException when the application is already stopped!
 	 */
-	void stop() throws IllegalStateException;
+	void stop();
 
 	/**
 	 * Disconnects a specific connection.
