@@ -17,14 +17,11 @@ public final class EventManager {
 	private final Map<ListenerType, Set<Listener<?>>[]> listeners = new HashMap<>();
 	private final DataHandler handler;
 	
-	@SuppressWarnings("unchecked")
 	public EventManager(@NotNull DataHandler handler) {
 		this.handler = handler;
-		for(ListenerType type : ListenerType.VALUES) {
-			listeners.put(type, new Set[5]);
-		}
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	public void registerListener(@NotNull Listener<?> listener) {
 		final Class<?> listenerClass = listener.getClass();
 		final ListenerType type = ListenerType.resolveType(listenerClass);
@@ -38,7 +35,7 @@ public final class EventManager {
 		}
 
 		final EventListener.Priority priority = resolvePriority(listener);
-		final Set<Listener<?>>[] listenerPriorities = listeners.get(type);
+		final Set<Listener<?>>[] listenerPriorities = listeners.computeIfAbsent(type, k -> new Set[5]);
 		final int ordinal = priority.ordinal();
 		Set<Listener<?>> demanded = listenerPriorities[ordinal];
 
@@ -48,6 +45,21 @@ public final class EventManager {
 		}
 
 		demanded.add(listener);
+	}
+
+	public void unregisterListeners(@NotNull ListenerType listenerType) {
+		if(listenerType == ListenerType.DECODE) {
+			handler.unregisterListeners();
+		}
+		final Set<Listener<?>>[] listenerPriorities = listeners.get(listenerType);
+		if(listenerPriorities != null) {
+			for(int i = 0; i < 5; i++) {
+				final Set<Listener<?>> listeners = listenerPriorities[i];
+				if(listeners != null) {
+					listeners.clear();
+				}
+			}
+		}
 	}
 
 	public boolean callEvent(@NotNull ListenerType listenerType, @NotNull Event event) {
@@ -62,9 +74,12 @@ public final class EventManager {
 	@SuppressWarnings("unchecked")
 	public boolean callEvent(@NotNull ListenerType listenerType, @NotNull CancelAction cancelAction,
 							 @NotNull EventProvider<?> eventProvider) {
+		final Set<Listener<?>>[] listeners = this.listeners.get(listenerType);
+		if(listeners == null) {
+			return false;
+		}
 		boolean cancellable = false;
 		Event event = null;
-		final Set<Listener<?>>[] listeners = this.listeners.get(listenerType);
 		for (int i = 0; i < 5; i++) {
 			final Set<Listener<?>> priorityListeners = listeners[i];
 			if(priorityListeners != null) {

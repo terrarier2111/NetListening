@@ -44,6 +44,7 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
         hmacKey = null;
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Override
     protected void write(@NotNull Application application, @NotNull ByteBuf buffer) { // TODO: perform additional null checks!
         // first as client

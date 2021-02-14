@@ -283,6 +283,14 @@ public final class ServerImpl implements Server {
      * @see de.terrarier.netlistening.Application
      */
     @Override
+    public void unregisterListeners(@NotNull ListenerType listenerType) {
+        eventManager.unregisterListeners(listenerType);
+    }
+
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
+    @Override
     public @NotNull Set<Connection> getConnections() {
         return Collections.unmodifiableSet(new HashSet<>(connections.values()));
     }
@@ -409,7 +417,7 @@ public final class ServerImpl implements Server {
 
         private static final class ServerAlreadyBuiltException extends IllegalStateException {
 
-            private static transient final ServerAlreadyBuiltException INSTANCE = new ServerAlreadyBuiltException();
+            private static final ServerAlreadyBuiltException INSTANCE = new ServerAlreadyBuiltException();
 
             private ServerAlreadyBuiltException() {
                 super("The builder can't be used anymore because the server was already built!");

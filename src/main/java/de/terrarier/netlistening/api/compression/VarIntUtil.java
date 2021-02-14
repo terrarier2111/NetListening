@@ -78,11 +78,11 @@ public final class VarIntUtil {
 	
 	public static final class VarIntParseException extends Exception {
 
-		public static transient final VarIntParseException ONE_BYTE = new VarIntParseException((byte) 1);
-		public static transient final VarIntParseException TWO_BYTES = new VarIntParseException((byte) 2);
-		public static transient final VarIntParseException THREE_BYTES = new VarIntParseException((byte) 3);
-		public static transient final VarIntParseException FOUR_BYTES = new VarIntParseException((byte) 4);
-		public static transient final VarIntParseException FIVE_BYTES = new VarIntParseException((byte) 5);
+		public static final VarIntParseException ONE_BYTE = new VarIntParseException((byte) 1);
+		public static final VarIntParseException TWO_BYTES = new VarIntParseException((byte) 2);
+		public static final VarIntParseException THREE_BYTES = new VarIntParseException((byte) 3);
+		public static final VarIntParseException FOUR_BYTES = new VarIntParseException((byte) 4);
+		public static final VarIntParseException FIVE_BYTES = new VarIntParseException((byte) 5);
 		public final byte requiredBytes;
 		
 		private VarIntParseException(byte requiredBytes) {

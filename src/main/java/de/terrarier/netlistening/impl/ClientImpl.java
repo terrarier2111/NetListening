@@ -334,6 +334,14 @@ public final class ClientImpl implements Client {
     }
 
     /**
+     * @see de.terrarier.netlistening.Application
+     */
+    @Override
+    public void unregisterListeners(@NotNull ListenerType listenerType) {
+        eventManager.unregisterListeners(listenerType);
+    }
+
+    /**
      * @see Client
      */
     @Override
@@ -493,7 +501,7 @@ public final class ClientImpl implements Client {
 
         private static final class ClientAlreadyBuiltException extends IllegalStateException {
 
-            private static transient final ClientAlreadyBuiltException INSTANCE = new ClientAlreadyBuiltException();
+            private static final ClientAlreadyBuiltException INSTANCE = new ClientAlreadyBuiltException();
 
             private ClientAlreadyBuiltException() {
                 super("The builder can't be used anymore because the client was already built!");

@@ -35,7 +35,8 @@ public final class JavaIoSerializationProvider extends SerializationProvider {
         // Common stream header in hex ACED0005
         return data.length >= 5
                 && ConversionUtil.getShortFromByteArray(data, 0) == ObjectStreamConstants.STREAM_MAGIC
-                && ConversionUtil.getShortFromByteArray(data, 2) == ObjectStreamConstants.STREAM_VERSION;
+                && ConversionUtil.getShortFromByteArray(data, 2) == ObjectStreamConstants.STREAM_VERSION
+                && (data.length != 5 || data[4] != ObjectStreamConstants.TC_NULL);
     }
 
     /**

@@ -6,6 +6,7 @@ import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.event.Listener;
+import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.network.PacketCache;
 import de.terrarier.netlistening.network.PacketSynchronization;
@@ -85,6 +86,13 @@ public interface Application {
 	 * @param listener the listener which should be registered.
 	 */
 	void registerListener(@NotNull Listener<?> listener);
+
+	/**
+	 * Unregisters all listeners of a specific type.
+	 *
+	 * @param listenerType the type of the listeners which should be unregistered.
+	 */
+	void unregisterListeners(@NotNull ListenerType listenerType);
 
 	/**
 	 * Maps a specific channel to the connection wrapping the specified channel.
