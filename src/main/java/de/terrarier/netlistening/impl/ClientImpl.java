@@ -13,9 +13,10 @@ import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
 import de.terrarier.netlistening.api.event.*;
 import de.terrarier.netlistening.api.proxy.Proxy;
 import de.terrarier.netlistening.api.proxy.ProxyType;
-import de.terrarier.netlistening.api.serialization.JavaIoSerializationProvider;
-import de.terrarier.netlistening.api.serialization.SerializationProvider;
-import de.terrarier.netlistening.network.*;
+import de.terrarier.netlistening.network.PacketDataDecoder;
+import de.terrarier.netlistening.network.PacketDataEncoder;
+import de.terrarier.netlistening.network.PacketSynchronization;
+import de.terrarier.netlistening.network.TimeOutHandler;
 import de.terrarier.netlistening.utils.ChannelUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
@@ -30,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
@@ -39,26 +39,15 @@ import java.util.*;
  * @since 1.0
  * @author Terrarier2111
  */
-public final class ClientImpl implements Client {
+public final class ClientImpl extends ApplicationImpl implements Client {
 
     private static final PacketCaching CACHING = PacketCaching.NONE;
-    private final PacketCache cache = new PacketCache();
-    private final DataHandler handler = new DataHandler(this);
-    private final EventManager eventManager = new EventManager(handler);
-    private EventLoopGroup group;
-    private Thread client;
     private Channel channel;
     private ConnectionImpl connection;
-    private PacketSynchronization packetSynchronization = PacketSynchronization.NONE;
-    private int buffer = 256;
-    private CompressionSetting compressionSetting = new CompressionSetting();
     private boolean receivedHandshake;
     private List<DataContainer> preConnectData;
-    private Charset stringEncoding = StandardCharsets.UTF_8;
-    private EncryptionSetting encryptionSetting;
     private HashingAlgorithm serverKeyHashing = HashingAlgorithm.SHA_256;
     private ServerKey serverKey;
-    private SerializationProvider serializationProvider = new JavaIoSerializationProvider();
     // TODO: Improve and test delayed data sending mechanics.
 
     private void start(long timeout, int localPort, @NotNull Map<ChannelOption<?>, Object> options, @NotNull SocketAddress remoteAddress, Proxy proxy) {
@@ -73,7 +62,7 @@ public final class ClientImpl implements Client {
 
         final boolean epoll = Epoll.isAvailable();
         group = epoll ? new EpollEventLoopGroup() : new NioEventLoopGroup();
-        client = new Thread(() -> {
+        worker = new Thread(() -> {
             try {
                 final Bootstrap bootstrap = new Bootstrap().group(group)
                         .channel(epoll ? EpollSocketChannel.class : NioSocketChannel.class)
@@ -91,10 +80,10 @@ public final class ClientImpl implements Client {
 
                                 if (timeout > 0) {
                                     pipeline.addLast("readTimeOutHandler",
-                                            new TimeOutHandler(ClientImpl.this, eventManager, connection, timeout));
+                                            new TimeOutHandler(ClientImpl.this, connection, timeout));
                                 }
 
-                                pipeline.addLast("decoder", new PacketDataDecoder(ClientImpl.this, handler, eventManager))
+                                pipeline.addLast("decoder", new PacketDataDecoder(ClientImpl.this, handler))
                                         .addAfter("decoder", "encoder", new PacketDataEncoder(ClientImpl.this));
 
                                 if (proxy != null) {
@@ -117,7 +106,7 @@ public final class ClientImpl implements Client {
                 e.printStackTrace();
             }
         });
-        client.start();
+        worker.start();
     }
 
     public void receiveHandshake(@NotNull CompressionSetting compressionSetting, @NotNull PacketSynchronization packetSynchronization,
@@ -179,14 +168,6 @@ public final class ClientImpl implements Client {
      * @see de.terrarier.netlistening.Application
      */
     @Override
-    public @NotNull PacketCache getCache() {
-        return cache;
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
     public Connection getConnection(Channel channel) {
         return connection;
     }
@@ -208,13 +189,6 @@ public final class ClientImpl implements Client {
         return Collections.singleton(connection);
     }
 
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public @NotNull PacketSynchronization getPacketSynchronization() {
-        return packetSynchronization;
-    }
 
     /**
      * @see de.terrarier.netlistening.Application
@@ -222,14 +196,6 @@ public final class ClientImpl implements Client {
     @Override
     public @NotNull PacketCaching getCaching() {
         return CACHING;
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public @NotNull Charset getStringEncoding() {
-        return stringEncoding;
     }
 
     /**
@@ -245,7 +211,7 @@ public final class ClientImpl implements Client {
         handler.unregisterListeners();
         group.shutdownGracefully();
         group = null;
-        client.interrupt();
+        worker.interrupt();
     }
 
     /**
@@ -292,56 +258,6 @@ public final class ClientImpl implements Client {
     }
 
     /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public int getBuffer() {
-        return buffer;
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public EncryptionSetting getEncryptionSetting() {
-        return encryptionSetting;
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @NotNull
-    @Override
-    public CompressionSetting getCompressionSetting() {
-        return compressionSetting;
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @NotNull
-    @Override
-    public SerializationProvider getSerializationProvider() {
-        return serializationProvider;
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public void registerListener(@NotNull Listener<?> listener) {
-        eventManager.registerListener(listener);
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public void unregisterListeners(@NotNull ListenerType listenerType) {
-        eventManager.unregisterListeners(listenerType);
-    }
-
-    /**
      * @see Client
      */
     @Override
@@ -369,7 +285,8 @@ public final class ClientImpl implements Client {
     }
 
     private boolean setServerKey(@NotNull ServerKey serverKey) {
-        if(!eventManager.callEvent(ListenerType.KEY_CHANGE, EventManager.CancelAction.IGNORE, (EventManager.EventProvider<KeyChangeEvent>) () -> {
+        if(!eventManager.callEvent(ListenerType.KEY_CHANGE, EventManager.CancelAction.IGNORE,
+                (EventManager.EventProvider<KeyChangeEvent>) () -> {
             final boolean replace = this.serverKey != null;
             final boolean hashChanged = replace && !HashUtil.isHashMatching(this.serverKey.getKeyHash(), serverKey.getKeyHash());
             final KeyChangeEvent.KeyChangeResult result = replace ?
@@ -398,29 +315,16 @@ public final class ClientImpl implements Client {
         return receivedHandshake;
     }
 
-    public static final class Builder {
+    public static final class Builder extends ApplicationImpl.Builder<ClientImpl, Builder> {
 
-        private final ClientImpl client = new ClientImpl();
-        private final Map<ChannelOption<?>, Object> options = new HashMap<>();
         private final SocketAddress remoteAddress;
-        private long timeout;
         private int localPort;
         private boolean changedHashingAlgorithm;
         private Proxy proxy;
-        private boolean built;
 
         public Builder(@NotNull SocketAddress remoteAddress) {
+            super(new ClientImpl());
             this.remoteAddress = remoteAddress;
-            // https://en.wikipedia.org/wiki/Type_of_service
-            options.put(ChannelOption.IP_TOS, 0x18);
-        }
-
-        /**
-         * @see Client.Builder
-         */
-        public void timeout(long timeout) {
-            validate();
-            this.timeout = timeout;
         }
 
         /**
@@ -434,17 +338,9 @@ public final class ClientImpl implements Client {
         /**
          * @see Client.Builder
          */
-        public void buffer(int buffer) {
-            validate();
-            client.buffer = buffer;
-        }
-
-        /**
-         * @see Client.Builder
-         */
         public void serverKeyHashingAlgorithm(@NotNull HashingAlgorithm hashingAlgorithm) {
             validate();
-            client.serverKeyHashing = hashingAlgorithm;
+            application.serverKeyHashing = hashingAlgorithm;
             changedHashingAlgorithm = true;
         }
 
@@ -453,26 +349,10 @@ public final class ClientImpl implements Client {
          */
         public void serverKeyHash(byte[] bytes) {
             validate();
-            client.serverKey = new ServerKey(bytes);
+            application.serverKey = new ServerKey(bytes);
             if(!changedHashingAlgorithm) {
-                client.serverKeyHashing = client.serverKey.getHashingAlgorithm();
+                application.serverKeyHashing = application.serverKey.getHashingAlgorithm();
             }
-        }
-
-        /**
-         * @see Client.Builder
-         */
-        public <T> void option(@NotNull ChannelOption<T> option, T value) {
-            validate();
-            options.put(option, value);
-        }
-
-        /**
-         * @see Client.Builder
-         */
-        public void serialization(@NotNull SerializationProvider serializationProvider) {
-            validate();
-            client.serializationProvider = serializationProvider;
         }
 
         /**
@@ -484,19 +364,16 @@ public final class ClientImpl implements Client {
         }
 
         /**
-         * @see Client.Builder
+         * @see ApplicationImpl.Builder#build()
          */
-        @NotNull
-        public ClientImpl build() {
-            validate();
-            built = true;
-            client.start(timeout, localPort, options, remoteAddress, proxy);
-            return client;
+        @Override
+        protected void build0() {
+            application.start(timeout, localPort, options, remoteAddress, proxy);
         }
 
-        private void validate() {
-            if (built)
-                throw ClientAlreadyBuiltException.INSTANCE;
+        @Override
+        protected void fail() {
+            throw ClientAlreadyBuiltException.INSTANCE;
         }
 
         private static final class ClientAlreadyBuiltException extends IllegalStateException {

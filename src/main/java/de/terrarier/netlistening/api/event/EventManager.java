@@ -93,10 +93,7 @@ public final class EventManager {
 					}catch (Exception e) {
 						if(event.getClass() != ExceptionTrowEvent.class) { // TODO: Check if this check is necessary
 							final ExceptionTrowEvent exceptionTrowEvent = new ExceptionTrowEvent(e);
-							callEvent(ListenerType.EXCEPTION_THROW, exceptionTrowEvent);
-							if (exceptionTrowEvent.isPrint()) {
-								exceptionTrowEvent.getException().printStackTrace();
-							}
+							handleExceptionThrown(exceptionTrowEvent);
 						}
 					}
 					if(cancellable && cancelAction == CancelAction.INTERRUPT && ((Cancellable) event).isCancelled()) {
@@ -120,6 +117,13 @@ public final class EventManager {
 			e.printStackTrace(); // TODO: Handle this better because it's something what shouldn't occur at all.
 		}
 		return EventListener.Priority.MEDIUM;
+	}
+
+	public void handleExceptionThrown(@NotNull ExceptionTrowEvent exceptionTrowEvent) {
+		callEvent(ListenerType.EXCEPTION_THROW, exceptionTrowEvent);
+		if (exceptionTrowEvent.isPrint()) {
+			exceptionTrowEvent.getException().printStackTrace();
+		}
 	}
 
 	public enum CancelAction {

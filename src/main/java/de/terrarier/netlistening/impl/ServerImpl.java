@@ -9,13 +9,20 @@ import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.SymmetricEncryptionUtil;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
-import de.terrarier.netlistening.api.event.*;
-import de.terrarier.netlistening.api.serialization.JavaIoSerializationProvider;
-import de.terrarier.netlistening.api.serialization.SerializationProvider;
-import de.terrarier.netlistening.network.*;
+import de.terrarier.netlistening.api.event.ConnectionPostInitEvent;
+import de.terrarier.netlistening.api.event.ConnectionPreInitEvent;
+import de.terrarier.netlistening.api.event.EventManager;
+import de.terrarier.netlistening.api.event.ListenerType;
+import de.terrarier.netlistening.network.PacketDataDecoder;
+import de.terrarier.netlistening.network.PacketDataEncoder;
+import de.terrarier.netlistening.network.PacketSynchronization;
+import de.terrarier.netlistening.network.TimeOutHandler;
 import de.terrarier.netlistening.utils.ChannelUtil;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
@@ -24,7 +31,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
@@ -35,75 +41,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 1.0
  * @author Terrarier2111
  */
-public final class ServerImpl implements Server {
+public final class ServerImpl extends ApplicationImpl implements Server {
 
     private final Map<Channel, ConnectionImpl> connections = new ConcurrentHashMap<>();
     private final AtomicInteger id = new AtomicInteger();
-    private final PacketCache cache = new PacketCache();
-    private final DataHandler handler = new DataHandler(this);
-    private final EventManager eventManager = new EventManager(handler);
-    private int buffer = 256;
     private PacketCaching caching = PacketCaching.NONE;
-    private PacketSynchronization packetSynchronization = PacketSynchronization.NONE;
-    private CompressionSetting compressionSetting;
-    private EventLoopGroup group;
-    private Thread server;
-    private Charset stringEncoding = StandardCharsets.UTF_8;
-    private EncryptionSetting encryptionSetting;
-    private SerializationProvider serializationProvider = new JavaIoSerializationProvider();
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public @NotNull PacketCaching getCaching() {
-        return caching;
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public @NotNull PacketSynchronization getPacketSynchronization() {
-        return packetSynchronization;
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public @NotNull Charset getStringEncoding() {
-        return stringEncoding;
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public Connection getConnection(@NotNull Channel channel) {
-        return connections.get(channel);
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public Connection getConnection(int id) {
-        for (Connection connection : connections.values()) {
-            if (connection.getId() == id) {
-                return connection;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public @NotNull PacketCache getCache() {
-        return cache;
-    }
 
     private void start(long timeout, int port, @NotNull Map<ChannelOption<?>, Object> options) {
         if (group != null) {
@@ -113,9 +55,9 @@ public final class ServerImpl implements Server {
 
         final boolean epoll = Epoll.isAvailable();
         group = epoll ? new EpollEventLoopGroup() : new NioEventLoopGroup();
-        server = new Thread(() -> {
+        worker = new Thread(() -> {
             try {
-               final Channel channel = new ServerBootstrap().group(group)
+                final Channel channel = new ServerBootstrap().group(group)
                         .channel(epoll ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
                         .childHandler(new ChannelInitializer<Channel>() {
                             @Override
@@ -146,9 +88,9 @@ public final class ServerImpl implements Server {
 
                                 if (timeout > 0) {
                                     pipeline.addLast("readTimeOutHandler",
-                                            new TimeOutHandler(ServerImpl.this, eventManager, connection, timeout));
+                                            new TimeOutHandler(ServerImpl.this, connection, timeout));
                                 }
-                                pipeline.addLast("decoder", new PacketDataDecoder(ServerImpl.this, handler, eventManager))
+                                pipeline.addLast("decoder", new PacketDataDecoder(ServerImpl.this, handler))
                                         .addAfter("decoder", "encoder", new PacketDataEncoder(ServerImpl.this));
 
                                 connections.put(channel, connection);
@@ -162,7 +104,36 @@ public final class ServerImpl implements Server {
                 e.printStackTrace();
             }
         });
-        server.start();
+        worker.start();
+    }
+
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
+    @Override
+    public @NotNull PacketCaching getCaching() {
+        return caching;
+    }
+
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
+    @Override
+    public Connection getConnection(@NotNull Channel channel) {
+        return connections.get(channel);
+    }
+
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
+    @Override
+    public Connection getConnection(int id) {
+        for (Connection connection : connections.values()) {
+            if (connection.getId() == id) {
+                return connection;
+            }
+        }
+        return null;
     }
 
     /**
@@ -181,8 +152,8 @@ public final class ServerImpl implements Server {
         handler.unregisterListeners();
         group.shutdownGracefully();
         group = null;
-        server.interrupt();
-        server = null;
+        worker.interrupt();
+        worker = null;
     }
 
     /**
@@ -242,71 +213,17 @@ public final class ServerImpl implements Server {
      * @see de.terrarier.netlistening.Application
      */
     @Override
-    public int getBuffer() {
-        return buffer;
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public EncryptionSetting getEncryptionSetting() {
-        return encryptionSetting;
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public @NotNull CompressionSetting getCompressionSetting() {
-        return compressionSetting;
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @NotNull
-    @Override
-    public SerializationProvider getSerializationProvider() {
-        return serializationProvider;
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public void registerListener(@NotNull Listener<?> listener) {
-        eventManager.registerListener(listener);
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public void unregisterListeners(@NotNull ListenerType listenerType) {
-        eventManager.unregisterListeners(listenerType);
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
     public @NotNull Set<Connection> getConnections() {
         return Collections.unmodifiableSet(new HashSet<>(connections.values()));
     }
 
-    public static final class Builder {
+    public static final class Builder extends ApplicationImpl.Builder<ServerImpl, Builder> {
 
-        private final ServerImpl server = new ServerImpl();
-        private final Map<ChannelOption<?>, Object> options = new HashMap<>();
         private final int port;
-        private long timeout;
-        private boolean built;
 
         public Builder(int port) {
+            super(new ServerImpl());
             this.port = port;
-            // https://en.wikipedia.org/wiki/Type_of_service
-            options.put(ChannelOption.IP_TOS, 0x18);
         }
 
         /**
@@ -314,23 +231,7 @@ public final class ServerImpl implements Server {
          */
         public void caching(@NotNull PacketCaching caching) {
             validate();
-            server.caching = caching;
-        }
-
-        /**
-         * @see Server.Builder
-         */
-        public void timeout(long timeout) {
-            validate();
-            this.timeout = timeout;
-        }
-
-        /**
-         * @see Server.Builder
-         */
-        public void buffer(int buffer) {
-            validate();
-            server.buffer = buffer;
+            application.caching = caching;
         }
 
         /**
@@ -338,7 +239,7 @@ public final class ServerImpl implements Server {
          */
         public void packetSynchronization(@NotNull PacketSynchronization packetSynchronization) {
             validate();
-            server.packetSynchronization = packetSynchronization;
+            application.packetSynchronization = packetSynchronization;
         }
 
         /**
@@ -346,7 +247,7 @@ public final class ServerImpl implements Server {
          */
         public void compression(@NotNull CompressionSetting compressionSetting) {
             validate();
-            server.compressionSetting = compressionSetting;
+            application.compressionSetting = compressionSetting;
         }
 
         /**
@@ -354,7 +255,7 @@ public final class ServerImpl implements Server {
          */
         public void stringEncoding(@NotNull Charset charset) {
             validate();
-            server.stringEncoding = charset;
+            application.stringEncoding = charset;
         }
 
         /**
@@ -362,57 +263,38 @@ public final class ServerImpl implements Server {
          */
         public void encryption(@NotNull EncryptionSetting encryptionSetting) {
             validate();
-            server.encryptionSetting = encryptionSetting;
+            application.encryptionSetting = encryptionSetting;
         }
 
         /**
-         * @see Server.Builder
+         * @see ApplicationImpl.Builder
          */
-        public <T> void option(@NotNull ChannelOption<T> option, T value) {
-            validate();
-            options.put(option, value);
-        }
-
-        /**
-         * @see Server.Builder
-         */
-        public void serialization(@NotNull SerializationProvider serializationProvider) {
-            validate();
-            server.serializationProvider = serializationProvider;
-        }
-
-        /**
-         * @see Server.Builder
-         */
-        public ServerImpl build() {
-            validate();
-            built = true;
-
-            if (server.caching == PacketCaching.NONE) {
-                server.caching = PacketCaching.GLOBAL;
+        @Override
+        protected void build0() {
+            if (application.caching == PacketCaching.NONE) {
+                application.caching = PacketCaching.GLOBAL;
             }
 
-            if(server.compressionSetting == null) {
-                server.compressionSetting = new CompressionSetting();
+            if(application.compressionSetting == null) {
+                application.compressionSetting = new CompressionSetting();
             }
 
-            if (server.encryptionSetting != null) {
-                if(!server.encryptionSetting.isInitialized()) {
+            if (application.encryptionSetting != null) {
+                if(!application.encryptionSetting.isInitialized()) {
                     try {
-                        server.encryptionSetting.init(null);
+                        application.encryptionSetting.init(null);
                     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                         e.printStackTrace();
-                        return null;
+                        return;
                     }
                 }
             }
-            server.start(timeout, port, options);
-            return server;
+            application.start(timeout, port, options);
         }
 
-        private void validate() {
-            if (built)
-                throw ServerAlreadyBuiltException.INSTANCE;
+        @Override
+        protected void fail() {
+            throw ServerAlreadyBuiltException.INSTANCE;
         }
 
         private static final class ServerAlreadyBuiltException extends IllegalStateException {

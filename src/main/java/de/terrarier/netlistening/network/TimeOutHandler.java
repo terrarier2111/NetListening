@@ -1,10 +1,9 @@
 package de.terrarier.netlistening.network;
 
-import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.event.ConnectionTimeoutEvent;
-import de.terrarier.netlistening.api.event.EventManager;
 import de.terrarier.netlistening.api.event.ListenerType;
+import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.internals.InternalUtil;
@@ -26,20 +25,19 @@ import java.util.concurrent.TimeUnit;
  */
 public final class TimeOutHandler extends ReadTimeoutHandler {
 
-	private final Application application;
-	private final EventManager eventManager;
+	private final ApplicationImpl application;
 	private Timer timer = new Timer();
 	private byte counter = Byte.MIN_VALUE;
 	
-	public TimeOutHandler(@NotNull Application application, @NotNull EventManager eventManager,
+	public TimeOutHandler(@NotNull ApplicationImpl application,
 						  @NotNull ConnectionImpl connection, long timeout) {
 		super(timeout, TimeUnit.MILLISECONDS);
 		this.application = application;
-		this.eventManager = eventManager;
 
 		final long delay = timeout / 2;
 		final boolean client = application.isClient();
 		final int bufferSize = application.getCompressionSetting().isVarIntCompression() ? 2 : 5;
+		final Channel channel = connection.getChannel();
 
 		timer.schedule(new TimerTask() {
 
@@ -59,7 +57,7 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 				InternalUtil.writeIntUnchecked(application, buffer, 0x1);
 				buffer.writeByte(counter++);
 
-				connection.getChannel().writeAndFlush(buffer);
+				channel.writeAndFlush(buffer);
 			}
 		}, delay, delay);
 	}
@@ -98,7 +96,7 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 			return false;
 		}
 
-		return eventManager.callEvent(ListenerType.TIMEOUT, new ConnectionTimeoutEvent(connection));
+		return application.getEventManager().callEvent(ListenerType.TIMEOUT, new ConnectionTimeoutEvent(connection));
 	}
 
 }

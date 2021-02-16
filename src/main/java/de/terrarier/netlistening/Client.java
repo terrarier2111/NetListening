@@ -41,7 +41,7 @@ public interface Client extends Application {
         return true;
     }
 
-    class Builder {
+    final class Builder extends Application.Builder<Client, Builder> {
 
         private final ClientImpl.Builder impl;
 
@@ -54,11 +54,7 @@ public interface Client extends Application {
         }
 
         /**
-         * Sets a specific read timeout for the connection, and automatically writes
-         * data to the server ever timeout / 2 milliseconds
-         *
-         * @param timeout the amount of milliseconds in which any data should be received.
-         * @return the local reference.
+         * @see Application.Builder
          */
         @NotNull
         public Builder timeout(long timeout) {
@@ -79,11 +75,7 @@ public interface Client extends Application {
         }
 
         /**
-         * Sets the buffer size which is added on top of the required space,
-         * every time a buffer is expanded.
-         *
-         * @param buffer the additional size added to the buffer.
-         * @return the local reference.
+         * @see Application.Builder
          */
         @NotNull
         public Builder buffer(int buffer) {
@@ -118,13 +110,7 @@ public interface Client extends Application {
         }
 
         /**
-         * Sets a specific option of the channel to a specific
-         * value when the channel gets opened!
-         *
-         * @param option the option to be set.
-         * @param value the value to be assigned to the option.
-         * @param <T> the type of the option.
-         * @return the local reference.
+         * @see Application.Builder
          */
         @NotNull
         public <T> Builder option(@NotNull ChannelOption<T> option, T value) {
@@ -133,12 +119,7 @@ public interface Client extends Application {
         }
 
         /**
-         * Sets the serialization provider which is to be used to
-         * perform serialization operations.
-         *
-         * @param serializationProvider the serialization provider which provides
-         * an implementation for serialization operations.
-         * @return the local reference.
+         * @see Application.Builder
          */
         @NotNull
         public Builder serialization(@NotNull SerializationProvider serializationProvider) {
@@ -161,9 +142,7 @@ public interface Client extends Application {
         }
 
         /**
-         * Builds the client, sets its default values and starts it.
-         *
-         * @return the started client.
+         * @see Application.Builder
          */
         @NotNull
         public Client build() {

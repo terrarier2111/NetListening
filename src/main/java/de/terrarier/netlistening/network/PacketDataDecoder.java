@@ -1,11 +1,11 @@
 package de.terrarier.netlistening.network;
 
-import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.compression.VarIntUtil;
 import de.terrarier.netlistening.api.event.*;
 import de.terrarier.netlistening.api.type.DataType;
+import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.internals.CancelReadingSignal;
@@ -31,9 +31,8 @@ import java.util.List;
  */
 public final class PacketDataDecoder extends ByteToMessageDecoder {
 
-    private final Application application;
+    private final ApplicationImpl application;
     private final DataHandler handler;
-    private final EventManager eventManager;
     private boolean framing;
     private ByteBuf holdingBuffer;
     private ArrayList<DataComponent<?>> storedData;
@@ -42,10 +41,9 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     private boolean hasId;
     private boolean release;
 
-    public PacketDataDecoder(@NotNull Application application, @NotNull DataHandler handler, @NotNull EventManager eventManager) {
+    public PacketDataDecoder(@NotNull ApplicationImpl application, @NotNull DataHandler handler) {
         this.application = application;
         this.handler = handler;
-        this.eventManager = eventManager;
     }
 
     @Override
@@ -90,7 +88,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
 
         if (readable == 0) {
-            eventManager.callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+            application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                     (EventManager.EventProvider<InvalidDataEvent>) () -> {
                 final Connection connection = application.getConnection(ctx.channel());
                 return new InvalidDataEvent(connection, DataInvalidReason.EMPTY_PACKET, EmptyArrays.EMPTY_BYTES);
@@ -126,7 +124,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
         if (id == 0x2) {
             if (!application.isClient()) {
-                eventManager.callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+                application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                         (EventManager.EventProvider<InvalidDataEvent>) () -> {
                     final Connection connection = application.getConnection(ctx.channel());
                     final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(0x2) : ConversionUtil.intToByteArray(0x2);
@@ -144,7 +142,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
 
         if (!buffer.isReadable()) {
-            eventManager.callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+            application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                     (EventManager.EventProvider<InvalidDataEvent>) () -> {
                 final Connection connection = application.getConnection(ctx.channel());
                 final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id) : ConversionUtil.intToByteArray(id);
@@ -164,7 +162,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         final ConnectionImpl connection = (ConnectionImpl) application.getConnection(ctx.channel());
         final PacketSkeleton packet = connection.getCache().getInPacketFromId(id);
         if (packet == null) {
-            eventManager.callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+            application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                     (EventManager.EventProvider<InvalidDataEvent>) () -> {
                 final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id) : ConversionUtil.intToByteArray(id);
                 return new InvalidDataEvent(connection, DataInvalidReason.INVALID_ID, data);
@@ -193,8 +191,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 }
                 ignore = true;
             }
-            final boolean useOptionalBuffer = framingBuffer != null;
-            final ByteBuf decodeBuffer = useOptionalBuffer ? framingBuffer : buffer;
+            final boolean hasDecodeBuffer = framingBuffer != null;
+            final ByteBuf decodeBuffer = hasDecodeBuffer ? framingBuffer : buffer;
             try {
                 dataCollection.add(new DataComponent(data, data.read0(ctx, comp, application, decodeBuffer)));
             } catch (CancelReadingSignal signal) {
@@ -212,7 +210,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 hasId = true;
                 throw signal;
             }
-            if (useOptionalBuffer) {
+            if (hasDecodeBuffer) {
                 framingBuffer = null;
             }
         }
@@ -259,7 +257,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     @Override
     public void channelUnregistered(@NotNull ChannelHandlerContext ctx) throws Exception {
         final ConnectionDisconnectEvent event = new ConnectionDisconnectEvent(application.getConnection(ctx.channel()));
-        eventManager.callEvent(ListenerType.DISCONNECT, event);
+        application.getEventManager().callEvent(ListenerType.DISCONNECT, event);
         super.channelUnregistered(ctx);
     }
 
@@ -274,9 +272,6 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     @Override
     public void exceptionCaught(@NotNull ChannelHandlerContext ctx, @NotNull Throwable cause) {
         final ExceptionTrowEvent event = new ExceptionTrowEvent(cause);
-        eventManager.callEvent(ListenerType.EXCEPTION_THROW, event);
-        if (event.isPrint()) {
-            event.getException().printStackTrace();
-        }
+        application.getEventManager().handleExceptionThrown(event);
     }
 }

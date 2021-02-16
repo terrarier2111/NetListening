@@ -46,8 +46,7 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
 
     @SuppressWarnings("ConstantConditions")
     @Override
-    protected void write(@NotNull Application application, @NotNull ByteBuf buffer) { // TODO: perform additional null checks!
-        // first as client
+    protected void write(@NotNull Application application, @NotNull ByteBuf buffer) {
         if (!application.isClient()) {
             final EncryptionOptions asymmetricSetting = application.getEncryptionSetting().getAsymmetricSetting();
             final byte[] key = symmetricEncryptionData.getSecretKey().getEncoded();
@@ -72,7 +71,6 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
     @Override
     public void read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer)
             throws CancelReadingSignal {
-        // second as client
         final IntContainer required = new IntContainer();
         final byte[] key = readKey(buffer, required);
         if (application.isClient()) {

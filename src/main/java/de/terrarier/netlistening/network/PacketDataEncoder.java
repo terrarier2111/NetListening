@@ -1,6 +1,5 @@
 package de.terrarier.netlistening.network;
 
-import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
@@ -9,7 +8,9 @@ import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.hash.HashUtil;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
 import de.terrarier.netlistening.api.encryption.hash.HmacUseCase;
+import de.terrarier.netlistening.api.event.ExceptionTrowEvent;
 import de.terrarier.netlistening.api.type.DataType;
+import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.internals.InternalPayLoad_RegisterInPacket;
 import de.terrarier.netlistening.internals.InternalUtil;
@@ -37,10 +38,10 @@ import java.util.concurrent.TimeUnit;
 public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer> {
 
 	private static final DataComponent<?>[] EMPTY_DATA_COMPONENTS = new DataComponent[0];
-	private final Application application;
+	private final ApplicationImpl application;
 	private ExecutorService delayedExecutor;
 
-	public PacketDataEncoder(@NotNull Application application) {
+	public PacketDataEncoder(@NotNull ApplicationImpl application) {
 		this.application = application;
 	}
 
@@ -159,7 +160,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 			dst.writeBytes(data);
 			dst.writeBytes(hash);
 		} catch (NoSuchAlgorithmException | InvalidKeyException e) {
-			e.printStackTrace(); // TODO: Handle this better!
+			application.getEventManager().handleExceptionThrown(new ExceptionTrowEvent(e));
 		}
 	}
 

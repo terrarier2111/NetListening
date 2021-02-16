@@ -324,7 +324,7 @@ public final class ConnectionImpl implements Connection {
 		dataSendState = DataSendState.FINISHED;
 	}
 
-	enum DataSendState {
+	private enum DataSendState {
 
 		IDLE, SENDING, WAITING_FOR_FINISH, FINISHING, FINISHED;
 

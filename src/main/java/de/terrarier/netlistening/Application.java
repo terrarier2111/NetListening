@@ -11,6 +11,7 @@ import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.network.PacketCache;
 import de.terrarier.netlistening.network.PacketSynchronization;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelOption;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.Charset;
@@ -161,5 +162,56 @@ public interface Application {
 	 */
 	@Deprecated
 	void sendData(@NotNull DataComponent<?> data);
+
+	abstract class Builder<A extends Application, B extends Builder<A, B>> {
+
+		/**
+		 * Sets a specific read timeout for the connection, and automatically writes
+		 * data to the other end of connections every timeout / 2 milliseconds.
+		 *
+		 * @param timeout the amount of milliseconds in which any data should be received.
+		 * @return the local reference.
+		 */
+		public abstract B timeout(long timeout);
+
+		/**
+		 * Sets the buffer size which is added on top of the required space,
+		 * every time a buffer is expanded.
+		 *
+		 * @param buffer the additional size added to the buffer.
+		 * @return the local reference.
+		 */
+		public abstract B buffer(int buffer);
+
+		/**
+		 * Sets a specific option of the channel to a specific
+		 * value when the channel gets opened!
+		 *
+		 * @param option the option to be set.
+		 * @param value the value to be assigned to the option.
+		 * @param <T> the type of the option.
+		 * @return the local reference.
+		 */
+		public abstract <T> B option(@NotNull ChannelOption<T> option, T value);
+
+		/**
+		 * Sets the serialization provider which is to be used to
+		 * perform serialization operations.
+		 *
+		 * @param serializationProvider the serialization provider which provides
+		 * an implementation for serialization operations.
+		 * @return the local reference.
+		 */
+		public abstract B serialization(@NotNull SerializationProvider serializationProvider);
+
+		/**
+		 * Builds the application, sets its default values and starts it.
+		 *
+		 * @return the started application.
+		 */
+		@NotNull
+		public abstract A build();
+
+	}
 	
 }
