@@ -55,8 +55,7 @@ public final class HmacSettingWrapper extends EncryptionOptionsSuperBuilder<Hmac
     }
 
     /**
-     * Sets the hmac setting for the builder
-     * and returns it.
+     * Sets the hmac setting for the builder and returns it.
      *
      * @return the builder which was used before.
      */

@@ -9,8 +9,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * @since 1.0
@@ -26,7 +27,7 @@ public final class ServerKey {
         final ByteBuf buffer = Unpooled.wrappedBuffer(bytes);
         final byte hashingAlgorithmLength = buffer.readByte();
         final byte[] hashData = ByteBufUtilExtension.readBytes(buffer, hashingAlgorithmLength);
-        this.hashingAlgorithm = HashingAlgorithm.valueOf(new String(hashData, StandardCharsets.UTF_8));
+        this.hashingAlgorithm = HashingAlgorithm.valueOf(new String(hashData, UTF_8));
         this.keyHash = ByteBufUtilExtension.getBytes(buffer);
         buffer.release();
     }
@@ -71,7 +72,7 @@ public final class ServerKey {
      * @return a byte array which can be transformed back into a ServerKey.
      */
     public byte[] toByteArray() {
-        final byte[] hashingAlgorithmBytes = hashingAlgorithm.name().getBytes(StandardCharsets.UTF_8);
+        final byte[] hashingAlgorithmBytes = hashingAlgorithm.name().getBytes(UTF_8);
         final int habLength = hashingAlgorithmBytes.length;
         final ByteBuf buffer = Unpooled.buffer(1 + habLength + keyHash.length);
         buffer.writeByte(habLength);

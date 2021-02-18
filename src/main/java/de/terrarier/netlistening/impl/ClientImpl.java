@@ -218,13 +218,11 @@ public final class ClientImpl extends ApplicationImpl implements Client {
      * @see de.terrarier.netlistening.Application
      */
     @Override
-    public void disconnect(@NotNull Connection connection) {
-        if (!connection.isConnected()) {
-            throw new IllegalStateException(
-                    "The connection " + Integer.toHexString(connection.getId()) + " is not connected!");
+    public void disconnect(Connection connection) {
+        if (this.connection == null || !this.connection.isConnected()) {
+            throw new IllegalStateException("The connection is not established!");
         }
-
-        ((ConnectionImpl) connection).disconnect0();
+        this.connection.disconnect0();
     }
 
     /**

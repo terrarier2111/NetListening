@@ -9,7 +9,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class SerializationUtil {
 
-    private SerializationUtil() {}
+    private SerializationUtil() {
+        throw new UnsupportedOperationException("This class may not be instantiated!");
+    }
 
     // TODO: Probably reduce code duplication!
     public static byte[] serialize(@NotNull Application application, @NotNull Object obj) {

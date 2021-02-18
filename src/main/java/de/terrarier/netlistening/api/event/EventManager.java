@@ -3,10 +3,7 @@ package de.terrarier.netlistening.api.event;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @since 1.0
@@ -25,10 +22,7 @@ public final class EventManager {
 	public void registerListener(@NotNull Listener<?> listener) {
 		final Class<?> listenerClass = listener.getClass();
 		final ListenerType type = ListenerType.resolveType(listenerClass);
-
-		if(type == null) {
-			throw new NullPointerException("The type of the listener " + listenerClass.getName() + " cannot be resolved!");
-		}
+		Objects.requireNonNull(type, "The type of the listener " + listenerClass.getName() + " cannot be resolved!");
 		
 		if(type == ListenerType.DECODE) {
 			handler.addListener((DecodeListener) listener);

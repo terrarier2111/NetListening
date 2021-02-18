@@ -15,7 +15,9 @@ import java.security.SecureRandom;
  */
 public final class SymmetricEncryptionUtil {
 
-    private SymmetricEncryptionUtil() {}
+    private SymmetricEncryptionUtil() {
+        throw new UnsupportedOperationException("This class may not be instantiated!");
+    }
 
     @NotNull
     public static SymmetricEncryptionData generate(@NotNull EncryptionOptions encryptionOptions) throws NoSuchAlgorithmException {

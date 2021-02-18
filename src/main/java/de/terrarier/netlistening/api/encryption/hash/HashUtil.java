@@ -18,7 +18,9 @@ import java.security.SecureRandom;
  */
 public final class HashUtil {
 
-    private HashUtil() {}
+    private HashUtil() {
+        throw new UnsupportedOperationException("This class may not be instantiated!");
+    }
 
     public static byte[] hash(@NotNull HashingAlgorithm hashingAlgorithm, byte[] data) throws NoSuchAlgorithmException {
         return hash(hashingAlgorithm, data, 0);

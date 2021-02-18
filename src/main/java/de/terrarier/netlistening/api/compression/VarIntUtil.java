@@ -11,7 +11,9 @@ public final class VarIntUtil {
 
 	// Source: https://github.com/Netflix/hollow/blob/master/hollow/src/main/java/com/netflix/hollow/core/memory/encoding/VarInt.java
 	
-	private VarIntUtil() {}
+	private VarIntUtil() {
+		throw new UnsupportedOperationException("This class may not be instantiated!");
+	}
 	
 	public static int varIntSize(int value) {
 		if(value < 0)

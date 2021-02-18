@@ -116,7 +116,7 @@ public abstract class ApplicationImpl implements Application {
     }
 
     @NotNull
-    public EventManager getEventManager() {
+    public final EventManager getEventManager() {
         return eventManager;
     }
 
@@ -134,6 +134,7 @@ public abstract class ApplicationImpl implements Application {
         }
 
         @SuppressWarnings("unchecked")
+        @NotNull
         public final B timeout(long timeout) {
             validate();
             this.timeout = timeout;
@@ -141,6 +142,7 @@ public abstract class ApplicationImpl implements Application {
         }
 
         @SuppressWarnings("unchecked")
+        @NotNull
         public final B buffer(int buffer) {
             validate();
             application.buffer = buffer;
@@ -148,6 +150,7 @@ public abstract class ApplicationImpl implements Application {
         }
 
         @SuppressWarnings("unchecked")
+        @NotNull
         public final <T> B option(@NotNull ChannelOption<T> option, T value) {
             validate();
             options.put(option, value);
@@ -155,6 +158,7 @@ public abstract class ApplicationImpl implements Application {
         }
 
         @SuppressWarnings("unchecked")
+        @NotNull
         public final B serialization(@NotNull SerializationProvider serializationProvider) {
             validate();
             application.serializationProvider = serializationProvider;

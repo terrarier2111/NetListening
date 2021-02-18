@@ -17,7 +17,9 @@ import java.security.spec.X509EncodedKeySpec;
  */
 public final class AsymmetricEncryptionUtil {
 
-    private AsymmetricEncryptionUtil() {}
+    private AsymmetricEncryptionUtil() {
+        throw new UnsupportedOperationException("This class may not be instantiated!");
+    }
 
     @NotNull
     public static AsymmetricEncryptionData generate(@NotNull EncryptionOptions encryptionOptions)

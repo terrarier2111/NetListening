@@ -10,9 +10,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class LengthExtensionDetectionEvent implements Event {
 
-    private Result result = Result.DROP_DATA;
     private final byte[] expectedHash;
     private final byte[] actualHash;
+    private Result result = Result.DROP_DATA;
 
     public LengthExtensionDetectionEvent(byte[] expectedHash, byte[] actualHash) {
         this.expectedHash = expectedHash;
@@ -20,17 +20,17 @@ public final class LengthExtensionDetectionEvent implements Event {
     }
 
     /**
-     * @return the actual hash code calculated from the data.
-     */
-    public byte[] getActualHash() {
-        return actualHash;
-    }
-
-    /**
      * @return the hash received from the other connection.
      */
     public byte[] getExpectedHash() {
         return expectedHash;
+    }
+
+    /**
+     * @return the actual hash code calculated from the data.
+     */
+    public byte[] getActualHash() {
+        return actualHash;
     }
 
     /**

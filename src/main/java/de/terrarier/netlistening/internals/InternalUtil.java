@@ -13,7 +13,9 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class InternalUtil {
 	
-	private InternalUtil() {}
+	private InternalUtil() {
+		throw new UnsupportedOperationException("This class may not be instantiated!");
+	}
 
 	public static void writeInt(@NotNull Application application, @NotNull ByteBuf buffer, int value) {
 		ByteBufUtilExtension.correctSize(buffer, getSize(application, value), application.getBuffer());

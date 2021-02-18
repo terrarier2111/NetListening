@@ -9,7 +9,9 @@ package de.terrarier.netlistening.api.compression;
  */
 public final class NibbleUtil {
 
-    private NibbleUtil() {}
+    private NibbleUtil() {
+        throw new UnsupportedOperationException("This class may not be instantiated!");
+    }
 
     /**
      * @param combined a byte representing a pair of nibbles.

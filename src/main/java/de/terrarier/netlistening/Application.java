@@ -172,6 +172,7 @@ public interface Application {
 		 * @param timeout the amount of milliseconds in which any data should be received.
 		 * @return the local reference.
 		 */
+		@NotNull
 		public abstract B timeout(long timeout);
 
 		/**
@@ -181,6 +182,7 @@ public interface Application {
 		 * @param buffer the additional size added to the buffer.
 		 * @return the local reference.
 		 */
+		@NotNull
 		public abstract B buffer(int buffer);
 
 		/**
@@ -192,6 +194,7 @@ public interface Application {
 		 * @param <T> the type of the option.
 		 * @return the local reference.
 		 */
+		@NotNull
 		public abstract <T> B option(@NotNull ChannelOption<T> option, T value);
 
 		/**
@@ -202,6 +205,7 @@ public interface Application {
 		 * an implementation for serialization operations.
 		 * @return the local reference.
 		 */
+		@NotNull
 		public abstract B serialization(@NotNull SerializationProvider serializationProvider);
 
 		/**

@@ -50,7 +50,7 @@ public final class AsymmetricEncryptionData extends EncryptionData {
     }
 
     /**
-     * Transforms the key pair into an byte array which is returned
+     * Transforms the key pair into a byte array which is returned
      * this should ONLY be used to save the keys used for encryption
      * on the server side, the keys are NOT protected in any way
      * the user is responsible to protect and store them safely.

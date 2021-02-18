@@ -25,21 +25,18 @@ public final class ByteBufUtilExtension {
 		}
 	}
 	
-	private ByteBufUtilExtension() {}
+	private ByteBufUtilExtension() {
+		throw new UnsupportedOperationException("This class may not be instantiated!");
+	}
 	
 	public static byte[] readBytes(@NotNull ByteBuf buffer, int bytes) {
 		if(bytes == 0) {
 			return EmptyArrays.EMPTY_BYTES;
 		}
-
 		final byte[] read = getBytes(buffer, bytes);
 		
 		buffer.skipBytes(bytes);
 		return read;
-	}
-
-	public static byte[] readBytes(@NotNull ByteBuf buffer) {
-		return readBytes(buffer, buffer.readableBytes());
 	}
 	
 	public static void writeBytes(@NotNull ByteBuf buf, byte[] bytes, int buffer) {

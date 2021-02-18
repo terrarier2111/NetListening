@@ -242,7 +242,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     }
 
     private void transferRemaining(@NotNull ByteBuf buffer) {
-        final byte[] remaining = ByteBufUtilExtension.readBytes(buffer);
+        final byte[] remaining = ByteBufUtilExtension.readBytes(buffer, buffer.readableBytes());
         tryRelease(buffer);
         if (remaining.length != 0) {
             holdingBuffer.writeBytes(remaining);

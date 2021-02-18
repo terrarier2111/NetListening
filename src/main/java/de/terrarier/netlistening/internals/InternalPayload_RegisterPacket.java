@@ -39,7 +39,6 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
                 throw new IllegalArgumentException("Tried to send a packet containing an internal payload!");
             }
         }
-
         final int typesLength = types.length;
 
         if(typesLength == 0) {

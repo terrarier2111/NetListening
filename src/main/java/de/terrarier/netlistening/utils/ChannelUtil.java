@@ -14,7 +14,9 @@ import java.util.Map;
  */
 public final class ChannelUtil {
 	
-	private ChannelUtil() {}
+	private ChannelUtil() {
+		throw new UnsupportedOperationException("This class may not be instantiated!");
+	}
 
 	/**
 	 * Applies the options chosen by the user or set by default to the channel.
