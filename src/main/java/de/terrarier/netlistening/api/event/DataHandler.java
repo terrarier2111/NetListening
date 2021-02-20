@@ -35,6 +35,8 @@ public final class DataHandler {
         final DataContainer container = new DataContainer(data);
         final DecodeEvent event = new DecodeEvent(connection, container);
         final int listenerSize = listeners.size();
+
+        check:
         for (int i = 0; i < listenerSize; i++) {
             final PreparedListener listener = listeners.get(i);
             final Type[] types = listener.getTypes();
@@ -45,17 +47,11 @@ public final class DataHandler {
                 }
 
                 int index = 0;
-                boolean passedCheck = true;
                 for (int id = 0; id < dataSize; id++) {
                     final DataComponent<?> comp = data.get(id);
                     if (types[index++].getId() != comp.getType().getId()) {
-                        passedCheck = false;
-                        break;
+                        continue check;
                     }
-                }
-
-                if (!passedCheck) {
-                    continue;
                 }
             }
             container.resetReaderIndex();

@@ -33,8 +33,8 @@ public final class ByteBufUtilExtension {
 		if(bytes == 0) {
 			return EmptyArrays.EMPTY_BYTES;
 		}
+
 		final byte[] read = getBytes(buffer, bytes);
-		
 		buffer.skipBytes(bytes);
 		return read;
 	}
@@ -91,7 +91,6 @@ public final class ByteBufUtilExtension {
 			}else {
 				return bytes;
 			}
-			// return buf.array();
 		}
 
 		byte[] bytes = new byte[length];

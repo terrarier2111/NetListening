@@ -24,7 +24,7 @@ public final class DataTypeEncrypt extends DataType<Void> {
     }
 
     @Override
-    public Void read0(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> data, @NotNull Application application,
+    public Void read0(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull Application application,
             @NotNull ByteBuf buffer) throws Exception {
         checkReadable(buffer, 4);
         final int size = buffer.readInt();
@@ -34,7 +34,7 @@ public final class DataTypeEncrypt extends DataType<Void> {
         final byte[] decrypted = connection.getEncryptionContext().decrypt(ByteBufUtilExtension.readBytes(buffer, size));
         final ByteBuf dataBuffer = Unpooled.wrappedBuffer(decrypted);
         decoder.releaseNext();
-        decoder.decode(ctx, dataBuffer, data);
+        decoder.decode(ctx, dataBuffer, out);
         return null;
     }
 

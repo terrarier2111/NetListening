@@ -71,10 +71,11 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 					if (connections.size() > 1) {
 						final Channel channel = ctx.channel();
 						for (Connection connection : connections) {
-							if (!connection.getChannel().equals(channel)) {
+							final Channel conChannel = connection.getChannel();
+							if (!conChannel.equals(channel)) {
 								registerBuffer.retain();
 								if (connection.isConnected()) {
-									connection.getChannel().writeAndFlush(registerBuffer);
+									conChannel.writeAndFlush(registerBuffer);
 								} else {
 									((ConnectionImpl) connection).writeToInitialBuffer(registerBuffer);
 								}

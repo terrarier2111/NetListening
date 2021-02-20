@@ -26,7 +26,7 @@ public final class DataTypeHmac extends DataType<Void> {
     }
 
     @Override
-    public Void read0(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> data, @NotNull Application application,
+    public Void read0(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull Application application,
             @NotNull ByteBuf buffer) throws Exception {
         checkReadable(buffer, 6);
         final int size = buffer.readInt();
@@ -51,7 +51,7 @@ public final class DataTypeHmac extends DataType<Void> {
         final PacketDataDecoder decoder = (PacketDataDecoder) ctx.channel().pipeline().get("decoder");
         final ByteBuf dataBuffer = Unpooled.wrappedBuffer(traffic);
         decoder.releaseNext();
-        decoder.decode(ctx, dataBuffer, data);
+        decoder.decode(ctx, dataBuffer, out);
         return null;
     }
 

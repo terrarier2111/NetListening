@@ -72,10 +72,7 @@ public abstract class SerializationProvider {
 
     protected final void handleException(@NotNull Exception exception) {
         final ExceptionTrowEvent event = new ExceptionTrowEvent(new SerializationException(exception));
-        eventManager.callEvent(ListenerType.EXCEPTION_THROW, event);
-        if (event.isPrint()) {
-            event.getException().printStackTrace();
-        }
+        eventManager.handleExceptionThrown(event);
     }
 
     public static final class SerializationException extends Exception {

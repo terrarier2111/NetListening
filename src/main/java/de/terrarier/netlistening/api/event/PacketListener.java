@@ -20,7 +20,7 @@ import java.lang.annotation.Target;
 public @interface PacketListener {
 
 	/**
-	 * @return the dataTypes which should be the content of a packet in order to trigger the listener,
+	 * @return the data types which should be the content of a packet in order to trigger the listener,
 	 * when no dataTypes were specified, just call the listener without checking.
 	 */
 	@NotNull

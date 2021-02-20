@@ -84,9 +84,9 @@ public final class EventManager {
 				for(Listener listener : priorityListeners) {
 					try {
 						listener.trigger(event);
-					}catch (Exception e) {
-						if(event.getClass() != ExceptionTrowEvent.class) { // TODO: Check if this check is necessary
-							final ExceptionTrowEvent exceptionTrowEvent = new ExceptionTrowEvent(e);
+					}catch (Throwable throwable) {
+						if(event.getClass() != ExceptionTrowEvent.class && !(throwable instanceof OutOfMemoryError)) {
+							final ExceptionTrowEvent exceptionTrowEvent = new ExceptionTrowEvent(throwable);
 							handleExceptionThrown(exceptionTrowEvent);
 						}
 					}

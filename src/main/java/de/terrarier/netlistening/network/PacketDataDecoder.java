@@ -47,7 +47,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     }
 
     @Override
-    public void decode(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf buffer, @NotNull List<Object> dataComp) throws Exception {
+    public void decode(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf buffer, @NotNull List<Object> out) throws Exception {
         final int readable = buffer.readableBytes();
         if (framing) {
             // Framing
@@ -68,12 +68,12 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             boolean release = false;
             if (!hasId) {
                 final boolean[] idReadValidator = new boolean[1];
-                readPacket(ctx, buffer, dataComp, tmp, idReadValidator);
+                readPacket(ctx, buffer, out, tmp, idReadValidator);
                 release = idReadValidator[0];
             } else {
                 hasId = false;
                 if (packet != null) {
-                    read(ctx, dataComp, storedData, buffer, packet, index, tmp);
+                    read(ctx, out, storedData, buffer, packet, index, tmp);
                 } else {
                     readPayLoad(tmp, ctx.channel());
                 }
@@ -96,10 +96,10 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
             throw new IllegalStateException("Received an empty packet!");
         }
-        readPacket(ctx, buffer, dataComp, buffer, null);
+        readPacket(ctx, buffer, out, buffer, null);
     }
 
-    private void readPacket(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf buffer, @NotNull List<Object> dataComp,
+    private void readPacket(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf buffer, @NotNull List<Object> out,
                             @NotNull ByteBuf idBuffer, boolean[] packetIdReadValidator) throws Exception {
         int id;
         try {
@@ -136,7 +136,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
             ((ClientImpl) application).pushCachedData();
             if (buffer.isReadable()) {
-                decode(ctx, buffer, dataComp);
+                decode(ctx, buffer, out);
             }
             return;
         }
@@ -173,10 +173,10 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                             + Integer.toHexString(id) + ")");
         }
 
-        read(ctx, dataComp, new ArrayList<>(packet.getData().length), buffer, packet, 0, null);
+        read(ctx, out, new ArrayList<>(packet.getData().length), buffer, packet, 0, null);
     }
 
-    private void read(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> comp, @NotNull ArrayList<DataComponent<?>> dataCollection,
+    private void read(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull ArrayList<DataComponent<?>> dataCollection,
                       @NotNull ByteBuf buffer, @NotNull PacketSkeleton packet, int index, ByteBuf framingBuffer) throws Exception {
         final DataType<?>[] dataArray = packet.getData();
         final int length = dataArray.length;
@@ -194,7 +194,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             final boolean hasDecodeBuffer = framingBuffer != null;
             final ByteBuf decodeBuffer = hasDecodeBuffer ? framingBuffer : buffer;
             try {
-                dataCollection.add(new DataComponent(data, data.read0(ctx, comp, application, decodeBuffer)));
+                dataCollection.add(new DataComponent(data, data.read0(ctx, out, application, decodeBuffer)));
             } catch (CancelReadingSignal signal) {
                 // prepare framing of data
                 final int signalSize = signal.size;
@@ -271,6 +271,10 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
     @Override
     public void exceptionCaught(@NotNull ChannelHandlerContext ctx, @NotNull Throwable cause) {
+        if(cause instanceof OutOfMemoryError) {
+            // Don't handle OOM errors because handling them could lead into more OOM errors being thrown.
+            return;
+        }
         final ExceptionTrowEvent event = new ExceptionTrowEvent(cause);
         application.getEventManager().handleExceptionThrown(event);
     }
