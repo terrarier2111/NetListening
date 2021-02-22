@@ -51,7 +51,6 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 				if(counter == Byte.MAX_VALUE) {
 					counter = Byte.MIN_VALUE;
 				}
-
 				final ByteBuf buffer = Unpooled.buffer(bufferSize);
 
 				InternalUtil.writeIntUnchecked(application, buffer, 0x1);

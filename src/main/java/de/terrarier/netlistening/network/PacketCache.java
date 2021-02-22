@@ -67,20 +67,17 @@ public final class PacketCache {
 
 	protected PacketSkeleton getOutPacket(@NotNull DataType<?>... data) {
 		final int dataLength = data.length;
+		check:
 		for(PacketSkeleton packet : outPackets.values()) {
 			final DataType<?>[] tmp = packet.getData();
 
 			if(tmp.length == dataLength) {
-				boolean invalid = false;
 				for(int i = 0; i < dataLength; i++) {
 					if(!data[i].equals(tmp[i])) {
-						invalid = true;
-						break;
+						continue check;
 					}
 				}
-				if(!invalid) {
-					return packet;
-				}
+				return packet;
 			}
 		}
 		return null;

@@ -93,7 +93,7 @@ public final class VarIntUtil {
 
 		@NotNull
 		@Override
-		public Throwable initCause(@NotNull Throwable cause) {
+		public Throwable initCause(Throwable cause) {
 			return this;
 		}
 

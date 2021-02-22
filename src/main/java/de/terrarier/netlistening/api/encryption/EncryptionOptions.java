@@ -22,8 +22,8 @@ public final class EncryptionOptions {
      */
     @NotNull
     public EncryptionOptions type(@NotNull CipherEncryptionAlgorithm type) {
-        if(built) { // TODO: Throw exception here!
-            return this;
+        if(built) {
+            throw new IllegalStateException("The options were already built, you can't modify them anymore!");
         }
         this.type = type;
         return this;
@@ -38,9 +38,9 @@ public final class EncryptionOptions {
     @NotNull
     public EncryptionOptions keySize(int keySize) {
         if(built) {
-            return this;
+            throw new IllegalStateException("The options were already built, you can't modify them anymore!");
         }
-        this.keySize = keySize & 0x7FFFFFF8; // this magic number is validating the keySize
+        this.keySize = keySize & 0x7FFFFFF8; // this magic number is validating the key size
         return this;
     }
 
@@ -53,7 +53,7 @@ public final class EncryptionOptions {
     @NotNull
     public EncryptionOptions mode(@NotNull CipherAlgorithmMode mode) {
         if(built) {
-            return this;
+            throw new IllegalStateException("The options were already built, you can't modify them anymore!");
         }
         this.mode = mode;
         return this;
@@ -68,7 +68,7 @@ public final class EncryptionOptions {
     @NotNull
     public EncryptionOptions padding(@NotNull CipherAlgorithmPadding padding) {
         if(built) {
-            return this;
+            throw new IllegalStateException("The options were already built, you can't modify them anymore!");
         }
         this.padding = padding;
         return this;
@@ -79,10 +79,15 @@ public final class EncryptionOptions {
      */
     @NotNull
     public String build() {
-        if(type == null) {
-            throw new IllegalStateException("Please set the encryption algorithm!");
-        }
+        checkBuilt();
+        return type.name() + "/" + mode.name() + "/" + padding.getPaddingName();
+    }
+
+    private void checkBuilt() {
         if(!built) {
+            if(type == null) {
+                throw new IllegalStateException("Please set the encryption algorithm!");
+            }
             built = true;
             if (keySize < 8) {
                 keySize = type.getDefaultSize();
@@ -94,17 +99,14 @@ public final class EncryptionOptions {
                 padding = type.getDefaultPadding();
             }
         }
-        return type.name() + "/" + mode.name() + "/" + padding.getPaddingName();
     }
 
     /**
-     * @return the encryption algorithm which gets used to en-/decrypt data.
+     * @return the encryption algorithm which is used to en-/decrypt data.
      */
     @NotNull
     public CipherEncryptionAlgorithm getType() {
-        if(!built) {
-            build();
-        }
+        checkBuilt();
         return type;
     }
 
@@ -112,9 +114,7 @@ public final class EncryptionOptions {
      * @return the size of the key which is used to en-/decrypt data.
      */
     public int getKeySize() {
-        if(!built) {
-            build();
-        }
+        checkBuilt();
         return keySize;
     }
 
@@ -123,9 +123,7 @@ public final class EncryptionOptions {
      */
     @NotNull
     public CipherAlgorithmMode getMode() {
-        if(!built) {
-            build();
-        }
+        checkBuilt();
         return mode;
     }
 
@@ -134,9 +132,7 @@ public final class EncryptionOptions {
      */
     @NotNull
     public CipherAlgorithmPadding getPadding() {
-        if(!built) {
-            build();
-        }
+        checkBuilt();
         return padding;
     }
 

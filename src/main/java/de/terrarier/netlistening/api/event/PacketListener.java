@@ -21,7 +21,7 @@ public @interface PacketListener {
 
 	/**
 	 * @return the data types which should be the content of a packet in order to trigger the listener,
-	 * when no dataTypes were specified, just call the listener without checking.
+	 * when no data types were specified, just call the listener without checking.
 	 */
 	@NotNull
 	Type[] dataTypes() default {};

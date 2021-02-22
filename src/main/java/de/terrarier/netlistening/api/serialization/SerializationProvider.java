@@ -2,7 +2,6 @@ package de.terrarier.netlistening.api.serialization;
 
 import de.terrarier.netlistening.api.event.EventManager;
 import de.terrarier.netlistening.api.event.ExceptionTrowEvent;
-import de.terrarier.netlistening.api.event.ListenerType;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -54,7 +53,7 @@ public abstract class SerializationProvider {
 
     /**
      * Deserializes an object from a byte array that represents
-     * this object.
+     * that object.
      *
      * @param data the data to be deserialized to an object.
      * @return the object that was deserialized from the passed byte array.

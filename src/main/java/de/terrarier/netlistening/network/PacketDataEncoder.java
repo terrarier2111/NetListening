@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit;
  */
 public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer> {
 
-	private static final DataComponent<?>[] EMPTY_DATA_COMPONENTS = new DataComponent[0];
 	private final ApplicationImpl application;
 	private ExecutorService delayedExecutor;
 
@@ -51,10 +50,9 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 		final int dataSize = containedData.size();
 
 		if (dataSize > 0) {
-			final DataComponent<?>[] rawData = containedData.toArray(EMPTY_DATA_COMPONENTS); // TODO: Check if directly accessing the list would be faster
 			final DataType<?>[] types = new DataType<?>[dataSize];
-			for (int index = 0; index < dataSize; index++) {
-				types[index] = rawData[index].getType();
+			for (int i = 0; i < dataSize; i++) {
+				types[i] = containedData.get(i).getType();
 			}
 
 			final PacketCache cache = application.getCache();

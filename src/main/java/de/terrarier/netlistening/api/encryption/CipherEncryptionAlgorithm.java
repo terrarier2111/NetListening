@@ -9,8 +9,8 @@ import org.jetbrains.annotations.NotNull;
 public enum CipherEncryptionAlgorithm {
 
     AES(128, CipherAlgorithmMode.ECB, CipherAlgorithmPadding.PKCS5, true),
-    DES(56, CipherAlgorithmMode.ECB, CipherAlgorithmPadding.PKCS5, true),
-    DESede(168, CipherAlgorithmMode.ECB, CipherAlgorithmPadding.PKCS5, true),
+    @Deprecated DES(56, CipherAlgorithmMode.ECB, CipherAlgorithmPadding.PKCS5, true),
+    @Deprecated DESede(168, CipherAlgorithmMode.ECB, CipherAlgorithmPadding.PKCS5, true),
     RSA(2048, CipherAlgorithmMode.ECB, CipherAlgorithmPadding.PKCS1, false);
 
     private static final CipherEncryptionAlgorithm[] VALUES = values();
