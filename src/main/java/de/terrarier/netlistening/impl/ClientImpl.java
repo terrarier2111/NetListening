@@ -58,6 +58,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         if (receivedHandshake) {
             throw new IllegalStateException("The client is already stopped!");
         }
+        compressionSetting = new CompressionSetting();
         serializationProvider.setEventManager(eventManager);
 
         final boolean epoll = Epoll.isAvailable();

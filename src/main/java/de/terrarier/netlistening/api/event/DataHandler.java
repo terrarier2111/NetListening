@@ -46,10 +46,9 @@ public final class DataHandler {
                     continue;
                 }
 
-                int index = 0;
-                for (int id = 0; id < dataSize; id++) {
-                    final DataComponent<?> comp = data.get(id);
-                    if (types[index++].getId() != comp.getType().getId()) {
+                for (int j = 0; j < dataSize; j++) {
+                    final DataComponent<?> comp = data.get(j);
+                    if (types[j].getId() != comp.getType().getId()) {
                         continue check;
                     }
                 }
