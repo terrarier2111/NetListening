@@ -53,16 +53,13 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             // Framing
             final ByteBuf tmp = holdingBuffer;
             final int writable = tmp.writableBytes();
-            if (writable > readable) {
-                final byte[] remaining = ByteBufUtilExtension.readBytes(buffer, readable);
-                if (remaining.length != 0) { // check for an empty packet, should never occur
-                    tmp.writeBytes(remaining);
-                }
-                return;
-            }
-            final byte[] remaining = ByteBufUtilExtension.readBytes(buffer, writable);
+            final boolean block = writable > readable;
+            final byte[] remaining = ByteBufUtilExtension.readBytes(buffer, block ? readable : writable);
             if (remaining.length != 0) { // check for an empty packet, should never occur
                 tmp.writeBytes(remaining);
+            }
+            if (block) {
+                return;
             }
             framing = false;
             boolean release = false;
@@ -208,7 +205,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 this.index = index;
                 storedData = dataCollection;
                 hasId = true;
-                throw signal;
+                return;
             }
             if (hasDecodeBuffer) {
                 framingBuffer = null;
@@ -236,8 +233,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
     private void tryRelease(@NotNull ByteBuf buffer) {
         if (release && buffer instanceof UnpooledHeapByteBuf) {
-            buffer.release();
             release = false;
+            buffer.release();
         }
     }
 

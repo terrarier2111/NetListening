@@ -18,7 +18,7 @@ public final class SymmetricEncryptionData extends EncryptionData {
     }
 
     /**
-     * @return the key used to encrypt and decrypt data.
+     * @return the key used to en-/decrypt data.
      */
     @NotNull
     public SecretKey getSecretKey() {

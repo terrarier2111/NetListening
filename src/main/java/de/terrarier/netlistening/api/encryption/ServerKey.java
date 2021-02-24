@@ -65,7 +65,7 @@ public final class ServerKey {
     }
 
     /**
-     * Transforms the ServerKey into a byte array which can be used to save the key hash
+     * Transforms the ServerKey into a byte array which can be used to store the key hash
      * which can be compared to the public key provided by the server in order to prevent
      * MITM attacks.
      *

@@ -35,7 +35,7 @@ public final class HmacSetting {
     @NotNull
     public HmacSetting encryptionOptions(@NotNull EncryptionOptions encryption) {
         if(encryptionOptions != null) { // TODO: Check why this if statement is here!
-            encryption.getType();
+            encryption.getKeySize(); // This line makes sure that checkBuilt was called before any get ops could be performed.
             this.encryptionOptions = encryption;
         }
         return this;

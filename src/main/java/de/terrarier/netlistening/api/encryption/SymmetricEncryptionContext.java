@@ -19,7 +19,7 @@ public final class SymmetricEncryptionContext {
     }
 
     /**
-     * @return the key which is used to encrypt and decrypt data.
+     * @return the key which is used to en-/decrypt data.
      */
     @NotNull
     public SecretKey getSecretKey() {
@@ -28,7 +28,7 @@ public final class SymmetricEncryptionContext {
 
     /**
      * @param data the data to be encrypted.
-     * @return the data encrypted with the internal encryptionKey.
+     * @return the data encrypted with the internal encryption key.
      */
     public byte[] encrypt(byte[] data) {
         return SymmetricEncryptionUtil.encrypt(data, symmetricEncryptionData);
@@ -36,7 +36,7 @@ public final class SymmetricEncryptionContext {
 
     /**
      * @param data the data to be decrypted.
-     * @return the data decrypted with the internal encryptionKey.
+     * @return the data decrypted with the internal encryption key.
      */
     public byte[] decrypt(byte[] data) {
         return SymmetricEncryptionUtil.decrypt(data, symmetricEncryptionData);
