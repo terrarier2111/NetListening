@@ -173,15 +173,16 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         read(ctx, out, new ArrayList<>(packet.getData().length), buffer, packet, 0, null);
     }
 
-    private void read(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull ArrayList<DataComponent<?>> dataCollection,
+    @SuppressWarnings("unchecked")
+    private void read(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull ArrayList<DataComponent<?>> data,
                       @NotNull ByteBuf buffer, @NotNull PacketSkeleton packet, int index, ByteBuf framingBuffer) throws Exception {
-        final DataType<?>[] dataArray = packet.getData();
-        final int length = dataArray.length;
+        final DataType<?>[] dataTypes = packet.getData();
+        final int length = dataTypes.length;
         boolean ignore = false;
 
         for (int i = index; i < length; i++) {
-            final DataType<?> data = dataArray[i];
-            if (!data.isPublished()) {
+            final DataType<?> dataType = dataTypes[i];
+            if (!dataType.isPublished()) {
                 if (length != 1) {
                     throw new IllegalStateException(
                             "Received illegal data - probably the connection tried to send a malicious packet!");
@@ -192,16 +193,15 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             final ByteBuf decodeBuffer = hasDecodeBuffer ? framingBuffer : buffer;
             final int start = decodeBuffer.readerIndex();
             try {
-                dataCollection.add(new DataComponent(data, data.read0(ctx, out, application, decodeBuffer)));
+                data.add(new DataComponent(dataType, dataType.read0(ctx, out, application, decodeBuffer)));
             } catch (CancelReadingSignal signal) {
                 // prepare framing of data
-                final int signalSize = signal.size + buffer.readerIndex() - start;
+                holdingBuffer = Unpooled.buffer(signal.size + buffer.readerIndex() - start);
                 buffer.readerIndex(start);
-                holdingBuffer = Unpooled.buffer(signalSize);
                 transferRemaining(decodeBuffer);
                 this.packet = packet;
                 this.index = index;
-                storedData = dataCollection;
+                storedData = data;
                 hasId = true;
                 return;
             }
@@ -212,7 +212,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
         tryRelease(buffer);
         if (!ignore) {
-            handler.processData(dataCollection, ctx.channel());
+            handler.processData(data, ctx.channel());
         }
     }
 
