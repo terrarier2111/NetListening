@@ -8,16 +8,10 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class CancelReadingSignal extends Exception {
 
-	public final int size;
-	public final boolean array;
+	public int size;
 	
 	public CancelReadingSignal(int size) {
-		this(size, false);
-	}
-	
-	public CancelReadingSignal(int size, boolean array) {
 		this.size = size;
-		this.array = array;
 	}
 
 	@NotNull

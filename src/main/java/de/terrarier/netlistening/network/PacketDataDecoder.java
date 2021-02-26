@@ -190,16 +190,14 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             }
             final boolean hasDecodeBuffer = framingBuffer != null;
             final ByteBuf decodeBuffer = hasDecodeBuffer ? framingBuffer : buffer;
+            final int start = decodeBuffer.readerIndex();
             try {
                 dataCollection.add(new DataComponent(data, data.read0(ctx, out, application, decodeBuffer)));
             } catch (CancelReadingSignal signal) {
                 // prepare framing of data
-                final int signalSize = signal.size;
-                final boolean array = signal.array;
-                holdingBuffer = Unpooled.buffer((array ? 4 : 0) + signalSize);
-                if (array) {
-                    holdingBuffer.writeInt(signalSize);
-                }
+                final int signalSize = signal.size + buffer.readerIndex() - start;
+                buffer.readerIndex(start);
+                holdingBuffer = Unpooled.buffer(signalSize);
                 transferRemaining(decodeBuffer);
                 this.packet = packet;
                 this.index = index;
@@ -224,7 +222,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             ((DataTypeInternalPayload) DataType.getDTIP()).read(application, channel, buffer);
         } catch (CancelReadingSignal signal) {
             // prepare framing of payload
-            holdingBuffer = Unpooled.buffer(signal.size + 1);
+            holdingBuffer = Unpooled.buffer(signal.size);
             transferRemaining(buffer);
             packet = null;
             hasId = true;

@@ -28,10 +28,10 @@ public final class DataTypeEncrypt extends DataType<Void> {
             @NotNull ByteBuf buffer) throws Exception {
         checkReadable(buffer, 4);
         final int size = buffer.readInt();
-        checkReadable(buffer, size, true);
-        final PacketDataDecoder decoder = (PacketDataDecoder) ctx.channel().pipeline().get("decoder");
+        checkReadable(buffer, size);
         final ConnectionImpl connection = (ConnectionImpl) application.getConnection(null);
         final byte[] decrypted = connection.getEncryptionContext().decrypt(ByteBufUtilExtension.readBytes(buffer, size));
+        final PacketDataDecoder decoder = (PacketDataDecoder) ctx.channel().pipeline().get("decoder");
         final ByteBuf dataBuffer = Unpooled.wrappedBuffer(decrypted);
         decoder.releaseNext();
         decoder.decode(ctx, dataBuffer, out);

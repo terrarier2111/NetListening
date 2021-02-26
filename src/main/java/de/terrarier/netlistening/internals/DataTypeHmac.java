@@ -30,13 +30,8 @@ public final class DataTypeHmac extends DataType<Void> {
             @NotNull ByteBuf buffer) throws Exception {
         checkReadable(buffer, 6);
         final int size = buffer.readInt();
-        checkReadable(buffer, size, true);
         final short hashSize = buffer.readShort();
-        final int sumSize = size + hashSize;
-        if (buffer.readableBytes() < sumSize) {
-            buffer.readerIndex(buffer.readerIndex() - 6);
-            throw new CancelReadingSignal(sumSize + 6);
-        }
+        checkReadable(buffer, size + hashSize);
         final byte[] traffic = ByteBufUtilExtension.readBytes(buffer, size);
         final byte[] hash = ByteBufUtilExtension.readBytes(buffer, hashSize);
         final ConnectionImpl connection = (ConnectionImpl) application.getConnection(null);

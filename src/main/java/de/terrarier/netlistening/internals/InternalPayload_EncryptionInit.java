@@ -9,7 +9,6 @@ import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
-import de.terrarier.netlistening.utils.IntContainer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -52,9 +51,9 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
             final byte[] key = symmetricEncryptionData.getSecretKey().getEncoded();
             final byte[] secretKey = AsymmetricEncryptionUtil.encrypt(key, asymmetricSetting, publicKey);
             writeOptions(symmetricEncryptionData.getOptions(), secretKey, buffer, application);
-            checkWriteable(application, buffer, 1);
             final HmacSetting hmacSetting = application.getEncryptionSetting().getHmacSetting();
             final boolean hmac = hmacSetting != null;
+            checkWriteable(application, buffer, 1);
             buffer.writeBoolean(hmac);
             if(hmac) {
                 final EncryptionOptions hmacOptions = hmacSetting.getEncryptionSetting();
@@ -71,16 +70,16 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
     @Override
     public void read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer)
             throws CancelReadingSignal {
-        final IntContainer required = new IntContainer();
-        final byte[] key = readKey(buffer, required);
+        final byte[] key = readKey(buffer);
         if (application.isClient()) {
-            final EncryptionOptions symmetricOptions = readOptions(buffer, required, 8);
+            checkReadable(buffer, 7 + 1);
+            final EncryptionOptions symmetricOptions = readOptions(buffer);
             final ConnectionImpl connection = (ConnectionImpl) application.getConnection(null);
             final EncryptionSetting encryptionSetting = application.getEncryptionSetting();
             if(buffer.readBoolean()) {
-                final byte[] hmacKey = readKey(buffer, required);
-                final EncryptionOptions hmacOptions = readOptions(buffer, required, 7);
-                checkReadable(buffer, required.getAndAdd(1 + 1), 1 + 1);
+                final byte[] hmacKey = readKey(buffer);
+                checkReadable(buffer, 7 + 1 + 1);
+                final EncryptionOptions hmacOptions = readOptions(buffer);
                 final byte useCase = buffer.readByte();
                 final byte hashingAlgorithm = buffer.readByte();
                 final HmacSetting hmacSetting = new HmacSetting();
@@ -114,9 +113,7 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
     }
 
     @NotNull
-    private static EncryptionOptions readOptions(@NotNull ByteBuf buffer, @NotNull IntContainer required, int increment)
-            throws CancelReadingSignal {
-        checkReadable(buffer, required.getAndAdd(increment), increment);
+    private static EncryptionOptions readOptions(@NotNull ByteBuf buffer) {
         final byte type = buffer.readByte();
         final int keySize = buffer.readInt();
         final byte mode = buffer.readByte();
@@ -146,10 +143,10 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
         buffer.writeBytes(key);
     }
 
-    private static byte[] readKey(@NotNull ByteBuf buffer, @NotNull IntContainer required) throws CancelReadingSignal {
-        checkReadable(buffer, required.getAndAdd(4), 4);
+    private static byte[] readKey(@NotNull ByteBuf buffer) throws CancelReadingSignal {
+        checkReadable(buffer, 4);
         final int keyLength = buffer.readInt();
-        checkReadable(buffer, required.getAndAdd(keyLength), keyLength);
+        checkReadable(buffer, keyLength);
         return ByteBufUtilExtension.readBytes(buffer, keyLength);
     }
 

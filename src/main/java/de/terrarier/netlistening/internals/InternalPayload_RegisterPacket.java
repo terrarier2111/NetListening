@@ -27,24 +27,17 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
     }
 
     protected InternalPayload_RegisterPacket(byte id, int packetId, @NotNull DataType<?>... types) {
-        super(id);
+        this(id, types);
         this.packetId = packetId;
-        this.types = types;
     }
 
     @Override
     protected final void write(@NotNull Application application, @NotNull ByteBuf buffer) {
-        for(DataType<?> type : types) {
-            if (type.getId() < 0x1) {
-                throw new IllegalArgumentException("Tried to send a packet containing an internal payload!");
-            }
-        }
         final int typesLength = types.length;
 
         if(typesLength == 0) {
             throw new IllegalStateException("Tried to send an empty packet!");
         }
-
         checkWriteable(application, buffer, getSize(application));
 
         if(packetId != 0x0) {
@@ -53,26 +46,18 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
         buffer.writeShort(typesLength);
 
         final boolean nibbleCompression = application.getCompressionSetting().isNibbleCompression();
-
-        final int increment = nibbleCompression ? 2 : 1;
-        for(int i = 0; i < typesLength; i += increment) {
+        for(int i = 0; i < typesLength; i++) {
             final byte id = (byte) (types[i].getId() - 1);
-            if(id == -1) {
-                i--;
-                continue;
+            if(id < 0x0) {
+                throw new IllegalArgumentException("Tried to send a packet containing an internal payload!");
             }
 
-            if(nibbleCompression) {
-                if(typesLength > i + 1) {
-                    final byte other = (byte) (types[i + 1].getId() - 1);
-                    if(other == -1) {
-                        buffer.writeByte(id);
-                        continue;
-                    }
-                    buffer.writeByte(NibbleUtil.buildNibblePair(id, other));
-                }else {
-                    buffer.writeByte(id);
+            if(nibbleCompression && typesLength > ++i) {
+                final byte other = (byte) (types[i].getId() - 1);
+                if(other < 0x0) {
+                    throw new IllegalArgumentException("Tried to send a packet containing an internal payload!");
                 }
+                buffer.writeByte(NibbleUtil.buildNibblePair(id, other));
             }else {
                 buffer.writeByte(id);
             }
@@ -80,10 +65,10 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
     }
 
     @Override
-    public final void read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer) throws CancelReadingSignal {
-        checkReadable(buffer, 0, 4);
+    public final void read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer)
+            throws CancelReadingSignal {
+        checkReadable(buffer, 4);
         int packetId = 0;
-        int idSize = 0;
         final boolean useSimplePacketSync = application.getPacketSynchronization() == PacketSynchronization.SIMPLE;
 
         if(useSimplePacketSync) {
@@ -92,19 +77,16 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
             } catch (VarIntUtil.VarIntParseException e) {
                 throw new CancelReadingSignal(3 + e.requiredBytes);
             }
-            idSize = InternalUtil.getSize(application, packetId);
         }
 
-        checkReadable(buffer, idSize, 2);
+        checkReadable(buffer, 2);
 
         final short size = buffer.readShort();
         final boolean nibbleCompression = application.getCompressionSetting().isNibbleCompression();
         final int byteSize = nibbleCompression ? NibbleUtil.nibbleToByteCount(size) : size;
-
-        checkReadable(buffer, 2 + idSize, byteSize);
+        checkReadable(buffer, byteSize);
 
         types = new DataType[size];
-
         byte nibblePair = 0;
         for(int i = 0; i < size; i++) {
             byte id;

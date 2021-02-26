@@ -28,7 +28,7 @@ public final class DataTypeString extends DataType<String> {
 			return EMPTY_STRING;
 		}
 		
-		checkReadable(buffer, length, true);
+		checkReadable(buffer, length);
 		
 		final byte[] bytes = ByteBufUtilExtension.readBytes(buffer, length);
 		return new String(bytes, application.getStringEncoding());

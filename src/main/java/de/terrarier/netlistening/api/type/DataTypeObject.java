@@ -27,7 +27,7 @@ public final class DataTypeObject extends DataType<Object> {
 		if(length == 0) {
 			return SerializationProvider.SERIALIZATION_ERROR;
 		}
-		checkReadable(buffer, length, true);
+		checkReadable(buffer, length);
 
 		final byte[] bytes = ByteBufUtilExtension.readBytes(buffer, length);
 		final Object deserialized = SerializationUtil.deserialize(application, bytes);

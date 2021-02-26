@@ -22,7 +22,7 @@ public final class DataTypeByteArray extends DataType<byte[]> {
 			throws CancelReadingSignal {
 		final int length = buffer.readInt();
 
-		checkReadable(buffer, length, true);
+		checkReadable(buffer, length);
 		
 		return ByteBufUtilExtension.readBytes(buffer, length);
 	}

@@ -86,12 +86,8 @@ public abstract class DataType<T> {
 	}
 
 	protected static void checkReadable(@NotNull ByteBuf buffer, int length) throws CancelReadingSignal {
-		checkReadable(buffer, length, false);
-	}
-
-	protected static void checkReadable(@NotNull ByteBuf buffer, int length, boolean array) throws CancelReadingSignal {
 		if (buffer.readableBytes() < length) {
-			throw new CancelReadingSignal(length, array);
+			throw new CancelReadingSignal(length);
 		}
 	}
 

@@ -19,13 +19,13 @@ public final class DataTypeInternalPayload extends DataType<InternalPayload> {
 	@Override
 	public InternalPayload read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer)
 			throws CancelReadingSignal {
+		final int start = buffer.readerIndex();
 		final byte payloadId = buffer.readByte();
 		try {
 			InternalPayload.fromId(payloadId).read(application, channel, buffer);
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
 		}catch (CancelReadingSignal signal) {
-			buffer.readerIndex(buffer.readerIndex() - 1);
+			signal.size += buffer.readerIndex() - start;
+			buffer.readerIndex(start);
 			throw signal;
 		}
 		return null;

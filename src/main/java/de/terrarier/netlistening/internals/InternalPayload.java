@@ -40,7 +40,7 @@ public abstract class InternalPayload {
             throws CancelReadingSignal;
 
     @NotNull
-    public static InternalPayload fromId(byte id) throws IllegalArgumentException {
+    public static InternalPayload fromId(byte id) {
         switch (id) {
             case 0x1:
                 return REGISTER_IN_PACKET;
@@ -57,11 +57,10 @@ public abstract class InternalPayload {
         }
     }
 
-    protected static void checkReadable(@NotNull ByteBuf buffer, int required, int additional)
+    protected static void checkReadable(@NotNull ByteBuf buffer, int additional)
             throws CancelReadingSignal {
         if (buffer.readableBytes() < additional) {
-            buffer.readerIndex(buffer.readerIndex() - required);
-            throw new CancelReadingSignal(required + additional);
+            throw new CancelReadingSignal(additional);
         }
     }
 
