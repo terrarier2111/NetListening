@@ -85,11 +85,11 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
 
         if (readable == 0) {
-            application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+            if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                     (EventManager.EventProvider<InvalidDataEvent>) () -> {
                 final Connection connection = application.getConnection(ctx.channel());
                 return new InvalidDataEvent(connection, DataInvalidReason.EMPTY_PACKET, EmptyArrays.EMPTY_BYTES);
-            });
+            })) return;
 
             throw new IllegalStateException("Received an empty packet!");
         }
@@ -121,12 +121,14 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
         if (id == 0x2) {
             if (!application.isClient()) {
-                application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+                if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                         (EventManager.EventProvider<InvalidDataEvent>) () -> {
                     final Connection connection = application.getConnection(ctx.channel());
-                    final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(0x2) : ConversionUtil.intToByteArray(0x2);
+                    final byte[] data = application.getCompressionSetting().isVarIntCompression()
+                            ? VarIntUtil.toVarInt(0x2) : ConversionUtil.intToByteArray(0x2);
+
                     return new InvalidDataEvent(connection, DataInvalidReason.MALICIOUS_ACTION, data);
-                });
+                })) return;
 
                 throw new IllegalStateException("Received malicious data! (0x2)");
             }
@@ -139,12 +141,14 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
 
         if (!buffer.isReadable()) {
-            application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+            if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                     (EventManager.EventProvider<InvalidDataEvent>) () -> {
                 final Connection connection = application.getConnection(ctx.channel());
-                final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id) : ConversionUtil.intToByteArray(id);
+                final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id)
+                        : ConversionUtil.intToByteArray(id);
+
                 return new InvalidDataEvent(connection, DataInvalidReason.INCOMPLETE_PACKET, data);
-            });
+            })) return;
 
             throw new IllegalStateException(
                     "An error occurred while decoding - the packet to decode was empty! (skipping current packet with id: "
@@ -159,11 +163,13 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         final ConnectionImpl connection = (ConnectionImpl) application.getConnection(ctx.channel());
         final PacketSkeleton packet = connection.getCache().getInPacketFromId(id);
         if (packet == null) {
-            application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+            if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                     (EventManager.EventProvider<InvalidDataEvent>) () -> {
-                final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id) : ConversionUtil.intToByteArray(id);
+                final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id)
+                        : ConversionUtil.intToByteArray(id);
+
                 return new InvalidDataEvent(connection, DataInvalidReason.INVALID_ID, data);
-            });
+            })) return;
 
             throw new IllegalStateException(
                     "An error occurred while decoding - the packet to decode wasn't recognizable because it wasn't registered before! ("
@@ -184,6 +190,15 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             final DataType<?> dataType = dataTypes[i];
             if (!dataType.isPublished()) {
                 if (length != 1) {
+                    if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+                            (EventManager.EventProvider<InvalidDataEvent>) () -> {
+                                final Connection connection = application.getConnection(ctx.channel());
+                                final byte[] idData = application.getCompressionSetting().isVarIntCompression()
+                                        ? VarIntUtil.toVarInt(dataType.getId()) : ConversionUtil.intToByteArray(dataType.getId());
+
+                                return new InvalidDataEvent(connection, DataInvalidReason.INVALID_DATA_TYPE, idData);
+                            })) return;
+
                     throw new IllegalStateException(
                             "Received illegal data - probably the connection tried to send a malicious packet!");
                 }
@@ -216,7 +231,6 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
     }
 
-    // TODO: Check if payloads can be framed correctly!
     private void readPayLoad(@NotNull ByteBuf buffer, @NotNull Channel channel) {
         try {
             ((DataTypeInternalPayload) DataType.getDTIP()).read(application, channel, buffer);

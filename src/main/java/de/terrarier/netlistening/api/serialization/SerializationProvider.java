@@ -104,8 +104,7 @@ public abstract class SerializationProvider {
             try {
                 final StackTraceElement[] stackTraceElements = cause.getStackTrace();
                 if(stackTraceElements == null) {
-                    cause.fillInStackTrace();
-                    return cause.getStackTrace();
+                    return cause.fillInStackTrace().getStackTrace();
                 }
                 return stackTraceElements;
             }finally {

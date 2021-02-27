@@ -85,7 +85,7 @@ public final class InternalPayLoad_Handshake extends InternalPayload {
 		EncryptionSetting encryptionSetting = null;
 		byte[] serverKey = null;
 		if((mask & 1 << 3) != 0) {
-			checkReadable(buffer, 1 + 4 + 1 + 1);
+			checkReadable(buffer, 1 + 4 + 1 + 1 + 4 + 1);
 			final byte type = buffer.readByte();
 			final int keySize = buffer.readInt();
 			final byte mode = buffer.readByte();
@@ -95,7 +95,6 @@ public final class InternalPayLoad_Handshake extends InternalPayload {
 			asymmetricEncryptionOptions.keySize(keySize);
 			asymmetricEncryptionOptions.mode(CipherAlgorithmMode.fromId(mode));
 			asymmetricEncryptionOptions.padding(CipherAlgorithmPadding.fromId(padding));
-			checkReadable(buffer, 4 + 1);
 			final int serverKeyLength = buffer.readInt();
 			checkReadable(buffer, serverKeyLength);
 			serverKey = ByteBufUtilExtension.readBytes(buffer, serverKeyLength);

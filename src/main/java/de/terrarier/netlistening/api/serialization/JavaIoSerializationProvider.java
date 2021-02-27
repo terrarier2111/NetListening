@@ -32,11 +32,11 @@ public final class JavaIoSerializationProvider extends SerializationProvider {
      */
     @Override
     public boolean isDeserializable(byte[] data) {
-        // Common stream header in hex ACED0005
-        return data.length >= 5
+        // Common stream header hex: ACED0005
+        final int dataLength = data.length;
+        return (dataLength > 5 || (dataLength == 5 && data[4] != ObjectStreamConstants.TC_NULL))
                 && ConversionUtil.getShortFromByteArray(data, 0) == ObjectStreamConstants.STREAM_MAGIC
-                && ConversionUtil.getShortFromByteArray(data, 2) == ObjectStreamConstants.STREAM_VERSION
-                && (data.length != 5 || data[4] != ObjectStreamConstants.TC_NULL);
+                && ConversionUtil.getShortFromByteArray(data, 2) == ObjectStreamConstants.STREAM_VERSION;
     }
 
     /**

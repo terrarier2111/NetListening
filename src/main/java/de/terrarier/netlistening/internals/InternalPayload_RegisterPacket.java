@@ -79,7 +79,7 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
             }
         }
 
-        checkReadable(buffer, 2);
+        checkReadable(buffer, 2 + 1);
 
         final short size = buffer.readShort();
         final boolean nibbleCompression = application.getCompressionSetting().isNibbleCompression();

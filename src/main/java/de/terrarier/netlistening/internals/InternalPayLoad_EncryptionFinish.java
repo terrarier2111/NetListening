@@ -24,8 +24,7 @@ public final class InternalPayLoad_EncryptionFinish extends InternalPayload {
     }
 
     @Override
-    public void read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer)
-            throws CancelReadingSignal {
+    public void read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer) {
         if(application.isClient()) {
             throw new UnsupportedOperationException("The server sent an invalid payload!");
         }

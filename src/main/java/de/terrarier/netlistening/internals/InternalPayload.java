@@ -24,14 +24,10 @@ public abstract class InternalPayload {
         this.id = id;
     }
 
-    public final void write0(@NotNull Application application, @NotNull ByteBuf buffer) {
-        checkWriteable(application, buffer, 1); // TODO: Check if there's a better solution
+    protected final void write0(@NotNull Application application, @NotNull ByteBuf buffer) {
+        checkWriteable(application, buffer, 1);
         buffer.writeByte(id);
         write(application, buffer);
-    }
-
-    public final byte getId() {
-        return id;
     }
 
     protected abstract void write(@NotNull Application application, @NotNull ByteBuf buffer);
@@ -40,7 +36,7 @@ public abstract class InternalPayload {
             throws CancelReadingSignal;
 
     @NotNull
-    public static InternalPayload fromId(byte id) {
+    protected static InternalPayload fromId(byte id) {
         switch (id) {
             case 0x1:
                 return REGISTER_IN_PACKET;

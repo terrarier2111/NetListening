@@ -144,7 +144,7 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
     }
 
     private static byte[] readKey(@NotNull ByteBuf buffer) throws CancelReadingSignal {
-        checkReadable(buffer, 4);
+        checkReadable(buffer, 4 + 1);
         final int keyLength = buffer.readInt();
         checkReadable(buffer, keyLength);
         return ByteBufUtilExtension.readBytes(buffer, keyLength);
