@@ -21,7 +21,7 @@ public final class DataTypeChar extends DataType<Character> {
 	}
 
 	@Override
-	public void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull Character data) {
+	protected void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull Character data) {
 		buffer.writeChar(data);
 	}
 

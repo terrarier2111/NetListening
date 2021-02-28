@@ -28,7 +28,7 @@ public final class DataTypeByteArray extends DataType<byte[]> {
 	}
 
 	@Override
-	public void write(@NotNull Application application, @NotNull ByteBuf buffer, byte[] data) {
+	protected void write(@NotNull Application application, @NotNull ByteBuf buffer, byte[] data) {
 		ByteBufUtilExtension.writeBytes(buffer, data, application.getBuffer());
 	}
 

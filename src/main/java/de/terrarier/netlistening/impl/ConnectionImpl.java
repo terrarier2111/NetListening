@@ -261,7 +261,6 @@ public final class ConnectionImpl implements Connection {
 	public void writeToInitialBuffer(@NotNull ByteBuf buffer) {
 		final DataSendState dataSendState = this.dataSendState; // caching volatile field get result
 		if (!dataSendState.isAtLeast(DataSendState.SENDING)) {
-			// TODO: Test if we have to discard the first pre connect buffer.
 			checkReceived();
 			transferData(buffer);
 		} else {
@@ -328,7 +327,7 @@ public final class ConnectionImpl implements Connection {
 
 		IDLE, SENDING, WAITING_FOR_FINISH, FINISHING, FINISHED;
 
-		boolean isAtLeast(@NotNull DataSendState state) {
+		private boolean isAtLeast(@NotNull DataSendState state) {
 			return ordinal() >= state.ordinal();
 		}
 

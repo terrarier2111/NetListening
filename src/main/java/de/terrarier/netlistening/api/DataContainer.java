@@ -104,7 +104,7 @@ public final class DataContainer {
 	}
 
 	/**
-	 * @return a list containing the data contained in the container.
+	 * @return a list containing the data contained in this container.
 	 */
 	@NotNull
 	@ApiStatus.Internal

@@ -35,7 +35,7 @@ public final class DataTypeString extends DataType<String> {
 	}
 
 	@Override
-	public void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull String data) {
+	protected void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull String data) {
 		ByteBufUtilExtension.writeBytes(buffer, data.getBytes(application.getStringEncoding()), application.getBuffer());
 	}
 

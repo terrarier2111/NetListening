@@ -40,7 +40,7 @@ public final class DataTypeObject extends DataType<Object> {
 	}
 
 	@Override
-	public void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull Object data) {
+	protected void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull Object data) {
 		final byte[] serialized = SerializationUtil.serialize(application, data);
 		if(serialized == null) {
 			buffer.writeInt(0);

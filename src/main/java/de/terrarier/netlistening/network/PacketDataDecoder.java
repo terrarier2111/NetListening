@@ -88,7 +88,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                     (EventManager.EventProvider<InvalidDataEvent>) () -> {
                 final Connection connection = application.getConnection(ctx.channel());
-                return new InvalidDataEvent(connection, DataInvalidReason.EMPTY_PACKET, EmptyArrays.EMPTY_BYTES);
+                return new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.EMPTY_PACKET, EmptyArrays.EMPTY_BYTES);
             })) return;
 
             throw new IllegalStateException("Received an empty packet!");
@@ -127,7 +127,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                     final byte[] data = application.getCompressionSetting().isVarIntCompression()
                             ? VarIntUtil.toVarInt(0x2) : ConversionUtil.intToByteArray(0x2);
 
-                    return new InvalidDataEvent(connection, DataInvalidReason.MALICIOUS_ACTION, data);
+                    return new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.MALICIOUS_ACTION, data);
                 })) return;
 
                 throw new IllegalStateException("Received malicious data! (0x2)");
@@ -147,7 +147,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id)
                         : ConversionUtil.intToByteArray(id);
 
-                return new InvalidDataEvent(connection, DataInvalidReason.INCOMPLETE_PACKET, data);
+                return new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.INCOMPLETE_PACKET, data);
             })) return;
 
             throw new IllegalStateException(
@@ -168,7 +168,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id)
                         : ConversionUtil.intToByteArray(id);
 
-                return new InvalidDataEvent(connection, DataInvalidReason.INVALID_ID, data);
+                return new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.INVALID_ID, data);
             })) return;
 
             throw new IllegalStateException(
@@ -196,7 +196,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                                 final byte[] idData = application.getCompressionSetting().isVarIntCompression()
                                         ? VarIntUtil.toVarInt(dataType.getId()) : ConversionUtil.intToByteArray(dataType.getId());
 
-                                return new InvalidDataEvent(connection, DataInvalidReason.INVALID_DATA_TYPE, idData);
+                                return new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.INVALID_DATA_TYPE, idData);
                             })) return;
 
                     throw new IllegalStateException(

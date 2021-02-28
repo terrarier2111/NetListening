@@ -21,7 +21,7 @@ public final class DataTypeShort extends DataType<Short> {
 	}
 
 	@Override
-	public void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull Short data) {
+	protected void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull Short data) {
 		buffer.writeShort(data);
 	}
 

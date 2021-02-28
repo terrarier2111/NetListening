@@ -21,7 +21,7 @@ public final class DataTypeInt extends DataType<Integer> {
 	}
 
 	@Override
-	public void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull Integer data) {
+	protected void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull Integer data) {
 		buffer.writeInt(data);
 	}
 

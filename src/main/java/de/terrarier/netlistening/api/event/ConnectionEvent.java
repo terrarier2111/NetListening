@@ -11,7 +11,7 @@ public abstract class ConnectionEvent extends Cancellable implements Event {
 
     private final Connection connection;
 
-    public ConnectionEvent(@NotNull Connection connection) {
+    protected ConnectionEvent(@NotNull Connection connection) {
         this.connection = connection;
     }
 

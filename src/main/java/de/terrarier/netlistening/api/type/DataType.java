@@ -95,7 +95,6 @@ public abstract class DataType<T> {
 		ByteBufUtilExtension.correctSize(buffer, length, application.getBuffer());
 	}
 
-	// TODO: Check if an array instead of this switch case would be faster!
 	@NotNull
 	public static DataType<?> fromId(byte id) {
 			switch (id) {
@@ -124,7 +123,8 @@ public abstract class DataType<T> {
 				case 0xC:
 					return FLOAT;
 			}
-		throw new IllegalArgumentException("Tried to resolve a data type with an invalid id! (" + Integer.toHexString(id) + ")");
+		throw new IllegalArgumentException("Tried to resolve a data type with an invalid id! ("
+				+ Integer.toHexString(id) + ")");
 	}
 
 	@NotNull

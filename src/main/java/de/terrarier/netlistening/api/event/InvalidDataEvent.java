@@ -35,4 +35,10 @@ public final class InvalidDataEvent extends ConnectionEvent {
 		return data;
 	}
 
+	public enum DataInvalidReason {
+
+		EMPTY_PACKET, INCOMPLETE_PACKET, INVALID_ID, MALICIOUS_ACTION, INVALID_DATA_TYPE, UNSPECIFIED
+
+	}
+
 }

@@ -25,7 +25,7 @@ public final class DataTypeUUID extends DataType<UUID> {
 	}
 
 	@Override
-	public void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull UUID uuid) {
+	protected void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull UUID uuid) {
 		final long mostSignificantBits = uuid.getMostSignificantBits();
 		final long leastSignificantBits = uuid.getLeastSignificantBits();
 		buffer.writeLong(mostSignificantBits);

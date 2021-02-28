@@ -21,7 +21,7 @@ public final class DataTypeDouble extends DataType<Double> {
 	}
 
 	@Override
-	public void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull Double data) {
+	protected void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull Double data) {
 		buffer.writeDouble(data);
 	}
 

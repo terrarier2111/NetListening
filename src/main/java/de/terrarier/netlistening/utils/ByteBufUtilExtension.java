@@ -57,16 +57,16 @@ public final class ByteBufUtilExtension {
 		}
 	}
 
-	public static byte[] getBytes(@NotNull ByteBuf buf, int bytes) {
+	public static byte[] getBytes(@NotNull ByteBuf buffer, int bytes) {
 		if(bytes == 0) {
 			return EmptyArrays.EMPTY_BYTES;
 		}
 
-		return newNettyVersion ? ByteBufUtil.getBytes(buf, buf.readerIndex(), bytes) : getBytes0(buf, bytes);
+		return newNettyVersion ? ByteBufUtil.getBytes(buffer, buffer.readerIndex(), bytes) : getBytes0(buffer, bytes);
 	}
 
-	public static byte[] getBytes(@NotNull ByteBuf buf) {
-		return getBytes(buf, buf.readableBytes());
+	public static byte[] getBytes(@NotNull ByteBuf buffer) {
+		return getBytes(buffer, buffer.readableBytes());
 	}
 	
 	/**

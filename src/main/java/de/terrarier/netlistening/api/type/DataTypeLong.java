@@ -21,7 +21,7 @@ public final class DataTypeLong extends DataType<Long> {
 	}
 
 	@Override
-	public void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull Long data) {
+	protected void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull Long data) {
 		buffer.writeLong(data);
 	}
 
