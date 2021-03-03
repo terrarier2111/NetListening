@@ -15,7 +15,6 @@ import de.terrarier.netlistening.api.event.EventManager;
 import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.network.PacketDataEncoder;
-import de.terrarier.netlistening.network.PacketSynchronization;
 import de.terrarier.netlistening.network.TimeOutHandler;
 import de.terrarier.netlistening.utils.ChannelUtil;
 import io.netty.bootstrap.ServerBootstrap;
@@ -168,10 +167,6 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         }
     }
 
-    private void shutdownExecutor(@NotNull ExecutorService executorService, long timeout) {
-
-    }
-
     /**
      * @see de.terrarier.netlistening.Application
      */
@@ -248,14 +243,6 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         public void caching(@NotNull PacketCaching caching) {
             validate();
             application.caching = caching;
-        }
-
-        /**
-         * @see Server.Builder
-         */
-        public void packetSynchronization(@NotNull PacketSynchronization packetSynchronization) {
-            validate();
-            application.packetSynchronization = packetSynchronization;
         }
 
         /**

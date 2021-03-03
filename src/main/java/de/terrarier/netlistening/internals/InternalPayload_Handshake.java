@@ -5,7 +5,6 @@ import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.encryption.*;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ClientImpl;
-import de.terrarier.netlistening.network.PacketSynchronization;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -20,10 +19,10 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * @since 1.0
  * @author Terrarier2111
  */
-public final class InternalPayLoad_Handshake extends InternalPayload {
+public final class InternalPayload_Handshake extends InternalPayload {
 
-	protected InternalPayLoad_Handshake() {
-        super((byte) 0x3);
+	protected InternalPayload_Handshake() {
+        super((byte) 0x2);
     }
 
 	@Override
@@ -40,7 +39,6 @@ public final class InternalPayLoad_Handshake extends InternalPayload {
 			mask |= 1 << 2;
 		if(encryption)
 			mask |= 1 << 3;
-		mask |= application.getPacketSynchronization().ordinal() << 4;
 		checkWriteable(application, buffer, 1);
 		buffer.writeByte(mask);
 		if(!utf8) {
@@ -102,10 +100,9 @@ public final class InternalPayLoad_Handshake extends InternalPayload {
 			encryptionSetting.asymmetricEncryptionOptions(asymmetricEncryptionOptions);
 		}
 		final ClientImpl client = (ClientImpl) application;
-		final PacketSynchronization packetSynchronization = PacketSynchronization.fromId((byte) (mask >>> 4));
 		final CompressionSetting compressionSetting = new CompressionSetting().varIntCompression((mask & 1) == 1)
 				.nibbleCompression((mask & 1 << 1) != 0);
-		client.receiveHandshake(compressionSetting, packetSynchronization, charset, encryptionSetting, serverKey);
+		client.receiveHandshake(compressionSetting, charset, encryptionSetting, serverKey);
 
 		if(encryptionSetting != null) {
 			final ByteBuf initBuffer = Unpooled.buffer();

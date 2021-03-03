@@ -10,7 +10,6 @@ import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.api.serialization.JavaIoSerializationProvider;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.network.PacketCache;
-import de.terrarier.netlistening.network.PacketSynchronization;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +28,6 @@ public abstract class ApplicationImpl implements Application {
     protected final PacketCache cache = new PacketCache();
     protected final DataHandler handler = new DataHandler(this);
     protected final EventManager eventManager = new EventManager(handler);
-    protected PacketSynchronization packetSynchronization = PacketSynchronization.NONE;
     protected Charset stringEncoding = StandardCharsets.UTF_8;
     protected int buffer = 256;
     protected EncryptionSetting encryptionSetting;
@@ -37,15 +35,6 @@ public abstract class ApplicationImpl implements Application {
     protected SerializationProvider serializationProvider = new JavaIoSerializationProvider();
     protected Thread worker;
     protected EventLoopGroup group;
-
-    /**
-     * @see Application
-     */
-    @NotNull
-    @Override
-    public final PacketSynchronization getPacketSynchronization() {
-        return packetSynchronization;
-    }
 
     /**
      * @see Application

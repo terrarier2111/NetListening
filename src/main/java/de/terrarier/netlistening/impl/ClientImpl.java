@@ -15,7 +15,6 @@ import de.terrarier.netlistening.api.proxy.Proxy;
 import de.terrarier.netlistening.api.proxy.ProxyType;
 import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.network.PacketDataEncoder;
-import de.terrarier.netlistening.network.PacketSynchronization;
 import de.terrarier.netlistening.network.TimeOutHandler;
 import de.terrarier.netlistening.utils.ChannelUtil;
 import io.netty.bootstrap.Bootstrap;
@@ -109,10 +108,9 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         worker.start();
     }
 
-    public void receiveHandshake(@NotNull CompressionSetting compressionSetting, @NotNull PacketSynchronization packetSynchronization,
-                                 Charset stringEncoding, EncryptionSetting encryptionSetting, byte[] serverKey) {
+    public void receiveHandshake(@NotNull CompressionSetting compressionSetting, Charset stringEncoding,
+                                 EncryptionSetting encryptionSetting, byte[] serverKey) {
         this.compressionSetting = compressionSetting;
-        this.packetSynchronization = packetSynchronization;
 
         if (stringEncoding != null) {
             this.stringEncoding = stringEncoding;

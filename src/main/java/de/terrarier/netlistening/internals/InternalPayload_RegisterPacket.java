@@ -1,34 +1,27 @@
 package de.terrarier.netlistening.internals;
 
 import de.terrarier.netlistening.Application;
-import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.compression.NibbleUtil;
 import de.terrarier.netlistening.api.compression.VarIntUtil;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.network.PacketCache;
-import de.terrarier.netlistening.network.PacketSynchronization;
+import de.terrarier.netlistening.network.PacketSkeleton;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
+public final class InternalPayload_RegisterPacket extends InternalPayload {
 
-public abstract class InternalPayload_RegisterPacket extends InternalPayload {
+    private final int packetId;
+    private DataType<?>[] types;
 
-    protected DataType<?>[] types;
-    private int packetId;
-
-    protected InternalPayload_RegisterPacket(byte id, @NotNull DataType<?>... types) {
-        super(id);
-        this.types = types;
-    }
-
-    protected InternalPayload_RegisterPacket(byte id, int packetId, @NotNull DataType<?>... types) {
-        this(id, types);
+    public InternalPayload_RegisterPacket(int packetId, @NotNull DataType<?>... types) {
+        super((byte) 0x1);
         this.packetId = packetId;
+        this.types = types;
     }
 
     @Override
@@ -40,9 +33,7 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
         }
         checkWriteable(application, buffer, getSize(application));
 
-        if(packetId != 0x0) {
-            InternalUtil.writeIntUnchecked(application, buffer, packetId);
-        }
+        InternalUtil.writeIntUnchecked(application, buffer, packetId);
         buffer.writeShort(typesLength);
 
         final boolean nibbleCompression = application.getCompressionSetting().isNibbleCompression();
@@ -68,15 +59,12 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
     public final void read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer)
             throws CancelReadingSignal {
         checkReadable(buffer, 4);
-        int packetId = 0;
-        final boolean useSimplePacketSync = application.getPacketSynchronization() == PacketSynchronization.SIMPLE;
 
-        if(useSimplePacketSync) {
-            try {
-                packetId = InternalUtil.readInt(application, buffer);
-            } catch (VarIntUtil.VarIntParseException e) {
-                throw new CancelReadingSignal(3 + e.requiredBytes);
-            }
+        int packetId;
+        try {
+            packetId = InternalUtil.readInt(application, buffer);
+        } catch (VarIntUtil.VarIntParseException e) {
+            throw new CancelReadingSignal(3 + e.requiredBytes);
         }
 
         checkReadable(buffer, 2 + 1);
@@ -109,37 +97,31 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
 
         final PacketCache cache = application.getCaching() != PacketCaching.INDIVIDUAL ? application.getCache() :
                 ((ConnectionImpl) application.getConnection(channel)).getCache();
-        register0(cache, packetId);
-
-        // TODO: Check for an empty buffer and setting as an initial buffer although the init phase is already over
-        if (application.getCaching() == PacketCaching.GLOBAL) {
-            final Collection<Connection> connections = application.getConnections();
-            if (connections.size() > 1) {
-                final InternalPayload_RegisterPacket payload = getPayload(packetId);
-                final ByteBuf registerBuffer = Unpooled.buffer(
-                        (application.getCompressionSetting().isVarIntCompression() ? 2 : 5) + payload.getSize(application));
-                DataType.getDTIP().write0(application, registerBuffer, payload);
-
-                for (Connection connection : connections) {
-                    if (packetId != 0x0 || !connection.getChannel().equals(channel)) {
-                        registerBuffer.retain();
-                        if (connection.isConnected()) {
-                            connection.getChannel().writeAndFlush(registerBuffer);
-                        } else {
-                            ((ConnectionImpl) connection).writeToInitialBuffer(registerBuffer);
-                        }
-                    }
+        if (application.isClient()) {
+            cache.forceRegisterPacket(packetId, types);
+        } else {
+            final PacketSkeleton packet = cache.tryRegisterPacket(packetId, types);
+            if(packet.getId() == packetId) {
+                if (application.getCaching() == PacketCaching.GLOBAL) {
+                    application.getCache().broadcastRegister(application, this, channel, null);
                 }
-                registerBuffer.release();
+            }else {
+                final InternalPayload_RegisterPacket register = new InternalPayload_RegisterPacket(packet.getId());
+                if (application.getCaching() == PacketCaching.GLOBAL) {
+                    application.getCache().broadcastRegister(application, register, null, null);
+                }else {
+                    final ByteBuf registerBuffer = Unpooled.buffer(
+                            (application.getCompressionSetting().isVarIntCompression() ? 2 : 5) + getSize(application));
+                    DataType.getDTIP().write0(application, registerBuffer, register);
+                }
             }
+            packet.register();
         }
     }
 
-    private int getSize(@NotNull Application application) {
-        int size = 2;
-        if(packetId != 0x0) {
-            size += InternalUtil.getSize(application, packetId);
-        }
+    public int getSize(@NotNull Application application) {
+        int size = 2 + InternalUtil.getSize(application, packetId);
+
         if(application.getCompressionSetting().isNibbleCompression()) {
             size += NibbleUtil.nibbleToByteCount(types.length);
         }else {
@@ -147,10 +129,5 @@ public abstract class InternalPayload_RegisterPacket extends InternalPayload {
         }
         return size;
     }
-
-    protected abstract void register0(@NotNull PacketCache cache, int packetId);
-
-    @NotNull
-    protected abstract InternalPayload_RegisterPacket getPayload(int packetId);
 
 }

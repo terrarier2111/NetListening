@@ -19,6 +19,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
+import static java.lang.Byte.*;
+
 /**
  * @since 1.0
  * @author Terrarier2111
@@ -27,7 +29,7 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 
 	private final ApplicationImpl application;
 	private Timer timer = new Timer();
-	private byte counter = Byte.MIN_VALUE;
+	private byte counter = MIN_VALUE;
 	
 	public TimeOutHandler(@NotNull ApplicationImpl application,
 						  @NotNull ConnectionImpl connection, long timeout) {
@@ -48,8 +50,8 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 					return;
 				}
 				
-				if(counter == Byte.MAX_VALUE) {
-					counter = Byte.MIN_VALUE;
+				if(counter == MAX_VALUE) {
+					counter = MIN_VALUE;
 				}
 				final ByteBuf buffer = Unpooled.buffer(bufferSize);
 

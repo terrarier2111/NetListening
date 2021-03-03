@@ -10,10 +10,10 @@ import org.jetbrains.annotations.NotNull;
  * @since 1.0
  * @author Terrarier2111
  */
-public final class InternalPayLoad_EncryptionFinish extends InternalPayload {
+public final class InternalPayload_EncryptionFinish extends InternalPayload {
 
-    protected InternalPayLoad_EncryptionFinish() {
-        super((byte) 0x5);
+    protected InternalPayload_EncryptionFinish() {
+        super((byte) 0x4);
     }
 
     @Override

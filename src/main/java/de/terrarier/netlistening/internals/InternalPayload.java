@@ -12,11 +12,10 @@ import org.jetbrains.annotations.NotNull;
  */
 public abstract class InternalPayload {
 
-    private static final InternalPayLoad_RegisterInPacket REGISTER_IN_PACKET = new InternalPayLoad_RegisterInPacket();
-    private static final InternalPayLoad_RegisterOutPacket REGISTER_OUT_PACKET = new InternalPayLoad_RegisterOutPacket();
-    public static final InternalPayLoad_Handshake HANDSHAKE = new InternalPayLoad_Handshake();
+    private static final InternalPayload_RegisterPacket REGISTER_PACKET = new InternalPayload_RegisterPacket(-1);
+    public static final InternalPayload_Handshake HANDSHAKE = new InternalPayload_Handshake();
     protected static final InternalPayload_EncryptionInit ENCRYPTION_INIT = new InternalPayload_EncryptionInit();
-    protected static final InternalPayLoad_EncryptionFinish ENCRYPTION_FINISH = new InternalPayLoad_EncryptionFinish();
+    protected static final InternalPayload_EncryptionFinish ENCRYPTION_FINISH = new InternalPayload_EncryptionFinish();
 
     private final byte id;
 
@@ -39,17 +38,15 @@ public abstract class InternalPayload {
     protected static InternalPayload fromId(byte id) {
         switch (id) {
             case 0x1:
-                return REGISTER_IN_PACKET;
+                return REGISTER_PACKET;
             case 0x2:
-                return REGISTER_OUT_PACKET;
-            case 0x3:
                 return HANDSHAKE;
-            case 0x4:
+            case 0x3:
                 return ENCRYPTION_INIT;
-            case 0x5:
+            case 0x4:
                 return ENCRYPTION_FINISH;
             default:
-                throw new IllegalArgumentException("Tried to process an InternalPayload with an invalid id! (" + Integer.toHexString(id) + ")");
+                throw new IllegalArgumentException("Tried to process an internal payload with an invalid id! (" + Integer.toHexString(id) + ")");
         }
     }
 

@@ -1,6 +1,5 @@
 package de.terrarier.netlistening.network;
 
-import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.api.PacketCaching;
@@ -12,7 +11,7 @@ import de.terrarier.netlistening.api.event.ExceptionTrowEvent;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
-import de.terrarier.netlistening.internals.InternalPayLoad_RegisterInPacket;
+import de.terrarier.netlistening.internals.InternalPayload_RegisterPacket;
 import de.terrarier.netlistening.internals.InternalUtil;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
@@ -24,7 +23,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -54,44 +52,29 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 			}
 
 			final PacketCache cache = application.getCache();
-			PacketSkeleton packet = cache.getOutPacket(types);
+			PacketSkeleton packet = cache.getPacket(types);
 			if (packet == null) {
-				// System.out.println("regchannel: " + ctx.channel());
-				packet = cache.registerOutPacket(types);
-				final InternalPayLoad_RegisterInPacket register = new InternalPayLoad_RegisterInPacket(
-						application.getPacketSynchronization() == PacketSynchronization.SIMPLE ? packet.getId() : 0, types);
+				packet = cache.registerPacket(types);
+				final InternalPayload_RegisterPacket register = new InternalPayload_RegisterPacket(packet.getId(), types);
 				final ByteBuf registerBuffer = Unpooled.buffer(5 + dataSize);
 				DataType.getDTIP().write0(application, registerBuffer, register);
 				buffer.writeBytes(ByteBufUtilExtension.getBytes(registerBuffer));
 				if (application.getCaching() == PacketCaching.GLOBAL) {
-					final Collection<Connection> connections = application.getConnections();
-					if (connections.size() > 1) {
-						final Channel channel = ctx.channel();
-						for (Connection connection : connections) {
-							final Channel conChannel = connection.getChannel();
-							if (!conChannel.equals(channel)) {
-								registerBuffer.retain();
-								if (connection.isConnected()) {
-									conChannel.writeAndFlush(registerBuffer);
-								} else {
-									((ConnectionImpl) connection).writeToInitialBuffer(registerBuffer);
-								}
-							}
-						}
-					}
+					application.getCache().broadcastRegister(application, register, ctx.channel(), registerBuffer);
+				}else {
+					registerBuffer.release();
 				}
-				registerBuffer.release();
 				packet.register();
 			}
 
-			if (!application.isClient() && !packet.isRegistered()) { // here occurs a race condition
+			if (!application.isClient() && !packet.isRegistered()) { // here occurs a race condition - probably fixed
 				if(delayedExecutor.isShutdown()) {
 					return;
 				}
 				final PacketSkeleton finalPacket = packet;
 				// Sending data delayed, awaiting the packet's registration to finish
-				final Channel channel = ctx.channel();
 				delayedExecutor.execute(() -> {
+					final Channel channel = ctx.channel();
 					while (!finalPacket.isRegistered());
 					channel.writeAndFlush(data);
 				});

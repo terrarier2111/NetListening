@@ -9,10 +9,12 @@ import de.terrarier.netlistening.api.encryption.EncryptionOptions;
 import de.terrarier.netlistening.api.encryption.SymmetricEncryptionContext;
 import de.terrarier.netlistening.api.encryption.SymmetricEncryptionUtil;
 import de.terrarier.netlistening.api.type.DataType;
-import de.terrarier.netlistening.internals.*;
+import de.terrarier.netlistening.internals.DataTypeInternalPayload;
+import de.terrarier.netlistening.internals.InternalPayload;
+import de.terrarier.netlistening.internals.InternalPayload_RegisterPacket;
+import de.terrarier.netlistening.internals.InternalUtil;
 import de.terrarier.netlistening.network.PacketCache;
 import de.terrarier.netlistening.network.PacketSkeleton;
-import de.terrarier.netlistening.network.PacketSynchronization;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -65,7 +67,7 @@ public final class ConnectionImpl implements Connection {
 		final boolean connected = isConnected();
 		checkReceived();
 		if(connected && dataSendState.isAtLeast(DataSendState.SENDING)) {
-			if(dataSendState.isAtLeast(DataSendState.FINISHED)) {
+			if(dataSendState == DataSendState.FINISHED) {
 				channel.writeAndFlush(data);
 			}else {
 				// TODO: Handle stuff incoming before!
@@ -211,27 +213,13 @@ public final class ConnectionImpl implements Connection {
 				((DataTypeInternalPayload) dtip).write(application, buffer, InternalPayload.HANDSHAKE);
 				if (application.getCaching() == PacketCaching.GLOBAL) {
 
-					final Map<Integer, PacketSkeleton> outPackets = cache.getOutPackets();
-					final Map<Integer, PacketSkeleton> inPackets = cache.getInPackets();
-					final int outPacketsSize = outPackets.size();
-					final int inPacketsSize = inPackets.size();
-					if (outPacketsSize > 1 || inPacketsSize > 2) {
-						final boolean simpleSynchronization = application.getPacketSynchronization() == PacketSynchronization.SIMPLE;
+					final Map<Integer, PacketSkeleton> packets = cache.getPackets();
+					final int packetsSize = packets.size();
+					if (packetsSize > 3) {
 
-						if (outPacketsSize > 1) {
-							for (int out = 5; out < outPacketsSize + 4; out++) {
-								final DataType<?>[] data = outPackets.get(out).getData();
-								dtip.write0(application, buffer, simpleSynchronization ?
-										new InternalPayLoad_RegisterInPacket(out, data) : new InternalPayLoad_RegisterInPacket(data));
-							}
-						}
-
-						if (inPacketsSize > 2) {
-							for (int in = 5; in < inPacketsSize + 3; in++) {
-								final DataType<?>[] data = inPackets.get(in).getData();
-								dtip.write0(application, buffer, simpleSynchronization ?
-										new InternalPayLoad_RegisterOutPacket(in, data) : new InternalPayLoad_RegisterOutPacket(data));
-							}
+						for (int id = 5; id < packetsSize + 2; id++) {
+							final DataType<?>[] data = packets.get(id).getData();
+							dtip.write0(application, buffer, new InternalPayload_RegisterPacket(id, data));
 						}
 					}
 				}

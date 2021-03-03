@@ -9,8 +9,7 @@ import de.terrarier.netlistening.api.event.Listener;
 import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.network.PacketCache;
-import de.terrarier.netlistening.network.PacketSynchronization;
-import io.netty.channel.Channel;
+	import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,12 +36,6 @@ public interface Application {
 	 */
 	@NotNull
 	PacketCaching getCaching();
-
-	/**
-	 * @return the synchronization mode used to synchronize packet ids through multiple connections.
-	 */
-	@NotNull
-	PacketSynchronization getPacketSynchronization();
 
 	/**
 	 * @return the encoding used to encode String which are being sent through the network.

@@ -22,7 +22,7 @@ public final class PacketSkeleton {
 		this.hash = Arrays.hashCode(data);
 	}
 	
-	protected int getId() {
+	public int getId() {
 		return id;
 	}
 

@@ -161,7 +161,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
 
         final ConnectionImpl connection = (ConnectionImpl) application.getConnection(ctx.channel());
-        final PacketSkeleton packet = connection.getCache().getInPacketFromId(id);
+        final PacketSkeleton packet = connection.getCache().getPacket(id);
         if (packet == null) {
             if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                     (EventManager.EventProvider<InvalidDataEvent>) () -> {

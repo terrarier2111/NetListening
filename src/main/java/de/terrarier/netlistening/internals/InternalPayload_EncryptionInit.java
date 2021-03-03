@@ -30,14 +30,14 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
 
     private InternalPayload_EncryptionInit(@NotNull SymmetricEncryptionData symmetricEncryptionData,
                                            @NotNull PublicKey publicKey, byte[] hmacKey) {
-        super((byte) 0x4);
+        super((byte) 0x3);
         this.symmetricEncryptionData = symmetricEncryptionData;
         this.publicKey = publicKey;
         this.hmacKey = hmacKey;
     }
 
     public InternalPayload_EncryptionInit() {
-        super((byte) 0x4);
+        super((byte) 0x3);
         symmetricEncryptionData = null;
         publicKey = null;
         hmacKey = null;

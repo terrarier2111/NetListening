@@ -9,7 +9,6 @@ import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.EncryptionSettingWrapper;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.impl.ServerImpl;
-import de.terrarier.netlistening.network.PacketSynchronization;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import org.jetbrains.annotations.NotNull;
@@ -90,19 +89,6 @@ public interface Server extends Application {
         @NotNull
         public Builder buffer(int buffer) {
             impl.buffer(buffer);
-            return this;
-        }
-
-        /**
-         * Sets the packet synchronization which should be used to synchronize
-         * packets between different connections.
-         *
-         * @param packetSynchronization the synchronization mode.
-         * @return the local reference.
-         */
-        @NotNull
-        public Builder packetSynchronization(@NotNull PacketSynchronization packetSynchronization) {
-            impl.packetSynchronization(packetSynchronization);
             return this;
         }
 

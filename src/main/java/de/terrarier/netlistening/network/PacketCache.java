@@ -1,9 +1,17 @@
 package de.terrarier.netlistening.network;
 
+import de.terrarier.netlistening.Application;
+import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.type.DataType;
+import de.terrarier.netlistening.impl.ConnectionImpl;
+import de.terrarier.netlistening.internals.InternalPayload_RegisterPacket;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -19,95 +27,119 @@ public final class PacketCache {
 	private static final PacketSkeleton INTERNAL_PAYLOAD_PACKET_SKELETON = new PacketSkeleton(0x0, DataType.getDTIP());
 	private static final PacketSkeleton ENCRYPTION_PACKET_SKELETON = new PacketSkeleton(0x3, DataType.getDTE());
 	private static final PacketSkeleton HMAC_PACKET_SKELETON = new PacketSkeleton(0x4, DataType.getDTHMAC());
-	private final Map<Integer, PacketSkeleton> inPackets = new ConcurrentHashMap<>();
-	private final Map<Integer, PacketSkeleton> outPackets = new ConcurrentHashMap<>();
-	private final AtomicInteger inId = new AtomicInteger(5);
-	private final AtomicInteger outId = new AtomicInteger(5);
-	private final ReadWriteLock outLock = new ReentrantReadWriteLock(true);
+	private final Map<Integer, PacketSkeleton> packets = new ConcurrentHashMap<>();
+	private final AtomicInteger id = new AtomicInteger(5);
+	private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 	
 	public PacketCache() {
-		outPackets.put(0x0, INTERNAL_PAYLOAD_PACKET_SKELETON);
-		inPackets.put(0x3, ENCRYPTION_PACKET_SKELETON);
-		inPackets.put(0x4, HMAC_PACKET_SKELETON);
+		packets.put(0x0, INTERNAL_PAYLOAD_PACKET_SKELETON);
+		packets.put(0x3, ENCRYPTION_PACKET_SKELETON);
+		packets.put(0x4, HMAC_PACKET_SKELETON);
 	}
 
 	@NotNull
-	public Map<Integer, PacketSkeleton> getOutPackets() {
-		return outPackets;
+	public Map<Integer, PacketSkeleton> getPackets() {
+		return packets;
 	}
 
 	@NotNull
-	public Map<Integer, PacketSkeleton> getInPackets() {
-		return inPackets;
-	}
-
-	public void registerInPacket(@NotNull DataType<?>... data) {
-		registerInPacket(inId.getAndIncrement(), data);
-	}
-
-	@NotNull
-	public PacketSkeleton registerOutPacket(@NotNull DataType<?>... data) {
-		outLock.writeLock().lock();
+	protected PacketSkeleton registerPacket(@NotNull DataType<?>... data) {
+		lock.writeLock().lock();
 		try {
-			return registerOutPacket0(outId.getAndIncrement(), data);
+			return registerPacket0(id.getAndIncrement(), data);
 		}finally {
-			outLock.writeLock().unlock();
+			lock.writeLock().unlock();
 		}
-	}
-
-	public void registerInPacket(int id, @NotNull DataType<?>... data) {
-		if(id > inId.get()) {
-			inId.set(id);
-		}
-
-		inPackets.put(id, new PacketSkeleton(id, data));
 	}
 
 	@NotNull
-	public PacketSkeleton registerOutPacket(int id, @NotNull DataType<?>... data) {
-		outLock.writeLock().lock();
+	public PacketSkeleton tryRegisterPacket(int id, @NotNull DataType<?>... data) {
+		lock.writeLock().lock();
 		try {
-			if (id > outId.get()) {
-				outId.set(id);
+			boolean valid = id > this.id.get();
+			if (valid) {
+				this.id.set(id);
+			}else {
+				valid = packets.get(id) == null;
 			}
 
-			return registerOutPacket0(id, data);
+			return registerPacket0(valid ? id : this.id.getAndIncrement(), data);
 		}finally {
-			outLock.writeLock().unlock();
+			lock.writeLock().unlock();
+		}
+	}
+
+	public void forceRegisterPacket(int id, @NotNull DataType<?>... data) {
+		lock.writeLock().lock();
+		try {
+			final int curr = this.id.get();
+			if (id > curr) {
+				this.id.set(id);
+			}else if (id == curr) {
+				this.id.getAndIncrement();
+			}
+
+			registerPacket0(id, data);
+		}finally {
+			lock.writeLock().unlock();
 		}
 	}
 
 	@NotNull
-	private PacketSkeleton registerOutPacket0(int id, @NotNull DataType<?>... data) {
+	private PacketSkeleton registerPacket0(int id, @NotNull DataType<?>... data) {
 		final PacketSkeleton packet = new PacketSkeleton(id, data);
-		outPackets.put(id, packet);
+		packets.put(id, packet);
 		return packet;
 	}
 
-	protected PacketSkeleton getOutPacket(@NotNull DataType<?>... data) {
+	protected PacketSkeleton getPacket(@NotNull DataType<?>... data) {
 		final int dataLength = data.length;
 		final int dataHash = Arrays.hashCode(data);
 
-		outLock.readLock().lock();
+		lock.readLock().lock();
 		try {
-			for (PacketSkeleton packet : outPackets.values()) {
+			for (PacketSkeleton packet : packets.values()) {
 				if (packet.getData().length == dataLength && dataHash == packet.hashCode()) {
 					return packet;
 				}
 			}
 		}finally {
-			outLock.readLock().unlock();
+			lock.readLock().unlock();
 		}
 		return null;
 	}
 
-	protected PacketSkeleton getInPacketFromId(int id) {
-		return inPackets.get(id);
+	protected PacketSkeleton getPacket(int id) {
+		return packets.get(id);
+	}
+
+	public void broadcastRegister(@NotNull Application application, @NotNull InternalPayload_RegisterPacket payload, Channel ignored, ByteBuf buffer) {
+		final Collection<Connection> connections = application.getConnections();
+		if (ignored == null || connections.size() > 1) {
+			final ByteBuf registerBuffer = buffer != null ? buffer : Unpooled.buffer(
+					(application.getCompressionSetting().isVarIntCompression() ? 2 : 5) + payload.getSize(application));
+
+			if(buffer == null)
+				DataType.getDTIP().write0(application, registerBuffer, payload);
+
+			for (Connection connection : connections) {
+				if (ignored == null || !connection.getChannel().equals(ignored)) {
+					registerBuffer.retain();
+					if (connection.isConnected()) {
+						connection.getChannel().writeAndFlush(registerBuffer);
+					} else {
+						final int index = registerBuffer.readerIndex();
+						((ConnectionImpl) connection).writeToInitialBuffer(registerBuffer);
+						registerBuffer.readerIndex(index);
+					}
+				}
+			}
+			registerBuffer.release();
+		}
 	}
 
 	public void clear() {
-		outPackets.clear();
-		inPackets.clear();
+		packets.clear();
 		// TODO: Check if we have to reset this to its default.
 	}
 	
