@@ -3,9 +3,12 @@ package de.terrarier.netlistening.network;
 import de.terrarier.netlistening.api.type.DataType;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * @since 1.0
@@ -20,6 +23,7 @@ public final class PacketCache {
 	private final Map<Integer, PacketSkeleton> outPackets = new ConcurrentHashMap<>();
 	private final AtomicInteger inId = new AtomicInteger(5);
 	private final AtomicInteger outId = new AtomicInteger(5);
+	private final ReadWriteLock outLock = new ReentrantReadWriteLock(true);
 	
 	public PacketCache() {
 		outPackets.put(0x0, INTERNAL_PAYLOAD_PACKET_SKELETON);
@@ -36,16 +40,21 @@ public final class PacketCache {
 	public Map<Integer, PacketSkeleton> getInPackets() {
 		return inPackets;
 	}
-	
+
 	public void registerInPacket(@NotNull DataType<?>... data) {
 		registerInPacket(inId.getAndIncrement(), data);
 	}
 
 	@NotNull
 	public PacketSkeleton registerOutPacket(@NotNull DataType<?>... data) {
-		return registerOutPacket(outId.getAndIncrement(), data);
+		outLock.writeLock().lock();
+		try {
+			return registerOutPacket0(outId.getAndIncrement(), data);
+		}finally {
+			outLock.writeLock().unlock();
+		}
 	}
-	
+
 	public void registerInPacket(int id, @NotNull DataType<?>... data) {
 		if(id > inId.get()) {
 			inId.set(id);
@@ -56,10 +65,20 @@ public final class PacketCache {
 
 	@NotNull
 	public PacketSkeleton registerOutPacket(int id, @NotNull DataType<?>... data) {
-		if(id > outId.get()) {
-			outId.set(id);
-		}
+		outLock.writeLock().lock();
+		try {
+			if (id > outId.get()) {
+				outId.set(id);
+			}
 
+			return registerOutPacket0(id, data);
+		}finally {
+			outLock.writeLock().unlock();
+		}
+	}
+
+	@NotNull
+	private PacketSkeleton registerOutPacket0(int id, @NotNull DataType<?>... data) {
 		final PacketSkeleton packet = new PacketSkeleton(id, data);
 		outPackets.put(id, packet);
 		return packet;
@@ -67,18 +86,17 @@ public final class PacketCache {
 
 	protected PacketSkeleton getOutPacket(@NotNull DataType<?>... data) {
 		final int dataLength = data.length;
-		check:
-		for(PacketSkeleton packet : outPackets.values()) {
-			final DataType<?>[] tmp = packet.getData();
+		final int dataHash = Arrays.hashCode(data);
 
-			if(tmp.length == dataLength) {
-				for(int i = 0; i < dataLength; i++) {
-					if(!data[i].equals(tmp[i])) {
-						continue check;
-					}
+		outLock.readLock().lock();
+		try {
+			for (PacketSkeleton packet : outPackets.values()) {
+				if (packet.getData().length == dataLength && dataHash == packet.hashCode()) {
+					return packet;
 				}
-				return packet;
 			}
+		}finally {
+			outLock.readLock().unlock();
 		}
 		return null;
 	}

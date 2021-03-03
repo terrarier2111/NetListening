@@ -44,11 +44,10 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     private static final PacketCaching CACHING = PacketCaching.NONE;
     private Channel channel;
     private ConnectionImpl connection;
-    private boolean receivedHandshake;
+    private volatile boolean receivedHandshake;
     private List<DataContainer> preConnectData;
     private HashingAlgorithm serverKeyHashing = HashingAlgorithm.SHA_256;
     private ServerKey serverKey;
-    // TODO: Improve and test delayed data sending mechanics.
 
     private void start(long timeout, int localPort, @NotNull Map<ChannelOption<?>, Object> options, @NotNull SocketAddress remoteAddress, Proxy proxy) {
         if (group != null) {
@@ -80,15 +79,15 @@ public final class ClientImpl extends ApplicationImpl implements Client {
                                 final ChannelPipeline pipeline = channel.pipeline();
 
                                 if (timeout > 0) {
-                                    pipeline.addLast("readTimeOutHandler",
+                                    pipeline.addLast(TIMEOUT_HANDLER,
                                             new TimeOutHandler(ClientImpl.this, connection, timeout));
                                 }
 
-                                pipeline.addLast("decoder", new PacketDataDecoder(ClientImpl.this, handler))
-                                        .addAfter("decoder", "encoder", new PacketDataEncoder(ClientImpl.this));
+                                pipeline.addLast(DECODER, new PacketDataDecoder(ClientImpl.this, handler))
+                                        .addAfter(DECODER, ENCODER, new PacketDataEncoder(ClientImpl.this, null));
 
                                 if (proxy != null) {
-                                    pipeline.addFirst("proxyHandler", proxy.getHandler());
+                                    pipeline.addFirst(PROXY_HANDLER, proxy.getHandler());
                                 }
 
                                 ClientImpl.this.connection = connection;
@@ -135,12 +134,14 @@ public final class ClientImpl extends ApplicationImpl implements Client {
             throw new IllegalStateException("An internal error occurred - duplicate push request");
         }
 
-        if(preConnectData != null) {
-            for (Iterator<DataContainer> iterator = preConnectData.iterator(); iterator.hasNext();) {
-                channel.writeAndFlush(iterator.next());
-                iterator.remove();
+        synchronized (this) {
+            if (preConnectData != null) {
+                for (Iterator<DataContainer> iterator = preConnectData.iterator(); iterator.hasNext(); ) {
+                    channel.writeAndFlush(iterator.next());
+                    iterator.remove();
+                }
+                preConnectData = null;
             }
-            preConnectData = null;
         }
         receivedHandshake = true;
     }
@@ -155,10 +156,12 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     @Override
     public void sendData(@NotNull DataContainer data) {
         if (!receivedHandshake) {
-            if(preConnectData == null) {
-                preConnectData = new ArrayList<>();
+            synchronized (this) {
+                if (preConnectData == null) {
+                    preConnectData = new ArrayList<>();
+                }
+                preConnectData.add(data);
             }
-            preConnectData.add(data);
             return;
         }
 

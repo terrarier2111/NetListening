@@ -19,7 +19,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,8 +27,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @since 1.0
@@ -38,10 +35,11 @@ import java.util.concurrent.TimeUnit;
 public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer> {
 
 	private final ApplicationImpl application;
-	private ExecutorService delayedExecutor;
+	private final ExecutorService delayedExecutor;
 
-	public PacketDataEncoder(@NotNull ApplicationImpl application) {
+	public PacketDataEncoder(@NotNull ApplicationImpl application, ExecutorService delayedExecutor) {
 		this.application = application;
+		this.delayedExecutor = delayedExecutor;
 	}
 
 	@Override
@@ -58,6 +56,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 			final PacketCache cache = application.getCache();
 			PacketSkeleton packet = cache.getOutPacket(types);
 			if (packet == null) {
+				// System.out.println("regchannel: " + ctx.channel());
 				packet = cache.registerOutPacket(types);
 				final InternalPayLoad_RegisterInPacket register = new InternalPayLoad_RegisterInPacket(
 						application.getPacketSynchronization() == PacketSynchronization.SIMPLE ? packet.getId() : 0, types);
@@ -85,17 +84,17 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 				packet.register();
 			}
 
-			if (!packet.isRegistered()) {
-				final Channel channel = ctx.channel();
-				if(delayedExecutor == null) {
-					delayedExecutor = Executors.newSingleThreadExecutor();
-				}
-				// Sending data delayed, awaiting the packet's registration to finish
-				while (!packet.isRegistered());
-				if(delayedExecutor == null || delayedExecutor.isShutdown()) {
+			if (!application.isClient() && !packet.isRegistered()) { // here occurs a race condition
+				if(delayedExecutor.isShutdown()) {
 					return;
 				}
-				delayedExecutor.execute(() -> channel.writeAndFlush(data));
+				final PacketSkeleton finalPacket = packet;
+				// Sending data delayed, awaiting the packet's registration to finish
+				final Channel channel = ctx.channel();
+				delayedExecutor.execute(() -> {
+					while (!finalPacket.isRegistered());
+					channel.writeAndFlush(data);
+				});
 				return;
 			}
 
@@ -161,32 +160,6 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 			dst.writeBytes(hash);
 		} catch (NoSuchAlgorithmException | InvalidKeyException e) {
 			application.getEventManager().handleExceptionThrown(new ExceptionTrowEvent(e));
-		}
-	}
-
-	@Override
-	public void handlerRemoved(@NotNull ChannelHandlerContext ctx) throws Exception {
-		shutdown();
-		super.handlerRemoved(ctx);
-	}
-
-	@Override
-	public void close(@NotNull ChannelHandlerContext ctx, @NotNull ChannelPromise promise) throws Exception {
-		shutdown();
-		super.close(ctx, promise);
-	}
-
-	private void shutdown() {
-		if(delayedExecutor != null && !delayedExecutor.isShutdown()) {
-			delayedExecutor.shutdown();
-			try {
-				if (!delayedExecutor.awaitTermination(250, TimeUnit.MILLISECONDS)) {
-					delayedExecutor.shutdownNow();
-				}
-			} catch (InterruptedException e) {
-				delayedExecutor.shutdownNow();
-			}
-			delayedExecutor = null;
 		}
 	}
 

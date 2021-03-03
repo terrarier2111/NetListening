@@ -34,7 +34,7 @@ import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -46,6 +46,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
     private final Map<Channel, ConnectionImpl> connections = new ConcurrentHashMap<>();
     private final AtomicInteger id = new AtomicInteger();
     private PacketCaching caching = PacketCaching.NONE;
+    private ScheduledExecutorService delayedExecutor = Executors.newSingleThreadScheduledExecutor();
 
     private void start(long timeout, int port, @NotNull Map<ChannelOption<?>, Object> options) {
         if (group != null) {
@@ -87,11 +88,11 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                                 final ChannelPipeline pipeline = channel.pipeline();
 
                                 if (timeout > 0) {
-                                    pipeline.addLast("readTimeOutHandler",
+                                    pipeline.addLast(TIMEOUT_HANDLER,
                                             new TimeOutHandler(ServerImpl.this, connection, timeout));
                                 }
-                                pipeline.addLast("decoder", new PacketDataDecoder(ServerImpl.this, handler))
-                                        .addAfter("decoder", "encoder", new PacketDataEncoder(ServerImpl.this));
+                                pipeline.addLast(DECODER, new PacketDataDecoder(ServerImpl.this, handler))
+                                        .addAfter(DECODER, ENCODER, new PacketDataEncoder(ServerImpl.this, delayedExecutor));
 
                                 connections.put(channel, connection);
                                 eventManager.callEvent(ListenerType.POST_INIT, new ConnectionPostInitEvent(connection));
@@ -154,6 +155,21 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         group = null;
         worker.interrupt();
         worker = null;
+        if(!delayedExecutor.isShutdown()) {
+            delayedExecutor.shutdown();
+            try {
+                if (!delayedExecutor.awaitTermination(250L, TimeUnit.MILLISECONDS)) {
+                    delayedExecutor.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                delayedExecutor.shutdownNow();
+            }
+            delayedExecutor = null;
+        }
+    }
+
+    private void shutdownExecutor(@NotNull ExecutorService executorService, long timeout) {
+
     }
 
     /**

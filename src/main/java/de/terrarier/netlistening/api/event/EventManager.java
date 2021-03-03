@@ -3,7 +3,11 @@ package de.terrarier.netlistening.api.event;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @since 1.0
@@ -11,7 +15,7 @@ import java.util.*;
  */
 public final class EventManager {
 
-	private final Map<ListenerType, Set<Listener<?>>[]> listeners = new HashMap<>();
+	private final Map<ListenerType, Set<Listener<?>>[]> listeners = new ConcurrentHashMap<>();
 	private final DataHandler handler;
 	
 	public EventManager(@NotNull DataHandler handler) {

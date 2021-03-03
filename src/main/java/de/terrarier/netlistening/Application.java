@@ -23,6 +23,10 @@ import java.util.Set;
  */
 public interface Application {
 
+	String DECODER = "nl_decoder";
+	String ENCODER = "nl_encoder";
+	String TIMEOUT_HANDLER = "timeOutHandler";
+
 	/**
 	 * @return if the application is a client!
 	 */

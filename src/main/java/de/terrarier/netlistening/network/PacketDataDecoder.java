@@ -35,7 +35,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     private final DataHandler handler;
     private boolean framing;
     private ByteBuf holdingBuffer;
-    private ArrayList<DataComponent<?>> storedData;
+    private List<DataComponent<?>> storedData;
     private int index;
     private PacketSkeleton packet;
     private boolean hasId;
@@ -180,7 +180,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     }
 
     @SuppressWarnings("unchecked")
-    private void read(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull ArrayList<DataComponent<?>> data,
+    private void read(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull List<DataComponent<?>> data,
                       @NotNull ByteBuf buffer, @NotNull PacketSkeleton packet, int index, ByteBuf framingBuffer) throws Exception {
         final DataType<?>[] dataTypes = packet.getData();
         final int length = dataTypes.length;
@@ -282,6 +282,10 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     public void exceptionCaught(@NotNull ChannelHandlerContext ctx, @NotNull Throwable cause) {
         if(cause instanceof OutOfMemoryError) {
             // Don't handle OOM errors because handling them could lead into more OOM errors being thrown.
+            return;
+        }
+        if(cause instanceof ThreadDeath) {
+            // Don't handle ThreadDeath
             return;
         }
         final ExceptionTrowEvent event = new ExceptionTrowEvent(cause);

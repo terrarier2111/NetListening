@@ -43,7 +43,7 @@ public final class DataTypeHmac extends DataType<Void> {
                 return null;
             }
         }
-        final PacketDataDecoder decoder = (PacketDataDecoder) ctx.channel().pipeline().get("decoder");
+        final PacketDataDecoder decoder = (PacketDataDecoder) ctx.channel().pipeline().get(Application.DECODER);
         final ByteBuf dataBuffer = Unpooled.wrappedBuffer(traffic);
         decoder.releaseNext();
         decoder.decode(ctx, dataBuffer, out);

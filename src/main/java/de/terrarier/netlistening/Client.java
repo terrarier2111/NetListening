@@ -17,6 +17,8 @@ import java.net.SocketAddress;
  */
 public interface Client extends Application {
 
+    String PROXY_HANDLER = "nl_proxy_handler";
+
     /**
      * @return the key used by the server to encrypt the symmetric key.
      */
