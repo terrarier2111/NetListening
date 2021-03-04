@@ -117,6 +117,7 @@ public final class ConnectionImpl implements Connection {
 	}
 
 	@NotNull
+	@Deprecated
 	public Application getApplication() {
 		return application;
 	}
@@ -295,7 +296,7 @@ public final class ConnectionImpl implements Connection {
 		final int readable = buffer.readableBytes();
 		synchronized (this) {
 			ByteBufUtilExtension.correctSize(preConnectBuffer, readable, application.getBuffer());
-			preConnectBuffer.writeBytes(ByteBufUtilExtension.readBytes(buffer, readable));
+			preConnectBuffer.writeBytes(ByteBufUtilExtension.getBytes(buffer, readable));
 		}
 		buffer.release();
 	}

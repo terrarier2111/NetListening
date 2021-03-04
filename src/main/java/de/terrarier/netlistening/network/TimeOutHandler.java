@@ -28,8 +28,9 @@ import static java.lang.Byte.*;
 public final class TimeOutHandler extends ReadTimeoutHandler {
 
 	private final ApplicationImpl application;
-	private Timer timer = new Timer();
+	private Timer timer = new Timer(true);
 	private byte counter = MIN_VALUE;
+	private ByteBuf buffer;
 	
 	public TimeOutHandler(@NotNull ApplicationImpl application,
 						  @NotNull ConnectionImpl connection, long timeout) {
@@ -38,7 +39,6 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 
 		final long delay = timeout / 2;
 		final boolean client = application.isClient();
-		final int bufferSize = application.getCompressionSetting().isVarIntCompression() ? 2 : 5;
 		final Channel channel = connection.getChannel();
 
 		timer.schedule(new TimerTask() {
@@ -49,15 +49,20 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 						|| (client && !((ClientImpl) application).hasReceivedHandshake())) {
 					return;
 				}
-				
+
+				if(buffer == null) {
+					buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 2 : 5);
+					InternalUtil.writeIntUnchecked(application, buffer, 0x1);
+					buffer.markWriterIndex();
+				}
 				if(counter == MAX_VALUE) {
 					counter = MIN_VALUE;
 				}
-				final ByteBuf buffer = Unpooled.buffer(bufferSize);
 
-				InternalUtil.writeIntUnchecked(application, buffer, 0x1);
+				buffer.resetWriterIndex();
 				buffer.writeByte(counter++);
 
+				buffer.retain();
 				channel.writeAndFlush(buffer);
 			}
 		}, delay, delay);
@@ -87,6 +92,9 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 		if (timer != null) {
 			timer.cancel();
 			timer = null;
+			if(buffer != null && buffer.refCnt() > 0) {
+				buffer.release();
+			}
 		}
 	}
 

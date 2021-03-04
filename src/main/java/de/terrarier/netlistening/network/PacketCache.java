@@ -128,9 +128,7 @@ public final class PacketCache {
 					if (connection.isConnected()) {
 						connection.getChannel().writeAndFlush(registerBuffer);
 					} else {
-						final int index = registerBuffer.readerIndex();
 						((ConnectionImpl) connection).writeToInitialBuffer(registerBuffer);
-						registerBuffer.readerIndex(index);
 					}
 				}
 			}

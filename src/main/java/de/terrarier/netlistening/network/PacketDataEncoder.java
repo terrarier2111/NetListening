@@ -60,14 +60,14 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 				DataType.getDTIP().write0(application, registerBuffer, register);
 				buffer.writeBytes(ByteBufUtilExtension.getBytes(registerBuffer));
 				if (application.getCaching() == PacketCaching.GLOBAL) {
-					application.getCache().broadcastRegister(application, register, ctx.channel(), registerBuffer);
+					cache.broadcastRegister(application, register, ctx.channel(), registerBuffer);
 				}else {
 					registerBuffer.release();
 				}
 				packet.register();
 			}
 
-			if (!application.isClient() && !packet.isRegistered()) { // here occurs a race condition - probably fixed
+			if (!application.isClient() && !packet.isRegistered()) {
 				if(delayedExecutor.isShutdown()) {
 					return;
 				}
