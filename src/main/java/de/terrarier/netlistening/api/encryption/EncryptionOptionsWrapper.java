@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * @since 1.0
  * @author Terrarier2111
- * @param <T>
+ * @param <T> the encryption setting wrapper which is to be configured.
  */
 public final class EncryptionOptionsWrapper<T extends EncryptionOptionsSuperBuilder<T>> {
 
