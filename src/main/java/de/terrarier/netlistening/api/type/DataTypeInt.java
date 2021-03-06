@@ -1,6 +1,6 @@
 package de.terrarier.netlistening.api.type;
 
-import de.terrarier.netlistening.Application;
+import de.terrarier.netlistening.impl.ApplicationImpl;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
@@ -16,12 +16,12 @@ public final class DataTypeInt extends DataType<Integer> {
 	}
 
 	@Override
-	protected Integer read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer) {
+	protected Integer read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer) {
 		return buffer.readInt();
 	}
 
 	@Override
-	protected void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull Integer data) {
+	protected void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, @NotNull Integer data) {
 		buffer.writeInt(data);
 	}
 

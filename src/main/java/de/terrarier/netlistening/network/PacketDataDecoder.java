@@ -20,6 +20,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.util.internal.EmptyArrays;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import java.util.List;
  * @author Terrarier2111
  * @since 1.0
  */
+@ApiStatus.Internal
 public final class PacketDataDecoder extends ByteToMessageDecoder {
 
     private final ApplicationImpl application;
@@ -232,11 +234,13 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     }
 
     private void readPayLoad(@NotNull ByteBuf buffer, @NotNull Channel channel) {
+        final int start = buffer.readerIndex();
         try {
             ((DataTypeInternalPayload) DataType.getDTIP()).read(application, channel, buffer);
         } catch (CancelReadingSignal signal) {
             // prepare framing of payload
-            holdingBuffer = Unpooled.buffer(signal.size);
+            holdingBuffer = Unpooled.buffer(signal.size + buffer.readerIndex() - start);
+            buffer.readerIndex(start);
             transferRemaining(buffer);
             packet = null;
             hasId = true;

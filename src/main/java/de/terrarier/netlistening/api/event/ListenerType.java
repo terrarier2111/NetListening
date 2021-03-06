@@ -1,11 +1,13 @@
 package de.terrarier.netlistening.api.event;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * @author Terrarier2111
  * @since 1.0
+ * @author Terrarier2111
  */
+@ApiStatus.Internal
 public enum ListenerType {
 
     PRE_INIT(ConnectionPreInitListener.class), POST_INIT(ConnectionPostInitListener.class),

@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.encryption;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.Cipher;
@@ -13,6 +14,7 @@ import java.security.SecureRandom;
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class SymmetricEncryptionUtil {
 
     private SymmetricEncryptionUtil() {

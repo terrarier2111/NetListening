@@ -10,9 +10,9 @@ import java.net.SocketAddress;
  * @since 1.0
  * @author Terrarier2111
  */
-public final class Socks5Proxy extends Proxy {
+final class Socks5Proxy extends Proxy {
 
-    public Socks5Proxy(@NotNull SocketAddress address, @NotNull ProxyType type) {
+    protected Socks5Proxy(@NotNull SocketAddress address, @NotNull ProxyType type) {
         super(address, type);
     }
 

@@ -1,6 +1,6 @@
 package de.terrarier.netlistening.api.type;
 
-import de.terrarier.netlistening.Application;
+import de.terrarier.netlistening.impl.ApplicationImpl;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
@@ -16,12 +16,12 @@ public final class DataTypeBoolean extends DataType<Boolean> {
 	}
 
 	@Override
-	protected Boolean read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer) {
+	protected Boolean read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer) {
 		return buffer.readBoolean();
 	}
 
 	@Override
-	protected void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull Boolean data) {
+	protected void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, @NotNull Boolean data) {
 		buffer.writeBoolean(data);
 	}
 

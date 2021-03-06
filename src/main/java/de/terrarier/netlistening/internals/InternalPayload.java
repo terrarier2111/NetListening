@@ -1,15 +1,17 @@
 package de.terrarier.netlistening.internals;
 
-import de.terrarier.netlistening.Application;
+import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public abstract class InternalPayload {
 
     private static final InternalPayload_RegisterPacket REGISTER_PACKET = new InternalPayload_RegisterPacket(-1);
@@ -23,15 +25,15 @@ public abstract class InternalPayload {
         this.id = id;
     }
 
-    protected final void write0(@NotNull Application application, @NotNull ByteBuf buffer) {
+    protected final void write0(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
         checkWriteable(application, buffer, 1);
         buffer.writeByte(id);
         write(application, buffer);
     }
 
-    protected abstract void write(@NotNull Application application, @NotNull ByteBuf buffer);
+    protected abstract void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer);
 
-    public abstract void read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer)
+    public abstract void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
             throws CancelReadingSignal;
 
     @NotNull
@@ -57,7 +59,7 @@ public abstract class InternalPayload {
         }
     }
 
-    protected static void checkWriteable(@NotNull Application application, @NotNull ByteBuf buffer, int length) {
+    protected static void checkWriteable(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, int length) {
         ByteBufUtilExtension.correctSize(buffer, length, application.getBuffer());
     }
 

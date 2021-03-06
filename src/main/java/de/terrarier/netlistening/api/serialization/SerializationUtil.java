@@ -1,29 +1,31 @@
 package de.terrarier.netlistening.api.serialization;
 
-import de.terrarier.netlistening.Application;
+import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.utils.TwoArgsBooleanFunction;
 import de.terrarier.netlistening.utils.TwoArgsFunction;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @since 1.01
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class SerializationUtil {
 
     private SerializationUtil() {
         throw new UnsupportedOperationException("This class may not be instantiated!");
     }
 
-    public static byte[] serialize(@NotNull Application application, @NotNull Object obj) {
+    public static byte[] serialize(@NotNull ApplicationImpl application, @NotNull Object obj) {
         return performOperation(application, SerializationProvider::isSerializable, SerializationProvider::serialize, obj);
     }
 
-    public static Object deserialize(@NotNull Application application, byte[] data) {
+    public static Object deserialize(@NotNull ApplicationImpl application, byte[] data) {
         return performOperation(application, SerializationProvider::isDeserializable, SerializationProvider::deserialize, data);
     }
 
-    private static <A, R> R performOperation(@NotNull Application application,
+    private static <A, R> R performOperation(@NotNull ApplicationImpl application,
                                              @NotNull TwoArgsBooleanFunction<SerializationProvider, A> check,
                                              @NotNull TwoArgsFunction<SerializationProvider, A, R> op, A param) {
 

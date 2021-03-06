@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.network;
 
 import de.terrarier.netlistening.api.type.DataType;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -9,6 +10,7 @@ import java.util.Arrays;
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class PacketSkeleton {
 
 	private final int id;

@@ -1,15 +1,17 @@
 package de.terrarier.netlistening.internals;
 
-import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.api.type.DataType;
+import de.terrarier.netlistening.impl.ApplicationImpl;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class DataTypeInternalPayload extends DataType<InternalPayload> {
 
 	public DataTypeInternalPayload() {
@@ -17,22 +19,15 @@ public final class DataTypeInternalPayload extends DataType<InternalPayload> {
 	}
 	
 	@Override
-	public InternalPayload read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer)
+	public InternalPayload read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
 			throws CancelReadingSignal {
-		final int start = buffer.readerIndex();
 		final byte payloadId = buffer.readByte();
-		try {
-			InternalPayload.fromId(payloadId).read(application, channel, buffer);
-		}catch (CancelReadingSignal signal) {
-			signal.size += buffer.readerIndex() - start;
-			buffer.readerIndex(start);
-			throw signal;
-		}
+		InternalPayload.fromId(payloadId).read(application, channel, buffer);
 		return null;
 	}
 
 	@Override
-	public void write0(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull InternalPayload data) {
+	public void write0(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, @NotNull InternalPayload data) {
 		InternalUtil.writeInt(application, buffer, 0x0); // We use this sneaky hack which allows us to ignore the fact that we
 															   // have to send the packet id of the packet containing the payload
 															   // (0x0) when using InternalPayloads.
@@ -40,7 +35,7 @@ public final class DataTypeInternalPayload extends DataType<InternalPayload> {
 	}
 
 	@Override
-	public void write(@NotNull Application application, @NotNull ByteBuf buffer, @NotNull InternalPayload data) {
+	public void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, @NotNull InternalPayload data) {
 		data.write0(application, buffer);
 	}
 	

@@ -3,6 +3,7 @@ package de.terrarier.netlistening.api.encryption.hash;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.Mac;
@@ -16,6 +17,7 @@ import java.security.SecureRandom;
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class HashUtil {
 
     private HashUtil() {

@@ -1,12 +1,13 @@
 package de.terrarier.netlistening.api.type;
 
-import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.api.DataComponent;
+import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.internals.*;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -39,32 +40,36 @@ public abstract class DataType<T> {
 	private final byte minSize;
 	private final boolean published;
 
+	@ApiStatus.Internal
 	public DataType(byte id, byte minSize, boolean published) {
 		this.id = id;
 		this.minSize = minSize;
 		this.published = published;
 	}
-	
-	public T read0(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull Application application,
+
+	@ApiStatus.Internal
+	public T read0(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull ApplicationImpl application,
 				   @NotNull ByteBuf buffer) throws Exception {
 		checkReadable(buffer, minSize);
 		return read(application, ctx.channel(), buffer);
 	}
 
-	protected abstract T read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer)
+	protected abstract T read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
 			throws CancelReadingSignal;
 
-	public void write0(@NotNull Application application, @NotNull ByteBuf buffer, T data) {
+	@ApiStatus.Internal
+	public void write0(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, T data) {
 		checkWriteable(application, buffer, minSize);
 		write(application, buffer, data);
 	}
 
-	protected abstract void write(@NotNull Application application, @NotNull ByteBuf buffer, T data);
+	protected abstract void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, T data);
 	
 	public final byte getId() {
 		return id;
 	}
-	
+
+	@ApiStatus.Internal
 	public final boolean isPublished() {
 		return published;
 	}
@@ -79,9 +84,10 @@ public abstract class DataType<T> {
 	public final DataComponent<T> newComponent(T content) {
 		return new DataComponent<>(this, content);
 	}
-	
+
+	@ApiStatus.Internal
 	@SuppressWarnings("unchecked")
-	public final void writeUnchecked(@NotNull Application application, @NotNull ByteBuf buf, @NotNull Object data) {
+	public final void writeUnchecked(@NotNull ApplicationImpl application, @NotNull ByteBuf buf, @NotNull Object data) {
 		write0(application, buf, (T) data);
 	}
 
@@ -91,10 +97,11 @@ public abstract class DataType<T> {
 		}
 	}
 
-	protected static void checkWriteable(@NotNull Application application, @NotNull ByteBuf buffer, int length) {
+	protected static void checkWriteable(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, int length) {
 		ByteBufUtilExtension.correctSize(buffer, length, application.getBuffer());
 	}
 
+	@ApiStatus.Internal
 	@NotNull
 	public static DataType<?> fromId(byte id) {
 			switch (id) {
@@ -127,16 +134,19 @@ public abstract class DataType<T> {
 				+ Integer.toHexString(id) + ")");
 	}
 
+	@ApiStatus.Internal
 	@NotNull
 	public static DataType<InternalPayload> getDTIP() {
 		return INTERNAL_PAYLOAD;
 	}
 
+	@ApiStatus.Internal
 	@NotNull
 	public static DataType<Void> getDTE() {
 		return ENCRYPT;
 	}
 
+	@ApiStatus.Internal
 	@NotNull
 	public static DataType<Void> getDTHMAC() {
 		return HMAC;

@@ -1,9 +1,12 @@
 package de.terrarier.netlistening.utils;
 
+import org.jetbrains.annotations.ApiStatus;
+
 /**
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class ConversionUtil {
 	
 	private ConversionUtil() {

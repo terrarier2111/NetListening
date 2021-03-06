@@ -1,14 +1,15 @@
 package de.terrarier.netlistening.internals;
 
-import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.encryption.*;
 import de.terrarier.netlistening.api.type.DataType;
+import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.Charset;
@@ -19,6 +20,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class InternalPayload_Handshake extends InternalPayload {
 
 	protected InternalPayload_Handshake() {
@@ -26,7 +28,7 @@ public final class InternalPayload_Handshake extends InternalPayload {
     }
 
 	@Override
-	protected void write(@NotNull Application application, @NotNull ByteBuf buffer) {
+	protected void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
 		final CompressionSetting compressionSetting = application.getCompressionSetting();
 		final Charset charset = application.getStringEncoding();
 		final boolean utf8 = charset.equals(UTF_8);
@@ -64,7 +66,7 @@ public final class InternalPayload_Handshake extends InternalPayload {
 	}
 
 	@Override
-	public void read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer)
+	public void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
 			throws CancelReadingSignal {
 		if(!application.isClient()) {
 			throw new IllegalStateException("The connection " + channel.toString() + " has sent invalid data!");

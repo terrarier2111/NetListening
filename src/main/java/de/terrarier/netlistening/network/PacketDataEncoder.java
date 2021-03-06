@@ -19,6 +19,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.InvalidKeyException;
@@ -30,6 +31,7 @@ import java.util.concurrent.ExecutorService;
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer> {
 
 	private final ApplicationImpl application;

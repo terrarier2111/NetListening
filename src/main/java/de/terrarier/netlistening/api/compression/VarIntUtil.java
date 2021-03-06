@@ -1,12 +1,14 @@
 package de.terrarier.netlistening.api.compression;
 
 import io.netty.buffer.ByteBuf;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class VarIntUtil {
 
 	// Source: https://github.com/Netflix/hollow/blob/master/hollow/src/main/java/com/netflix/hollow/core/memory/encoding/VarInt.java

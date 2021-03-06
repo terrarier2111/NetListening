@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public final class ConnectionImpl implements Connection {
 	
-	private final Application application;
+	private final ApplicationImpl application;
 	private final Channel channel;
 	private final int id;
 	private final PacketCache cache;
@@ -44,7 +44,7 @@ public final class ConnectionImpl implements Connection {
 	private byte[] hmacKey;
 	// TODO: Improve and test delayed data sending mechanics.
 	
-	public ConnectionImpl(@NotNull Application application, @NotNull Channel channel, int id) {
+	public ConnectionImpl(@NotNull ApplicationImpl application, @NotNull Channel channel, int id) {
 		this.application = application;
 		this.channel = channel;
 		this.id = id;
@@ -154,7 +154,7 @@ public final class ConnectionImpl implements Connection {
 	 * @param application the application to which this connection is related to.
 	 * @param secretKey the secret key which should be used to encrypt data.
 	 */
-	public void setSymmetricKey(@NotNull Application application, @NotNull SecretKey secretKey) {
+	public void setSymmetricKey(@NotNull ApplicationImpl application, @NotNull SecretKey secretKey) {
 		final EncryptionOptions options = application.getEncryptionSetting().getSymmetricSetting();
 		encryptionContext = new SymmetricEncryptionContext(options, secretKey);
 	}

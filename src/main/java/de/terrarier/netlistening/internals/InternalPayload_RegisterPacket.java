@@ -1,18 +1,20 @@
 package de.terrarier.netlistening.internals;
 
-import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.compression.NibbleUtil;
 import de.terrarier.netlistening.api.compression.VarIntUtil;
 import de.terrarier.netlistening.api.type.DataType;
+import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.network.PacketCache;
 import de.terrarier.netlistening.network.PacketSkeleton;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+@ApiStatus.Internal
 public final class InternalPayload_RegisterPacket extends InternalPayload {
 
     private final int packetId;
@@ -25,7 +27,7 @@ public final class InternalPayload_RegisterPacket extends InternalPayload {
     }
 
     @Override
-    protected final void write(@NotNull Application application, @NotNull ByteBuf buffer) {
+    protected final void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
         final int typesLength = types.length;
 
         if(typesLength == 0) {
@@ -38,25 +40,24 @@ public final class InternalPayload_RegisterPacket extends InternalPayload {
 
         final boolean nibbleCompression = application.getCompressionSetting().isNibbleCompression();
         for(int i = 0; i < typesLength; i++) {
-            final byte id = (byte) (types[i].getId() - 1);
+            byte id = (byte) (types[i].getId() - 1);
             if(id < 0x0) {
                 throw new IllegalArgumentException("Tried to send a packet containing an internal payload!");
             }
 
             if(nibbleCompression && typesLength > ++i) {
                 final byte other = (byte) (types[i].getId() - 1);
-                if(other < 0x0) {
+                if (other < 0x0) {
                     throw new IllegalArgumentException("Tried to send a packet containing an internal payload!");
                 }
-                buffer.writeByte(NibbleUtil.buildNibblePair(id, other));
-            }else {
-                buffer.writeByte(id);
+                id = NibbleUtil.buildNibblePair(id, other);
             }
+            buffer.writeByte(id);
         }
     }
 
     @Override
-    public final void read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer)
+    public final void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
             throws CancelReadingSignal {
         checkReadable(buffer, 4);
 
@@ -103,12 +104,12 @@ public final class InternalPayload_RegisterPacket extends InternalPayload {
             final PacketSkeleton packet = cache.tryRegisterPacket(packetId, types);
             if(packet.getId() == packetId) {
                 if (application.getCaching() == PacketCaching.GLOBAL) {
-                    application.getCache().broadcastRegister(application, this, channel, null);
+                    cache.broadcastRegister(application, this, channel, null);
                 }
             }else {
                 final InternalPayload_RegisterPacket register = new InternalPayload_RegisterPacket(packet.getId());
                 if (application.getCaching() == PacketCaching.GLOBAL) {
-                    application.getCache().broadcastRegister(application, register, null, null);
+                    cache.broadcastRegister(application, register, null, null);
                 }else {
                     final ByteBuf registerBuffer = Unpooled.buffer(
                             (application.getCompressionSetting().isVarIntCompression() ? 2 : 5) + getSize(application));
@@ -119,7 +120,7 @@ public final class InternalPayload_RegisterPacket extends InternalPayload {
         }
     }
 
-    public int getSize(@NotNull Application application) {
+    public int getSize(@NotNull ApplicationImpl application) {
         int size = 2 + InternalUtil.getSize(application, packetId);
 
         if(application.getCompressionSetting().isNibbleCompression()) {

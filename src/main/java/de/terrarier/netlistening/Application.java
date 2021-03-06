@@ -2,15 +2,12 @@ package de.terrarier.netlistening;
 
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
-import de.terrarier.netlistening.api.PacketCaching;
-import de.terrarier.netlistening.api.compression.CompressionSetting;
-import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.event.Listener;
 import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
-import de.terrarier.netlistening.network.PacketCache;
-	import io.netty.channel.Channel;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.Charset;
@@ -24,58 +21,20 @@ public interface Application {
 
 	String DECODER = "nl_decoder";
 	String ENCODER = "nl_encoder";
-	String TIMEOUT_HANDLER = "timeOutHandler";
+	String TIMEOUT_HANDLER = "nl_timeout_handler";
 
 	/**
 	 * @return if the application is a client!
 	 */
+	@ApiStatus.Internal
 	boolean isClient();
-
-	/**
-	 * @return the caching mode used to cache packets.
-	 */
-	@NotNull
-	PacketCaching getCaching();
 
 	/**
 	 * @return the encoding used to encode String which are being sent through the network.
 	 */
+	@ApiStatus.Internal
 	@NotNull
 	Charset getStringEncoding();
-
-	/**
-	 * @return the packet cache used by the application to map packet ids
-	 * to packet content.
-	 */
-	@NotNull
-	PacketCache getCache();
-
-	/**
-	 * @return the buffer size which is added on top of the required space,
-	 * every time a buffer is expanded.
-	 */
-	int getBuffer();
-
-	/**
-	 * @return the encryption settings which should be used to encrypt traffic
-	 * which was marked to encrypt.
-	 */
-	EncryptionSetting getEncryptionSetting();
-
-	/**
-	 * @return the compression setting containing information
-	 * about which compression techniques should be applied on
-	 * specific data.
-	 */
-	@NotNull
-	CompressionSetting getCompressionSetting();
-
-	/**
-	 * @return the serialization provider which handles the serialization
-	 * of specific data.
-	 */
-	@NotNull
-	SerializationProvider getSerializationProvider();
 
 	/**
 	 * Registers a listener which can be used to perform an action chosen by the user

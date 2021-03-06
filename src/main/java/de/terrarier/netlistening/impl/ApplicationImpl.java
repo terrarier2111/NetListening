@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.impl;
 
 import de.terrarier.netlistening.Application;
+import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.event.DataHandler;
@@ -46,44 +47,51 @@ public abstract class ApplicationImpl implements Application {
     }
 
     /**
-     * @see Application
+     * @return the packet cache used by the application to map packet ids
+     * to packet content.
      */
     @NotNull
-    @Override
     public final PacketCache getCache() {
         return cache;
     }
 
     /**
-     * @see Application
+     * @return the caching mode used to cache packets.
      */
-    @Override
+    @NotNull
+    public abstract PacketCaching getCaching();
+
+    /**
+     * @return the buffer size which is added on top of the required space,
+     * every time a buffer is expanded.
+     */
     public final int getBuffer() {
         return buffer;
     }
 
     /**
-     * @see Application
+     * @return the encryption settings which should be used to encrypt traffic
+     * which was marked to encrypt.
      */
-    @Override
     public final EncryptionSetting getEncryptionSetting() {
         return encryptionSetting;
     }
 
     /**
-     * @see Application
+     * @return the compression setting containing information
+     * about which compression techniques should be applied on
+     * specific data.
      */
     @NotNull
-    @Override
     public final CompressionSetting getCompressionSetting() {
         return compressionSetting;
     }
 
     /**
-     * @see Application
+     * @return the serialization provider which handles the serialization
+     * of specific data.
      */
     @NotNull
-    @Override
     public final SerializationProvider getSerializationProvider() {
         return serializationProvider;
     }

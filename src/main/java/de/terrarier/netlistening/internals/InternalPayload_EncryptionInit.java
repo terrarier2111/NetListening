@@ -1,17 +1,18 @@
 package de.terrarier.netlistening.internals;
 
-import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.api.encryption.*;
 import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
 import de.terrarier.netlistening.api.encryption.hash.HmacUseCase;
 import de.terrarier.netlistening.api.type.DataType;
+import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.NoSuchAlgorithmException;
@@ -22,6 +23,7 @@ import java.security.spec.InvalidKeySpecException;
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class InternalPayload_EncryptionInit extends InternalPayload {
 
     private final SymmetricEncryptionData symmetricEncryptionData;
@@ -45,7 +47,7 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
 
     @SuppressWarnings("ConstantConditions")
     @Override
-    protected void write(@NotNull Application application, @NotNull ByteBuf buffer) {
+    protected void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
         if (!application.isClient()) {
             final EncryptionOptions asymmetricSetting = application.getEncryptionSetting().getAsymmetricSetting();
             final byte[] key = symmetricEncryptionData.getSecretKey().getEncoded();
@@ -68,7 +70,7 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
     }
 
     @Override
-    public void read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer)
+    public void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
             throws CancelReadingSignal {
         final byte[] key = readKey(buffer);
         if (application.isClient()) {
@@ -127,7 +129,7 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
     }
 
     private static void writeOptions(@NotNull EncryptionOptions options, byte[] key, @NotNull ByteBuf buffer,
-                              @NotNull Application application) {
+                              @NotNull ApplicationImpl application) {
         writeKey(key, buffer, application);
         checkWriteable(application, buffer, 1 + 4 + 1 + 1);
         buffer.writeByte(options.getType().ordinal());
@@ -136,7 +138,7 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
         buffer.writeByte(options.getPadding().ordinal());
     }
 
-    private static void writeKey(byte[] key, @NotNull ByteBuf buffer, @NotNull Application application) {
+    private static void writeKey(byte[] key, @NotNull ByteBuf buffer, @NotNull ApplicationImpl application) {
         final int keyLength = key.length;
         checkWriteable(application, buffer, 4 + keyLength);
         buffer.writeInt(keyLength);

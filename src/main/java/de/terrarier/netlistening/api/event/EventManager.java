@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.event;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -13,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class EventManager {
 
 	private final Map<ListenerType, Set<Listener<?>>[]> listeners = new ConcurrentHashMap<>();

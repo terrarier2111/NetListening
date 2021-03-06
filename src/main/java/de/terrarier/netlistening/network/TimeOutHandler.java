@@ -13,18 +13,21 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.timeout.ReadTimeoutHandler;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-import static java.lang.Byte.*;
+import static java.lang.Byte.MAX_VALUE;
+import static java.lang.Byte.MIN_VALUE;
 
 /**
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class TimeOutHandler extends ReadTimeoutHandler {
 
 	private final ApplicationImpl application;

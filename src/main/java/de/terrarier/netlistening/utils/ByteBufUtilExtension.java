@@ -3,6 +3,7 @@ package de.terrarier.netlistening.utils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.util.internal.EmptyArrays;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -11,6 +12,7 @@ import java.util.Arrays;
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class ByteBufUtilExtension {
 	
 	private static boolean newNettyVersion;

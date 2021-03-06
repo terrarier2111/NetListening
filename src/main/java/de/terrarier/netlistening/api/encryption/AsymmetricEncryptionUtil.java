@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.encryption;
 
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.BadPaddingException;
@@ -15,6 +16,7 @@ import java.security.spec.X509EncodedKeySpec;
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class AsymmetricEncryptionUtil {
 
     private AsymmetricEncryptionUtil() {

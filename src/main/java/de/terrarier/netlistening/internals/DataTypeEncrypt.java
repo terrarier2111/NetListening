@@ -2,6 +2,7 @@ package de.terrarier.netlistening.internals;
 
 import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.api.type.DataType;
+import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
@@ -9,6 +10,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -17,6 +19,7 @@ import java.util.List;
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class DataTypeEncrypt extends DataType<Void> {
 
     public DataTypeEncrypt() {
@@ -24,7 +27,7 @@ public final class DataTypeEncrypt extends DataType<Void> {
     }
 
     @Override
-    public Void read0(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull Application application,
+    public Void read0(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull ApplicationImpl application,
             @NotNull ByteBuf buffer) throws Exception {
         checkReadable(buffer, 4);
         final int size = buffer.readInt();
@@ -39,11 +42,11 @@ public final class DataTypeEncrypt extends DataType<Void> {
     }
 
     @Override
-    protected Void read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer) {
+    protected Void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer) {
         return null;
     }
 
     @Override
-    protected void write(@NotNull Application application, @NotNull ByteBuf buffer, Void empty) {}
+    protected void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, Void empty) {}
 
 }

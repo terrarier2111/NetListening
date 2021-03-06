@@ -1,5 +1,7 @@
 package de.terrarier.netlistening.api.compression;
 
+import org.jetbrains.annotations.ApiStatus;
+
 /**
  * This util is used to work with 4 bit integers (nibbles)
  * combined together in pairs of two to single bytes.
@@ -7,6 +9,7 @@ package de.terrarier.netlistening.api.compression;
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class NibbleUtil {
 
     private NibbleUtil() {

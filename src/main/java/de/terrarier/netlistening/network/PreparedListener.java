@@ -4,6 +4,7 @@ import de.terrarier.netlistening.api.Type;
 import de.terrarier.netlistening.api.event.DecodeListener;
 import de.terrarier.netlistening.api.event.Event;
 import de.terrarier.netlistening.api.event.PacketListener;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -12,6 +13,7 @@ import java.lang.reflect.Method;
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class PreparedListener {
 
 	private static final Type[] EMPTY_TYPES = new Type[0];

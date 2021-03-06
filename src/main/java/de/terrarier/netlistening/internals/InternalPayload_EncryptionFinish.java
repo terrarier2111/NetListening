@@ -1,15 +1,17 @@
 package de.terrarier.netlistening.internals;
 
-import de.terrarier.netlistening.Application;
+import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class InternalPayload_EncryptionFinish extends InternalPayload {
 
     protected InternalPayload_EncryptionFinish() {
@@ -17,14 +19,14 @@ public final class InternalPayload_EncryptionFinish extends InternalPayload {
     }
 
     @Override
-    protected void write(@NotNull Application application, @NotNull ByteBuf buffer) {
+    protected void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
         if(!application.isClient()) {
             throw new UnsupportedOperationException("This payload can only be sent by the client!");
         }
     }
 
     @Override
-    public void read(@NotNull Application application, @NotNull Channel channel, @NotNull ByteBuf buffer) {
+    public void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer) {
         if(application.isClient()) {
             throw new UnsupportedOperationException("The server sent an invalid payload!");
         }

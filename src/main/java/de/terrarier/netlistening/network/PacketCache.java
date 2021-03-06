@@ -1,13 +1,14 @@
 package de.terrarier.netlistening.network;
 
-import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.type.DataType;
+import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.internals.InternalPayload_RegisterPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -22,6 +23,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @since 1.0
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public final class PacketCache {
 
 	private static final PacketSkeleton INTERNAL_PAYLOAD_PACKET_SKELETON = new PacketSkeleton(0x0, DataType.getDTIP());
@@ -113,7 +115,7 @@ public final class PacketCache {
 		return packets.get(id);
 	}
 
-	public void broadcastRegister(@NotNull Application application, @NotNull InternalPayload_RegisterPacket payload, Channel ignored, ByteBuf buffer) {
+	public void broadcastRegister(@NotNull ApplicationImpl application, @NotNull InternalPayload_RegisterPacket payload, Channel ignored, ByteBuf buffer) {
 		final Collection<Connection> connections = application.getConnections();
 		if (ignored == null || connections.size() > 1) {
 			final ByteBuf registerBuffer = buffer != null ? buffer : Unpooled.buffer(
