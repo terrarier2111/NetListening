@@ -16,7 +16,6 @@ import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.network.PacketDataEncoder;
 import de.terrarier.netlistening.network.TimeOutHandler;
-import de.terrarier.netlistening.utils.ChannelUtil;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -69,7 +68,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                                     channel.close();
                                     return;
                                 }
-                                ChannelUtil.prepare(channel, options);
+                                channel.config().setOptions(options);
 
                                 final int connectionId = id.getAndIncrement();
                                 final ConnectionImpl connection = new ConnectionImpl(ServerImpl.this, channel, connectionId);
@@ -101,7 +100,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
 
                             }
                         }).bind(port).sync().channel();
-                ChannelUtil.prepare(channel, options);
+                channel.config().setOptions(options);
                 channel.closeFuture().syncUninterruptibly();
             } catch (InterruptedException e) {
                 e.printStackTrace();

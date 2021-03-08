@@ -31,15 +31,15 @@ public final class SerializationUtil {
 
         final SerializationProvider mainProvider = application.getSerializationProvider();
         SerializationProvider provider = mainProvider;
-        while(provider != null) {
-            if(check.apply(provider, param)) {
+        while (provider != null) {
+            if (check.apply(provider, param)) {
                 try {
                     return op.apply(provider, param);
                 } catch (Exception exception) {
                     mainProvider.handleException(exception);
                     return null;
                 }
-            }else {
+            } else {
                 provider = provider.getFallback();
             }
         }

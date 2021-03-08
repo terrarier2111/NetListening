@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Terrarier2111
  * @since 1.0
+ * @author Terrarier2111
  */
 @ApiStatus.Internal
 public final class PacketDataDecoder extends ByteToMessageDecoder {

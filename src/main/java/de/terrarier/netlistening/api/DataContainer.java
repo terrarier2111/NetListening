@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+import static de.terrarier.netlistening.api.type.DataType.*;
+
 /**
  * @since 1.0
  * @author Terrarier2111
@@ -61,29 +63,29 @@ public final class DataContainer {
 		DataType<?> type;
 
 		if(data instanceof String) {
-			type = DataType.STRING;
+			type = STRING;
 		}else if(data instanceof Integer) {
-			type = DataType.INT;
+			type = INT;
 		}else if(data.getClass() == byte[].class) {
-			type = DataType.BYTE_ARRAY;
+			type = BYTE_ARRAY;
 		}else if(data instanceof Long) {
-			type = DataType.LONG;
+			type = LONG;
 		}else if(data instanceof Boolean) {
-			type = DataType.BOOLEAN;
+			type = BOOLEAN;
 		}else if(data instanceof Double) {
-			type = DataType.DOUBLE;
+			type = DOUBLE;
 		}else if(data instanceof Byte) {
-			type = DataType.BYTE;
+			type = BYTE;
 		}else if(data instanceof Short) {
-			type = DataType.SHORT;
+			type = SHORT;
 		}else if(data instanceof Float) {
-			type = DataType.FLOAT;
+			type = FLOAT;
 		}else if(data instanceof UUID) {
-			type = DataType.UUID;
+			type = UUID;
 		}else if(data instanceof Character) {
-			type = DataType.CHAR;
+			type = CHAR;
 		}else {
-			type = DataType.OBJECT;
+			type = OBJECT;
 		}
 
 		addComponent(new DataComponent(type, data));
@@ -208,8 +210,8 @@ public final class DataContainer {
 	}
 
 	/**
-	 * @return the amount of read calls which can be
-	 * performed returning an element contained by this DataContainer.
+	 * @return the amount of read calls which can be performed
+	 * returning an element contained by this DataContainer.
 	 */
 	public int remainingReads() {
 		return data.size() - readerIndex;
@@ -247,7 +249,7 @@ public final class DataContainer {
 	@NotNull
 	@Override
 	public String toString() {
-		return "DataContainer: Length: " + data.size() + " ReaderIndex: " + readerIndex;
+		return "Length: " + data.size() + " ReaderIndex: " + readerIndex;
 	}
 
 }

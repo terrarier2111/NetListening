@@ -48,18 +48,17 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 
 			@Override
 			public void run() {
-				if((!client && !connection.isStable())
+				if ((!client && !connection.isStable())
 						|| (client && !((ClientImpl) application).hasReceivedHandshake())) {
 					return;
 				}
 
-				if(buffer == null) {
+				if (counter == MAX_VALUE) {
+					counter = MIN_VALUE;
+				} else if (buffer == null) {
 					buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 2 : 5);
 					InternalUtil.writeIntUnchecked(application, buffer, 0x1);
 					buffer.markWriterIndex();
-				}
-				if(counter == MAX_VALUE) {
-					counter = MIN_VALUE;
 				}
 
 				buffer.resetWriterIndex();

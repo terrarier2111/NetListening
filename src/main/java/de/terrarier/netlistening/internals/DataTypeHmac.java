@@ -15,6 +15,7 @@ import io.netty.channel.ChannelHandlerContext;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -40,7 +41,7 @@ public final class DataTypeHmac extends DataType<Void> {
         final ConnectionImpl connection = (ConnectionImpl) application.getConnection(null);
         final byte[] computedHash = HashUtil.calculateHMAC(traffic, connection.getHmacKey(),
                 application.getEncryptionSetting().getHmacSetting().getHashingAlgorithm());
-        if(!HashUtil.isHashMatching(hash, computedHash)) {
+        if(!Arrays.equals(hash, computedHash)) {
             final LengthExtensionDetectionEvent event = new LengthExtensionDetectionEvent(hash, computedHash);
             if(event.getResult() == LengthExtensionDetectionEvent.Result.DROP_DATA) {
                 return null;

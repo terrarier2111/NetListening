@@ -40,8 +40,7 @@ public abstract class DataType<T> {
 	private final byte minSize;
 	private final boolean published;
 
-	@ApiStatus.Internal
-	public DataType(byte id, byte minSize, boolean published) {
+	protected DataType(byte id, byte minSize, boolean published) {
 		this.id = id;
 		this.minSize = minSize;
 		this.published = published;

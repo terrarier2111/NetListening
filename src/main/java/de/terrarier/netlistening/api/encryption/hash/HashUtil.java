@@ -28,7 +28,8 @@ public final class HashUtil {
         return hash(hashingAlgorithm, data, 0);
     }
 
-    private static byte[] hash(@NotNull HashingAlgorithm hashingAlgorithm, byte[] data, int salt) throws NoSuchAlgorithmException {
+    private static byte[] hash(@NotNull HashingAlgorithm hashingAlgorithm, byte[] data, int salt)
+            throws NoSuchAlgorithmException {
         final MessageDigest digest = MessageDigest.getInstance(hashingAlgorithm.getRawName());
         if(salt > 0) {
             final ByteBuf dataBuffer = Unpooled.buffer(data.length + salt);
@@ -44,19 +45,6 @@ public final class HashUtil {
         final byte[] salt = new byte[length];
         new SecureRandom().nextBytes(salt);
         return salt;
-    }
-
-    public static boolean isHashMatching(byte[] hash, byte[] compared) {
-        final int hashLength = hash.length;
-        if(hashLength != compared.length) {
-            return false;
-        }
-        for(int i = 0; i < hashLength; i++) {
-            if(hash[i] != compared[i]) {
-                return false;
-            }
-        }
-        return true;
     }
 
     public static byte[] calculateHMAC(byte[] data, byte[] key, @NotNull HashingAlgorithm algorithm)

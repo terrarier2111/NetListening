@@ -8,7 +8,6 @@ import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.ServerKey;
-import de.terrarier.netlistening.api.encryption.hash.HashUtil;
 import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
 import de.terrarier.netlistening.api.event.*;
 import de.terrarier.netlistening.api.proxy.Proxy;
@@ -16,7 +15,6 @@ import de.terrarier.netlistening.api.proxy.ProxyType;
 import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.network.PacketDataEncoder;
 import de.terrarier.netlistening.network.TimeOutHandler;
-import de.terrarier.netlistening.utils.ChannelUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
@@ -72,7 +70,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
                                     channel.close();
                                     return;
                                 }
-                                ChannelUtil.prepare(channel, options);
+                                channel.config().setOptions(options);
 
                                 final ConnectionImpl connection = new ConnectionImpl(ClientImpl.this, channel, 0x0);
                                 final ChannelPipeline pipeline = channel.pipeline();
@@ -288,7 +286,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         if(!eventManager.callEvent(ListenerType.KEY_CHANGE, EventManager.CancelAction.IGNORE,
                 (EventManager.EventProvider<KeyChangeEvent>) () -> {
             final boolean replace = this.serverKey != null;
-            final boolean hashChanged = replace && !HashUtil.isHashMatching(this.serverKey.getKeyHash(), serverKey.getKeyHash());
+            final boolean hashChanged = replace && !Arrays.equals(this.serverKey.getKeyHash(), serverKey.getKeyHash());
             final KeyChangeEvent.KeyChangeResult result = replace ?
                     (hashChanged ? KeyChangeEvent.KeyChangeResult.HASH_CHANGED : KeyChangeEvent.KeyChangeResult.HASH_EQUAL)
                     : KeyChangeEvent.KeyChangeResult.HASH_ABSENT;
