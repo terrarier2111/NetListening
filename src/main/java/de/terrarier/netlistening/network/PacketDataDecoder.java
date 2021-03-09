@@ -269,8 +269,12 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
     @Override
     public void channelUnregistered(@NotNull ChannelHandlerContext ctx) throws Exception {
-        final ConnectionDisconnectEvent event = new ConnectionDisconnectEvent(application.getConnection(ctx.channel()));
-        application.getEventManager().callEvent(ListenerType.DISCONNECT, event);
+        // TODO: Check why on the server side sometimes the connection is null although the channel is not null
+        final Connection connection = application.getConnection(ctx.channel());
+        if(connection != null) {
+            final ConnectionDisconnectEvent event = new ConnectionDisconnectEvent(connection);
+            application.getEventManager().callEvent(ListenerType.DISCONNECT, event);
+        }
         super.channelUnregistered(ctx);
     }
 

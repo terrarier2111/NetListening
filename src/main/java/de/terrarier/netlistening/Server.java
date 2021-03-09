@@ -78,6 +78,7 @@ public interface Server extends Application {
          * @see Application.Builder
          */
         @NotNull
+        @Override
         public Builder timeout(long timeout) {
             impl.timeout(timeout);
             return this;
@@ -87,15 +88,16 @@ public interface Server extends Application {
          * @see Application.Builder
          */
         @NotNull
+        @Override
         public Builder buffer(int buffer) {
             impl.buffer(buffer);
             return this;
         }
 
         /**
-         * Sets the encoding which should be used to encode/decode Strings.
+         * Sets the encoding which should be used to encode/decode strings.
          *
-         * @param charset the charset which should be used to encode/decode Strings.
+         * @param charset the charset which should be used to encode/decode strings.
          * @return the local reference.
          */
         @NotNull
@@ -156,6 +158,7 @@ public interface Server extends Application {
          * @see Application.Builder
          */
         @NotNull
+        @Override
         public <T> Builder option(@NotNull ChannelOption<T> option, T value) {
             impl.option(option, value);
             return this;
@@ -165,6 +168,7 @@ public interface Server extends Application {
          * @see Application.Builder
          */
         @NotNull
+        @Override
         public Builder serialization(@NotNull SerializationProvider serializationProvider) {
             impl.serialization(serializationProvider);
             return this;
@@ -174,6 +178,7 @@ public interface Server extends Application {
          * @see Application.Builder
          */
         @NotNull
+        @Override
         public Server build() {
             return impl.build();
         }

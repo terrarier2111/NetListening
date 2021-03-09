@@ -64,7 +64,8 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                         .childHandler(new ChannelInitializer<Channel>() {
                             @Override
                             protected void initChannel(Channel channel) {
-                                if(eventManager.callEvent(ListenerType.PRE_INIT, EventManager.CancelAction.INTERRUPT, new ConnectionPreInitEvent(channel))) {
+                                if(eventManager.callEvent(ListenerType.PRE_INIT, EventManager.CancelAction.INTERRUPT,
+                                        new ConnectionPreInitEvent(channel))) {
                                     channel.close();
                                     return;
                                 }
@@ -76,11 +77,13 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                                 if (encryptionSetting != null) {
                                     try {
                                         connection.setSymmetricKey(ServerImpl.this,
-                                                SymmetricEncryptionUtil.generate(encryptionSetting.getSymmetricSetting()).getSecretKey());
+                                                SymmetricEncryptionUtil.generate(encryptionSetting.getSymmetricSetting())
+                                                        .getSecretKey());
 
                                         final HmacSetting hmacSetting = encryptionSetting.getHmacSetting();
                                         if (hmacSetting != null) {
-                                            connection.setHmacKey(SymmetricEncryptionUtil.generate(hmacSetting.getEncryptionSetting()).getSecretKey());
+                                            connection.setHmacKey(SymmetricEncryptionUtil.generate(
+                                                    hmacSetting.getEncryptionSetting()).getSecretKey());
                                         }
                                     } catch (NoSuchAlgorithmException e) {
                                         e.printStackTrace();

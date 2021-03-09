@@ -59,6 +59,7 @@ public interface Client extends Application {
          * @see Application.Builder
          */
         @NotNull
+        @Override
         public Builder timeout(long timeout) {
             impl.timeout(timeout);
             return this;
@@ -80,6 +81,7 @@ public interface Client extends Application {
          * @see Application.Builder
          */
         @NotNull
+        @Override
         public Builder buffer(int buffer) {
             impl.buffer(buffer);
             return this;
@@ -115,6 +117,7 @@ public interface Client extends Application {
          * @see Application.Builder
          */
         @NotNull
+        @Override
         public <T> Builder option(@NotNull ChannelOption<T> option, T value) {
             impl.option(option, value);
             return this;
@@ -124,6 +127,7 @@ public interface Client extends Application {
          * @see Application.Builder
          */
         @NotNull
+        @Override
         public Builder serialization(@NotNull SerializationProvider serializationProvider) {
             impl.serialization(serializationProvider);
             return this;
@@ -147,6 +151,7 @@ public interface Client extends Application {
          * @see Application.Builder
          */
         @NotNull
+        @Override
         public Client build() {
             return impl.build();
         }

@@ -15,9 +15,9 @@ public enum ProxyType {
     public Proxy getInstance(@NotNull SocketAddress address) {
         switch (this) {
             case SOCKS4:
-                return new Socks4Proxy(address, this);
+                return new Socks4Proxy(address);
             case SOCKS5:
-                return new Socks5Proxy(address, this);
+                return new Socks5Proxy(address);
             default:
                 return null;
         }

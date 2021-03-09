@@ -84,7 +84,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
                                         .addAfter(DECODER, ENCODER, new PacketDataEncoder(ClientImpl.this, null));
 
                                 if (proxy != null) {
-                                    pipeline.addFirst(PROXY_HANDLER, proxy.getHandler());
+                                    pipeline.addFirst(PROXY_HANDLER, proxy.newHandler());
                                 }
 
                                 ClientImpl.this.connection = connection;
@@ -132,7 +132,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
 
         synchronized (this) {
             if (preConnectData != null) {
-                for (Iterator<DataContainer> iterator = preConnectData.iterator(); iterator.hasNext(); ) {
+                for (Iterator<DataContainer> iterator = preConnectData.iterator(); iterator.hasNext();) {
                     channel.writeAndFlush(iterator.next());
                     iterator.remove();
                 }
@@ -291,9 +291,8 @@ public final class ClientImpl extends ApplicationImpl implements Client {
                     (hashChanged ? KeyChangeEvent.KeyChangeResult.HASH_CHANGED : KeyChangeEvent.KeyChangeResult.HASH_EQUAL)
                     : KeyChangeEvent.KeyChangeResult.HASH_ABSENT;
             return new KeyChangeEvent(replace ? this.serverKey.getKeyHash() : null, serverKey.getKeyHash(), result);
-        })) {
-            return false;
-        }
+        })) return false;
+
         this.serverKey = serverKey;
         return true;
     }

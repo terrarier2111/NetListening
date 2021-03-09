@@ -16,7 +16,8 @@ public final class EncryptionOptionsWrapper<T extends EncryptionOptionsSuperBuil
         this(encryptionBuilder, new EncryptionOptions());
     }
 
-    public EncryptionOptionsWrapper(@NotNull EncryptionOptionsSuperBuilder<T> encryptionBuilder, @NotNull EncryptionOptions encryptionOptions) {
+    public EncryptionOptionsWrapper(@NotNull EncryptionOptionsSuperBuilder<T> encryptionBuilder,
+                                    @NotNull EncryptionOptions encryptionOptions) {
         this.encryptionBuilder = encryptionBuilder;
         this.encryptionOptions = encryptionOptions;
     }

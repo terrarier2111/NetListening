@@ -19,17 +19,21 @@ public final class AsymmetricEncryptionData extends EncryptionData {
     private final PrivateKey privateKey;
     private final PublicKey publicKey;
 
-    public AsymmetricEncryptionData(@NotNull EncryptionOptions encryptionOptions, @NotNull PrivateKey privateKey, @NotNull PublicKey publicKey) {
+    public AsymmetricEncryptionData(@NotNull EncryptionOptions encryptionOptions, @NotNull PrivateKey privateKey,
+                                    @NotNull PublicKey publicKey) {
         super(encryptionOptions);
         this.privateKey = privateKey;
         this.publicKey = publicKey;
     }
 
-    public AsymmetricEncryptionData(@NotNull EncryptionOptions encryptionOptions, byte[] encryptionData) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    public AsymmetricEncryptionData(@NotNull EncryptionOptions encryptionOptions, byte[] encryptionData)
+            throws InvalidKeySpecException, NoSuchAlgorithmException {
         super(encryptionOptions);
         final ByteBuf buffer = Unpooled.wrappedBuffer(encryptionData);
-        privateKey = AsymmetricEncryptionUtil.readPrivateKey(ByteBufUtilExtension.readBytes(buffer, buffer.readInt()), encryptionOptions);
-        publicKey = AsymmetricEncryptionUtil.readPublicKey(ByteBufUtilExtension.getBytes(buffer, buffer.readInt()), encryptionOptions);
+        privateKey = AsymmetricEncryptionUtil.readPrivateKey(ByteBufUtilExtension.readBytes(buffer, buffer.readInt()),
+                encryptionOptions);
+        publicKey = AsymmetricEncryptionUtil.readPublicKey(ByteBufUtilExtension.getBytes(buffer, buffer.readInt()),
+                encryptionOptions);
         buffer.release();
     }
 
@@ -62,7 +66,7 @@ public final class AsymmetricEncryptionData extends EncryptionData {
         final int privateKeyLength = privateKeyData.length;
         final byte[] publicKeyData = publicKey.getEncoded();
         final int publicKeyLength = publicKeyData.length;
-        final ByteBuf buffer = Unpooled.buffer(8 + privateKeyLength + publicKeyLength);
+        final ByteBuf buffer = Unpooled.buffer(4 + privateKeyLength + 4 + publicKeyLength);
         buffer.writeInt(privateKeyLength);
         buffer.writeBytes(privateKeyData);
         buffer.writeInt(publicKeyLength);

@@ -12,13 +12,13 @@ import java.net.SocketAddress;
  */
 final class Socks4Proxy extends Proxy {
 
-    protected Socks4Proxy(@NotNull SocketAddress address, @NotNull ProxyType type) {
-        super(address, type);
+    protected Socks4Proxy(@NotNull SocketAddress address) {
+        super(address);
     }
 
     @NotNull
     @Override
-    public ChannelHandler getHandler() {
+    public ChannelHandler newHandler() {
         return new Socks4ProxyHandler(address);
     }
 

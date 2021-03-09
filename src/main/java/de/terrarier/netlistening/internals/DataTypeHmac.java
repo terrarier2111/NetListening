@@ -38,7 +38,7 @@ public final class DataTypeHmac extends DataType<Void> {
         checkReadable(buffer, size + hashSize);
         final byte[] traffic = ByteBufUtilExtension.readBytes(buffer, size);
         final byte[] hash = ByteBufUtilExtension.readBytes(buffer, hashSize);
-        final ConnectionImpl connection = (ConnectionImpl) application.getConnection(null);
+        final ConnectionImpl connection = (ConnectionImpl) application.getConnection(ctx.channel());
         final byte[] computedHash = HashUtil.calculateHMAC(traffic, connection.getHmacKey(),
                 application.getEncryptionSetting().getHmacSetting().getHashingAlgorithm());
         if(!Arrays.equals(hash, computedHash)) {

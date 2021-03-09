@@ -14,19 +14,12 @@ import java.net.SocketAddress;
 public abstract class Proxy {
 
     protected final SocketAddress address;
-    protected final ProxyType type;
 
-    public Proxy(@NotNull SocketAddress address, @NotNull ProxyType type) {
+    protected Proxy(@NotNull SocketAddress address) {
         this.address = address;
-        this.type = type;
     }
 
     @NotNull
-    public final ProxyType getType() {
-        return type;
-    }
-
-    @NotNull
-    public abstract ChannelHandler getHandler();
+    public abstract ChannelHandler newHandler();
 
 }

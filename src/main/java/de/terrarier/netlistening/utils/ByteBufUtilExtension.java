@@ -2,11 +2,12 @@ package de.terrarier.netlistening.utils;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import io.netty.util.internal.EmptyArrays;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+
+import static io.netty.util.internal.EmptyArrays.EMPTY_BYTES;
 
 /**
  * @since 1.0
@@ -33,7 +34,7 @@ public final class ByteBufUtilExtension {
 	
 	public static byte[] readBytes(@NotNull ByteBuf buffer, int bytes) {
 		if(bytes == 0) {
-			return EmptyArrays.EMPTY_BYTES;
+			return EMPTY_BYTES;
 		}
 
 		final byte[] read = getBytes(buffer, bytes);
@@ -61,7 +62,7 @@ public final class ByteBufUtilExtension {
 
 	public static byte[] getBytes(@NotNull ByteBuf buffer, int bytes) {
 		if(bytes == 0) {
-			return EmptyArrays.EMPTY_BYTES;
+			return EMPTY_BYTES;
 		}
 
 		return newNettyVersion ? ByteBufUtil.getBytes(buffer, buffer.readerIndex(), bytes) : getBytes0(buffer, bytes);
