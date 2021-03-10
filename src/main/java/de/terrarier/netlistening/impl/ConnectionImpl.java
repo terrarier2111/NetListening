@@ -44,7 +44,7 @@ public final class ConnectionImpl implements Connection {
 	private byte[] hmacKey;
 	// TODO: Improve and test delayed data sending mechanics.
 	
-	public ConnectionImpl(@NotNull ApplicationImpl application, @NotNull Channel channel, int id) {
+	protected ConnectionImpl(@NotNull ApplicationImpl application, @NotNull Channel channel, int id) {
 		this.application = application;
 		this.channel = channel;
 		this.id = id;
@@ -80,17 +80,6 @@ public final class ConnectionImpl implements Connection {
 				preConnectSendQueue.add(data);
 			}
 		}
-	}
-
-	/**
-	 * @see Connection
-	 */
-	@Deprecated
-	@Override
-	public void sendData(@NotNull DataComponent<?> data) {
-		final DataContainer container = new DataContainer();
-		container.addComponent(data);
-		sendData(container);
 	}
 
 	/**

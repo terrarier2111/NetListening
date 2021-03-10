@@ -269,8 +269,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
     @Override
     public void channelUnregistered(@NotNull ChannelHandlerContext ctx) throws Exception {
-        // TODO: Check why on the server side sometimes the connection is null although the channel is not null
         final Connection connection = application.getConnection(ctx.channel());
+        // Check for null in order to prevent NPEs when disconnecting a client on the server side via an api call.
         if(connection != null) {
             final ConnectionDisconnectEvent event = new ConnectionDisconnectEvent(connection);
             application.getEventManager().callEvent(ListenerType.DISCONNECT, event);

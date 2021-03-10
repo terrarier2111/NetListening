@@ -30,8 +30,17 @@ public interface Server extends Application {
     /**
      * @see Application
      */
+    @Deprecated
     @Override
-    void sendData(@NotNull DataContainer data, @NotNull Connection connection);
+    default void sendData(@NotNull DataContainer data, @NotNull Connection connection) {
+        sendData(connection, data);
+    }
+
+    /**
+     * @see Application
+     */
+    @Override
+    void sendData(@NotNull Connection connection, @NotNull DataContainer data);
 
     /**
      * @see Application
@@ -39,6 +48,25 @@ public interface Server extends Application {
     @Deprecated
     @Override
     void sendData(@NotNull DataComponent<?> data, @NotNull Connection connection);
+
+    /**
+     * Sends data to a specific connection.
+     *
+     * @param data the data which gets sent.
+     * @param connection the connection the data gets sent to.
+     */
+    default void sendData(@NotNull Connection connection, @NotNull Object... data) {
+        sendData(connection, false, data);
+    }
+
+    /**
+     * Sends data to a specific connection.
+     *
+     * @param connection the connection the data gets sent to.
+     * @param encrypted if the traffic is to be encrypted.
+     * @param data the data which gets sent.
+     */
+    void sendData(@NotNull Connection connection, boolean encrypted, @NotNull Object... data);
 
     /**
      * @see Application

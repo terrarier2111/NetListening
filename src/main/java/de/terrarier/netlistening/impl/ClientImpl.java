@@ -2,7 +2,6 @@ package de.terrarier.netlistening.impl;
 
 import de.terrarier.netlistening.Client;
 import de.terrarier.netlistening.Connection;
-import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.compression.CompressionSetting;
@@ -223,36 +222,6 @@ public final class ClientImpl extends ApplicationImpl implements Client {
             throw new IllegalStateException("The connection is not established!");
         }
         this.connection.disconnect0();
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public void sendData(@NotNull DataContainer data, Connection connection) {
-        sendData(data);
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Deprecated
-    @Override
-    public void sendData(@NotNull DataComponent<?> data, Connection connection) {
-        final DataContainer container = new DataContainer();
-        container.addComponent(data);
-        sendData(container);
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Deprecated
-    @Override
-    public void sendData(@NotNull DataComponent<?> data) {
-        final DataContainer container = new DataContainer();
-        container.add(data);
-        sendData(container);
     }
 
     /**

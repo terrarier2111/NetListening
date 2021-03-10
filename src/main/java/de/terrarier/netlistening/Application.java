@@ -88,15 +88,23 @@ public interface Application {
 	void disconnect(Connection connection);
 
 	/**
-	 * Sends data to a connection with a specific id.
+	 * @see Application#sendData(Connection, DataContainer) 
+	 */
+	@Deprecated
+	default void sendData(@NotNull DataContainer data, Connection connection) {
+		sendData(connection, data);
+	}
+
+	/**
+	 * Sends data to a specific connection.
 	 *
 	 * @param data the data which gets sent.
 	 * @param connection the connection the data gets sent to.
 	 */
-	void sendData(@NotNull DataContainer data, Connection connection);
+	void sendData(Connection connection, @NotNull DataContainer data);
 
 	/**
-	 * Sends data to a connection with a specific id.
+	 * Sends data to a specific connection.
 	 *
 	 * @param data the data which gets sent.
 	 * @param connection the connection the data gets sent to.
@@ -112,12 +120,42 @@ public interface Application {
 	void sendData(@NotNull DataContainer data);
 
 	/**
+	 * Sends data to a specific connection.
+	 *
+	 * @param data the data which gets sent.
+	 */
+	default void sendData(@NotNull Object... data) {
+		sendData(false, data);
+	}
+
+	/**
+	 * Sends data to a specific connection.
+	 *
+	 * @param encrypted if the traffic is to be encrypted.
+	 * @param data the data which gets sent.
+	 */
+	default void sendData(boolean encrypted, @NotNull Object... data) {
+		if(data.length == 0) {
+			throw new IllegalArgumentException("Please pass the data which is to be sent, you may not send empty arrays.");
+		}
+
+		final DataContainer container = new DataContainer();
+		container.addAll(data);
+		container.setEncrypted(encrypted);
+		sendData(container);
+	}
+
+	/**
 	 * Sends data to all connection.
 	 *
 	 * @param data the data which gets sent.
 	 */
 	@Deprecated
-	void sendData(@NotNull DataComponent<?> data);
+	default void sendData(@NotNull DataComponent<?> data) {
+		final DataContainer container = new DataContainer();
+		container.add(data);
+		sendData(container);
+	}
 
 	abstract class Builder<A extends Application, B extends Builder<A, B>> {
 

@@ -24,7 +24,11 @@ public interface Connection {
      * @param data the data to be sent to the connection
      */
     @Deprecated
-    void sendData(@NotNull DataComponent<?> data);
+    default void sendData(@NotNull DataComponent<?> data) {
+        final DataContainer container = new DataContainer();
+        container.addComponent(data);
+        sendData(container);
+    }
 
     /**
      * Disconnects the connection.

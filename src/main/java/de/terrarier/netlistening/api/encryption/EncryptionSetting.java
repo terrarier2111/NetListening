@@ -26,7 +26,7 @@ public final class EncryptionSetting {
     @NotNull
     public EncryptionSetting asymmetricEncryptionOptions(@NotNull EncryptionOptions asymmetricEncryption) {
         if(asymmetricEncryptionSetting != null) {
-            asymmetricEncryption.getType();
+            asymmetricEncryption.getKeySize();
             this.asymmetricEncryptionSetting = asymmetricEncryption;
         }
         return this;
@@ -41,7 +41,7 @@ public final class EncryptionSetting {
     @NotNull
     public EncryptionSetting symmetricEncryptionOptions(@NotNull EncryptionOptions symmetricEncryption) {
         if(symmetricEncryptionSetting != null) {
-            symmetricEncryption.getType();
+            symmetricEncryption.getKeySize();
             this.symmetricEncryptionSetting = symmetricEncryption;
         }
         return this;

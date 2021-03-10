@@ -9,10 +9,7 @@ import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.SymmetricEncryptionUtil;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
-import de.terrarier.netlistening.api.event.ConnectionPostInitEvent;
-import de.terrarier.netlistening.api.event.ConnectionPreInitEvent;
-import de.terrarier.netlistening.api.event.EventManager;
-import de.terrarier.netlistening.api.event.ListenerType;
+import de.terrarier.netlistening.api.event.*;
 import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.network.PacketDataEncoder;
 import de.terrarier.netlistening.network.TimeOutHandler;
@@ -183,13 +180,15 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         }
 
         connections.remove(connection.getChannel()).disconnect0();
+        final ConnectionDisconnectEvent event = new ConnectionDisconnectEvent(connection);
+        eventManager.callEvent(ListenerType.DISCONNECT, event);
     }
 
     /**
      * @see de.terrarier.netlistening.Application
      */
     @Override
-    public void sendData(@NotNull DataContainer data, @NotNull Connection connection) {
+    public void sendData(@NotNull Connection connection, @NotNull DataContainer data) {
         connection.sendData(data);
     }
 
@@ -202,6 +201,25 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         final DataContainer container = new DataContainer();
         container.addComponent(data);
         sendData(container, connection);
+    }
+
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
+    @Override
+    public void sendData(@NotNull Connection connection, @NotNull Object... data) {
+        sendData(connection, false, data);
+    }
+
+    /**
+     * @see de.terrarier.netlistening.Application
+     */
+    @Override
+    public void sendData(@NotNull Connection connection, boolean encrypted, @NotNull Object... data) {
+        final DataContainer container = new DataContainer();
+        container.add(data);
+        container.setEncrypted(encrypted);
+        connection.sendData(container);
     }
 
     /**

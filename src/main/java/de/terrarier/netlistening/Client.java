@@ -1,5 +1,7 @@
 package de.terrarier.netlistening;
 
+import de.terrarier.netlistening.api.DataComponent;
+import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.api.encryption.ServerKey;
 import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
 import de.terrarier.netlistening.api.proxy.ProxyType;
@@ -34,6 +36,25 @@ public interface Client extends Application {
      * @return whether or not setting the key was successful.
      */
     boolean setServerKey(byte[] data);
+
+    /**
+     * @see Application
+     */
+    @Deprecated
+    @Override
+    default void sendData(@NotNull DataComponent<?> data, Connection connection) {
+        final DataContainer container = new DataContainer();
+        container.addComponent(data);
+        sendData(container);
+    }
+
+    /**
+     * @see Application
+     */
+    @Override
+    default void sendData(Connection connection, @NotNull DataContainer data) {
+        sendData(data);
+    }
 
     /**
      * @see Application
