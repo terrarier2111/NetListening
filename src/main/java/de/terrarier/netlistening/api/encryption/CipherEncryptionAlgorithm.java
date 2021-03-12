@@ -19,7 +19,8 @@ public enum CipherEncryptionAlgorithm {
     private final CipherAlgorithmPadding defaultPadding;
     private final boolean symmetric;
 
-    CipherEncryptionAlgorithm(int defaultSize, @NotNull CipherAlgorithmMode defaultMode, @NotNull CipherAlgorithmPadding defaultPadding, boolean symmetric) {
+    CipherEncryptionAlgorithm(int defaultSize, @NotNull CipherAlgorithmMode defaultMode,
+                              @NotNull CipherAlgorithmPadding defaultPadding, boolean symmetric) {
         this.defaultSize = defaultSize;
         this.defaultMode = defaultMode;
         this.defaultPadding = defaultPadding;

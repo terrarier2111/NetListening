@@ -18,10 +18,10 @@ public final class EncryptionSetting {
     private AsymmetricEncryptionData asymmetricEncryptionData;
 
     /**
-     * Sets the asymmetric encryption setting which is used for encrypting the symmetric encryption key
+     * Sets the asymmetric encryption setting which is used for encrypting the symmetric encryption key.
      *
-     * @param asymmetricEncryption the options for the symmetric encryption chosen by the user or if not present by default
-     * @return the local reference
+     * @param asymmetricEncryption the options for the symmetric encryption chosen by the user or if not present by default.
+     * @return the local reference.
      */
     @NotNull
     public EncryptionSetting asymmetricEncryptionOptions(@NotNull EncryptionOptions asymmetricEncryption) {
@@ -33,10 +33,10 @@ public final class EncryptionSetting {
     }
 
     /**
-     * Sets the symmetric encryption setting which is used for encrypting userdata
+     * Sets the symmetric encryption setting which is used for encrypting userdata.
      *
-     * @param symmetricEncryption the options for the symmetric encryption chosen by the user or if not present by default
-     * @return the local reference
+     * @param symmetricEncryption the options for the symmetric encryption chosen by the user or if not present by default.
+     * @return the local reference.
      */
     @NotNull
     public EncryptionSetting symmetricEncryptionOptions(@NotNull EncryptionOptions symmetricEncryption) {

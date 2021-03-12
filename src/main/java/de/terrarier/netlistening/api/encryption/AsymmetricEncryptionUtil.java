@@ -41,7 +41,9 @@ public final class AsymmetricEncryptionUtil {
         return performCipher(input, encryptionData.getOptions(), encryptionData.getPrivateKey(), Cipher.DECRYPT_MODE);
     }
 
-    protected static byte[] performCipher(byte[] input, @NotNull EncryptionOptions encryptionOptions, @NotNull Key key, int mode) {
+    protected static byte[] performCipher(byte[] input, @NotNull EncryptionOptions encryptionOptions, @NotNull Key key,
+                                          int mode) {
+
         try {
             final Cipher cipher = Cipher.getInstance(encryptionOptions.build());
             cipher.init(mode, key);

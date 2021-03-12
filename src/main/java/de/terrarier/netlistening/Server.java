@@ -40,14 +40,20 @@ public interface Server extends Application {
      * @see Application
      */
     @Override
-    void sendData(@NotNull Connection connection, @NotNull DataContainer data);
+    default void sendData(@NotNull Connection connection, @NotNull DataContainer data) {
+        connection.sendData(data);
+    }
 
     /**
      * @see Application
      */
     @Deprecated
     @Override
-    void sendData(@NotNull DataComponent<?> data, @NotNull Connection connection);
+    default void sendData(@NotNull DataComponent<?> data, @NotNull Connection connection) {
+        final DataContainer container = new DataContainer();
+        container.addComponent(data);
+        sendData(container, connection);
+    }
 
     /**
      * Sends data to a specific connection.
@@ -66,7 +72,12 @@ public interface Server extends Application {
      * @param encrypted if the traffic is to be encrypted.
      * @param data the data which gets sent.
      */
-    void sendData(@NotNull Connection connection, boolean encrypted, @NotNull Object... data);
+    default void sendData(@NotNull Connection connection, boolean encrypted, @NotNull Object... data) {
+        final DataContainer container = new DataContainer();
+        container.add(data);
+        container.setEncrypted(encrypted);
+        connection.sendData(container);
+    }
 
     /**
      * @see Application

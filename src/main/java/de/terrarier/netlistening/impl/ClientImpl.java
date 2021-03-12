@@ -45,7 +45,8 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     private HashingAlgorithm serverKeyHashing = HashingAlgorithm.SHA_256;
     private ServerKey serverKey;
 
-    private void start(long timeout, int localPort, @NotNull Map<ChannelOption<?>, Object> options, @NotNull SocketAddress remoteAddress, Proxy proxy) {
+    private void start(long timeout, int localPort, @NotNull Map<ChannelOption<?>, Object> options,
+                       @NotNull SocketAddress remoteAddress, Proxy proxy) {
         if (group != null) {
             throw new IllegalStateException("The client is already running!");
         }
@@ -65,7 +66,8 @@ public final class ClientImpl extends ApplicationImpl implements Client {
                         .handler(new ChannelInitializer<Channel>() {
                             @Override
                             protected void initChannel(Channel channel) {
-                                if (eventManager.callEvent(ListenerType.PRE_INIT, EventManager.CancelAction.INTERRUPT, new ConnectionPreInitEvent(channel))) {
+                                if (eventManager.callEvent(ListenerType.PRE_INIT, EventManager.CancelAction.INTERRUPT,
+                                        new ConnectionPreInitEvent(channel))) {
                                     channel.close();
                                     return;
                                 }

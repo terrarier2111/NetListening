@@ -148,8 +148,11 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         }
 
         for (Iterator<ConnectionImpl> iterator = connections.values().iterator(); iterator.hasNext();) {
-            iterator.next().disconnect0();
+            final ConnectionImpl connection = iterator.next();
+            connection.disconnect0();
             iterator.remove();
+            final ConnectionDisconnectEvent event = new ConnectionDisconnectEvent(connection);
+            eventManager.callEvent(ListenerType.DISCONNECT, event);
         }
         handler.unregisterListeners();
         group.shutdownGracefully();
@@ -182,44 +185,6 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         connections.remove(connection.getChannel()).disconnect0();
         final ConnectionDisconnectEvent event = new ConnectionDisconnectEvent(connection);
         eventManager.callEvent(ListenerType.DISCONNECT, event);
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public void sendData(@NotNull Connection connection, @NotNull DataContainer data) {
-        connection.sendData(data);
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Deprecated
-    @Override
-    public void sendData(@NotNull DataComponent<?> data, @NotNull Connection connection) {
-        final DataContainer container = new DataContainer();
-        container.addComponent(data);
-        sendData(container, connection);
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public void sendData(@NotNull Connection connection, @NotNull Object... data) {
-        sendData(connection, false, data);
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Override
-    public void sendData(@NotNull Connection connection, boolean encrypted, @NotNull Object... data) {
-        final DataContainer container = new DataContainer();
-        container.add(data);
-        container.setEncrypted(encrypted);
-        connection.sendData(container);
     }
 
     /**

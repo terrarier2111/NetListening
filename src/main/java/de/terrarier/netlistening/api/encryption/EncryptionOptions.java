@@ -22,9 +22,7 @@ public final class EncryptionOptions {
      */
     @NotNull
     public EncryptionOptions type(@NotNull CipherEncryptionAlgorithm type) {
-        if(built) {
-            throw new IllegalStateException("The options were already built, you can't modify them anymore!");
-        }
+        checkModifiable();
         this.type = type;
         return this;
     }
@@ -37,9 +35,7 @@ public final class EncryptionOptions {
      */
     @NotNull
     public EncryptionOptions keySize(int keySize) {
-        if(built) {
-            throw new IllegalStateException("The options were already built, you can't modify them anymore!");
-        }
+        checkModifiable();
         this.keySize = keySize & 0x7FFFFFF8; // this magic number is validating the key size
         return this;
     }
@@ -52,9 +48,7 @@ public final class EncryptionOptions {
      */
     @NotNull
     public EncryptionOptions mode(@NotNull CipherAlgorithmMode mode) {
-        if(built) {
-            throw new IllegalStateException("The options were already built, you can't modify them anymore!");
-        }
+        checkModifiable();
         this.mode = mode;
         return this;
     }
@@ -67,9 +61,7 @@ public final class EncryptionOptions {
      */
     @NotNull
     public EncryptionOptions padding(@NotNull CipherAlgorithmPadding padding) {
-        if(built) {
-            throw new IllegalStateException("The options were already built, you can't modify them anymore!");
-        }
+        checkModifiable();
         this.padding = padding;
         return this;
     }
@@ -81,6 +73,12 @@ public final class EncryptionOptions {
     public String build() {
         checkBuilt();
         return type.name() + "/" + mode.name() + "/" + padding.getPaddingName();
+    }
+
+    private void checkModifiable() {
+        if(built) {
+            throw new IllegalStateException("The options were already built, you can't modify them anymore!");
+        }
     }
 
     private void checkBuilt() {
