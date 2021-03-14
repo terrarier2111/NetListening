@@ -2,7 +2,6 @@ package de.terrarier.netlistening.impl;
 
 import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.Server;
-import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.compression.CompressionSetting;
@@ -192,17 +191,6 @@ public final class ServerImpl extends ApplicationImpl implements Server {
      */
     @Override
     public void sendData(@NotNull DataContainer data) {
-        for (Connection connection : connections.values()) {
-            connection.sendData(data);
-        }
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Deprecated
-    @Override
-    public void sendData(@NotNull DataComponent<?> data) {
         for (Connection connection : connections.values()) {
             connection.sendData(data);
         }

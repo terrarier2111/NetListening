@@ -206,8 +206,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 }
                 ignore = true;
             }
-            final boolean hasDecodeBuffer = framingBuffer != null;
-            final ByteBuf decodeBuffer = hasDecodeBuffer ? framingBuffer : buffer;
+            final boolean useFramingBuffer = framingBuffer != null;
+            final ByteBuf decodeBuffer = useFramingBuffer ? framingBuffer : buffer;
             final int start = decodeBuffer.readerIndex();
             try {
                 data.add(new DataComponent(dataType, dataType.read0(ctx, out, application, decodeBuffer)));
@@ -222,7 +222,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 hasId = true;
                 return;
             }
-            if (hasDecodeBuffer) {
+            if (useFramingBuffer) {
                 framingBuffer = null;
             }
         }

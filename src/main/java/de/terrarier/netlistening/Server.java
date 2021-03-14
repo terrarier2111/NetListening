@@ -93,6 +93,17 @@ public interface Server extends Application {
         return false;
     }
 
+    /**
+     * Creates a new builder in a manner which may be more familiar to users.
+     *
+     * @param port the port the server should bind/listen to.
+     * @return the new builder.
+     */
+    @NotNull
+    static Builder builder(int port) {
+        return new Builder(port);
+    }
+
     final class Builder extends Application.Builder<Server, Builder> {
 
         private final ServerImpl.Builder impl;

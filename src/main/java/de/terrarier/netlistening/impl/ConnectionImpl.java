@@ -2,7 +2,6 @@ package de.terrarier.netlistening.impl;
 
 import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.Connection;
-import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.encryption.EncryptionOptions;

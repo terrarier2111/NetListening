@@ -64,6 +64,29 @@ public interface Client extends Application {
         return true;
     }
 
+    /**
+     * Creates a new builder in a manner which may be more familiar to users.
+     *
+     * @param host the host the client should connect to.
+     * @param remotePort the port the client should connect to.
+     * @return the new builder.
+     */
+    @NotNull
+    static Builder builder(@NotNull String host, int remotePort) {
+        return new Builder(host, remotePort);
+    }
+
+    /**
+     * Creates a new builder in a manner which may be more familiar to users.
+     *
+     * @param remoteAddress the address to which the client should connect to.
+     * @return the new builder.
+     */
+    @NotNull
+    static Builder builder(@NotNull SocketAddress remoteAddress) {
+        return new Builder(remoteAddress);
+    }
+
     final class Builder extends Application.Builder<Client, Builder> {
 
         private final ClientImpl.Builder impl;

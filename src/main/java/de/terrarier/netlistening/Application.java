@@ -24,7 +24,7 @@ public interface Application {
 	String TIMEOUT_HANDLER = "nl_timeout_handler";
 
 	/**
-	 * @return if the application is a client!
+	 * @return whether the application is a client or not!
 	 */
 	@ApiStatus.Internal
 	boolean isClient();
@@ -70,7 +70,7 @@ public interface Application {
 	Connection getConnection(int id);
 
 	/**
-	 * @return a list of all active connections.
+	 * @return a list of all connections.
 	 */
 	@NotNull
 	Set<Connection> getConnections();
@@ -153,7 +153,7 @@ public interface Application {
 	@Deprecated
 	default void sendData(@NotNull DataComponent<?> data) {
 		final DataContainer container = new DataContainer();
-		container.add(data);
+		container.addComponent(data);
 		sendData(container);
 	}
 
@@ -161,7 +161,7 @@ public interface Application {
 
 		/**
 		 * Sets a specific read timeout for the connection, and automatically writes
-		 * data to the other end of connections every timeout / 2 milliseconds.
+		 * data to the other end of connections every {@code (timeout / 2)} milliseconds.
 		 *
 		 * @param timeout the amount of milliseconds in which any data should be received.
 		 * @return the local reference.

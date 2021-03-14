@@ -22,7 +22,8 @@ public final class SymmetricEncryptionUtil {
     }
 
     @NotNull
-    public static SymmetricEncryptionData generate(@NotNull EncryptionOptions encryptionOptions) throws NoSuchAlgorithmException {
+    public static SymmetricEncryptionData generate(@NotNull EncryptionOptions encryptionOptions)
+            throws NoSuchAlgorithmException {
         final KeyGenerator generator = KeyGenerator.getInstance(encryptionOptions.getType().name());
         generator.init(encryptionOptions.getKeySize(), new SecureRandom());
         return new SymmetricEncryptionData(encryptionOptions, generator.generateKey());

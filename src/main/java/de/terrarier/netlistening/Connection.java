@@ -14,14 +14,14 @@ public interface Connection {
     /**
      * Sends data to the connection.
      *
-     * @param data the data to be sent to the connection
+     * @param data the data to be sent to the connection.
      */
     void sendData(@NotNull DataContainer data);
 
     /**
      * Sends data to the connection.
      *
-     * @param data the data to be sent to the connection
+     * @param data the data to be sent to the connection.
      */
     @Deprecated
     default void sendData(@NotNull DataComponent<?> data) {
@@ -36,7 +36,7 @@ public interface Connection {
     void disconnect();
 
     /**
-     * @return if the connection is connected
+     * @return if the connection is connected.
      */
     boolean isConnected();
 
@@ -47,7 +47,7 @@ public interface Connection {
     Channel getChannel();
 
     /**
-     * @return the id of the connection
+     * @return the id of the connection.
      */
     int getId();
 

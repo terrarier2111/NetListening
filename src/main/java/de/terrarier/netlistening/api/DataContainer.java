@@ -166,7 +166,7 @@ public final class DataContainer {
 
 	/**
 	 * @return the next component available at index
-	 * readerIndex, if no component is available null.
+	 * readerIndex, if no component is available, null.
 	 */
 	@SuppressWarnings("unchecked")
 	@ApiStatus.Internal
@@ -218,7 +218,7 @@ public final class DataContainer {
 	}
 
 	/**
-	 * Resets the readerIndex so that the next read call will
+	 * Resets the {@code readerIndex} so that the next read call will
 	 * return the first component once again.
 	 */
 	public void resetReaderIndex() {
@@ -237,7 +237,7 @@ public final class DataContainer {
 
 	/**
 	 * @return whether the data contained in this DataContainer gets encrypted
-	 * when it is being sent through the network or not.
+	 * when it is sent through the network or not.
 	 */
 	public boolean isEncrypted() {
 		return encrypted;

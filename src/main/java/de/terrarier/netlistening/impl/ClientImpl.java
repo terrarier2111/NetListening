@@ -22,6 +22,7 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.InetSocketAddress;
@@ -107,6 +108,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         worker.start();
     }
 
+    @ApiStatus.Internal
     public void receiveHandshake(@NotNull CompressionSetting compressionSetting, Charset stringEncoding,
                                  EncryptionSetting encryptionSetting, byte[] serverKey) {
         this.compressionSetting = compressionSetting;
@@ -126,6 +128,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         }
     }
 
+    @ApiStatus.Internal
     public void pushCachedData() {
         if (receivedHandshake) {
             throw new IllegalStateException("An internal error occurred - duplicate push request");
@@ -143,6 +146,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         receivedHandshake = true;
     }
 
+    @ApiStatus.Internal
     public void sendRawData(@NotNull ByteBuf data) {
         channel.writeAndFlush(data);
     }

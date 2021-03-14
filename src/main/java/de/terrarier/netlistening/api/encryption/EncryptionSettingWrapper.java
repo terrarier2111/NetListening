@@ -39,7 +39,8 @@ public final class EncryptionSettingWrapper extends EncryptionOptionsSuperBuilde
      * @see EncryptionSetting
      */
     @NotNull
-    public EncryptionOptionsWrapper<EncryptionSettingWrapper> symmetricEncryptionOptions(@NotNull EncryptionOptions symmetricEncryption) {
+    public EncryptionOptionsWrapper<EncryptionSettingWrapper> symmetricEncryptionOptions(
+            @NotNull EncryptionOptions symmetricEncryption) {
         return new EncryptionOptionsWrapper<>(this, symmetricEncryption);
     }
 
