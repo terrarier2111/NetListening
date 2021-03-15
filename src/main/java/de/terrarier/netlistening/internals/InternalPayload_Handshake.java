@@ -23,12 +23,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 @ApiStatus.Internal
 public final class InternalPayload_Handshake extends InternalPayload {
 
-	protected InternalPayload_Handshake() {
+	InternalPayload_Handshake() {
         super((byte) 0x2);
     }
 
 	@Override
-	protected void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
+	void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
 		final CompressionSetting compressionSetting = application.getCompressionSetting();
 		final Charset charset = application.getStringEncoding();
 		final boolean utf8 = charset.equals(UTF_8);

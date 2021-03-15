@@ -16,14 +16,14 @@ public enum ListenerType {
     KEY_CHANGE(KeyChangeListener.class), EXCEPTION_THROW(ExceptionThrowListener.class),
     LENGTH_EXTENSION_DETECTION(LengthExtensionDetectionListener.class), NONE(null);
 
-    protected static final ListenerType[] VALUES = values();
+    static final ListenerType[] VALUES = values();
     private final Class<?> type;
 
     ListenerType(Class<?> type) {
         this.type = type;
     }
 
-    protected static ListenerType resolveType(@NotNull Class<?> clazz) {
+    static ListenerType resolveType(@NotNull Class<?> clazz) {
         for (Class<?> implemented : clazz.getInterfaces()) {
             for (ListenerType type : VALUES) {
                 final Class<?> listenerType = type.type;

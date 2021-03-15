@@ -18,7 +18,7 @@ public final class PacketSkeleton {
 	private final int hash;
 	private volatile boolean registered;
 	
-	public PacketSkeleton(int id, @NotNull DataType<?>... data) {
+	PacketSkeleton(int id, @NotNull DataType<?>... data) {
 		this.id = id;
 		this.data = data;
 		this.hash = Arrays.hashCode(data);
@@ -33,7 +33,7 @@ public final class PacketSkeleton {
 		return data;
 	}
 
-	protected boolean isRegistered() {
+	boolean isRegistered() {
 		return registered;
 	}
 

@@ -12,7 +12,7 @@ import java.net.SocketAddress;
  */
 final class Socks4Proxy extends Proxy {
 
-    protected Socks4Proxy(@NotNull SocketAddress address) {
+    Socks4Proxy(@NotNull SocketAddress address) {
         super(address);
     }
 

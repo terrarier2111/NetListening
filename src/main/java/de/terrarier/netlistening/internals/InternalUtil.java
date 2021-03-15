@@ -42,7 +42,7 @@ public final class InternalUtil {
 		return buffer.readInt();
 	}
 	
-	public static int getSize(@NotNull ApplicationImpl application, int value) {
+	static int getSize(@NotNull ApplicationImpl application, int value) {
 		return application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.varIntSize(value) : 4;
 	}
 

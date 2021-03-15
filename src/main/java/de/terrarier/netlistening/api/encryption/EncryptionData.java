@@ -10,7 +10,7 @@ public abstract class EncryptionData {
 
     private final EncryptionOptions options;
 
-    protected EncryptionData(@NotNull EncryptionOptions encryptionOptions) {
+    EncryptionData(@NotNull EncryptionOptions encryptionOptions) {
         this.options = encryptionOptions;
     }
 

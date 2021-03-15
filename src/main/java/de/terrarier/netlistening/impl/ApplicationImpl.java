@@ -26,16 +26,16 @@ import java.util.Map;
  */
 public abstract class ApplicationImpl implements Application {
 
-    protected final PacketCache cache = new PacketCache();
-    protected final DataHandler handler = new DataHandler(this);
-    protected final EventManager eventManager = new EventManager(handler);
-    protected Charset stringEncoding = StandardCharsets.UTF_8;
-    protected int buffer = 256;
-    protected EncryptionSetting encryptionSetting;
-    protected CompressionSetting compressionSetting;
-    protected SerializationProvider serializationProvider = new JavaIoSerializationProvider();
-    protected Thread worker;
-    protected EventLoopGroup group;
+    final PacketCache cache = new PacketCache();
+    final DataHandler handler = new DataHandler(this);
+    final EventManager eventManager = new EventManager(handler);
+    Charset stringEncoding = StandardCharsets.UTF_8;
+    int buffer = 256;
+    EncryptionSetting encryptionSetting;
+    CompressionSetting compressionSetting;
+    SerializationProvider serializationProvider = new JavaIoSerializationProvider();
+    Thread worker;
+    EventLoopGroup group;
 
     /**
      * @see Application
@@ -119,12 +119,12 @@ public abstract class ApplicationImpl implements Application {
 
     public static abstract class Builder<A extends ApplicationImpl, B extends Builder<A, B>> extends Application.Builder<A, B> {
 
-        protected final A application;
-        protected final Map<ChannelOption<?>, Object> options = new HashMap<>();
-        protected long timeout;
+        final A application;
+        final Map<ChannelOption<?>, Object> options = new HashMap<>();
+        long timeout;
         private boolean built;
 
-        public Builder(@NotNull A application) {
+        Builder(@NotNull A application) {
             this.application = application;
             // https://en.wikipedia.org/wiki/Type_of_service
             options.put(ChannelOption.IP_TOS, 0x18);
@@ -170,14 +170,14 @@ public abstract class ApplicationImpl implements Application {
             return application;
         }
 
-        protected abstract void build0();
+        abstract void build0();
 
-        protected final void validate() {
+        final void validate() {
             if(built)
                 fail();
         }
 
-        protected abstract void fail();
+        abstract void fail();
 
     }
 

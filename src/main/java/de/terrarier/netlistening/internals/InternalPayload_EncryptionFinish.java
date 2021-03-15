@@ -14,12 +14,12 @@ import org.jetbrains.annotations.NotNull;
 @ApiStatus.Internal
 public final class InternalPayload_EncryptionFinish extends InternalPayload {
 
-    protected InternalPayload_EncryptionFinish() {
+    InternalPayload_EncryptionFinish() {
         super((byte) 0x4);
     }
 
     @Override
-    protected void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
+    void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
         if(!application.isClient()) {
             throw new UnsupportedOperationException("This payload can only be sent by the client!");
         }

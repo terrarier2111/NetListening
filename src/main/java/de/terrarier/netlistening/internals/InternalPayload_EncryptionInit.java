@@ -38,7 +38,7 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
         this.hmacKey = hmacKey;
     }
 
-    public InternalPayload_EncryptionInit() {
+    InternalPayload_EncryptionInit() {
         super((byte) 0x3);
         symmetricEncryptionData = null;
         publicKey = null;
@@ -47,7 +47,7 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
 
     @SuppressWarnings("ConstantConditions")
     @Override
-    protected void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
+    void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
         if (!application.isClient()) {
             final EncryptionOptions asymmetricSetting = application.getEncryptionSetting().getAsymmetricSetting();
             final byte[] key = symmetricEncryptionData.getSecretKey().getEncoded();

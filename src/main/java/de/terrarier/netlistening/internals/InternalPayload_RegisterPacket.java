@@ -27,7 +27,7 @@ public final class InternalPayload_RegisterPacket extends InternalPayload {
     }
 
     @Override
-    protected final void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
+    void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
         final int typesLength = types.length;
 
         if(typesLength == 0) {
@@ -57,7 +57,7 @@ public final class InternalPayload_RegisterPacket extends InternalPayload {
     }
 
     @Override
-    public final void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
+    public void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
             throws CancelReadingSignal {
         checkReadable(buffer, 4);
 

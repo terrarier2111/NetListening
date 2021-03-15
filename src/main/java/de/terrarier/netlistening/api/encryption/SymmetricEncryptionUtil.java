@@ -29,11 +29,11 @@ public final class SymmetricEncryptionUtil {
         return new SymmetricEncryptionData(encryptionOptions, generator.generateKey());
     }
 
-    protected static byte[] encrypt(byte[] input, @NotNull SymmetricEncryptionData encryptionData) {
+    static byte[] encrypt(byte[] input, @NotNull SymmetricEncryptionData encryptionData) {
         return performCipher(input, encryptionData, Cipher.ENCRYPT_MODE);
     }
 
-    protected static byte[] decrypt(byte[] input, @NotNull SymmetricEncryptionData encryptionData) {
+    static byte[] decrypt(byte[] input, @NotNull SymmetricEncryptionData encryptionData) {
         return performCipher(input, encryptionData, Cipher.DECRYPT_MODE);
     }
 

@@ -96,7 +96,7 @@ public abstract class DataType<T> {
 		}
 	}
 
-	protected static void checkWriteable(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, int length) {
+	static void checkWriteable(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, int length) {
 		ByteBufUtilExtension.correctSize(buffer, length, application.getBuffer());
 	}
 

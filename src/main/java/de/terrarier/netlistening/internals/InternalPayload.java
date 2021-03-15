@@ -16,28 +16,28 @@ public abstract class InternalPayload {
 
     private static final InternalPayload_RegisterPacket REGISTER_PACKET = new InternalPayload_RegisterPacket(-1);
     public static final InternalPayload_Handshake HANDSHAKE = new InternalPayload_Handshake();
-    protected static final InternalPayload_EncryptionInit ENCRYPTION_INIT = new InternalPayload_EncryptionInit();
-    protected static final InternalPayload_EncryptionFinish ENCRYPTION_FINISH = new InternalPayload_EncryptionFinish();
+    static final InternalPayload_EncryptionInit ENCRYPTION_INIT = new InternalPayload_EncryptionInit();
+    static final InternalPayload_EncryptionFinish ENCRYPTION_FINISH = new InternalPayload_EncryptionFinish();
 
     private final byte id;
 
-    protected InternalPayload(byte id) {
+    InternalPayload(byte id) {
         this.id = id;
     }
 
-    protected final void write0(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
+    final void write0(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
         checkWriteable(application, buffer, 1);
         buffer.writeByte(id);
         write(application, buffer);
     }
 
-    protected abstract void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer);
+    abstract void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer);
 
     public abstract void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
             throws CancelReadingSignal;
 
     @NotNull
-    protected static InternalPayload fromId(byte id) {
+    static InternalPayload fromId(byte id) {
         switch (id) {
             case 0x1:
                 return REGISTER_PACKET;
@@ -52,14 +52,14 @@ public abstract class InternalPayload {
         }
     }
 
-    protected static void checkReadable(@NotNull ByteBuf buffer, int additional)
+    static void checkReadable(@NotNull ByteBuf buffer, int additional)
             throws CancelReadingSignal {
         if (buffer.readableBytes() < additional) {
             throw new CancelReadingSignal(additional);
         }
     }
 
-    protected static void checkWriteable(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, int length) {
+    static void checkWriteable(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, int length) {
         ByteBufUtilExtension.correctSize(buffer, length, application.getBuffer());
     }
 

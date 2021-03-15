@@ -24,7 +24,7 @@ public final class AsymmetricEncryptionUtil {
     }
 
     @NotNull
-    protected static AsymmetricEncryptionData generate(@NotNull EncryptionOptions encryptionOptions)
+    static AsymmetricEncryptionData generate(@NotNull EncryptionOptions encryptionOptions)
             throws NoSuchAlgorithmException {
         final KeyPairGenerator generator = KeyPairGenerator.getInstance(encryptionOptions.getType().name());
         final SecureRandom random = new SecureRandom();
@@ -41,7 +41,7 @@ public final class AsymmetricEncryptionUtil {
         return performCipher(input, encryptionData.getOptions(), encryptionData.getPrivateKey(), Cipher.DECRYPT_MODE);
     }
 
-    protected static byte[] performCipher(byte[] input, @NotNull EncryptionOptions encryptionOptions, @NotNull Key key,
+    static byte[] performCipher(byte[] input, @NotNull EncryptionOptions encryptionOptions, @NotNull Key key,
                                           int mode) {
 
         try {
@@ -64,7 +64,7 @@ public final class AsymmetricEncryptionUtil {
     }
 
     @NotNull
-    protected static PrivateKey readPrivateKey(byte[] bytes, @NotNull EncryptionOptions encryptionOptions)
+    static PrivateKey readPrivateKey(byte[] bytes, @NotNull EncryptionOptions encryptionOptions)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
         final PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytes);
         return KeyFactory.getInstance(encryptionOptions.getType().name()).generatePrivate(spec);

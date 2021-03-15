@@ -13,9 +13,9 @@ import java.net.SocketAddress;
 @ApiStatus.Internal
 public abstract class Proxy {
 
-    protected final SocketAddress address;
+    final SocketAddress address;
 
-    protected Proxy(@NotNull SocketAddress address) {
+    Proxy(@NotNull SocketAddress address) {
         this.address = address;
     }
 

@@ -45,7 +45,7 @@ public final class PacketCache {
 	}
 
 	@NotNull
-	protected PacketSkeleton registerPacket(@NotNull DataType<?>... data) {
+	PacketSkeleton registerPacket(@NotNull DataType<?>... data) {
 		lock.writeLock().lock();
 		try {
 			return registerPacket0(id.getAndIncrement(), data);
@@ -94,7 +94,7 @@ public final class PacketCache {
 		return packet;
 	}
 
-	protected PacketSkeleton getPacket(@NotNull DataType<?>... data) {
+	PacketSkeleton getPacket(@NotNull DataType<?>... data) {
 		final int dataLength = data.length;
 		final int dataHash = Arrays.hashCode(data);
 
@@ -111,7 +111,7 @@ public final class PacketCache {
 		return null;
 	}
 
-	protected PacketSkeleton getPacket(int id) {
+	PacketSkeleton getPacket(int id) {
 		return packets.get(id);
 	}
 

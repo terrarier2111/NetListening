@@ -60,7 +60,7 @@ public final class DataHandler {
         }
 	}
 
-	public void addListener(@NotNull DecodeListener listener) {
+	void addListener(@NotNull DecodeListener listener) {
 		listeners.add(new PreparedListener(listener));
 	}
 
