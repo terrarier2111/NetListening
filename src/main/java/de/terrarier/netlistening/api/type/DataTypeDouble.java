@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class DataTypeDouble extends DataType<Double> {
 	
-	protected DataTypeDouble() {
+	DataTypeDouble() {
 		super((byte) 0xA, (byte) 8, true);
 	}
 

@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class DataTypeObject extends DataType<Object> {
 	
-	protected DataTypeObject() {
+	DataTypeObject() {
 		super((byte) 0x8, (byte) 4, true);
 	}
 

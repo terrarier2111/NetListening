@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class DataTypeByteArray extends DataType<byte[]> {
 	
-	protected DataTypeByteArray() {
+	DataTypeByteArray() {
 		super((byte) 0x3, (byte) 4, true);
 	}
 

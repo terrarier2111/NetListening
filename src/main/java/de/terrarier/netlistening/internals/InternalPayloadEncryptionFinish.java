@@ -12,9 +12,9 @@ import org.jetbrains.annotations.NotNull;
  * @author Terrarier2111
  */
 @ApiStatus.Internal
-public final class InternalPayload_EncryptionFinish extends InternalPayload {
+public final class InternalPayloadEncryptionFinish extends InternalPayload {
 
-    InternalPayload_EncryptionFinish() {
+    InternalPayloadEncryptionFinish() {
         super((byte) 0x4);
     }
 

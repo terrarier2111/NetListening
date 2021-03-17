@@ -21,7 +21,7 @@ public final class InvalidDataEvent extends ConnectionEvent {
 	}
 
 	/**
-	 * @return the reason why the data was marked as invalid.
+	 * @return the reason why the data is considered invalid.
 	 */
 	@NotNull
 	public DataInvalidReason getReason() {

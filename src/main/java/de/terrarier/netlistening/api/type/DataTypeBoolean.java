@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class DataTypeBoolean extends DataType<Boolean> {
 	
-	protected DataTypeBoolean() {
+	DataTypeBoolean() {
 		super((byte) 0x1, (byte) 1, true);
 	}
 

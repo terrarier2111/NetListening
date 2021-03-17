@@ -339,12 +339,12 @@ public final class ClientImpl extends ApplicationImpl implements Client {
          * @see ApplicationImpl.Builder#build()
          */
         @Override
-        protected void build0() {
+        void build0() {
             application.start(timeout, localPort, options, remoteAddress, proxy);
         }
 
         @Override
-        protected void fail() {
+        void fail() {
             throw ClientAlreadyBuiltException.INSTANCE;
         }
 

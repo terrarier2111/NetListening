@@ -15,12 +15,12 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 @ApiStatus.Internal
-public final class InternalPayload_RegisterPacket extends InternalPayload {
+public final class InternalPayloadRegisterPacket extends InternalPayload {
 
     private final int packetId;
     private DataType<?>[] types;
 
-    public InternalPayload_RegisterPacket(int packetId, @NotNull DataType<?>... types) {
+    public InternalPayloadRegisterPacket(int packetId, @NotNull DataType<?>... types) {
         super((byte) 0x1);
         this.packetId = packetId;
         this.types = types;
@@ -107,7 +107,7 @@ public final class InternalPayload_RegisterPacket extends InternalPayload {
                     cache.broadcastRegister(application, this, channel, null);
                 }
             }else {
-                final InternalPayload_RegisterPacket register = new InternalPayload_RegisterPacket(packet.getId());
+                final InternalPayloadRegisterPacket register = new InternalPayloadRegisterPacket(packet.getId());
                 if (application.getCaching() == PacketCaching.GLOBAL) {
                     cache.broadcastRegister(application, register, null, null);
                 }else {

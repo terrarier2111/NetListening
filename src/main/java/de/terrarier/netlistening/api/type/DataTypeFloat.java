@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class DataTypeFloat extends DataType<Float> {
 	
-	protected DataTypeFloat() {
+	DataTypeFloat() {
 		super((byte) 0xC, (byte) 4, true);
 	}
 

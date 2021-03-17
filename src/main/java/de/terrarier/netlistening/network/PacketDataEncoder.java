@@ -11,7 +11,7 @@ import de.terrarier.netlistening.api.event.ExceptionTrowEvent;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
-import de.terrarier.netlistening.internals.InternalPayload_RegisterPacket;
+import de.terrarier.netlistening.internals.InternalPayloadRegisterPacket;
 import de.terrarier.netlistening.internals.InternalUtil;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
@@ -57,7 +57,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 			PacketSkeleton packet = cache.getPacket(types);
 			if (packet == null) {
 				packet = cache.registerPacket(types);
-				final InternalPayload_RegisterPacket register = new InternalPayload_RegisterPacket(packet.getId(), types);
+				final InternalPayloadRegisterPacket register = new InternalPayloadRegisterPacket(packet.getId(), types);
 				final ByteBuf registerBuffer = Unpooled.buffer(5 + dataSize);
 				DataType.getDTIP().write0(application, registerBuffer, register);
 				buffer.writeBytes(ByteBufUtilExtension.getBytes(registerBuffer));

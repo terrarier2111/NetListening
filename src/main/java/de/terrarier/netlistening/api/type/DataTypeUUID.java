@@ -13,7 +13,7 @@ import java.util.UUID;
  */
 public final class DataTypeUUID extends DataType<UUID> {
 	
-	protected DataTypeUUID() {
+	DataTypeUUID() {
 		super((byte) 0xB, (byte) 16, true);
 	}
 

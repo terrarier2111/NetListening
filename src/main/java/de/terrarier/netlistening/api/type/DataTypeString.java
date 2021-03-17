@@ -15,7 +15,7 @@ public final class DataTypeString extends DataType<String> {
 
 	private static final String EMPTY_STRING = "";
 
-	protected DataTypeString() {
+	DataTypeString() {
 		super((byte) 0x7, (byte) 4, true);
 	}
 	
@@ -24,7 +24,7 @@ public final class DataTypeString extends DataType<String> {
 			throws CancelReadingSignal {
 		final int length = buffer.readInt();
 		
-		if(length < 1) { // TODO: Throw exception when length < 0
+		if(length < 1) { // TODO: Throw an exception when length < 0
 			return EMPTY_STRING;
 		}
 		

@@ -249,7 +249,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
          * @see ApplicationImpl.Builder
          */
         @Override
-        protected void build0() {
+        void build0() {
             if (application.caching == PacketCaching.NONE) {
                 application.caching = PacketCaching.GLOBAL;
             }
@@ -258,21 +258,19 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                 application.compressionSetting = new CompressionSetting();
             }
 
-            if (application.encryptionSetting != null) {
-                if(!application.encryptionSetting.isInitialized()) {
-                    try {
-                        application.encryptionSetting.init(null);
-                    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                        e.printStackTrace();
-                        return;
-                    }
+            if (application.encryptionSetting != null && !application.encryptionSetting.isInitialized()) {
+                try {
+                    application.encryptionSetting.init(null);
+                } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+                    e.printStackTrace();
+                    return;
                 }
             }
             application.start(timeout, port, options);
         }
 
         @Override
-        protected void fail() {
+        void fail() {
             throw ServerAlreadyBuiltException.INSTANCE;
         }
 

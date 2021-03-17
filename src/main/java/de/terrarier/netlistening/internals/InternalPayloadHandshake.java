@@ -21,9 +21,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * @author Terrarier2111
  */
 @ApiStatus.Internal
-public final class InternalPayload_Handshake extends InternalPayload {
+public final class InternalPayloadHandshake extends InternalPayload {
 
-	InternalPayload_Handshake() {
+	InternalPayloadHandshake() {
         super((byte) 0x2);
     }
 

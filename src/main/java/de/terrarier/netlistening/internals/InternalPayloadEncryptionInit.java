@@ -24,21 +24,21 @@ import java.security.spec.InvalidKeySpecException;
  * @author Terrarier2111
  */
 @ApiStatus.Internal
-public final class InternalPayload_EncryptionInit extends InternalPayload {
+public final class InternalPayloadEncryptionInit extends InternalPayload {
 
     private final SymmetricEncryptionData symmetricEncryptionData;
     private final PublicKey publicKey;
     private final byte[] hmacKey;
 
-    private InternalPayload_EncryptionInit(@NotNull SymmetricEncryptionData symmetricEncryptionData,
-                                           @NotNull PublicKey publicKey, byte[] hmacKey) {
+    private InternalPayloadEncryptionInit(@NotNull SymmetricEncryptionData symmetricEncryptionData,
+                                          @NotNull PublicKey publicKey, byte[] hmacKey) {
         super((byte) 0x3);
         this.symmetricEncryptionData = symmetricEncryptionData;
         this.publicKey = publicKey;
         this.hmacKey = hmacKey;
     }
 
-    InternalPayload_EncryptionInit() {
+    InternalPayloadEncryptionInit() {
         super((byte) 0x3);
         symmetricEncryptionData = null;
         publicKey = null;
@@ -104,7 +104,7 @@ public final class InternalPayload_EncryptionInit extends InternalPayload {
                 final ByteBuf initBuffer = Unpooled.buffer();
                 final ConnectionImpl connection = (ConnectionImpl) application.getConnection(channel);
                 DataType.getDTIP().write0(application, initBuffer,
-                        new InternalPayload_EncryptionInit(
+                        new InternalPayloadEncryptionInit(
                                 new SymmetricEncryptionData(encryptionSetting.getSymmetricSetting(),
                                         connection.getEncryptionContext().getSecretKey()), publicKey, connection.getHmacKey()));
                 channel.writeAndFlush(initBuffer);

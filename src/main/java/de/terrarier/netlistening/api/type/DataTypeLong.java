@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class DataTypeLong extends DataType<Long> {
 	
-	protected DataTypeLong() {
+	DataTypeLong() {
 		super((byte) 0x9, (byte) 8, true);
 	}
 

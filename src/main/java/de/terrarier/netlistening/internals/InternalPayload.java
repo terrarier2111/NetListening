@@ -14,10 +14,10 @@ import org.jetbrains.annotations.NotNull;
 @ApiStatus.Internal
 public abstract class InternalPayload {
 
-    private static final InternalPayload_RegisterPacket REGISTER_PACKET = new InternalPayload_RegisterPacket(-1);
-    public static final InternalPayload_Handshake HANDSHAKE = new InternalPayload_Handshake();
-    static final InternalPayload_EncryptionInit ENCRYPTION_INIT = new InternalPayload_EncryptionInit();
-    static final InternalPayload_EncryptionFinish ENCRYPTION_FINISH = new InternalPayload_EncryptionFinish();
+    private static final InternalPayloadRegisterPacket REGISTER_PACKET = new InternalPayloadRegisterPacket(-1);
+    public static final InternalPayloadHandshake HANDSHAKE = new InternalPayloadHandshake();
+    static final InternalPayloadEncryptionInit ENCRYPTION_INIT = new InternalPayloadEncryptionInit();
+    static final InternalPayloadEncryptionFinish ENCRYPTION_FINISH = new InternalPayloadEncryptionFinish();
 
     private final byte id;
 

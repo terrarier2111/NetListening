@@ -10,7 +10,7 @@ import de.terrarier.netlistening.api.encryption.SymmetricEncryptionUtil;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.internals.DataTypeInternalPayload;
 import de.terrarier.netlistening.internals.InternalPayload;
-import de.terrarier.netlistening.internals.InternalPayload_RegisterPacket;
+import de.terrarier.netlistening.internals.InternalPayloadRegisterPacket;
 import de.terrarier.netlistening.internals.InternalUtil;
 import de.terrarier.netlistening.network.PacketCache;
 import de.terrarier.netlistening.network.PacketSkeleton;
@@ -43,7 +43,7 @@ public final class ConnectionImpl implements Connection {
 	private byte[] hmacKey;
 	// TODO: Improve and test delayed data sending mechanics.
 	
-	protected ConnectionImpl(@NotNull ApplicationImpl application, @NotNull Channel channel, int id) {
+	ConnectionImpl(@NotNull ApplicationImpl application, @NotNull Channel channel, int id) {
 		this.application = application;
 		this.channel = channel;
 		this.id = id;
@@ -89,7 +89,7 @@ public final class ConnectionImpl implements Connection {
 		application.disconnect(this);
 	}
 	
-	protected void disconnect0() {
+	void disconnect0() {
 		if(application.getCaching() != PacketCaching.GLOBAL) {
 			cache.clear();
 		}
@@ -208,7 +208,7 @@ public final class ConnectionImpl implements Connection {
 
 						for (int id = 5; id < packetsSize + 2; id++) {
 							final DataType<?>[] data = packets.get(id).getData();
-							dtip.write0(application, buffer, new InternalPayload_RegisterPacket(id, data));
+							dtip.write0(application, buffer, new InternalPayloadRegisterPacket(id, data));
 						}
 					}
 				}

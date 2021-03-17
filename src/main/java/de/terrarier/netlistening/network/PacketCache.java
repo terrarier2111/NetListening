@@ -4,7 +4,7 @@ import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
-import de.terrarier.netlistening.internals.InternalPayload_RegisterPacket;
+import de.terrarier.netlistening.internals.InternalPayloadRegisterPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -115,7 +115,7 @@ public final class PacketCache {
 		return packets.get(id);
 	}
 
-	public void broadcastRegister(@NotNull ApplicationImpl application, @NotNull InternalPayload_RegisterPacket payload, Channel ignored, ByteBuf buffer) {
+	public void broadcastRegister(@NotNull ApplicationImpl application, @NotNull InternalPayloadRegisterPacket payload, Channel ignored, ByteBuf buffer) {
 		final Collection<Connection> connections = application.getConnections();
 		if (ignored == null || connections.size() > 1) {
 			final ByteBuf registerBuffer = buffer != null ? buffer : Unpooled.buffer(
