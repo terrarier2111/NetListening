@@ -128,9 +128,10 @@ public abstract class DataType<T> {
 					return UUID;
 				case 0xC:
 					return FLOAT;
+				default:
+					throw new IllegalArgumentException("Tried to resolve a data type with an invalid id! ("
+							+ Integer.toHexString(id) + ")");
 			}
-		throw new IllegalArgumentException("Tried to resolve a data type with an invalid id! ("
-				+ Integer.toHexString(id) + ")");
 	}
 
 	@ApiStatus.Internal
