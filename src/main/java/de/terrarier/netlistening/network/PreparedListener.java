@@ -8,6 +8,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 /**
  * @since 1.0
@@ -19,6 +20,7 @@ public final class PreparedListener {
 	private static final Type[] EMPTY_TYPES = new Type[0];
 	private final DecodeListener wrapped;
 	private Type[] types;
+	private final int hash;
 	
 	public PreparedListener(@NotNull DecodeListener listener) {
 		wrapped = listener;
@@ -33,6 +35,7 @@ public final class PreparedListener {
 		} catch (NoSuchMethodException | SecurityException e) {
 			e.printStackTrace(); // TODO: Check if there's a better solution cuz this should never occur!
 		}
+		hash = Arrays.hashCode(types);
 	}
 
 	@NotNull
@@ -45,4 +48,8 @@ public final class PreparedListener {
 		return types;
 	}
 
+	@Override
+	public int hashCode() {
+		return hash;
+	}
 }

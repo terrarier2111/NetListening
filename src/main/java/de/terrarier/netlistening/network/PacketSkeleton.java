@@ -21,7 +21,7 @@ public final class PacketSkeleton {
 	PacketSkeleton(int id, @NotNull DataType<?>... data) {
 		this.id = id;
 		this.data = data;
-		this.hash = Arrays.hashCode(data);
+		hash = Arrays.hashCode(data);
 	}
 	
 	public int getId() {

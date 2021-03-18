@@ -47,7 +47,7 @@ public final class NibbleUtil {
      */
     public static int nibbleToByteCount(int nibbles) {
         final int expectedBytes = nibbles / 2;
-        return ((expectedBytes * 2) == nibbles) ? expectedBytes : (expectedBytes + 1); // workaround so we don't have to perform a second division because they are expensive
+        return expectedBytes + nibbles - (expectedBytes * 2); // branchless solution
     }
 
 }

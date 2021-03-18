@@ -33,10 +33,10 @@ public final class VarIntUtil {
 
 	public static void writeVarInt(int value, byte[] data) {
 		int pos = 0;
-		if(value > 0x0FFFFFFF || value < 0) data[pos++] = ((byte)(0x80 | ((value >>> 28))));
-		if(value > 0x1FFFFF || value < 0)   data[pos++] = ((byte)(0x80 | ((value >>> 21) & 0x7F)));
-		if(value > 0x3FFF || value < 0)     data[pos++] = ((byte)(0x80 | ((value >>> 14) & 0x7F)));
-		if(value > 0x7F || value < 0)       data[pos++] = ((byte)(0x80 | ((value >>>  7) & 0x7F)));
+		if(value > 0x0FFFFFFF || value < 0) data[pos++] = (byte)(0x80 | ((value >>> 28)));
+		if(value > 0x1FFFFF || value < 0)   data[pos++] = (byte)(0x80 | ((value >>> 21) & 0x7F));
+		if(value > 0x3FFF || value < 0)     data[pos++] = (byte)(0x80 | ((value >>> 14) & 0x7F));
+		if(value > 0x7F || value < 0)       data[pos++] = (byte)(0x80 | ((value >>>  7) & 0x7F));
 
 		data[pos] = (byte)(value & 0x7F);
 	}

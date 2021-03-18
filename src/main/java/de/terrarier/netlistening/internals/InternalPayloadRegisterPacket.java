@@ -61,7 +61,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
             throws CancelReadingSignal {
         checkReadable(buffer, 4);
 
-        int packetId;
+        final int packetId;
         try {
             packetId = InternalUtil.readInt(application, buffer);
         } catch (VarIntUtil.VarIntParseException e) {
@@ -78,7 +78,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
         types = new DataType[size];
         byte nibblePair = 0;
         for(int i = 0; i < size; i++) {
-            byte id;
+            final byte id;
             if(nibbleCompression) {
                 if(nibblePair != 0) {
                     id = NibbleUtil.getSecondNibble(nibblePair);

@@ -79,16 +79,16 @@ public final class ByteBufUtilExtension {
 	 */
 
 	private static byte[] getBytes0(@NotNull ByteBuf buffer, int length) {
-		int start = buffer.readerIndex();
-        int capacity = buffer.capacity();
+		final int start = buffer.readerIndex();
+        final int capacity = buffer.capacity();
         
         if (isOutOfBounds(start, length, capacity))
             throw new IndexOutOfBoundsException("expected: " + "0 <= start(" + start + ") <= start + length(" + length
                     + ") <= " + "buf.capacity(" + capacity + ')');
 
 		if (buffer.hasArray()) {
-			int baseOffset = buffer.arrayOffset() + start;
-			byte[] bytes = buffer.array();
+			final int baseOffset = buffer.arrayOffset() + start;
+			final byte[] bytes = buffer.array();
 			if (/*copy || */baseOffset != 0 || length != bytes.length) {
 				return Arrays.copyOfRange(bytes, baseOffset, baseOffset + length);
 			}else {
@@ -96,7 +96,7 @@ public final class ByteBufUtilExtension {
 			}
 		}
 
-		byte[] bytes = new byte[length];
+		final byte[] bytes = new byte[length];
         buffer.getBytes(start, bytes);
         return bytes;
     }

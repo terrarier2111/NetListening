@@ -4,13 +4,13 @@ import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
-import de.terrarier.netlistening.api.Type;
 import de.terrarier.netlistening.network.PreparedListener;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -37,22 +37,22 @@ public final class DataHandler {
         final DataContainer container = new DataContainer(data);
         final DecodeEvent event = new DecodeEvent(connection, container);
         final int listenerSize = listeners.size();
+        int hash = 0;
 
-        check:
         for (int i = 0; i < listenerSize; i++) {
             final PreparedListener listener = listeners.get(i);
-            final Type[] types = listener.getTypes();
-            final int length = types.length;
+            final int length = listener.getTypes().length;
             if (length != 0) {
                 if (length != dataSize) {
                     continue;
                 }
 
-                for (int j = 0; j < dataSize; j++) {
-                    final DataComponent<?> comp = data.get(j);
-                    if (types[j].getId() != comp.getType().getId()) {
-                        continue check;
-                    }
+                if (hash == 0) {
+                    hash = Arrays.hashCode(data.toArray());
+                }
+
+                if (hash != listener.hashCode()) {
+                    continue;
                 }
             }
             container.resetReaderIndex();

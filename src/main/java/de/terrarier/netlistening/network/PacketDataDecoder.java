@@ -100,7 +100,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
     private void readPacket(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf buffer, @NotNull List<Object> out,
                             @NotNull ByteBuf idBuffer, boolean[] packetIdReadValidator) throws Exception {
-        int id;
+        final int id;
         try {
             id = InternalUtil.readInt(application, idBuffer);
             if (packetIdReadValidator != null) {

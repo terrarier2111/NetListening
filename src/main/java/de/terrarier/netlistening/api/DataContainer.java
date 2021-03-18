@@ -60,7 +60,7 @@ public final class DataContainer {
 	 */
 	@SuppressWarnings("unchecked")
 	public void add(@NotNull Object data) {
-		DataType<?> type;
+		final DataType<?> type;
 
 		if(data instanceof String) {
 			type = STRING;
@@ -76,10 +76,10 @@ public final class DataContainer {
 			type = DOUBLE;
 		}else if(data instanceof Byte) {
 			type = BYTE;
-		}else if(data instanceof Short) {
-			type = SHORT;
 		}else if(data instanceof Float) {
 			type = FLOAT;
+		}else if(data instanceof Short) {
+			type = SHORT;
 		}else if(data instanceof UUID) {
 			type = UUID;
 		}else if(data instanceof Character) {
