@@ -102,7 +102,7 @@ public final class InternalPayloadHandshake extends InternalPayload {
 			encryptionSetting.asymmetricEncryptionOptions(asymmetricEncryptionOptions);
 		}
 		final ClientImpl client = (ClientImpl) application;
-		final CompressionSetting compressionSetting = new CompressionSetting().varIntCompression((mask & 1) == 1)
+		final CompressionSetting compressionSetting = new CompressionSetting().varIntCompression((mask & 1) != 0)
 				.nibbleCompression((mask & 1 << 1) != 0);
 		client.receiveHandshake(compressionSetting, charset, encryptionSetting, serverKey);
 

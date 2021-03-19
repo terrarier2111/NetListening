@@ -10,7 +10,6 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,7 +26,8 @@ public final class DataHandler {
 		this.application = application;
 	}
 
-	public void processData(@NotNull List<DataComponent<?>> data, @NotNull Channel channel) {
+	@SuppressWarnings("ForLoopReplaceableByForEach")
+    public void processData(@NotNull List<DataComponent<?>> data, @NotNull Channel channel) {
         final int dataSize = data.size();
         if (dataSize == 0) {
             return;
@@ -37,7 +37,7 @@ public final class DataHandler {
         final DataContainer container = new DataContainer(data);
         final DecodeEvent event = new DecodeEvent(connection, container);
         final int listenerSize = listeners.size();
-        int hash = 0;
+        int hash = 1;
 
         for (int i = 0; i < listenerSize; i++) {
             final PreparedListener listener = listeners.get(i);
@@ -47,8 +47,10 @@ public final class DataHandler {
                     continue;
                 }
 
-                if (hash == 0) {
-                    hash = Arrays.hashCode(data.toArray());
+                if (hash == 1) {
+                    for(int j = 0; j < dataSize; j++) {
+                        hash = 31 * hash + data.get(j).getType().hashCode();
+                    }
                 }
 
                 if (hash != listener.hashCode()) {
@@ -61,8 +63,12 @@ public final class DataHandler {
 	}
 
 	void addListener(@NotNull DecodeListener listener) {
-		listeners.add(new PreparedListener(listener));
-	}
+        try {
+            listeners.add(new PreparedListener(listener));
+        } catch (NoSuchMethodException | SecurityException e) {
+            e.printStackTrace();
+        }
+    }
 
 	public void unregisterListeners() {
 		listeners.clear();

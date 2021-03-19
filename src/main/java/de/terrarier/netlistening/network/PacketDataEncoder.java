@@ -47,73 +47,71 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 		final List<DataComponent<?>> containedData = data.getData();
 		final int dataSize = containedData.size();
 
-		if (dataSize > 0) {
-			final DataType<?>[] types = new DataType<?>[dataSize];
-			for (int i = 0; i < dataSize; i++) {
-				types[i] = containedData.get(i).getType();
-			}
+		if (dataSize < 1) {
+			return;
+		}
 
-			final PacketCache cache = application.getCache();
-			PacketSkeleton packet = cache.getPacket(types);
-			if (packet == null) {
-				packet = cache.registerPacket(types);
-				final InternalPayloadRegisterPacket register = new InternalPayloadRegisterPacket(packet.getId(), types);
-				final ByteBuf registerBuffer = Unpooled.buffer(5 + dataSize);
-				DataType.getDTIP().write0(application, registerBuffer, register);
-				buffer.writeBytes(ByteBufUtilExtension.getBytes(registerBuffer));
-				if (application.getCaching() == PacketCaching.GLOBAL) {
-					cache.broadcastRegister(application, register, ctx.channel(), registerBuffer);
-				}else {
-					registerBuffer.release();
-				}
-				packet.register();
-			}
+		final DataType<?>[] types = new DataType[dataSize];
+		for (int i = 0; i < dataSize; i++) {
+			types[i] = containedData.get(i).getType();
+		}
 
-			if (!application.isClient() && !packet.isRegistered()) {
-				if(delayedExecutor.isShutdown()) {
-					return;
-				}
-				final PacketSkeleton finalPacket = packet;
-				// Sending data delayed, awaiting the packet's registration to finish
-				delayedExecutor.execute(() -> {
-					final Channel channel = ctx.channel();
-					while (!finalPacket.isRegistered());
-					channel.writeAndFlush(data);
-				});
+		final PacketCache cache = application.getCache();
+		PacketSkeleton packet = cache.getPacket(types);
+		if (packet == null) {
+			packet = cache.registerPacket(types);
+			final InternalPayloadRegisterPacket register = new InternalPayloadRegisterPacket(packet.getId(), types);
+			final ByteBuf registerBuffer = Unpooled.buffer(5 + dataSize);
+			DataType.getDTIP().write0(application, registerBuffer, register);
+			buffer.writeBytes(ByteBufUtilExtension.getBytes(registerBuffer));
+			if (application.getCaching() == PacketCaching.GLOBAL) {
+				cache.broadcastRegister(application, register, ctx.channel(), registerBuffer);
+			} else {
+				registerBuffer.release();
+			}
+			packet.register();
+		}
+
+		if (!application.isClient() && !packet.isRegistered()) {
+			if (delayedExecutor.isShutdown()) {
 				return;
 			}
+			final PacketSkeleton finalPacket = packet;
+			// Sending data delayed, awaiting the packet's registration to finish
+			delayedExecutor.execute(() -> {
+				final Channel channel = ctx.channel();
+				while (!finalPacket.isRegistered()) ;
+				channel.writeAndFlush(data);
+			});
+			return;
+		}
 
-			final EncryptionSetting encryptionSetting = application.getEncryptionSetting();
-			final HmacSetting hmacSetting = encryptionSetting == null ? null : encryptionSetting.getHmacSetting();
-			boolean hmac = hmacSetting != null;
-			if (data.isEncrypted()) {
-				final ByteBuf target = hmac ? Unpooled.buffer() : buffer;
+		final EncryptionSetting encryptionSetting = application.getEncryptionSetting();
+		final HmacSetting hmacSetting;
+		final boolean encrypted = data.isEncrypted();
+		if(encryptionSetting == null ||
+				((hmacSetting = encryptionSetting.getHmacSetting()) == null && !encrypted)) {
+			writeToBuffer(buffer, data, packet.getId());
+			return;
+		}
+		final boolean hmac = encrypted || hmacSetting.getUseCase() == HmacUseCase.ALL; // TODO: Include that one in the check above.
+		final ByteBuf dst = hmac ? Unpooled.buffer() : buffer;
+		final ByteBuf dataBuffer = encrypted ? Unpooled.buffer() : dst;
+		final ConnectionImpl connection = (encrypted || hmac)
+				? (ConnectionImpl) application.getConnection(ctx.channel()) : null;
+		writeToBuffer(dataBuffer, data, packet.getId());
+		if (encrypted) {
+			InternalUtil.writeInt(application, dst, 0x3);
+			final byte[] encryptedData = connection.getEncryptionContext().encrypt(ByteBufUtilExtension.getBytes(dataBuffer));
+			dataBuffer.release();
+			final int size = encryptedData.length;
+			ByteBufUtilExtension.correctSize(dst, 4 + size, application.getBuffer());
+			dst.writeInt(size);
+			dst.writeBytes(encryptedData);
+		}
 
-				InternalUtil.writeInt(application, target, 0x3);
-				final ByteBuf tmpBuffer = Unpooled.buffer();
-				writeToBuffer(tmpBuffer, data, packet.getId());
-				final ConnectionImpl connection = (ConnectionImpl) application.getConnection(ctx.channel());
-				final byte[] encryptedData = connection.getEncryptionContext().encrypt(ByteBufUtilExtension.getBytes(tmpBuffer));
-				tmpBuffer.release();
-				final int size = encryptedData.length;
-				ByteBufUtilExtension.correctSize(target, size + 4, application.getBuffer());
-				target.writeInt(size);
-				target.writeBytes(encryptedData);
-
-				if(hmac) {
-					appendHmac(target, buffer, connection);
-				}
-				return;
-			}
-			if(hmac) {
-				hmac = hmacSetting.getUseCase() == HmacUseCase.ALL;
-			}
-
-			final ByteBuf dst = hmac ? Unpooled.buffer() : buffer;
-			writeToBuffer(dst, data, packet.getId());
-			if(hmac) {
-				appendHmac(dst, buffer, (ConnectionImpl) application.getConnection(ctx.channel()));
-			}
+		if (hmac) {
+			appendHmac(dst, buffer, connection);
 		}
 	}
 

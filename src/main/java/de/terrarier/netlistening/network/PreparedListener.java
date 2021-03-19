@@ -19,22 +19,14 @@ public final class PreparedListener {
 
 	private static final Type[] EMPTY_TYPES = new Type[0];
 	private final DecodeListener wrapped;
-	private Type[] types;
+	private final Type[] types;
 	private final int hash;
 	
-	public PreparedListener(@NotNull DecodeListener listener) {
+	public PreparedListener(@NotNull DecodeListener listener) throws NoSuchMethodException, SecurityException {
 		wrapped = listener;
-		try {
-			final Method method = listener.getClass().getDeclaredMethod("trigger", Event.class);
-			final PacketListener packetListener = method.getAnnotation(PacketListener.class);
-			if(packetListener != null) {
-				types = packetListener.dataTypes();
-			}else {
-				types = EMPTY_TYPES;
-			}
-		} catch (NoSuchMethodException | SecurityException e) {
-			e.printStackTrace(); // TODO: Check if there's a better solution cuz this should never occur!
-		}
+		final Method method = listener.getClass().getDeclaredMethod("trigger", Event.class);
+		final PacketListener packetListener = method.getAnnotation(PacketListener.class);
+		types = packetListener != null ? packetListener.dataTypes() : EMPTY_TYPES;
 		hash = Arrays.hashCode(types);
 	}
 

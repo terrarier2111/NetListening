@@ -93,13 +93,11 @@ public final class VarIntUtil {
 			this.requiredBytes = requiredBytes;
 		}
 
-		@NotNull
 		@Override
 		public Throwable initCause(Throwable cause) {
 			return this;
 		}
 
-		@NotNull
 		@Override
 		public Throwable fillInStackTrace() {
 			return this;
