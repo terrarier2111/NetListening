@@ -24,12 +24,6 @@ public interface Application {
 	String TIMEOUT_HANDLER = "nl_timeout_handler";
 
 	/**
-	 * @return whether the application is a client or not!
-	 */
-	@ApiStatus.Internal
-	boolean isClient();
-
-	/**
 	 * @return the encoding used to encode String which are being sent through the network.
 	 */
 	@ApiStatus.Internal

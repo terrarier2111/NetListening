@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.internals;
 
+import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.encryption.*;
 import de.terrarier.netlistening.api.type.DataType;
@@ -68,7 +69,7 @@ public final class InternalPayloadHandshake extends InternalPayload {
 	@Override
 	public void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
 			throws CancelReadingSignal {
-		if(!application.isClient()) {
+		if(application instanceof Server) {
 			throw new IllegalStateException("The connection " + channel.toString() + " has sent invalid data!");
 		}
 

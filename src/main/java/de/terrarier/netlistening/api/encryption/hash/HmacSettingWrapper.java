@@ -32,6 +32,7 @@ public final class HmacSettingWrapper extends EncryptionOptionsSuperBuilder<Hmac
      * @see HmacSetting
      */
     @NotNull
+    @Override
     public HmacSettingWrapper encryptionOptions(@NotNull EncryptionOptions encryption) {
         hmacSetting.encryptionOptions(encryption);
         return this;

@@ -145,11 +145,7 @@ public final class DataContainer {
 	 * @param data the DataContainer containing the data which gets added.
 	 */
 	public void passThrough(@NotNull DataContainer data) {
-		while(true) {
-			if(!passThroughPart(data)) {
-				return;
-			}
-		}
+		while(passThroughPart(data));
 	}
 
 	/**

@@ -57,15 +57,7 @@ public interface Client extends Application {
     }
 
     /**
-     * @see Application
-     */
-    @Override
-    default boolean isClient() {
-        return true;
-    }
-
-    /**
-     * Creates a new builder in a manner which may be more familiar to users.
+     * Creates a new builder with the passed arguments.
      *
      * @param host the host the client should connect to.
      * @param remotePort the port the client should connect to.
@@ -77,7 +69,7 @@ public interface Client extends Application {
     }
 
     /**
-     * Creates a new builder in a manner which may be more familiar to users.
+     * Creates a new builder with the passed arguments.
      *
      * @param remoteAddress the address to which the client should connect to.
      * @return the new builder.

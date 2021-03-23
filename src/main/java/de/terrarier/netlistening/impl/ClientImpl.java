@@ -194,7 +194,6 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         return Collections.singleton(connection);
     }
 
-
     /**
      * @see de.terrarier.netlistening.Application
      */

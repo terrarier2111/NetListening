@@ -86,15 +86,7 @@ public interface Server extends Application {
     void disconnect(@NotNull Connection connection);
 
     /**
-     * @see Application
-     */
-    @Override
-    default boolean isClient() {
-        return false;
-    }
-
-    /**
-     * Creates a new builder in a manner which may be more familiar to users.
+     * Creates a new builder with the passed arguments.
      *
      * @param port the port the server should bind/listen to.
      * @return the new builder.

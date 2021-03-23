@@ -83,6 +83,7 @@ public abstract class SerializationProvider {
         }
 
         @NotNull
+        @Override
         public Exception getCause() {
             return cause;
         }

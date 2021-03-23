@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.network;
 
+import de.terrarier.netlistening.Client;
 import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.event.ConnectionTimeoutEvent;
 import de.terrarier.netlistening.api.event.ListenerType;
@@ -41,7 +42,7 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 		this.application = application;
 
 		final long delay = timeout / 2;
-		final boolean client = application.isClient();
+		final boolean client = application instanceof Client;
 		final Channel channel = connection.getChannel();
 
 		timer.schedule(new TimerTask() {

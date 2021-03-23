@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.network;
 
+import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.api.PacketCaching;
@@ -72,7 +73,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 			packet.register();
 		}
 
-		if (!application.isClient() && !packet.isRegistered()) {
+		if (application instanceof Server && !packet.isRegistered()) {
 			if (delayedExecutor.isShutdown()) {
 				return;
 			}

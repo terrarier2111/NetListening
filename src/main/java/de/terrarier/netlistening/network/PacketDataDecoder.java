@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.network;
 
 import de.terrarier.netlistening.Connection;
+import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.compression.VarIntUtil;
 import de.terrarier.netlistening.api.event.*;
@@ -122,7 +123,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
 
         if (id == 0x2) {
-            if (!application.isClient()) {
+            if (application instanceof Server) {
                 if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                         (EventManager.EventProvider<InvalidDataEvent>) () -> {
                     final Connection connection = application.getConnection(ctx.channel());
@@ -281,7 +282,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     @Override
     public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
-        if (!application.isClient()) {
+        if (application instanceof Server) {
             ((ConnectionImpl) application.getConnection(ctx.channel())).check();
         }
     }

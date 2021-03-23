@@ -13,6 +13,7 @@ import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.network.PacketCache;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.Charset;
@@ -24,6 +25,7 @@ import java.util.Map;
  * @since 1.02
  * @author Terrarier2111
  */
+@ApiStatus.Internal
 public abstract class ApplicationImpl implements Application {
 
     final PacketCache cache = new PacketCache();

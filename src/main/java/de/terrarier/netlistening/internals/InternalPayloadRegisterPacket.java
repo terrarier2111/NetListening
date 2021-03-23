@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.internals;
 
+import de.terrarier.netlistening.Client;
 import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.compression.NibbleUtil;
 import de.terrarier.netlistening.api.compression.VarIntUtil;
@@ -98,7 +99,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
 
         final PacketCache cache = application.getCaching() != PacketCaching.INDIVIDUAL ? application.getCache() :
                 ((ConnectionImpl) application.getConnection(channel)).getCache();
-        if (application.isClient()) {
+        if (application instanceof Client) {
             cache.forceRegisterPacket(packetId, types);
         } else {
             final PacketSkeleton packet = cache.tryRegisterPacket(packetId, types);

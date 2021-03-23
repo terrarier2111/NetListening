@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.impl;
 
 import de.terrarier.netlistening.Application;
+import de.terrarier.netlistening.Client;
 import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.api.PacketCaching;
@@ -59,7 +60,7 @@ public final class ConnectionImpl implements Connection {
 	 */
 	@Override
 	public void sendData(@NotNull DataContainer data) {
-		if(application.isClient()) {
+		if(application instanceof Client) {
 			application.sendData(data);
 			return;
 		}

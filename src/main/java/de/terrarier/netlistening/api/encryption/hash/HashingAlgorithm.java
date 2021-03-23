@@ -8,18 +8,20 @@ import org.jetbrains.annotations.NotNull;
  */
 public enum HashingAlgorithm {
 
-    SHA_2("SHA-2"), SHA_3("SHA-3"), SHA_256("SHA-256");
+    SHA_2, SHA_3, SHA_256;
 
     private static final HashingAlgorithm[] VALUES = values();
-    private final String rawName;
-
-    HashingAlgorithm(@NotNull String rawName) {
-        this.rawName = rawName;
-    }
+    private final String rawName = name().replace('_', '-');
+    private final String macName = "Hmac" + name().replaceFirst("_", "");
 
     @NotNull
     public String getRawName() {
         return rawName;
+    }
+
+    @NotNull
+    public String getMacName() {
+        return macName;
     }
 
     @NotNull

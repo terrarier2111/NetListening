@@ -1,5 +1,7 @@
 package de.terrarier.netlistening.internals;
 
+import de.terrarier.netlistening.Client;
+import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.api.encryption.*;
 import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
@@ -48,7 +50,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
     @SuppressWarnings("ConstantConditions")
     @Override
     void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
-        if (!application.isClient()) {
+        if (application instanceof Server) {
             final EncryptionOptions asymmetricSetting = application.getEncryptionSetting().getAsymmetricSetting();
             final byte[] key = symmetricEncryptionData.getSecretKey().getEncoded();
             final byte[] secretKey = AsymmetricEncryptionUtil.encrypt(key, asymmetricSetting, publicKey);
@@ -73,7 +75,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
     public void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
             throws CancelReadingSignal {
         final byte[] key = readKey(buffer);
-        if (application.isClient()) {
+        if (application instanceof Client) {
             checkReadable(buffer, 7 + 1);
             final EncryptionOptions symmetricOptions = readOptions(buffer);
             final ConnectionImpl connection = (ConnectionImpl) application.getConnection(null);

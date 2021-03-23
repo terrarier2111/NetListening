@@ -49,7 +49,7 @@ public final class HashUtil {
 
     public static byte[] calculateHMAC(byte[] data, byte[] key, @NotNull HashingAlgorithm algorithm)
             throws NoSuchAlgorithmException, InvalidKeyException {
-        final String macName = "Hmac" + algorithm.name().replaceFirst("_", "");
+        final String macName = algorithm.getMacName();
         final SecretKeySpec secretKeySpec = new SecretKeySpec(key, macName);
         final Mac mac = Mac.getInstance(macName);
         mac.init(secretKeySpec);

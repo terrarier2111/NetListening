@@ -1,5 +1,7 @@
 package de.terrarier.netlistening.internals;
 
+import de.terrarier.netlistening.Client;
+import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import io.netty.buffer.ByteBuf;
@@ -20,14 +22,14 @@ public final class InternalPayloadEncryptionFinish extends InternalPayload {
 
     @Override
     void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
-        if(!application.isClient()) {
+        if(application instanceof Server) {
             throw new UnsupportedOperationException("This payload can only be sent by the client!");
         }
     }
 
     @Override
     public void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer) {
-        if(application.isClient()) {
+        if(application instanceof Client) {
             throw new UnsupportedOperationException("The server sent an invalid payload!");
         }
         ((ConnectionImpl) application.getConnection(channel)).prepare();

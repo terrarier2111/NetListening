@@ -74,7 +74,7 @@ public final class VarIntUtil {
 			}
 			b = buffer.readByte();
 			value <<= 7;
-			value |= (b & 0x7F);
+			value |= b & 0x7F;
 		}
 
 		return value;
@@ -93,11 +93,13 @@ public final class VarIntUtil {
 			this.requiredBytes = requiredBytes;
 		}
 
+		@NotNull
 		@Override
 		public Throwable initCause(Throwable cause) {
 			return this;
 		}
 
+		@NotNull
 		@Override
 		public Throwable fillInStackTrace() {
 			return this;
