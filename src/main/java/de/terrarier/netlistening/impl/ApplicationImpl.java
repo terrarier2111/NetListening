@@ -25,7 +25,6 @@ import java.util.Map;
  * @since 1.02
  * @author Terrarier2111
  */
-@ApiStatus.Internal
 public abstract class ApplicationImpl implements Application {
 
     final PacketCache cache = new PacketCache();
@@ -42,6 +41,7 @@ public abstract class ApplicationImpl implements Application {
     /**
      * @see Application
      */
+    @ApiStatus.Internal
     @NotNull
     @Override
     public final Charset getStringEncoding() {
@@ -114,12 +114,14 @@ public abstract class ApplicationImpl implements Application {
         eventManager.unregisterListeners(listenerType);
     }
 
+    @ApiStatus.Internal
     @NotNull
     public final EventManager getEventManager() {
         return eventManager;
     }
 
-    public static abstract class Builder<A extends ApplicationImpl, B extends Builder<A, B>> extends Application.Builder<A, B> {
+    @ApiStatus.Internal
+    static abstract class Builder<A extends ApplicationImpl, B extends Builder<A, B>> extends Application.Builder<A, B> {
 
         final A application;
         final Map<ChannelOption<?>, Object> options = new HashMap<>();

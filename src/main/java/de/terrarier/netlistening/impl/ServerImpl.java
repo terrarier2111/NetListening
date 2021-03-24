@@ -22,6 +22,7 @@ import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.Charset;
@@ -204,6 +205,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         return Collections.unmodifiableSet(new HashSet<>(connections.values()));
     }
 
+    @ApiStatus.Internal
     public static final class Builder extends ApplicationImpl.Builder<ServerImpl, Builder> {
 
         private final int port;

@@ -16,16 +16,19 @@ import static io.netty.util.internal.EmptyArrays.EMPTY_BYTES;
 @ApiStatus.Internal
 public final class ByteBufUtilExtension {
 	
-	private static boolean newNettyVersion;
+	private static final boolean NEW_NETTY_VERSION;
 	
 	static {
+		boolean newNettyVersion;
 		try {
 			ByteBufUtil.class.getDeclaredMethod("getBytes", ByteBuf.class, int.class, int.class);
 			newNettyVersion = true;
-		}catch(NoSuchMethodException ignored) {
+		}catch(NoSuchMethodException e) {
 			// Apparently we are using an old version of netty and we have to support
 			// getBytes on our own and can't rely on Netty's ByteBufUtil#getBytes method.
+			newNettyVersion = false;
 		}
+		NEW_NETTY_VERSION = newNettyVersion;
 	}
 	
 	private ByteBufUtilExtension() {
@@ -65,7 +68,7 @@ public final class ByteBufUtilExtension {
 			return EMPTY_BYTES;
 		}
 
-		return newNettyVersion ? ByteBufUtil.getBytes(buffer, buffer.readerIndex(), bytes) : getBytes0(buffer, bytes);
+		return NEW_NETTY_VERSION ? ByteBufUtil.getBytes(buffer, buffer.readerIndex(), bytes) : getBytes0(buffer, bytes);
 	}
 
 	public static byte[] getBytes(@NotNull ByteBuf buffer) {
@@ -73,7 +76,7 @@ public final class ByteBufUtilExtension {
 	}
 	
 	/**
-	 * Copied from netty to allow the usage of an older netty version:
+	 * Copied from netty to allow the usage of older netty versions:
 	 * 
 	 * @see <a href="https://github.com/netty/netty/blob/4.1/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java">https://github.com/netty/netty/blob/4.1/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java</a>
 	 */
@@ -102,7 +105,7 @@ public final class ByteBufUtilExtension {
     }
 	
 	/**
-	 * Copied from netty to allow the usage of an older netty version:
+	 * Copied from netty to allow the usage of older netty versions:
 	 * 
 	 * https://github.com/netty/netty/blob/4.1/common/src/main/java/io/netty/util/internal/MathUtil.java
 	 */

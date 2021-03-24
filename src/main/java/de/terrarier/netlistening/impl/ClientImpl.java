@@ -282,10 +282,12 @@ public final class ClientImpl extends ApplicationImpl implements Client {
      * @return if the client has already received a handshake (and push request)
      * from the server.
      */
+    @ApiStatus.Internal
     public boolean hasReceivedHandshake() {
         return receivedHandshake;
     }
 
+    @ApiStatus.Internal
     public static final class Builder extends ApplicationImpl.Builder<ClientImpl, Builder> {
 
         private final SocketAddress remoteAddress;

@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -46,17 +47,19 @@ public final class PacketCache {
 
 	@NotNull
 	PacketSkeleton registerPacket(@NotNull DataType<?>... data) {
-		lock.writeLock().lock();
+		final Lock writeLock = lock.writeLock();
+		writeLock.lock();
 		try {
 			return registerPacket0(id.getAndIncrement(), data);
 		}finally {
-			lock.writeLock().unlock();
+			writeLock.unlock();
 		}
 	}
 
 	@NotNull
 	public PacketSkeleton tryRegisterPacket(int id, @NotNull DataType<?>... data) {
-		lock.writeLock().lock();
+		final Lock writeLock = lock.writeLock();
+		writeLock.lock();
 		try {
 			boolean valid = id > this.id.get();
 			if (valid) {
@@ -67,12 +70,13 @@ public final class PacketCache {
 
 			return registerPacket0(valid ? id : this.id.getAndIncrement(), data);
 		}finally {
-			lock.writeLock().unlock();
+			writeLock.unlock();
 		}
 	}
 
 	public void forceRegisterPacket(int id, @NotNull DataType<?>... data) {
-		lock.writeLock().lock();
+		final Lock writeLock = lock.writeLock();
+		writeLock.lock();
 		try {
 			final int curr = this.id.get();
 			if (id > curr) {
@@ -83,7 +87,7 @@ public final class PacketCache {
 
 			registerPacket0(id, data);
 		}finally {
-			lock.writeLock().unlock();
+			writeLock.unlock();
 		}
 	}
 
@@ -98,7 +102,8 @@ public final class PacketCache {
 		final int dataLength = data.length;
 		final int dataHash = Arrays.hashCode(data);
 
-		lock.readLock().lock();
+		final Lock readLock = lock.readLock();
+		readLock.lock();
 		try {
 			for (PacketSkeleton packet : packets.values()) {
 				if (packet.getData().length == dataLength && dataHash == packet.hashCode()) {
@@ -106,7 +111,7 @@ public final class PacketCache {
 				}
 			}
 		}finally {
-			lock.readLock().unlock();
+			readLock.unlock();
 		}
 		return null;
 	}

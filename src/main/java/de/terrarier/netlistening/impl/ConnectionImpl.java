@@ -19,6 +19,7 @@ import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.SecretKey;
@@ -43,7 +44,8 @@ public final class ConnectionImpl implements Connection {
 	private SymmetricEncryptionContext encryptionContext;
 	private byte[] hmacKey;
 	// TODO: Improve and test delayed data sending mechanics.
-	
+
+	@ApiStatus.Internal
 	ConnectionImpl(@NotNull ApplicationImpl application, @NotNull Channel channel, int id) {
 		this.application = application;
 		this.channel = channel;
@@ -178,6 +180,7 @@ public final class ConnectionImpl implements Connection {
 		return id;
 	}
 
+	@ApiStatus.Internal
 	public boolean isStable() {
 		return dataSendState.isAtLeast(DataSendState.SENDING) && receivedPacket;
 	}
@@ -220,6 +223,7 @@ public final class ConnectionImpl implements Connection {
 		}
 	}
 
+	@ApiStatus.Internal
 	public void check() {
 		if(!dataSendState.isAtLeast(DataSendState.SENDING)) {
 			dataSendState = DataSendState.SENDING;
@@ -242,6 +246,7 @@ public final class ConnectionImpl implements Connection {
 		}
 	}
 
+	@ApiStatus.Internal
 	public void writeToInitialBuffer(@NotNull ByteBuf buffer) {
 		final DataSendState dataSendState = this.dataSendState; // caching volatile field get result
 		if (!dataSendState.isAtLeast(DataSendState.SENDING)) {
@@ -290,6 +295,7 @@ public final class ConnectionImpl implements Connection {
 		buffer.release();
 	}
 
+	@ApiStatus.Internal
 	public void prepare() {
 		dataSendState = DataSendState.FINISHING;
 		synchronized (this) {

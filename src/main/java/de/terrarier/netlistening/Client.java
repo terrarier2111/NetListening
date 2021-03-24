@@ -29,7 +29,7 @@ public interface Client extends Application {
     /**
      * Sets the expected key used by the server to encrypt the symmetric key.
      * If the key set is different to the key received by the server,
-     * a KeyChangeEvent with an HASH_CHANGED action is getting called,
+     * a KeyChangeEvent with a @code{HASH_CHANGED} action is getting called,
      * which can be used to detect MITM attacks.
      *
      * @param data the data representing the expected key.
