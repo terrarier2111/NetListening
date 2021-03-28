@@ -242,7 +242,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             // prepare framing of payload
             final int frameSize = signal.size + buffer.readerIndex() - start;
             if(!callFrameEvent(connection, frameSize)) {
-                holdingBuffer = Unpooled.buffer(signal.size + buffer.readerIndex() - start);
+                holdingBuffer = Unpooled.buffer(frameSize);
                 buffer.readerIndex(start);
                 transferRemaining(buffer);
                 packet = null;

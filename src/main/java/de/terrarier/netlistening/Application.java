@@ -114,7 +114,7 @@ public interface Application {
 	void sendData(@NotNull DataContainer data);
 
 	/**
-	 * Sends data to a specific connection.
+	 * Sends data to all connections.
 	 *
 	 * @param data the data which gets sent.
 	 */
@@ -123,7 +123,7 @@ public interface Application {
 	}
 
 	/**
-	 * Sends data to a specific connection.
+	 * Sends data to all connections.
 	 *
 	 * @param encrypted if the traffic is to be encrypted.
 	 * @param data the data which gets sent.

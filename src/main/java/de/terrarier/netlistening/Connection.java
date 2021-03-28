@@ -31,6 +31,23 @@ public interface Connection {
     }
 
     /**
+     * Sends data to the connection.
+     *
+     * @param data the data which gets sent.
+     */
+    default void sendData(@NotNull Object... data) {
+        sendData(false, data);
+    }
+
+    /**
+     * Sends data to the connection.
+     *
+     * @param encrypted if the traffic is to be encrypted.
+     * @param data the data which gets sent.
+     */
+    void sendData(boolean encrypted, @NotNull Object... data);
+
+    /**
      * Disconnects the connection.
      */
     void disconnect();
