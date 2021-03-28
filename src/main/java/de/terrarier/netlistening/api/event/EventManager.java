@@ -4,10 +4,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -17,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @ApiStatus.Internal
 public final class EventManager {
 
-	private final Map<ListenerType, Set<Listener<?>>[]> listeners = new ConcurrentHashMap<>();
+	private final Map<ListenerType, List<Listener<?>>[]> listeners = new ConcurrentHashMap<>();
 	private final DataHandler handler;
 	
 	public EventManager(@NotNull DataHandler handler) {
@@ -35,12 +32,12 @@ public final class EventManager {
 		}
 
 		final EventListener.Priority priority = resolvePriority(listener);
-		final Set<Listener<?>>[] listenerPriorities = listeners.computeIfAbsent(type, k -> new Set[5]);
+		final List<Listener<?>>[] listenerPriorities = listeners.computeIfAbsent(type, k -> new List[5]);
 		final int ordinal = priority.ordinal();
-		Set<Listener<?>> demanded = listenerPriorities[ordinal];
+		List<Listener<?>> demanded = listenerPriorities[ordinal];
 
 		if(demanded == null) {
-			demanded = new HashSet<>();
+			demanded = new ArrayList<>();
 			listenerPriorities[ordinal] = demanded;
 		}
 
@@ -51,10 +48,10 @@ public final class EventManager {
 		if(listenerType == ListenerType.DECODE) {
 			handler.unregisterListeners();
 		}
-		final Set<Listener<?>>[] listenerPriorities = listeners.get(listenerType);
+		final List<Listener<?>>[] listenerPriorities = listeners.get(listenerType);
 		if(listenerPriorities != null) {
 			for(int i = 0; i < 5; i++) {
-				final Set<Listener<?>> listeners = listenerPriorities[i];
+				final List<Listener<?>> listeners = listenerPriorities[i];
 				if(listeners != null) {
 					listeners.clear();
 				}
@@ -74,20 +71,21 @@ public final class EventManager {
 	@SuppressWarnings("unchecked")
 	public boolean callEvent(@NotNull ListenerType listenerType, @NotNull CancelAction cancelAction,
 							 @NotNull EventProvider<?> eventProvider) {
-		final Set<Listener<?>>[] listeners = this.listeners.get(listenerType);
+		final List<Listener<?>>[] listeners = this.listeners.get(listenerType);
 		if(listeners == null) {
 			return false;
 		}
 		boolean cancellable = false;
 		Event event = null;
 		for (int i = 0; i < 5; i++) {
-			final Set<Listener<?>> priorityListeners = listeners[i];
+			final List<Listener<?>> priorityListeners = listeners[i];
 			if(priorityListeners != null) {
 				if(event == null) {
 					event = eventProvider.provide();
 					cancellable = event instanceof Cancellable;
 				}
-				for(Listener listener : priorityListeners) {
+				for(int j = 0; j < priorityListeners.size(); j++) {
+					final Listener listener = priorityListeners.get(j);
 					try {
 						listener.trigger(event);
 					}catch (Throwable throwable) {

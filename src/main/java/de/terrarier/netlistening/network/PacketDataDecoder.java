@@ -17,7 +17,6 @@ import de.terrarier.netlistening.utils.ConversionUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.buffer.UnpooledHeapByteBuf;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.util.internal.EmptyArrays;
@@ -72,10 +71,11 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 release = idReadValidator[0];
             } else {
                 hasId = false;
+                final ConnectionImpl connection = (ConnectionImpl) application.getConnection(ctx.channel());
                 if (packet != null) {
-                    read(ctx, out, storedData, buffer, packet, index, tmp);
+                    read(ctx, out, storedData, buffer, packet, connection, index, tmp);
                 } else {
-                    readPayLoad(tmp, ctx.channel());
+                    readPayLoad(tmp, connection);
                 }
             }
             if (release || !framing || !tmp.equals(holdingBuffer)) {
@@ -158,12 +158,13 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                             + Integer.toHexString(id) + ")");
         }
 
+        final ConnectionImpl connection = (ConnectionImpl) application.getConnection(ctx.channel());
+
         if (id == 0x0) {
-            readPayLoad(buffer, ctx.channel());
+            readPayLoad(buffer, connection);
             return;
         }
 
-        final ConnectionImpl connection = (ConnectionImpl) application.getConnection(ctx.channel());
         final PacketSkeleton packet = connection.getCache().getPacket(id);
         if (packet == null) {
             if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
@@ -179,12 +180,12 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                             + Integer.toHexString(id) + ")");
         }
 
-        read(ctx, out, new ArrayList<>(packet.getData().length), buffer, packet, 0, null);
+        read(ctx, out, new ArrayList<>(packet.getData().length), buffer, packet, connection, 0, null);
     }
 
     @SuppressWarnings("unchecked")
     private void read(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull List<DataComponent<?>> data,
-                      @NotNull ByteBuf buffer, @NotNull PacketSkeleton packet, int index, ByteBuf framingBuffer) throws Exception {
+                      @NotNull ByteBuf buffer, @NotNull PacketSkeleton packet, @NotNull Connection connection, int index, ByteBuf framingBuffer) throws Exception {
         final DataType<?>[] dataTypes = packet.getData();
         final int length = dataTypes.length;
         boolean ignore = false;
@@ -195,7 +196,6 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 if (length != 1) {
                     if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                             (EventManager.EventProvider<InvalidDataEvent>) () -> {
-                                final Connection connection = application.getConnection(ctx.channel());
                                 final byte[] idData = application.getCompressionSetting().isVarIntCompression()
                                         ? VarIntUtil.toVarInt(dataType.getId()) : ConversionUtil.intToByteArray(dataType.getId());
 
@@ -234,17 +234,22 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
     }
 
-    private void readPayLoad(@NotNull ByteBuf buffer, @NotNull Channel channel) {
+    private void readPayLoad(@NotNull ByteBuf buffer, @NotNull Connection connection) {
         final int start = buffer.readerIndex();
         try {
-            ((DataTypeInternalPayload) DataType.getDTIP()).read(application, channel, buffer);
+            ((DataTypeInternalPayload) DataType.getDTIP()).read(application, connection.getChannel(), buffer);
         } catch (CancelReadingSignal signal) {
             // prepare framing of payload
-            holdingBuffer = Unpooled.buffer(signal.size + buffer.readerIndex() - start);
-            buffer.readerIndex(start);
-            transferRemaining(buffer);
-            packet = null;
-            hasId = true;
+            final int frameSize = signal.size + buffer.readerIndex() - start;
+            if(!callFrameEvent(connection, frameSize)) {
+                holdingBuffer = Unpooled.buffer(signal.size + buffer.readerIndex() - start);
+                buffer.readerIndex(start);
+                transferRemaining(buffer);
+                packet = null;
+                hasId = true;
+            }else {
+                tryRelease(buffer);
+            }
         }
     }
 
@@ -253,6 +258,11 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             release = false;
             buffer.release();
         }
+    }
+
+    private boolean callFrameEvent(@NotNull Connection connection, int frameSize) {
+        final ConnectionDataFrameEvent frameEvent = new ConnectionDataFrameEvent(connection, frameSize);
+        return application.getEventManager().callEvent(ListenerType.FRAME, EventManager.CancelAction.INTERRUPT, frameEvent);
     }
 
     private void transferRemaining(@NotNull ByteBuf buffer) {
