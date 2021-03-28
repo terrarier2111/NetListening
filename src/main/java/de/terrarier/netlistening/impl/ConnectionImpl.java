@@ -84,6 +84,14 @@ public final class ConnectionImpl implements Connection {
 		}
 	}
 
+	@Override
+	public void sendData(boolean encrypted, @NotNull Object... data) {
+		final DataContainer dataContainer = new DataContainer();
+		dataContainer.setEncrypted(encrypted);
+		dataContainer.addAll(data);
+		sendData(dataContainer);
+	}
+
 	/**
 	 * @see Connection
 	 */
