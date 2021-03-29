@@ -60,7 +60,9 @@ public interface Server extends Application {
      *
      * @param data the data which gets sent.
      * @param connection the connection the data gets sent to.
+     * @deprecated use @link { Connection#sendData(Object...) } instead.
      */
+    @Deprecated
     default void sendData(@NotNull Connection connection, @NotNull Object... data) {
         sendData(connection, false, data);
     }
@@ -71,7 +73,9 @@ public interface Server extends Application {
      * @param connection the connection the data gets sent to.
      * @param encrypted if the traffic is to be encrypted.
      * @param data the data which gets sent.
+     * @deprecated use @link { Connection#sendData(boolean, Object...) } instead.
      */
+    @Deprecated
     default void sendData(@NotNull Connection connection, boolean encrypted, @NotNull Object... data) {
         final DataContainer container = new DataContainer();
         container.add(data);

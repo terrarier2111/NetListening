@@ -79,6 +79,7 @@ public final class ConnectionImpl implements Connection {
 				if (preConnectSendQueue == null) {
 					preConnectSendQueue = new ArrayList<>();
 				}
+
 				preConnectSendQueue.add(data);
 			}
 		}
