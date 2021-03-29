@@ -50,7 +50,9 @@ public interface Client extends Application {
 
     /**
      * @see Application
+     * @deprecated use @link { Connection#sendData(DataContainer) } instead.
      */
+    @Deprecated
     @Override
     default void sendData(Connection connection, @NotNull DataContainer data) {
         sendData(data);

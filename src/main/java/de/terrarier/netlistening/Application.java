@@ -94,7 +94,9 @@ public interface Application {
 	 *
 	 * @param data the data which gets sent.
 	 * @param connection the connection the data gets sent to.
+	 * @deprecated use @link { Connection#sendData(DataContainer) } instead.
 	 */
+	@Deprecated
 	void sendData(Connection connection, @NotNull DataContainer data);
 
 	/**
@@ -102,6 +104,7 @@ public interface Application {
 	 *
 	 * @param data the data which gets sent.
 	 * @param connection the connection the data gets sent to.
+	 * @deprecated use @link { Connection#sendData(DataComponent) } instead.
 	 */
 	@Deprecated
 	void sendData(@NotNull DataComponent<?> data, Connection connection);

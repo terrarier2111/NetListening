@@ -38,7 +38,9 @@ public interface Server extends Application {
 
     /**
      * @see Application
+     * @deprecated use @link { Connection#sendData(DataContainer) } instead.
      */
+    @Deprecated
     @Override
     default void sendData(@NotNull Connection connection, @NotNull DataContainer data) {
         connection.sendData(data);
@@ -46,13 +48,12 @@ public interface Server extends Application {
 
     /**
      * @see Application
+     * @deprecated use @link { Connection#sendData(DataComponent) } instead.
      */
     @Deprecated
     @Override
     default void sendData(@NotNull DataComponent<?> data, @NotNull Connection connection) {
-        final DataContainer container = new DataContainer();
-        container.addComponent(data);
-        sendData(container, connection);
+        connection.sendData(data);
     }
 
     /**
@@ -64,7 +65,7 @@ public interface Server extends Application {
      */
     @Deprecated
     default void sendData(@NotNull Connection connection, @NotNull Object... data) {
-        sendData(connection, false, data);
+        connection.sendData(data);
     }
 
     /**
@@ -77,10 +78,7 @@ public interface Server extends Application {
      */
     @Deprecated
     default void sendData(@NotNull Connection connection, boolean encrypted, @NotNull Object... data) {
-        final DataContainer container = new DataContainer();
-        container.add(data);
-        container.setEncrypted(encrypted);
-        connection.sendData(container);
+        connection.sendData(encrypted, data);
     }
 
     /**
