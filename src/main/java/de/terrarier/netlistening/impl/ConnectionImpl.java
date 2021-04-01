@@ -99,10 +99,6 @@ public final class ConnectionImpl implements Connection {
 	@Override
 	public void disconnect() {
 		application.disconnect(this);
-		if (!isConnected()) {
-			throw new IllegalStateException(
-					"The connection " + Integer.toHexString(id) + " is not connected!");
-		}
 	}
 	
 	void disconnect0() {

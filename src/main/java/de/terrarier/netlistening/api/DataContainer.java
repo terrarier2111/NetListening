@@ -149,6 +149,38 @@ public final class DataContainer {
 	}
 
 	/**
+	 * Creates a sub container which consists of all elements
+	 * from @code { startIndex } to @code { data#size }.
+	 *
+	 * @param startIndex the index from which the sub container should be filled.
+	 * @return the created sub container.
+	 */
+	@NotNull
+	public DataContainer subContainer(int startIndex) {
+		return subContainer(startIndex, data.size());
+	}
+
+	/**
+	 * Creates a sub container which consists of all elements
+	 * from @code { startIndex } to @code { endIndex }.
+	 *
+	 * @param startIndex the index from which the sub container should be filled.
+	 * @param endIndex the index up to which the sub container should be filled.
+	 * @return the created sub container.
+	 */
+	@NotNull
+	public DataContainer subContainer(int startIndex, int endIndex) {
+		if(startIndex > endIndex) {
+			throw new IllegalArgumentException("startIndex has to be smaller than endIndex!");
+		}
+		final DataContainer ret = new DataContainer();
+		for(int i = startIndex; i < endIndex; i++) {
+			ret.data.add(data.get(i));
+		}
+		return ret;
+	}
+
+	/**
 	 * @return the next object available at the
 	 * readerIndex, if no object is available, null.
 	 */
