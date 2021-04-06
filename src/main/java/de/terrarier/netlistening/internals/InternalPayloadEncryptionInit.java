@@ -73,7 +73,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
 
     @Override
     public void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
-            throws CancelReadingSignal {
+            throws CancelReadSignal {
         final byte[] key = readKey(buffer);
         if (application instanceof Client) {
             checkReadable(buffer, 7 + 1);
@@ -147,7 +147,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
         buffer.writeBytes(key);
     }
 
-    private static byte[] readKey(@NotNull ByteBuf buffer) throws CancelReadingSignal {
+    private static byte[] readKey(@NotNull ByteBuf buffer) throws CancelReadSignal {
         checkReadable(buffer, 4 + 1);
         final int keyLength = buffer.readInt();
         checkReadable(buffer, keyLength);

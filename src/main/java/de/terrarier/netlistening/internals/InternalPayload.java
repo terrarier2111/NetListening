@@ -34,7 +34,7 @@ public abstract class InternalPayload {
     abstract void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer);
 
     public abstract void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
-            throws CancelReadingSignal;
+            throws CancelReadSignal;
 
     @NotNull
     static InternalPayload fromId(byte id) {
@@ -53,9 +53,9 @@ public abstract class InternalPayload {
     }
 
     static void checkReadable(@NotNull ByteBuf buffer, int additional)
-            throws CancelReadingSignal {
+            throws CancelReadSignal {
         if (buffer.readableBytes() < additional) {
-            throw new CancelReadingSignal(additional);
+            throw new CancelReadSignal(additional);
         }
     }
 

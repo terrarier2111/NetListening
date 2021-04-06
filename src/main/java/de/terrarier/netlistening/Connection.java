@@ -5,6 +5,8 @@ import de.terrarier.netlistening.api.DataContainer;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 
+import java.net.InetSocketAddress;
+
 /**
  * @since 1.0
  * @author Terrarier2111
@@ -42,7 +44,7 @@ public interface Connection {
     /**
      * Sends data to the connection.
      *
-     * @param encrypted if the traffic is to be encrypted.
+     * @param encrypted whether the traffic is to be encrypted.
      * @param data the data which gets sent.
      */
     void sendData(boolean encrypted, @NotNull Object... data);
@@ -62,6 +64,12 @@ public interface Connection {
      */
     @NotNull
     Channel getChannel();
+
+    /**
+     * @return the remote address of the connection.
+     */
+    @NotNull
+    InetSocketAddress getRemoteAddress();
 
     /**
      * @return the id of the connection.

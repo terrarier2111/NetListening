@@ -1,7 +1,7 @@
 package de.terrarier.netlistening.api.type;
 
 import de.terrarier.netlistening.impl.ApplicationImpl;
-import de.terrarier.netlistening.internals.CancelReadingSignal;
+import de.terrarier.netlistening.internals.CancelReadSignal;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -21,7 +21,7 @@ public final class DataTypeString extends DataType<String> {
 	
 	@Override
 	protected String read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
-			throws CancelReadingSignal {
+			throws CancelReadSignal {
 		final int length = buffer.readInt();
 		
 		if(length < 1) { // TODO: Throw an exception when length < 0

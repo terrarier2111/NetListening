@@ -8,13 +8,11 @@ import org.jetbrains.annotations.NotNull;
  * @author Terrarier2111
  */
 @ApiStatus.Internal
-public final class CancelReadingSignal extends Exception {
+public class CancelSignal extends Exception {
 
-	public final int size;
-	
-	public CancelReadingSignal(int size) {
-		this.size = size;
-	}
+	public static final CancelSignal INSTANCE = new CancelSignal();
+
+	CancelSignal() {}
 
 	@NotNull
 	@Override

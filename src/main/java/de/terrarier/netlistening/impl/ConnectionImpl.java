@@ -23,6 +23,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.SecretKey;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -131,6 +132,15 @@ public final class ConnectionImpl implements Connection {
 		return channel;
 	}
 
+	/**
+	 * @see Connection
+	 */
+	@NotNull
+	@Override
+	public InetSocketAddress getRemoteAddress() {
+		return (InetSocketAddress) channel.remoteAddress();
+	}
+
 	public SymmetricEncryptionContext getEncryptionContext() {
 		return encryptionContext;
 	}
@@ -211,8 +221,8 @@ public final class ConnectionImpl implements Connection {
 
 				final ByteBuf buffer = connected ? Unpooled.buffer() : preConnectBuffer;
 				buffer.writeInt(0x0);
-				final DataType<InternalPayload> dtip = DataType.getDTIP();
-				((DataTypeInternalPayload) dtip).write(application, buffer, InternalPayload.HANDSHAKE);
+				final DataTypeInternalPayload dtip = DataType.getDTIP();
+				dtip.write(application, buffer, InternalPayload.HANDSHAKE);
 				if (application.getCaching() == PacketCaching.GLOBAL) {
 
 					final Map<Integer, PacketSkeleton> packets = cache.getPackets();

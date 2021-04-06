@@ -20,7 +20,7 @@ public final class DataTypeInternalPayload extends DataType<InternalPayload> {
 	
 	@Override
 	public InternalPayload read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
-			throws CancelReadingSignal {
+			throws CancelReadSignal {
 		final byte payloadId = buffer.readByte();
 		InternalPayload.fromId(payloadId).read(application, channel, buffer);
 		return null;

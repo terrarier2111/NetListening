@@ -3,7 +3,7 @@ package de.terrarier.netlistening.api.type;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.api.serialization.SerializationUtil;
 import de.terrarier.netlistening.impl.ApplicationImpl;
-import de.terrarier.netlistening.internals.CancelReadingSignal;
+import de.terrarier.netlistening.internals.CancelSignal;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -21,7 +21,7 @@ public final class DataTypeObject extends DataType<Object> {
 
 	@Override
 	protected Object read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
-			throws CancelReadingSignal {
+			throws CancelSignal {
 		final int length = buffer.readInt();
 
 		if(length == 0) {
@@ -40,7 +40,8 @@ public final class DataTypeObject extends DataType<Object> {
 	}
 
 	@Override
-	protected void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, @NotNull Object data) {
+	protected void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, @NotNull Object data)
+			throws CancelSignal {
 		final byte[] serialized = SerializationUtil.serialize(application, data);
 		if(serialized == null) {
 			buffer.writeInt(0);

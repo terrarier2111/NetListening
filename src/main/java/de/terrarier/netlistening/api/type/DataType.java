@@ -32,7 +32,7 @@ public abstract class DataType<T> {
 	public static final DataType<java.util.UUID> UUID = new DataTypeUUID();
 	public static final DataType<Float> FLOAT = new DataTypeFloat();
 
-	private static final DataType<InternalPayload> INTERNAL_PAYLOAD = new DataTypeInternalPayload();
+	private static final DataTypeInternalPayload INTERNAL_PAYLOAD = new DataTypeInternalPayload();
 	private static final DataType<Void> ENCRYPT = new DataTypeEncrypt();
 	private static final DataType<Void> HMAC = new DataTypeHmac();
 
@@ -54,15 +54,15 @@ public abstract class DataType<T> {
 	}
 
 	protected abstract T read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
-			throws CancelReadingSignal;
+			throws CancelSignal;
 
 	@ApiStatus.Internal
-	public void write0(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, T data) {
+	public void write0(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, T data) throws CancelSignal {
 		checkWriteable(application, buffer, minSize);
 		write(application, buffer, data);
 	}
 
-	protected abstract void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, T data);
+	protected abstract void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, T data) throws CancelSignal;
 	
 	public final byte getId() {
 		return id;
@@ -73,7 +73,6 @@ public abstract class DataType<T> {
 		return published;
 	}
 
-	@Deprecated
 	public final int getMinSize() {
 		return minSize;
 	}
@@ -86,13 +85,13 @@ public abstract class DataType<T> {
 
 	@ApiStatus.Internal
 	@SuppressWarnings("unchecked")
-	public final void writeUnchecked(@NotNull ApplicationImpl application, @NotNull ByteBuf buf, @NotNull Object data) {
+	public final void writeUnchecked(@NotNull ApplicationImpl application, @NotNull ByteBuf buf, @NotNull Object data) throws CancelSignal {
 		write0(application, buf, (T) data);
 	}
 
-	protected static void checkReadable(@NotNull ByteBuf buffer, int length) throws CancelReadingSignal {
+	protected static void checkReadable(@NotNull ByteBuf buffer, int length) throws CancelReadSignal {
 		if (buffer.readableBytes() < length) {
-			throw new CancelReadingSignal(length);
+			throw new CancelReadSignal(length);
 		}
 	}
 
@@ -136,7 +135,7 @@ public abstract class DataType<T> {
 
 	@ApiStatus.Internal
 	@NotNull
-	public static DataType<InternalPayload> getDTIP() {
+	public static DataTypeInternalPayload getDTIP() {
 		return INTERNAL_PAYLOAD;
 	}
 

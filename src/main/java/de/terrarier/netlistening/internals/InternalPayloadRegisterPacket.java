@@ -4,11 +4,15 @@ import de.terrarier.netlistening.Client;
 import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.compression.NibbleUtil;
 import de.terrarier.netlistening.api.compression.VarIntUtil;
+import de.terrarier.netlistening.api.event.EventManager;
+import de.terrarier.netlistening.api.event.InvalidDataEvent;
+import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.network.PacketCache;
 import de.terrarier.netlistening.network.PacketSkeleton;
+import de.terrarier.netlistening.utils.ConversionUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -59,14 +63,14 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
 
     @Override
     public void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
-            throws CancelReadingSignal {
+            throws CancelReadSignal {
         checkReadable(buffer, 4);
 
         final int packetId;
         try {
             packetId = InternalUtil.readInt(application, buffer);
         } catch (VarIntUtil.VarIntParseException e) {
-            throw new CancelReadingSignal(3 + e.requiredBytes);
+            throw new CancelReadSignal(3 + e.requiredBytes);
         }
 
         checkReadable(buffer, 2 + 1);
@@ -91,7 +95,16 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
             }else {
                 id = buffer.readByte();
             }
-            if(id < 0x0) {
+            if (id < 0x0) {
+                if (application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+                        (EventManager.EventProvider<InvalidDataEvent>) () -> {
+                            final byte[] idData = application.getCompressionSetting().isVarIntCompression()
+                                    ? VarIntUtil.toVarInt(id) : ConversionUtil.intToByteArray(id);
+
+                            return new InvalidDataEvent(application.getConnection(channel),
+                                    InvalidDataEvent.DataInvalidReason.INVALID_DATA_TYPE, idData);
+                        })) return;
+
                 throw new IllegalStateException("The connection tried to register a packet containing an internal payload!");
             }
             types[i] = DataType.fromId((byte) (id + 1));
