@@ -22,6 +22,11 @@ public interface Client extends Application {
     String PROXY_HANDLER = "nl_proxy_handler";
 
     /**
+     * @return the connection of the Client and if not available, null.
+     */
+    Connection getConnection();
+
+    /**
      * @return the key used by the server to encrypt the symmetric key.
      */
     ServerKey getServerKey();

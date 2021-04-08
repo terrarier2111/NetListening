@@ -233,6 +233,14 @@ public final class ClientImpl extends ApplicationImpl implements Client {
      * @see Client
      */
     @Override
+    public Connection getConnection() {
+        return connection;
+    }
+
+    /**
+     * @see Client
+     */
+    @Override
     public ServerKey getServerKey() {
         return serverKey;
     }

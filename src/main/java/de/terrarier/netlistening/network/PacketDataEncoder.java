@@ -106,7 +106,8 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
             writeToBuffer(dataBuffer, data, packet.getId());
             if (encrypted) {
                 InternalUtil.writeInt(application, dst, 0x3);
-                final byte[] encryptedData = connection.getEncryptionContext().encrypt(ByteBufUtilExtension.getBytes(dataBuffer));
+                final byte[] encryptedData = connection.getEncryptionContext().encrypt(
+                        ByteBufUtilExtension.getBytes(dataBuffer));
                 dataBuffer.release();
                 final int size = encryptedData.length;
                 ByteBufUtilExtension.correctSize(dst, 4 + size, application.getBuffer());

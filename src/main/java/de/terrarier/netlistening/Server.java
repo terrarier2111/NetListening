@@ -22,6 +22,15 @@ import java.nio.charset.Charset;
 public interface Server extends Application {
 
     /**
+     * Maps a specific id to the connection being identified with this id.
+     *
+     * @param id the id of the requested connection.
+     * @return the connection which is identified with the passed id and
+     * if not available, null.
+     */
+    Connection getConnection(int id);
+
+    /**
      * @see Application
      */
     @Override

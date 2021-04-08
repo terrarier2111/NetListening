@@ -60,7 +60,9 @@ public interface Application {
 	 * @param id the id of the requested connection.
 	 * @return the connection which is identified with the passed id and
 	 * if not available, null.
+	 * @deprecated use @link { Server#getConnection(int) } or @link { Client#getConnection() } instead!
 	 */
+	@Deprecated
 	Connection getConnection(int id);
 
 	/**

@@ -50,7 +50,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     }
 
     @Override
-    public void decode(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf buffer, @NotNull List<Object> out) throws Exception {
+    public void decode(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf buffer, @NotNull List<Object> out)
+            throws Exception {
         final int readable = buffer.readableBytes();
         if (framing) {
             // Framing
@@ -92,7 +93,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                     (EventManager.EventProvider<InvalidDataEvent>) () -> {
                 final Connection connection = application.getConnection(ctx.channel());
-                return new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.EMPTY_PACKET, EmptyArrays.EMPTY_BYTES);
+                return new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.EMPTY_PACKET,
+                        EmptyArrays.EMPTY_BYTES);
             })) return;
 
             throw new IllegalStateException("Received an empty packet!");
@@ -279,7 +281,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
     private boolean callFrameEvent(@NotNull Connection connection, int frameSize) {
         final ConnectionDataFrameEvent frameEvent = new ConnectionDataFrameEvent(connection, frameSize);
-        return application.getEventManager().callEvent(ListenerType.FRAME, EventManager.CancelAction.INTERRUPT, frameEvent);
+        return application.getEventManager().callEvent(ListenerType.FRAME, EventManager.CancelAction.INTERRUPT,
+                frameEvent);
     }
 
     private void transferRemaining(@NotNull ByteBuf buffer) {
@@ -327,4 +330,5 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         final ExceptionTrowEvent event = new ExceptionTrowEvent(cause);
         application.getEventManager().handleExceptionThrown(event);
     }
+
 }
