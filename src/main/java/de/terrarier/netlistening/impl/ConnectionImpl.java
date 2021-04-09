@@ -3,6 +3,7 @@ package de.terrarier.netlistening.impl;
 import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.Client;
 import de.terrarier.netlistening.Connection;
+import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.encryption.EncryptionOptions;
@@ -86,6 +87,9 @@ public final class ConnectionImpl implements Connection {
 		}
 	}
 
+	/**
+	 * @see Connection
+	 */
 	@Override
 	public void sendData(boolean encrypted, @NotNull Object... data) {
 		final DataContainer dataContainer = new DataContainer();
@@ -99,9 +103,16 @@ public final class ConnectionImpl implements Connection {
 	 */
 	@Override
 	public void disconnect() {
-		application.disconnect(this);
+		if (!isConnected()) {
+			throw new IllegalStateException(
+					"The connection " + Integer.toHexString(id) + " is not connected!");
+		}
+		if(application instanceof Server) {
+			((ServerImpl) application).disconnect0(this);
+		}
+		disconnect0();
 	}
-	
+
 	void disconnect0() {
 		if(application.getCaching() != PacketCaching.GLOBAL) {
 			cache.clear();

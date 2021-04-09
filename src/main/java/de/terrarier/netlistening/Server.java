@@ -93,6 +93,7 @@ public interface Server extends Application {
     /**
      * @see Application
      */
+    @Deprecated
     @Override
     void disconnect(@NotNull Connection connection);
 

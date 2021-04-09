@@ -216,17 +216,27 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         group.shutdownGracefully();
         group = null;
         worker.interrupt();
+        cache.clear();
     }
 
     /**
      * @see de.terrarier.netlistening.Application
      */
+    @Deprecated
     @Override
     public void disconnect(Connection connection) {
-        if (this.connection == null || !this.connection.isConnected()) {
+        disconnect();
+    }
+
+    /**
+     * @see Client
+     */
+    @Override
+    public void disconnect() {
+        if (connection == null) {
             throw new IllegalStateException("The connection is not established!");
         }
-        this.connection.disconnect0();
+        connection.disconnect();
     }
 
     /**

@@ -80,7 +80,9 @@ public interface Application {
 	 * Disconnects a specific connection.
 	 *
 	 * @param connection the connection which should be disconnected.
+	 * @deprecated use @link { Connection#disconnect() } or @link { Client#disconnect() } instead.
 	 */
+	@Deprecated
 	void disconnect(Connection connection);
 
 	/**

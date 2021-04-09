@@ -22,6 +22,11 @@ public interface Client extends Application {
     String PROXY_HANDLER = "nl_proxy_handler";
 
     /**
+     * Interrupts the connection to the server if there is one.
+     */
+    void disconnect();
+
+    /**
      * @return the connection of the Client and if not available, null.
      */
     Connection getConnection();

@@ -159,6 +159,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         group = null;
         worker.interrupt();
         worker = null;
+        cache.clear();
         if(!delayedExecutor.isShutdown()) {
             delayedExecutor.shutdown();
             try {
@@ -177,12 +178,11 @@ public final class ServerImpl extends ApplicationImpl implements Server {
      */
     @Override
     public void disconnect(@NotNull Connection connection) {
-        if (!connection.isConnected()) {
-            throw new IllegalStateException(
-                    "The connection " + Integer.toHexString(connection.getId()) + " is not connected!");
-        }
+        connection.disconnect();
+    }
 
-        connections.remove(connection.getChannel()).disconnect0();
+    void disconnect0(@NotNull Connection connection) {
+        connections.remove(connection.getChannel());
         final ConnectionDisconnectEvent event = new ConnectionDisconnectEvent(connection);
         eventManager.callEvent(ListenerType.DISCONNECT, event);
     }
