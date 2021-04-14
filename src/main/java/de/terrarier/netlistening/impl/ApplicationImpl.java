@@ -20,6 +20,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @since 1.02
@@ -27,6 +28,7 @@ import java.util.Map;
  */
 public abstract class ApplicationImpl implements Application {
 
+    static final AtomicInteger ID = new AtomicInteger();
     final PacketCache cache = new PacketCache();
     final DataHandler handler = new DataHandler(this);
     final EventManager eventManager = new EventManager(handler);

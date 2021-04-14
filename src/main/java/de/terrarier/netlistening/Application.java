@@ -86,14 +86,6 @@ public interface Application {
 	void disconnect(Connection connection);
 
 	/**
-	 * @see Application#sendData(Connection, DataContainer) 
-	 */
-	@Deprecated
-	default void sendData(@NotNull DataContainer data, Connection connection) {
-		sendData(connection, data);
-	}
-
-	/**
 	 * Sends data to a specific connection.
 	 *
 	 * @param data the data which gets sent.

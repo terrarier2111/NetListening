@@ -38,15 +38,6 @@ public interface Server extends Application {
 
     /**
      * @see Application
-     */
-    @Deprecated
-    @Override
-    default void sendData(@NotNull DataContainer data, @NotNull Connection connection) {
-        sendData(connection, data);
-    }
-
-    /**
-     * @see Application
      * @deprecated use @link { Connection#sendData(DataContainer) } instead.
      */
     @Deprecated

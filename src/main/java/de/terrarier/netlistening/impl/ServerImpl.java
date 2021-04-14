@@ -29,11 +29,7 @@ import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.*;
 
 /**
  * @since 1.0
@@ -42,9 +38,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class ServerImpl extends ApplicationImpl implements Server {
 
     private final Map<Channel, ConnectionImpl> connections = new ConcurrentHashMap<>();
-    private final AtomicInteger id = new AtomicInteger();
     private PacketCaching caching = PacketCaching.NONE;
-    private ScheduledExecutorService delayedExecutor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledExecutorService delayedExecutor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+
+        final ThreadFactory factory = Executors.defaultThreadFactory();
+
+        @Override
+        public Thread newThread(@NotNull Runnable r) {
+            final Thread t = factory.newThread(r);
+            t.setDaemon(true);
+            return t;
+        }
+    });
 
     private void start(long timeout, int port, @NotNull Map<ChannelOption<?>, Object> options) {
         if (group != null) {
@@ -68,7 +73,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                                 }
                                 channel.config().setOptions(options);
 
-                                final int connectionId = id.getAndIncrement();
+                                final int connectionId = ID.getAndIncrement();
                                 final ConnectionImpl connection = new ConnectionImpl(ServerImpl.this, channel, connectionId);
 
                                 if (encryptionSetting != null) {

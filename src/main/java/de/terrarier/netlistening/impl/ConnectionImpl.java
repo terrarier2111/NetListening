@@ -152,6 +152,7 @@ public final class ConnectionImpl implements Connection {
 		return (InetSocketAddress) channel.remoteAddress();
 	}
 
+	// TODO: Add any sort of documentation to this method!
 	public SymmetricEncryptionContext getEncryptionContext() {
 		return encryptionContext;
 	}
@@ -180,6 +181,7 @@ public final class ConnectionImpl implements Connection {
 		encryptionContext = new SymmetricEncryptionContext(options, secretKey);
 	}
 
+	// TODO: Add any sort of documentation to this method!
 	public byte[] getHmacKey() {
 		return hmacKey;
 	}
@@ -215,6 +217,7 @@ public final class ConnectionImpl implements Connection {
 		return dataSendState.isAtLeast(DataSendState.SENDING) && receivedPacket;
 	}
 
+	@ApiStatus.Internal
 	@NotNull
 	public PacketCache getCache() {
 		return cache;

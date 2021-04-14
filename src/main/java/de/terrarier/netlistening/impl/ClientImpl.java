@@ -74,7 +74,8 @@ public final class ClientImpl extends ApplicationImpl implements Client {
                                 }
                                 channel.config().setOptions(options);
 
-                                final ConnectionImpl connection = new ConnectionImpl(ClientImpl.this, channel, 0x0);
+                                final ConnectionImpl connection = new ConnectionImpl(ClientImpl.this, channel,
+                                        ID.getAndIncrement());
                                 final ChannelPipeline pipeline = channel.pipeline();
 
                                 if (timeout > 0) {
@@ -180,6 +181,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     /**
      * @see de.terrarier.netlistening.Application
      */
+    @Deprecated
     @Override
     public Connection getConnection(int id) {
         return connection;
