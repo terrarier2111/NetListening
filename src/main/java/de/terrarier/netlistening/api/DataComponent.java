@@ -12,11 +12,6 @@ public final class DataComponent<T> {
 
 	private final DataType<T> type;
 	private T content;
-
-	@Deprecated
-	public DataComponent(@NotNull DataType<T> type) {
-		this.type = type;
-	}
 	
 	public DataComponent(@NotNull DataType<T> type, T content) {
 		this.type = type;

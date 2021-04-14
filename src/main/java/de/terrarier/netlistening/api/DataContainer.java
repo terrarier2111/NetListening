@@ -6,7 +6,6 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,11 +23,6 @@ public final class DataContainer {
 
 	public DataContainer() {
 		data = new ArrayList<>();
-	}
-
-	@Deprecated
-	public DataContainer(@NotNull DataComponent<?>... components) {
-		data = new ArrayList<>(Arrays.asList(components));
 	}
 
 	@ApiStatus.Internal
@@ -150,7 +144,7 @@ public final class DataContainer {
 
 	/**
 	 * Creates a sub container which consists of all elements
-	 * from @code { startIndex } to @code { data#size }.
+	 * from {@code startIndex} to {@code data#size}.
 	 *
 	 * @param startIndex the index from which the sub container should be filled.
 	 * @return the created sub container.
@@ -162,11 +156,12 @@ public final class DataContainer {
 
 	/**
 	 * Creates a sub container which consists of all elements
-	 * from @code { startIndex } to @code { endIndex }.
+	 * from {@code startIndex} to {@code endIndex}.
 	 *
 	 * @param startIndex the index from which the sub container should be filled.
 	 * @param endIndex the index up to which the sub container should be filled.
 	 * @return the created sub container.
+	 * @throws IllegalArgumentException if {@code startIndex} is greater than {@code endIndex}.
 	 */
 	@NotNull
 	public DataContainer subContainer(int startIndex, int endIndex) {
@@ -220,17 +215,6 @@ public final class DataContainer {
 	}
 
 	/**
-	 * @param index the index specifying which element is to be returned.
-	 * @return the element at the index passed as the parameter.
-	 */
-	@SuppressWarnings("unchecked")
-	@ApiStatus.Internal
-	@NotNull
-	public <T> DataComponent<T> get(int index) {
-		return (DataComponent<T>) data.get(index);
-	}
-
-	/**
 	 * @return whether it can be read from the DataContainer or not.
 	 */
 	public boolean isReadable() {
@@ -251,6 +235,20 @@ public final class DataContainer {
 	 */
 	public void resetReaderIndex() {
 		readerIndex = 0;
+	}
+
+	/**
+	 * Increases the {@code readerIndex} by {@code elements}.
+	 *
+	 * @param elements the number of elements which should be skipped.
+	 * @throws IllegalArgumentException if {@code elements} is greater than {@code this#getSize()}.
+	 */
+	public void skip(int elements) {
+		final int result = readerIndex + elements;
+		if(result > data.size()) {
+			throw new IllegalArgumentException("elements may not be > size");
+		}
+		readerIndex = result;
 	}
 
 	/**

@@ -55,17 +55,6 @@ public interface Application {
 	Connection getConnection(Channel channel);
 
 	/**
-	 * Maps a specific id to the connection being identified with this id.
-	 *
-	 * @param id the id of the requested connection.
-	 * @return the connection which is identified with the passed id and
-	 * if not available, null.
-	 * @deprecated use @link { Server#getConnection(int) } or @link { Client#getConnection() } instead!
-	 */
-	@Deprecated
-	Connection getConnection(int id);
-
-	/**
 	 * @return a list of all connections.
 	 */
 	@NotNull
@@ -80,7 +69,7 @@ public interface Application {
 	 * Disconnects a specific connection.
 	 *
 	 * @param connection the connection which should be disconnected.
-	 * @deprecated use @link { Connection#disconnect() } or @link { Client#disconnect() } instead.
+	 * @deprecated use {@link Connection#disconnect()} or {@link Client#disconnect()} instead.
 	 */
 	@Deprecated
 	void disconnect(Connection connection);
@@ -90,23 +79,13 @@ public interface Application {
 	 *
 	 * @param data the data which gets sent.
 	 * @param connection the connection the data gets sent to.
-	 * @deprecated use @link { Connection#sendData(DataContainer) } instead.
+	 * @deprecated use {@link Connection#sendData(DataContainer)} instead.
 	 */
 	@Deprecated
 	void sendData(Connection connection, @NotNull DataContainer data);
 
 	/**
-	 * Sends data to a specific connection.
-	 *
-	 * @param data the data which gets sent.
-	 * @param connection the connection the data gets sent to.
-	 * @deprecated use @link { Connection#sendData(DataComponent) } instead.
-	 */
-	@Deprecated
-	void sendData(@NotNull DataComponent<?> data, Connection connection);
-
-	/**
-	 * Sends data to all connection.
+	 * Sends data to all connections.
 	 *
 	 * @param data the data which gets sent.
 	 */
@@ -126,6 +105,7 @@ public interface Application {
 	 *
 	 * @param encrypted if the traffic is to be encrypted.
 	 * @param data the data which gets sent.
+	 * @throws IllegalArgumentException if the passed object array is empty.
 	 */
 	default void sendData(boolean encrypted, @NotNull Object... data) {
 		if(data.length == 0) {

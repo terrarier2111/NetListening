@@ -1,6 +1,5 @@
 package de.terrarier.netlistening;
 
-import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.api.encryption.ServerKey;
 import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
@@ -39,7 +38,7 @@ public interface Client extends Application {
     /**
      * Sets the expected key used by the server to encrypt the symmetric key.
      * If the key set is different to the key received by the server,
-     * a KeyChangeEvent with a @code{ HASH_CHANGED } action is getting called,
+     * a KeyChangeEvent with a {@code HASH_CHANGED} action is getting called,
      * which can be used to detect MITM attacks.
      *
      * @param data the data representing the expected key.
@@ -49,18 +48,7 @@ public interface Client extends Application {
 
     /**
      * @see Application
-     */
-    @Deprecated
-    @Override
-    default void sendData(@NotNull DataComponent<?> data, Connection connection) {
-        final DataContainer container = new DataContainer();
-        container.addComponent(data);
-        sendData(container);
-    }
-
-    /**
-     * @see Application
-     * @deprecated use @link { Connection#sendData(DataContainer) } instead.
+     * @deprecated use {@link Connection#sendData(DataContainer)} instead.
      */
     @Deprecated
     @Override

@@ -1,6 +1,5 @@
 package de.terrarier.netlistening;
 
-import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.compression.CompressionSetting;
@@ -38,7 +37,7 @@ public interface Server extends Application {
 
     /**
      * @see Application
-     * @deprecated use @link { Connection#sendData(DataContainer) } instead.
+     * @deprecated use {@link Connection#sendData(DataContainer)} instead.
      */
     @Deprecated
     @Override
@@ -47,21 +46,11 @@ public interface Server extends Application {
     }
 
     /**
-     * @see Application
-     * @deprecated use @link { Connection#sendData(DataComponent) } instead.
-     */
-    @Deprecated
-    @Override
-    default void sendData(@NotNull DataComponent<?> data, @NotNull Connection connection) {
-        connection.sendData(data);
-    }
-
-    /**
      * Sends data to a specific connection.
      *
      * @param data the data which gets sent.
      * @param connection the connection the data gets sent to.
-     * @deprecated use @link { Connection#sendData(Object...) } instead.
+     * @deprecated use {@link Connection#sendData(Object...)} instead.
      */
     @Deprecated
     default void sendData(@NotNull Connection connection, @NotNull Object... data) {
@@ -74,7 +63,7 @@ public interface Server extends Application {
      * @param connection the connection the data gets sent to.
      * @param encrypted if the traffic is to be encrypted.
      * @param data the data which gets sent.
-     * @deprecated use @link { Connection#sendData(boolean, Object...) } instead.
+     * @deprecated use {@link Connection#sendData(boolean, Object...)} instead.
      */
     @Deprecated
     default void sendData(@NotNull Connection connection, boolean encrypted, @NotNull Object... data) {
@@ -83,6 +72,7 @@ public interface Server extends Application {
 
     /**
      * @see Application
+     * @deprecated use {@link Connection#disconnect} instead.
      */
     @Deprecated
     @Override

@@ -181,15 +181,6 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     /**
      * @see de.terrarier.netlistening.Application
      */
-    @Deprecated
-    @Override
-    public Connection getConnection(int id) {
-        return connection;
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
     @NotNull
     @Override
     public Set<Connection> getConnections() {

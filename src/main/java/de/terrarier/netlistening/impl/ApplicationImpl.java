@@ -75,7 +75,7 @@ public abstract class ApplicationImpl implements Application {
 
     /**
      * @return the encryption settings which should be used to encrypt traffic
-     * which was marked to encrypt.
+     * which was marked to get encrypted.
      */
     public final EncryptionSetting getEncryptionSetting() {
         return encryptionSetting;

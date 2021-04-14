@@ -135,6 +135,10 @@ public final class ServerImpl extends ApplicationImpl implements Server {
      */
     @Override
     public Connection getConnection(int id) {
+        if(id < 0 || id > ID.get()) {
+            return null;
+        }
+
         for (Connection connection : connections.values()) {
             if (connection.getId() == id) {
                 return connection;
