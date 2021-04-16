@@ -189,7 +189,7 @@ public final class DataContainer {
 
 	/**
 	 * @return the next component available at index
-	 * readerIndex, if no component is available, null.
+	 * {@code readerIndex}, if no component is available, null.
 	 */
 	@SuppressWarnings("unchecked")
 	@ApiStatus.Internal

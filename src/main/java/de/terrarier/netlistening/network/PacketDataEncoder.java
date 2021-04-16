@@ -84,7 +84,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
                 // Sending data delayed, awaiting the packet's registration to finish
                 delayedExecutor.execute(() -> {
                     final Channel channel = ctx.channel();
-                    while (!finalPacket.isRegistered()) ;
+                    while (!finalPacket.isRegistered());
                     channel.writeAndFlush(data);
                 });
                 return;

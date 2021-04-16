@@ -51,6 +51,7 @@ public interface Connection {
 
     /**
      * Disconnects the connection.
+     * @throws IllegalStateException if {@code this.isConnected()} returns {@code false}.
      */
     void disconnect();
 

@@ -48,7 +48,8 @@ public abstract class InternalPayload {
             case 0x4:
                 return ENCRYPTION_FINISH;
             default:
-                throw new IllegalArgumentException("Tried to process an internal payload with an invalid id! (" + Integer.toHexString(id) + ")");
+                throw new IllegalArgumentException("Tried to process an internal payload with an invalid id! (" +
+                        Integer.toHexString(id) + ")");
         }
     }
 

@@ -70,7 +70,7 @@ public final class InternalPayloadHandshake extends InternalPayload {
 	public void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
 			throws CancelReadSignal {
 		if(application instanceof Server) {
-			throw new IllegalStateException("The connection " + channel.toString() + " has sent invalid data!");
+			throw new IllegalStateException("The connection " + channel + " has sent invalid data!");
 		}
 
 		checkReadable(buffer, 1);

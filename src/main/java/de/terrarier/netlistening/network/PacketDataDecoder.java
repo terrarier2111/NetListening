@@ -52,6 +52,13 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     @Override
     public void decode(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf buffer, @NotNull List<Object> out)
             throws Exception {
+
+        // This prevents empty buffers from being decoded after the connection was closed.
+        // TODO: Check if we should ignore all and not only empty buffers.
+        if (!ctx.channel().isActive() && !buffer.isReadable()) {
+            return;
+        }
+
         final int readable = buffer.readableBytes();
         if (framing) {
             // Framing

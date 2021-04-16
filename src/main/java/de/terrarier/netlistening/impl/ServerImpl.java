@@ -73,9 +73,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                                 }
                                 channel.config().setOptions(options);
 
-                                final int connectionId = ID.getAndIncrement();
-                                final ConnectionImpl connection = new ConnectionImpl(ServerImpl.this, channel, connectionId);
-
+                                final ConnectionImpl connection = new ConnectionImpl(ServerImpl.this, channel);
                                 if (encryptionSetting != null) {
                                     try {
                                         connection.setSymmetricKey(ServerImpl.this,
@@ -135,7 +133,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
      */
     @Override
     public Connection getConnection(int id) {
-        if(id < 0 || id > ID.get()) {
+        if(id < 0 || id > ConnectionImpl.ID.get()) {
             return null;
         }
 
@@ -278,21 +276,6 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                 }
             }
             application.start(timeout, port, options);
-        }
-
-        @Override
-        void fail() {
-            throw ServerAlreadyBuiltException.INSTANCE;
-        }
-
-        private static final class ServerAlreadyBuiltException extends IllegalStateException {
-
-            private static final ServerAlreadyBuiltException INSTANCE = new ServerAlreadyBuiltException();
-
-            private ServerAlreadyBuiltException() {
-                super("The builder can't be used anymore because the server was already built!");
-            }
-
         }
 
     }

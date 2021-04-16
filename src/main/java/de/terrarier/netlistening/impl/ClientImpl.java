@@ -74,8 +74,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
                                 }
                                 channel.config().setOptions(options);
 
-                                final ConnectionImpl connection = new ConnectionImpl(ClientImpl.this, channel,
-                                        ID.getAndIncrement());
+                                final ConnectionImpl connection = new ConnectionImpl(ClientImpl.this, channel);
                                 final ChannelPipeline pipeline = channel.pipeline();
 
                                 if (timeout > 0) {
@@ -353,21 +352,6 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         @Override
         void build0() {
             application.start(timeout, localPort, options, remoteAddress, proxy);
-        }
-
-        @Override
-        void fail() {
-            throw ClientAlreadyBuiltException.INSTANCE;
-        }
-
-        private static final class ClientAlreadyBuiltException extends IllegalStateException {
-
-            private static final ClientAlreadyBuiltException INSTANCE = new ClientAlreadyBuiltException();
-
-            private ClientAlreadyBuiltException() {
-                super("The builder can't be used anymore because the client was already built!");
-            }
-
         }
 
     }

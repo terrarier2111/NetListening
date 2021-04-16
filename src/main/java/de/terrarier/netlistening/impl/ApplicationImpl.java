@@ -20,7 +20,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @since 1.02
@@ -28,7 +27,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class ApplicationImpl implements Application {
 
-    static final AtomicInteger ID = new AtomicInteger();
     final PacketCache cache = new PacketCache();
     final DataHandler handler = new DataHandler(this);
     final EventManager eventManager = new EventManager(handler);
@@ -51,16 +49,17 @@ public abstract class ApplicationImpl implements Application {
     }
 
     /**
-     * @return the packet cache used by the application to map packet ids
+     * @return the packet cache is used by the application to map packet ids
      * to packet content.
      */
+    @ApiStatus.Internal
     @NotNull
     public final PacketCache getCache() {
         return cache;
     }
 
     /**
-     * @return the caching mode used to cache packets.
+     * @return the caching mode is used to cache packets.
      */
     @NotNull
     public abstract PacketCaching getCaching();
@@ -179,11 +178,18 @@ public abstract class ApplicationImpl implements Application {
         abstract void build0();
 
         final void validate() {
-            if(built)
-                fail();
+            if(built) {
+                throw new ApplicationAlreadyBuiltException();
+            }
         }
 
-        abstract void fail();
+        private static final class ApplicationAlreadyBuiltException extends IllegalStateException {
+
+            private ApplicationAlreadyBuiltException() {
+                super("The builder can't be used anymore because the application was already built!");
+            }
+
+        }
 
     }
 

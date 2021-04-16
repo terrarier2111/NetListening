@@ -23,12 +23,14 @@ public final class SerializationUtil {
     }
 
     public static Object deserialize(@NotNull ApplicationImpl application, byte[] data) throws CancelSignal {
-        return performOperation(application, SerializationProvider::isDeserializable, SerializationProvider::deserialize, data);
+        return performOperation(application, SerializationProvider::isDeserializable,
+                SerializationProvider::deserialize, data);
     }
 
     private static <A, R> R performOperation(@NotNull ApplicationImpl application,
                                              @NotNull TwoArgsBooleanFunction<SerializationProvider, A> check,
-                                             @NotNull TwoArgsFunction<SerializationProvider, A, R> op, A param) throws CancelSignal {
+                                             @NotNull TwoArgsFunction<SerializationProvider, A, R> op, A param)
+            throws CancelSignal {
 
         final SerializationProvider mainProvider = application.getSerializationProvider();
         SerializationProvider provider = mainProvider;

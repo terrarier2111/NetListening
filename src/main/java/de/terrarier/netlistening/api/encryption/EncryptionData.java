@@ -21,4 +21,5 @@ public abstract class EncryptionData {
     public final EncryptionOptions getOptions() {
         return options;
     }
+
 }

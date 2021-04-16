@@ -28,16 +28,18 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @since 1.0
  * @author Terrarier2111
  */
 public final class ConnectionImpl implements Connection {
-	
+
+	static final AtomicInteger ID = new AtomicInteger();
 	private final ApplicationImpl application;
 	private final Channel channel;
-	private final int id;
+	private final int id = ID.getAndIncrement();
 	private final PacketCache cache;
 	private volatile boolean receivedPacket;
 	private volatile DataSendState dataSendState = DataSendState.IDLE;
@@ -48,10 +50,9 @@ public final class ConnectionImpl implements Connection {
 	// TODO: Improve and test delayed data sending mechanics.
 
 	@ApiStatus.Internal
-	ConnectionImpl(@NotNull ApplicationImpl application, @NotNull Channel channel, int id) {
+	ConnectionImpl(@NotNull ApplicationImpl application, @NotNull Channel channel) {
 		this.application = application;
 		this.channel = channel;
-		this.id = id;
 		if(application.getCaching() != PacketCaching.INDIVIDUAL) {
 			cache = application.getCache();
 		}else {
@@ -266,7 +267,7 @@ public final class ConnectionImpl implements Connection {
 					channel.writeAndFlush(preConnectBuffer);
 					preConnectBuffer = null;
 				} else {
-					// writing the init data to the channel (without hitting the pre connect buffer)
+					// writing the init data to the channel (without hitting the pre connect buffer).
 					checkReceived();
 				}
 			}
@@ -288,7 +289,8 @@ public final class ConnectionImpl implements Connection {
 		} else {
 			if(!trySend(buffer)) {
 				// TODO: Test logic to send data delayed!
-				if(dataSendState != DataSendState.WAITING_FOR_FINISH) { // check if it's not waiting for a response from the other end of the connection
+				if(dataSendState != DataSendState.WAITING_FOR_FINISH) { // check if the connection isn't in the waiting state and therefore
+																		// currently it isn't waiting for a response from the other end of the connection.
 					while(true) {
 						if(this.dataSendState == DataSendState.WAITING_FOR_FINISH) {
 							break;
@@ -311,7 +313,8 @@ public final class ConnectionImpl implements Connection {
 		final DataSendState dataSendState = this.dataSendState; // caching volatile field get result
 		if(dataSendState.isAtLeast(DataSendState.FINISHING)) {
 			if(dataSendState == DataSendState.FINISHING) {
-				while(this.dataSendState != DataSendState.FINISHED); // we are waiting until the execution of the prepare method has finished
+				// we are waiting until the execution of the prepare method has finished.
+				while(this.dataSendState != DataSendState.FINISHED);
 			}
 			channel.writeAndFlush(buffer);
 			return true;

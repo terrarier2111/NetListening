@@ -62,7 +62,8 @@ public abstract class DataType<T> {
 		write(application, buffer, data);
 	}
 
-	protected abstract void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, T data) throws CancelSignal;
+	protected abstract void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, T data)
+			throws CancelSignal;
 	
 	public final byte getId() {
 		return id;
@@ -85,7 +86,8 @@ public abstract class DataType<T> {
 
 	@ApiStatus.Internal
 	@SuppressWarnings("unchecked")
-	public final void writeUnchecked(@NotNull ApplicationImpl application, @NotNull ByteBuf buf, @NotNull Object data) throws CancelSignal {
+	public final void writeUnchecked(@NotNull ApplicationImpl application, @NotNull ByteBuf buf, @NotNull Object data)
+			throws CancelSignal {
 		write0(application, buf, (T) data);
 	}
 

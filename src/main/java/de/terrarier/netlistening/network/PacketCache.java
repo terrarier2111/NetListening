@@ -61,14 +61,16 @@ public final class PacketCache {
 		final Lock writeLock = lock.writeLock();
 		writeLock.lock();
 		try {
-			boolean valid = id > this.id.get();
+			final int registerId;
+			final boolean valid = id > this.id.get();
 			if (valid) {
 				this.id.set(id);
+				registerId = id;
 			}else {
-				valid = packets.get(id) == null;
+				registerId = packets.get(id) == null ? id : this.id.getAndIncrement();
 			}
 
-			return registerPacket0(valid ? id : this.id.getAndIncrement(), data);
+			return registerPacket0(registerId, data);
 		}finally {
 			writeLock.unlock();
 		}
@@ -127,8 +129,9 @@ public final class PacketCache {
 			final ByteBuf registerBuffer = buffer != null ? buffer : Unpooled.buffer(
 					(application.getCompressionSetting().isVarIntCompression() ? 2 : 5) + payload.getSize(application));
 
-			if(buffer == null)
+			if(buffer == null) {
 				DataType.getDTIP().write0(application, registerBuffer, payload);
+			}
 
 			for (Connection connection : connections) {
 				if (ignored == null || !connection.getChannel().equals(ignored)) {

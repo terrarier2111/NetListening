@@ -36,7 +36,7 @@ public final class EncryptionOptions {
     @NotNull
     public EncryptionOptions keySize(int keySize) {
         checkModifiable();
-        this.keySize = keySize & 0x7FFFFFF8; // this magic number is validating the key size
+        this.keySize = keySize & 0x7FFFFFF8; // this magic number is validating the key size such that it is a multiple of 8.
         return this;
     }
 

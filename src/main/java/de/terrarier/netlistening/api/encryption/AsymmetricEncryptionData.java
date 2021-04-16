@@ -61,7 +61,7 @@ public final class AsymmetricEncryptionData extends EncryptionData {
      *
      * @return the keys represented as a byte array.
      */
-    public byte[] keysToByteArray() {
+    public byte[] keysToBytes() {
         final byte[] privateKeyData = privateKey.getEncoded();
         final int privateKeyLength = privateKeyData.length;
         final byte[] publicKeyData = publicKey.getEncoded();
@@ -74,6 +74,14 @@ public final class AsymmetricEncryptionData extends EncryptionData {
         final byte[] ret = ByteBufUtilExtension.getBytes(buffer);
         buffer.release();
         return ret;
+    }
+
+    /**
+     * @deprecated use keysToBytes instead!
+     */
+    @Deprecated
+    public byte[] keysToByteArray() {
+        return keysToBytes();
     }
 
 }
