@@ -114,7 +114,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
         if (application instanceof Client) {
             cache.forceRegisterPacket(packetId, types);
         } else {
-            final PacketSkeleton packet = cache.tryRegisterPacket(packetId, connection, types);
+            final PacketSkeleton packet = cache.tryRegisterPacket(packetId, types);
             if(packet.getId() == packetId) {
                 if (application.getCaching() == PacketCaching.GLOBAL) {
                     cache.broadcastRegister(application, new InternalPayloadRegisterPacket(packetId, types), connection.getChannel(), null);

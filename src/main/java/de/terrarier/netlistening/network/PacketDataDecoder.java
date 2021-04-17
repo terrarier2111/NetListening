@@ -111,13 +111,9 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
     private void readPacket(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf buffer, @NotNull List<Object> out,
                             @NotNull ByteBuf idBuffer, boolean[] packetIdReadValidator) throws Exception {
-        final ConnectionImpl connection = (ConnectionImpl) application.getConnection(ctx.channel());
-        int id;
+        final int id;
         try {
             id = InternalUtil.readInt(application, idBuffer);
-            if(application instanceof Server) {
-                id = connection.getPacketIdTranslationCache().tryTranslate(id);
-            }
             if (packetIdReadValidator != null) {
                 packetIdReadValidator[0] = true;
             }
@@ -135,6 +131,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             buffer.skipBytes(1);
             return;
         }
+
+        final ConnectionImpl connection = (ConnectionImpl) application.getConnection(ctx.channel());
 
         if (id == 0x2) {
             if (application instanceof Server) {
@@ -157,11 +155,10 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
 
         if (!buffer.isReadable()) {
-            final int finalId = id;
             if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                     (EventManager.EventProvider<InvalidDataEvent>) () -> {
-                final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(finalId)
-                        : ConversionUtil.intToByteArray(finalId);
+                final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id)
+                        : ConversionUtil.intToByteArray(id);
 
                 return new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.INCOMPLETE_PACKET, data);
             })) return;
@@ -177,11 +174,10 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
         final PacketSkeleton packet = connection.getCache().getPacket(id);
         if (packet == null) {
-            final int finalId = id;
             if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                     (EventManager.EventProvider<InvalidDataEvent>) () -> {
-                final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(finalId)
-                        : ConversionUtil.intToByteArray(finalId);
+                final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id)
+                        : ConversionUtil.intToByteArray(id);
 
                 return new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.INVALID_ID, data);
             })) return;

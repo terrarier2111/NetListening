@@ -57,7 +57,7 @@ public final class PacketCache {
 	}
 
 	@NotNull
-	public PacketSkeleton tryRegisterPacket(int id, @NotNull ConnectionImpl connection, @NotNull DataType<?>... data) {
+	public PacketSkeleton tryRegisterPacket(int id, @NotNull DataType<?>... data) {
 		final Lock writeLock = lock.writeLock();
 		writeLock.lock();
 		try {
@@ -66,10 +66,8 @@ public final class PacketCache {
 			if(!valid) {
 				final PacketSkeleton packet = getPacket(data);
 				if(packet != null) {
-					connection.getPacketIdTranslationCache().insert(id, packet.getId());
 					return packet;
 				}
-				connection.getPacketIdTranslationCache().insert(id, currId);
 			}
 			return registerPacket0(this.id.getAndIncrement(), data);
 		}finally {
