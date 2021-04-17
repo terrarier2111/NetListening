@@ -57,20 +57,21 @@ public final class PacketCache {
 	}
 
 	@NotNull
-	public PacketSkeleton tryRegisterPacket(int id, @NotNull DataType<?>... data) {
+	public PacketSkeleton tryRegisterPacket(int id, @NotNull ConnectionImpl connection, @NotNull DataType<?>... data) {
 		final Lock writeLock = lock.writeLock();
 		writeLock.lock();
 		try {
-			final int registerId;
-			final boolean valid = id > this.id.get();
-			if (valid) {
-				this.id.set(id);
-				registerId = id;
-			}else {
-				registerId = packets.get(id) == null ? id : this.id.getAndIncrement();
+			final int currId = this.id.get();
+			final boolean valid = id == currId;
+			if(!valid) {
+				final PacketSkeleton packet = getPacket(data);
+				if(packet != null) {
+					connection.getPacketIdTranslationCache().insert(id, packet.getId());
+					return packet;
+				}
+				connection.getPacketIdTranslationCache().insert(id, currId);
 			}
-
-			return registerPacket0(registerId, data);
+			return registerPacket0(this.id.getAndIncrement(), data);
 		}finally {
 			writeLock.unlock();
 		}
@@ -144,6 +145,19 @@ public final class PacketCache {
 				}
 			}
 			registerBuffer.release();
+		}
+	}
+
+	public void swapId(int former, int next) {
+		final Lock writeLock = lock.writeLock();
+		writeLock.lock();
+		try {
+			if(next > id.get()) {
+				id.set(next);
+			}
+			packets.put(next, packets.get(former));
+		}finally {
+			writeLock.unlock();
 		}
 	}
 

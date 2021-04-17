@@ -3,10 +3,10 @@ package de.terrarier.netlistening.api.type;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.api.serialization.SerializationUtil;
 import de.terrarier.netlistening.impl.ApplicationImpl;
+import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.internals.CancelSignal;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -20,7 +20,7 @@ public final class DataTypeObject extends DataType<Object> {
 	}
 
 	@Override
-	protected Object read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
+	protected Object read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
 			throws CancelSignal {
 		final int length = buffer.readInt();
 

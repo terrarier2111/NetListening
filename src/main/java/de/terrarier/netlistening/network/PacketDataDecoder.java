@@ -82,7 +82,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 hasId = false;
                 final ConnectionImpl connection = (ConnectionImpl) application.getConnection(ctx.channel());
                 if (packet != null) {
-                    read(ctx, out, storedData, buffer, packet, index, tmp);
+                    read(ctx, out, storedData, connection, buffer, packet, index, tmp);
                 } else {
                     readPayLoad(tmp, connection);
                 }
@@ -111,9 +111,13 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
     private void readPacket(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf buffer, @NotNull List<Object> out,
                             @NotNull ByteBuf idBuffer, boolean[] packetIdReadValidator) throws Exception {
-        final int id;
+        final ConnectionImpl connection = (ConnectionImpl) application.getConnection(ctx.channel());
+        int id;
         try {
             id = InternalUtil.readInt(application, idBuffer);
+            if(application instanceof Server) {
+                id = connection.getPacketIdTranslationCache().tryTranslate(id);
+            }
             if (packetIdReadValidator != null) {
                 packetIdReadValidator[0] = true;
             }
@@ -136,7 +140,6 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             if (application instanceof Server) {
                 if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                         (EventManager.EventProvider<InvalidDataEvent>) () -> {
-                    final Connection connection = application.getConnection(ctx.channel());
                     final byte[] data = application.getCompressionSetting().isVarIntCompression()
                             ? VarIntUtil.toVarInt(0x2) : ConversionUtil.intToByteArray(0x2);
 
@@ -154,21 +157,18 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
 
         if (!buffer.isReadable()) {
+            final int finalId = id;
             if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                     (EventManager.EventProvider<InvalidDataEvent>) () -> {
-                final Connection connection = application.getConnection(ctx.channel());
-                final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id)
-                        : ConversionUtil.intToByteArray(id);
+                final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(finalId)
+                        : ConversionUtil.intToByteArray(finalId);
 
                 return new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.INCOMPLETE_PACKET, data);
             })) return;
 
-            throw new IllegalStateException(
-                    "An error occurred while decoding - the packet to decode was empty! (skipping current packet with id: "
+            throw new IllegalStateException("An error occurred while decoding - the packet to decode was empty! (skipping current packet with id: "
                             + Integer.toHexString(id) + ")");
         }
-
-        final ConnectionImpl connection = (ConnectionImpl) application.getConnection(ctx.channel());
 
         if (id == 0x0) {
             readPayLoad(buffer, connection);
@@ -177,25 +177,25 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
         final PacketSkeleton packet = connection.getCache().getPacket(id);
         if (packet == null) {
+            final int finalId = id;
             if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                     (EventManager.EventProvider<InvalidDataEvent>) () -> {
-                final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id)
-                        : ConversionUtil.intToByteArray(id);
+                final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(finalId)
+                        : ConversionUtil.intToByteArray(finalId);
 
                 return new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.INVALID_ID, data);
             })) return;
 
-            throw new IllegalStateException(
-                    "An error occurred while decoding - the packet to decode wasn't recognizable because it wasn't registered before! ("
+            throw new IllegalStateException("An error occurred while decoding - the packet to decode wasn't recognizable because it wasn't registered before! ("
                             + Integer.toHexString(id) + ")");
         }
 
-        read(ctx, out, new ArrayList<>(packet.getData().length), buffer, packet, 0, null);
+        read(ctx, out, new ArrayList<>(packet.getData().length), connection, buffer, packet, 0, null);
     }
 
     @SuppressWarnings("unchecked")
     private void read(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull List<DataComponent<?>> data,
-                      @NotNull ByteBuf buffer, @NotNull PacketSkeleton packet, int index, ByteBuf framingBuffer)
+                      @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer, @NotNull PacketSkeleton packet, int index, ByteBuf framingBuffer)
             throws Exception {
         final DataType<?>[] dataTypes = packet.getData();
         final int length = dataTypes.length;
@@ -210,7 +210,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             final ByteBuf decodeBuffer = useFramingBuffer ? framingBuffer : buffer;
             final int start = decodeBuffer.readerIndex();
             try {
-                data.add(new DataComponent(dataType, dataType.read0(ctx, out, application, decodeBuffer)));
+                data.add(new DataComponent(dataType, dataType.read0(ctx, out, application, connection, decodeBuffer)));
             } catch (CancelReadSignal signal) {
                 // prepare framing of data
                 holdingBuffer = Unpooled.buffer(signal.size + decodeBuffer.readerIndex() - start +
@@ -260,10 +260,10 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
     }
 
-    private void readPayLoad(@NotNull ByteBuf buffer, @NotNull Connection connection) {
+    private void readPayLoad(@NotNull ByteBuf buffer, @NotNull ConnectionImpl connection) {
         final int start = buffer.readerIndex();
         try {
-            DataType.getDTIP().read(application, connection.getChannel(), buffer);
+            DataType.getDTIP().read(application, connection, buffer);
         } catch (CancelReadSignal signal) {
             // prepare framing of payload
             final int frameSize = signal.size + buffer.readerIndex() - start;

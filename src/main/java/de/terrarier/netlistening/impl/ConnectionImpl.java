@@ -15,6 +15,7 @@ import de.terrarier.netlistening.internals.InternalPayload;
 import de.terrarier.netlistening.internals.InternalPayloadRegisterPacket;
 import de.terrarier.netlistening.internals.InternalUtil;
 import de.terrarier.netlistening.network.PacketCache;
+import de.terrarier.netlistening.network.PacketIdTranslationCache;
 import de.terrarier.netlistening.network.PacketSkeleton;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
@@ -41,6 +42,7 @@ public final class ConnectionImpl implements Connection {
 	private final Channel channel;
 	private final int id = ID.getAndIncrement();
 	private final PacketCache cache;
+	private PacketIdTranslationCache packetIdTranslationCache;
 	private volatile boolean receivedPacket;
 	private volatile DataSendState dataSendState = DataSendState.IDLE;
 	private ByteBuf preConnectBuffer;
@@ -57,6 +59,9 @@ public final class ConnectionImpl implements Connection {
 			cache = application.getCache();
 		}else {
 			cache = new PacketCache();
+		}
+		if(application instanceof Server) {
+			packetIdTranslationCache = new PacketIdTranslationCache(this, application);
 		}
 	}
 
@@ -222,6 +227,11 @@ public final class ConnectionImpl implements Connection {
 	@NotNull
 	public PacketCache getCache() {
 		return cache;
+	}
+
+	@ApiStatus.Internal
+	public PacketIdTranslationCache getPacketIdTranslationCache() {
+		return packetIdTranslationCache;
 	}
 
 	private void checkReceived() {

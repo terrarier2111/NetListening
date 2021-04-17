@@ -6,10 +6,10 @@ import de.terrarier.netlistening.api.encryption.*;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ClientImpl;
+import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -67,10 +67,10 @@ public final class InternalPayloadHandshake extends InternalPayload {
 	}
 
 	@Override
-	public void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
+	public void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
 			throws CancelReadSignal {
 		if(application instanceof Server) {
-			throw new IllegalStateException("The connection " + channel + " has sent invalid data!");
+			throw new IllegalStateException("The connection " + connection.getChannel() + " has sent invalid data!");
 		}
 
 		checkReadable(buffer, 1);

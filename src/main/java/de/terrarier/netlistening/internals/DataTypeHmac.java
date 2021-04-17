@@ -10,7 +10,6 @@ import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -31,14 +30,13 @@ public final class DataTypeHmac extends DataType<Void> {
 
     @Override
     public Void read0(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull ApplicationImpl application,
-            @NotNull ByteBuf buffer) throws Exception {
+                      @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) throws Exception {
         checkReadable(buffer, 6);
         final int size = buffer.readInt();
         final short hashSize = buffer.readShort();
         checkReadable(buffer, size + hashSize);
         final byte[] traffic = ByteBufUtilExtension.readBytes(buffer, size);
         final byte[] hash = ByteBufUtilExtension.readBytes(buffer, hashSize);
-        final ConnectionImpl connection = (ConnectionImpl) application.getConnection(ctx.channel());
         final byte[] computedHash = HashUtil.calculateHMAC(traffic, connection.getHmacKey(),
                 application.getEncryptionSetting().getHmacSetting().getHashingAlgorithm());
         if(!Arrays.equals(hash, computedHash)) {
@@ -55,7 +53,7 @@ public final class DataTypeHmac extends DataType<Void> {
     }
 
     @Override
-    protected Void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer) {
+    protected Void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) {
         return null;
     }
 

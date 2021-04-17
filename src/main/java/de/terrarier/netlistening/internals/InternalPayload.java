@@ -1,9 +1,9 @@
 package de.terrarier.netlistening.internals;
 
 import de.terrarier.netlistening.impl.ApplicationImpl;
+import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,6 +18,7 @@ public abstract class InternalPayload {
     public static final InternalPayloadHandshake HANDSHAKE = new InternalPayloadHandshake();
     static final InternalPayloadEncryptionInit ENCRYPTION_INIT = new InternalPayloadEncryptionInit();
     static final InternalPayloadEncryptionFinish ENCRYPTION_FINISH = new InternalPayloadEncryptionFinish();
+    private static final InternalPayloadUpdateTranslationEntry UPDATE_TRANSLATION_ENTRY = new InternalPayloadUpdateTranslationEntry(-1);
 
     private final byte id;
 
@@ -33,7 +34,7 @@ public abstract class InternalPayload {
 
     abstract void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer);
 
-    public abstract void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
+    public abstract void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
             throws CancelReadSignal;
 
     @NotNull
@@ -47,6 +48,8 @@ public abstract class InternalPayload {
                 return ENCRYPTION_INIT;
             case 0x4:
                 return ENCRYPTION_FINISH;
+            case 0x5:
+                return UPDATE_TRANSLATION_ENTRY;
             default:
                 throw new IllegalArgumentException("Tried to process an internal payload with an invalid id! (" +
                         Integer.toHexString(id) + ")");

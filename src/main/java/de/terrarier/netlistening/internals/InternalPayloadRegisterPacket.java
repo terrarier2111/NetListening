@@ -15,7 +15,6 @@ import de.terrarier.netlistening.network.PacketSkeleton;
 import de.terrarier.netlistening.utils.ConversionUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 public final class InternalPayloadRegisterPacket extends InternalPayload {
 
     private final int packetId;
-    private DataType<?>[] types;
+    private final DataType<?>[] types;
 
     public InternalPayloadRegisterPacket(int packetId, @NotNull DataType<?>... types) {
         super((byte) 0x1);
@@ -62,7 +61,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
     }
 
     @Override
-    public void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
+    public void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
             throws CancelReadSignal {
         checkReadable(buffer, 4);
 
@@ -80,7 +79,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
         final int byteSize = nibbleCompression ? NibbleUtil.nibbleToByteCount(size) : size;
         checkReadable(buffer, byteSize);
 
-        types = new DataType[size];
+        final DataType<?>[] types = new DataType[size];
         byte nibblePair = 0;
         for(int i = 0; i < size; i++) {
             final byte id;
@@ -101,7 +100,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
                             final byte[] idData = application.getCompressionSetting().isVarIntCompression()
                                     ? VarIntUtil.toVarInt(id) : ConversionUtil.intToByteArray(id);
 
-                            return new InvalidDataEvent(application.getConnection(channel),
+                            return new InvalidDataEvent(connection,
                                     InvalidDataEvent.DataInvalidReason.INVALID_DATA_TYPE, idData);
                         })) return;
 
@@ -111,14 +110,14 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
         }
 
         final PacketCache cache = application.getCaching() != PacketCaching.INDIVIDUAL ? application.getCache() :
-                ((ConnectionImpl) application.getConnection(channel)).getCache();
+                connection.getCache();
         if (application instanceof Client) {
             cache.forceRegisterPacket(packetId, types);
         } else {
-            final PacketSkeleton packet = cache.tryRegisterPacket(packetId, types);
+            final PacketSkeleton packet = cache.tryRegisterPacket(packetId, connection, types);
             if(packet.getId() == packetId) {
                 if (application.getCaching() == PacketCaching.GLOBAL) {
-                    cache.broadcastRegister(application, this, channel, null);
+                    cache.broadcastRegister(application, new InternalPayloadRegisterPacket(packetId, types), connection.getChannel(), null);
                 }
             }else {
                 final InternalPayloadRegisterPacket register = new InternalPayloadRegisterPacket(packet.getId());

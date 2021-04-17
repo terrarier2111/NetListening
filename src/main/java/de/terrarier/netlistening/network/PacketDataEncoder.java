@@ -124,7 +124,6 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
         }
     }
 
-    @SuppressWarnings("ForLoopReplaceableByForEach")
     private void writeToBuffer(@NotNull ByteBuf buffer, @NotNull DataContainer data, int packetId) throws CancelSignal {
         InternalUtil.writeInt(application, buffer, packetId);
         final List<DataComponent<?>> dataComponentList = data.getData();

@@ -1,10 +1,10 @@
 package de.terrarier.netlistening.api.type;
 
 import de.terrarier.netlistening.impl.ApplicationImpl;
+import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.internals.CancelReadSignal;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,7 +18,7 @@ public final class DataTypeByteArray extends DataType<byte[]> {
 	}
 
 	@Override
-	protected byte[] read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
+	protected byte[] read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
 			throws CancelReadSignal {
 		final int length = buffer.readInt();
 

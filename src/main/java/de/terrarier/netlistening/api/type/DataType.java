@@ -2,10 +2,10 @@ package de.terrarier.netlistening.api.type;
 
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.impl.ApplicationImpl;
+import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.internals.*;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -48,12 +48,12 @@ public abstract class DataType<T> {
 
 	@ApiStatus.Internal
 	public T read0(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull ApplicationImpl application,
-				   @NotNull ByteBuf buffer) throws Exception {
+				   @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) throws Exception {
 		checkReadable(buffer, minSize);
-		return read(application, ctx.channel(), buffer);
+		return read(application, connection, buffer);
 	}
 
-	protected abstract T read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
+	protected abstract T read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
 			throws CancelSignal;
 
 	@ApiStatus.Internal

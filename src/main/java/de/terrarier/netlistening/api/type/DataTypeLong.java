@@ -1,8 +1,8 @@
 package de.terrarier.netlistening.api.type;
 
 import de.terrarier.netlistening.impl.ApplicationImpl;
+import de.terrarier.netlistening.impl.ConnectionImpl;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -16,7 +16,7 @@ public final class DataTypeLong extends DataType<Long> {
 	}
 
 	@Override
-	protected Long read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer) {
+	protected Long read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) {
 		return buffer.readLong();
 	}
 

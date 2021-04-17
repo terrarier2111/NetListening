@@ -2,8 +2,8 @@ package de.terrarier.netlistening.internals;
 
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
+import de.terrarier.netlistening.impl.ConnectionImpl;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,10 +19,10 @@ public final class DataTypeInternalPayload extends DataType<InternalPayload> {
 	}
 	
 	@Override
-	public InternalPayload read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
+	public InternalPayload read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
 			throws CancelReadSignal {
 		final byte payloadId = buffer.readByte();
-		InternalPayload.fromId(payloadId).read(application, channel, buffer);
+		InternalPayload.fromId(payloadId).read(application, connection, buffer);
 		return null;
 	}
 

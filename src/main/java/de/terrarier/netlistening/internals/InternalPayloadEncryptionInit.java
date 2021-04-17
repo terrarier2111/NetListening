@@ -13,7 +13,6 @@ import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -72,13 +71,12 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
     }
 
     @Override
-    public void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer)
+    public void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
             throws CancelReadSignal {
         final byte[] key = readKey(buffer);
         if (application instanceof Client) {
             checkReadable(buffer, 7 + 1);
             final EncryptionOptions symmetricOptions = readOptions(buffer);
-            final ConnectionImpl connection = (ConnectionImpl) application.getConnection(null);
             final EncryptionSetting encryptionSetting = application.getEncryptionSetting();
             if(buffer.readBoolean()) {
                 final byte[] hmacKey = readKey(buffer);
@@ -104,12 +102,11 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
                 final EncryptionSetting encryptionSetting = application.getEncryptionSetting();
                 final PublicKey publicKey = AsymmetricEncryptionUtil.readPublicKey(key, encryptionSetting.getAsymmetricSetting());
                 final ByteBuf initBuffer = Unpooled.buffer();
-                final ConnectionImpl connection = (ConnectionImpl) application.getConnection(channel);
                 DataType.getDTIP().write0(application, initBuffer,
                         new InternalPayloadEncryptionInit(
                                 new SymmetricEncryptionData(encryptionSetting.getSymmetricSetting(),
                                         connection.getEncryptionContext().getSecretKey()), publicKey, connection.getHmacKey()));
-                channel.writeAndFlush(initBuffer);
+                connection.getChannel().writeAndFlush(initBuffer);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 e.printStackTrace();
             }

@@ -5,7 +5,6 @@ import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,11 +27,11 @@ public final class InternalPayloadEncryptionFinish extends InternalPayload {
     }
 
     @Override
-    public void read(@NotNull ApplicationImpl application, @NotNull Channel channel, @NotNull ByteBuf buffer) {
+    public void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) {
         if(application instanceof Client) {
             throw new UnsupportedOperationException("The server sent an invalid payload!");
         }
-        ((ConnectionImpl) application.getConnection(channel)).prepare();
+        connection.prepare();
     }
 
 }
