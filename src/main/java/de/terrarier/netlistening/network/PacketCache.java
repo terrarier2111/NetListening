@@ -146,19 +146,6 @@ public final class PacketCache {
 		}
 	}
 
-	public void swapId(int former, int next) {
-		final Lock writeLock = lock.writeLock();
-		writeLock.lock();
-		try {
-			if(next > id.get()) {
-				id.set(next);
-			}
-			packets.put(next, packets.get(former));
-		}finally {
-			writeLock.unlock();
-		}
-	}
-
 	public void clear() {
 		packets.clear();
 		// TODO: Check if we have to reset this to its default.
