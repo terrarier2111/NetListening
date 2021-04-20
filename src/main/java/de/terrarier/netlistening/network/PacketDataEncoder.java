@@ -38,10 +38,13 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 
     private final ApplicationImpl application;
     private final ExecutorService delayedExecutor;
+    private final ConnectionImpl connection;
 
-    public PacketDataEncoder(@NotNull ApplicationImpl application, ExecutorService delayedExecutor) {
+    public PacketDataEncoder(@NotNull ApplicationImpl application, ExecutorService delayedExecutor,
+                             @NotNull ConnectionImpl connection) {
         this.application = application;
         this.delayedExecutor = delayedExecutor;
+        this.connection = connection;
     }
 
     @Override
@@ -101,8 +104,6 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
             final boolean hmac = encrypted || hmacSetting.getUseCase() == HmacUseCase.ALL; // TODO: Include this one in the check above.
             final ByteBuf dst = hmac ? Unpooled.buffer() : buffer;
             final ByteBuf dataBuffer = encrypted ? Unpooled.buffer() : dst;
-            final ConnectionImpl connection = (encrypted || hmac)
-                    ? (ConnectionImpl) application.getConnection(ctx.channel()) : null;
             writeToBuffer(dataBuffer, data, packet.getId());
             if (encrypted) {
                 InternalUtil.writeInt(application, dst, 0x3);

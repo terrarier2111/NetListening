@@ -18,7 +18,8 @@ public final class DataTypeUUID extends DataType<UUID> {
 	}
 
 	@Override
-	protected UUID read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) {
+	protected UUID read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
+						@NotNull ByteBuf buffer) {
 		final long mostSignificantBits = buffer.readLong();
 		final long leastSignificantBits = buffer.readLong();
 		return new UUID(mostSignificantBits, leastSignificantBits);

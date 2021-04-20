@@ -51,7 +51,9 @@ public interface Application {
 	 * @param channel the channel which underlies the connection.
 	 * @return the connection which wraps the passed channel and
 	 * if not available, null.
+	 * @deprecated use {@link Server#getConnection(Channel)} or {@link Client#getConnection()} instead.
 	 */
+	@Deprecated
 	Connection getConnection(Channel channel);
 
 	/**

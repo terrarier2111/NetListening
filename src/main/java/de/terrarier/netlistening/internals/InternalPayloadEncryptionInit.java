@@ -46,7 +46,6 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
         hmacKey = null;
     }
 
-    @SuppressWarnings("ConstantConditions")
     @Override
     void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
         if (application instanceof Server) {
@@ -100,12 +99,15 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
         } else {
             try {
                 final EncryptionSetting encryptionSetting = application.getEncryptionSetting();
-                final PublicKey publicKey = AsymmetricEncryptionUtil.readPublicKey(key, encryptionSetting.getAsymmetricSetting());
+                final PublicKey publicKey = AsymmetricEncryptionUtil.readPublicKey(key,
+                        encryptionSetting.getAsymmetricSetting());
                 final ByteBuf initBuffer = Unpooled.buffer();
+
                 DataType.getDTIP().write0(application, initBuffer,
                         new InternalPayloadEncryptionInit(
                                 new SymmetricEncryptionData(encryptionSetting.getSymmetricSetting(),
-                                        connection.getEncryptionContext().getSecretKey()), publicKey, connection.getHmacKey()));
+                                        connection.getEncryptionContext().getSecretKey()), publicKey,
+                                connection.getHmacKey()));
                 connection.getChannel().writeAndFlush(initBuffer);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 e.printStackTrace();

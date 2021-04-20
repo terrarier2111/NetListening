@@ -53,8 +53,8 @@ public abstract class DataType<T> {
 		return read(application, connection, buffer);
 	}
 
-	protected abstract T read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
-			throws CancelSignal;
+	protected abstract T read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
+							  @NotNull ByteBuf buffer) throws CancelSignal;
 
 	@ApiStatus.Internal
 	public void write0(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, T data) throws CancelSignal {

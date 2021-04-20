@@ -1,11 +1,9 @@
 package de.terrarier.netlistening.api.event;
 
-import de.terrarier.netlistening.Application;
-import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
+import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.network.PreparedListener;
-import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,20 +18,13 @@ import java.util.List;
 public final class DataHandler {
 
 	private final List<PreparedListener> listeners = new ArrayList<>();
-	private final Application application;
-	
-	public DataHandler(@NotNull Application application) {
-		this.application = application;
-	}
 
-	@SuppressWarnings("ForLoopReplaceableByForEach")
-    public void processData(@NotNull List<DataComponent<?>> data, @NotNull Channel channel) {
+    public void processData(@NotNull List<DataComponent<?>> data, @NotNull ConnectionImpl connection) {
         final int dataSize = data.size();
         if (dataSize == 0) {
             return;
         }
 
-        final Connection connection = application.getConnection(channel);
         final DataContainer container = new DataContainer(data);
         final DecodeEvent event = new DecodeEvent(connection, container);
         final int listenerSize = listeners.size();

@@ -16,7 +16,8 @@ public final class DataTypeInt extends DataType<Integer> {
 	}
 
 	@Override
-	protected Integer read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) {
+	protected Integer read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
+						   @NotNull ByteBuf buffer) {
 		return buffer.readInt();
 	}
 

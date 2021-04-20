@@ -18,8 +18,8 @@ public final class DataTypeByteArray extends DataType<byte[]> {
 	}
 
 	@Override
-	protected byte[] read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
-			throws CancelReadSignal {
+	protected byte[] read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
+						  @NotNull ByteBuf buffer) throws CancelReadSignal {
 		final int length = buffer.readInt();
 
 		checkReadable(buffer, length);

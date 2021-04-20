@@ -16,7 +16,8 @@ public final class DataTypeByte extends DataType<Byte> {
 	}
 
 	@Override
-	protected Byte read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) {
+	protected Byte read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
+						@NotNull ByteBuf buffer) {
 		return buffer.readByte();
 	}
 

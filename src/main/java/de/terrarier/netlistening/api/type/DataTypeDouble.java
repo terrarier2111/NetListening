@@ -16,7 +16,8 @@ public final class DataTypeDouble extends DataType<Double> {
 	}
 
 	@Override
-	protected Double read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) {
+	protected Double read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
+						  @NotNull ByteBuf buffer) {
 		return buffer.readDouble();
 	}
 

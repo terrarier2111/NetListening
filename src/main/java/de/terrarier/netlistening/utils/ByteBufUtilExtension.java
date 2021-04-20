@@ -86,7 +86,7 @@ public final class ByteBufUtilExtension {
         final int capacity = buffer.capacity();
         
         if (isOutOfBounds(start, length, capacity))
-            throw new IndexOutOfBoundsException("expected: " + "0 <= start(" + start + ") <= start + length(" + length
+            throw new IndexOutOfBoundsException("expected: 0 <= start(" + start + ") <= start + length(" + length
                     + ") <= " + "buf.capacity(" + capacity + ')');
 
 		if (buffer.hasArray()) {

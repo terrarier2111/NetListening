@@ -98,7 +98,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
                 if (application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                         (EventManager.EventProvider<InvalidDataEvent>) () -> {
                             final byte[] idData = application.getCompressionSetting().isVarIntCompression()
-                                    ? VarIntUtil.toVarInt(id) : ConversionUtil.intToByteArray(id);
+                                    ? VarIntUtil.toVarInt(id) : ConversionUtil.intToBytes(id);
 
                             return new InvalidDataEvent(connection,
                                     InvalidDataEvent.DataInvalidReason.INVALID_DATA_TYPE, idData);

@@ -16,7 +16,8 @@ public final class DataTypeFloat extends DataType<Float> {
 	}
 
 	@Override
-	protected Float read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) {
+	protected Float read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
+						 @NotNull ByteBuf buffer) {
 		return buffer.readFloat();
 	}
 

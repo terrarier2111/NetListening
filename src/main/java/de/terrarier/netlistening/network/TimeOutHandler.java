@@ -1,7 +1,6 @@
 package de.terrarier.netlistening.network;
 
 import de.terrarier.netlistening.Client;
-import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.event.ConnectionTimeoutEvent;
 import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
@@ -32,14 +31,15 @@ import static java.lang.Byte.MIN_VALUE;
 public final class TimeOutHandler extends ReadTimeoutHandler {
 
 	private final ApplicationImpl application;
+	private final ConnectionImpl connection;
 	private Timer timer = new Timer(true);
 	private byte counter = MIN_VALUE;
 	private ByteBuf buffer;
 	
-	public TimeOutHandler(@NotNull ApplicationImpl application,
-						  @NotNull ConnectionImpl connection, long timeout) {
+	public TimeOutHandler(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, long timeout) {
 		super(timeout, TimeUnit.MILLISECONDS);
 		this.application = application;
+		this.connection = connection;
 
 		final long delay = timeout / 2;
 		final boolean client = application instanceof Client;
@@ -73,7 +73,7 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 
 	@Override
 	protected void readTimedOut(@NotNull ChannelHandlerContext ctx) throws Exception {
-		if (!callTimeOut(ctx.channel())) {
+		if (!callTimeOut()) {
 			cancel();
 			super.readTimedOut(ctx);
 		}
@@ -101,13 +101,7 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 		}
 	}
 
-	private boolean callTimeOut(@NotNull Channel channel) {
-		final Connection connection = application.getConnection(channel);
-
-		if (connection == null) {
-			return false;
-		}
-
+	private boolean callTimeOut() {
 		return application.getEventManager().callEvent(ListenerType.TIMEOUT, new ConnectionTimeoutEvent(connection));
 	}
 

@@ -16,7 +16,8 @@ public final class DataTypeShort extends DataType<Short> {
 	}
 
 	@Override
-	protected Short read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) {
+	protected Short read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
+						 @NotNull ByteBuf buffer) {
 		return buffer.readShort();
 	}
 

@@ -28,7 +28,7 @@ import java.util.Map;
 public abstract class ApplicationImpl implements Application {
 
     final PacketCache cache = new PacketCache();
-    final DataHandler handler = new DataHandler(this);
+    final DataHandler handler = new DataHandler();
     final EventManager eventManager = new EventManager(handler);
     Charset stringEncoding = StandardCharsets.UTF_8;
     int buffer = 256;

@@ -16,7 +16,8 @@ public final class DataTypeChar extends DataType<Character> {
 	}
 
 	@Override
-	protected Character read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) {
+	protected Character read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
+							 @NotNull ByteBuf buffer) {
 		return buffer.readChar();
 	}
 

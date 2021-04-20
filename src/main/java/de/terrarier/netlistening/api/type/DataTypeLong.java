@@ -16,7 +16,8 @@ public final class DataTypeLong extends DataType<Long> {
 	}
 
 	@Override
-	protected Long read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) {
+	protected Long read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
+						@NotNull ByteBuf buffer) {
 		return buffer.readLong();
 	}
 

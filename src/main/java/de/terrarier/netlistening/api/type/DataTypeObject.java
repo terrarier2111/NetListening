@@ -20,8 +20,8 @@ public final class DataTypeObject extends DataType<Object> {
 	}
 
 	@Override
-	protected Object read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
-			throws CancelSignal {
+	protected Object read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
+						  @NotNull ByteBuf buffer) throws CancelSignal {
 		final int length = buffer.readInt();
 
 		if(length == 0) {

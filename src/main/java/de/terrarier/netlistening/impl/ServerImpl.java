@@ -8,7 +8,10 @@ import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.SymmetricEncryptionUtil;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
-import de.terrarier.netlistening.api.event.*;
+import de.terrarier.netlistening.api.event.ConnectionPostInitEvent;
+import de.terrarier.netlistening.api.event.ConnectionPreInitEvent;
+import de.terrarier.netlistening.api.event.EventManager;
+import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.network.PacketDataEncoder;
 import de.terrarier.netlistening.network.TimeOutHandler;
@@ -95,8 +98,9 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                                     pipeline.addLast(TIMEOUT_HANDLER,
                                             new TimeOutHandler(ServerImpl.this, connection, timeout));
                                 }
-                                pipeline.addLast(DECODER, new PacketDataDecoder(ServerImpl.this, handler))
-                                        .addAfter(DECODER, ENCODER, new PacketDataEncoder(ServerImpl.this, delayedExecutor));
+                                pipeline.addLast(DECODER, new PacketDataDecoder(ServerImpl.this, handler, connection))
+                                        .addAfter(DECODER, ENCODER, new PacketDataEncoder(ServerImpl.this, delayedExecutor,
+                                                connection));
 
                                 connections.put(channel, connection);
                                 eventManager.callEvent(ListenerType.POST_INIT, new ConnectionPostInitEvent(connection));
@@ -158,8 +162,6 @@ public final class ServerImpl extends ApplicationImpl implements Server {
             final ConnectionImpl connection = iterator.next();
             connection.disconnect0();
             iterator.remove();
-            final ConnectionDisconnectEvent event = new ConnectionDisconnectEvent(connection);
-            eventManager.callEvent(ListenerType.DISCONNECT, event);
         }
         handler.unregisterListeners();
         group.shutdownGracefully();
@@ -183,6 +185,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
     /**
      * @see de.terrarier.netlistening.Application
      */
+    @Deprecated
     @Override
     public void disconnect(@NotNull Connection connection) {
         connection.disconnect();
@@ -190,8 +193,6 @@ public final class ServerImpl extends ApplicationImpl implements Server {
 
     void disconnect0(@NotNull Connection connection) {
         connections.remove(connection.getChannel());
-        final ConnectionDisconnectEvent event = new ConnectionDisconnectEvent(connection);
-        eventManager.callEvent(ListenerType.DISCONNECT, event);
     }
 
     /**

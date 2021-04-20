@@ -13,7 +13,7 @@ public final class ConversionUtil {
 		throw new UnsupportedOperationException("This class may not be instantiated!");
 	}
 	
-	public static byte[] intToByteArray(int value) {
+	public static byte[] intToBytes(int value) {
 		return new byte[] { (byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8), (byte) value };
 	}
 

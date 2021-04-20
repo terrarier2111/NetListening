@@ -16,7 +16,8 @@ public final class DataTypeBoolean extends DataType<Boolean> {
 	}
 
 	@Override
-	protected Boolean read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) {
+	protected Boolean read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
+						   @NotNull ByteBuf buffer) {
 		return buffer.readBoolean();
 	}
 

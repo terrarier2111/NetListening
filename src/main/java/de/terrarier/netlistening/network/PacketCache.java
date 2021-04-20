@@ -68,6 +68,7 @@ public final class PacketCache {
 				if(packet != null) {
 					return packet;
 				}
+				// TODO: Check if we have to add a "proper fix" at this place.
 			}
 			return registerPacket0(this.id.getAndIncrement(), data);
 		}finally {

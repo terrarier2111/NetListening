@@ -82,8 +82,9 @@ public final class ClientImpl extends ApplicationImpl implements Client {
                                             new TimeOutHandler(ClientImpl.this, connection, timeout));
                                 }
 
-                                pipeline.addLast(DECODER, new PacketDataDecoder(ClientImpl.this, handler))
-                                        .addAfter(DECODER, ENCODER, new PacketDataEncoder(ClientImpl.this, null));
+                                pipeline.addLast(DECODER, new PacketDataDecoder(ClientImpl.this, handler, connection))
+                                        .addAfter(DECODER, ENCODER, new PacketDataEncoder(ClientImpl.this, null,
+                                                connection));
 
                                 if (proxy != null) {
                                     pipeline.addFirst(PROXY_HANDLER, proxy.newHandler());
@@ -172,6 +173,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     /**
      * @see de.terrarier.netlistening.Application
      */
+    @Deprecated
     @Override
     public Connection getConnection(Channel channel) {
         return connection;
@@ -203,11 +205,15 @@ public final class ClientImpl extends ApplicationImpl implements Client {
             throw new IllegalStateException("The client is not running!");
         }
 
-        connection.disconnect0();
+        if(connection != null && connection.isConnected()) {
+            connection.disconnect0();
+        }
+
         handler.unregisterListeners();
         group.shutdownGracefully();
         group = null;
         worker.interrupt();
+        worker = null;
         cache.clear();
     }
 

@@ -20,12 +20,15 @@ public final class DataTypeString extends DataType<String> {
 	}
 	
 	@Override
-	protected String read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
-			throws CancelReadSignal {
+	protected String read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
+						  @NotNull ByteBuf buffer) throws CancelReadSignal {
 		final int length = buffer.readInt();
-		
-		if(length < 1) { // TODO: Throw an exception when length < 0
-			return EMPTY_STRING;
+
+		if(length < 1) {
+			if (length == 0) {
+				return EMPTY_STRING;
+			}
+			throw new IllegalStateException("Received a malicious string with length " + length + ".");
 		}
 		
 		checkReadable(buffer, length);

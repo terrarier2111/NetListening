@@ -33,8 +33,8 @@ public abstract class InternalPayload {
 
     abstract void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer);
 
-    public abstract void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
-            throws CancelReadSignal;
+    public abstract void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
+                              @NotNull ByteBuf buffer) throws CancelReadSignal;
 
     @NotNull
     static InternalPayload fromId(byte id) {
@@ -53,8 +53,7 @@ public abstract class InternalPayload {
         }
     }
 
-    static void checkReadable(@NotNull ByteBuf buffer, int additional)
-            throws CancelReadSignal {
+    static void checkReadable(@NotNull ByteBuf buffer, int additional) throws CancelReadSignal {
         if (buffer.readableBytes() < additional) {
             throw new CancelReadSignal(additional);
         }

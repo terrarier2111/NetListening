@@ -53,7 +53,8 @@ public final class DataTypeHmac extends DataType<Void> {
     }
 
     @Override
-    protected Void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) {
+    protected Void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
+                        @NotNull ByteBuf buffer) {
         return null;
     }
 

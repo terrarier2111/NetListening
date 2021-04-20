@@ -22,7 +22,7 @@ public final class InternalPayloadEncryptionFinish extends InternalPayload {
     @Override
     void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
         if(application instanceof Server) {
-            throw new UnsupportedOperationException("This payload can only be sent by the client!");
+            throw new UnsupportedOperationException("This payload can only be sent by a client!");
         }
     }
 

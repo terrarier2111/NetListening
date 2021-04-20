@@ -30,9 +30,12 @@ public interface Server extends Application {
     Connection getConnection(int id);
 
     /**
-     * @see Application
+     * Maps a specific channel to the connection wrapping the specified channel.
+     *
+     * @param channel the channel which underlies the connection.
+     * @return the connection which wraps the passed channel and
+     * if not available, null.
      */
-    @Override
     Connection getConnection(@NotNull Channel channel);
 
     /**
