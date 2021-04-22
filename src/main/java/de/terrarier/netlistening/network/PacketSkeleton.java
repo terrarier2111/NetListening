@@ -3,7 +3,6 @@ package de.terrarier.netlistening.network;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 

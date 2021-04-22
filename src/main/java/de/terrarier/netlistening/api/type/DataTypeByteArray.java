@@ -7,7 +7,6 @@ import de.terrarier.netlistening.internals.CancelReadSignal;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.util.internal.EmptyArrays;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @since 1.0

@@ -16,7 +16,6 @@ import de.terrarier.netlistening.utils.ConversionUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 @ApiStatus.Internal
 public final class InternalPayloadRegisterPacket extends InternalPayload {

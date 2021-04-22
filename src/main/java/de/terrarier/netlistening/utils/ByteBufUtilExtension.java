@@ -4,7 +4,6 @@ import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 

@@ -6,7 +6,6 @@ import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.network.PreparedListener;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -21,7 +21,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.util.internal.EmptyArrays;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,8 +100,9 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
         if (readable == 0) {
             if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
-                    (EventManager.EventProvider<InvalidDataEvent>) () -> new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.EMPTY_PACKET,
-                            EmptyArrays.EMPTY_BYTES))) return;
+                    (EventManager.EventProvider<InvalidDataEvent>)
+                            () -> new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.EMPTY_PACKET,
+                                    EmptyArrays.EMPTY_BYTES))) return;
 
             throw new IllegalStateException("Received an empty packet!");
         }
@@ -162,7 +162,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             })) return;
 
             throw new IllegalStateException("An error occurred while decoding - the packet to decode was empty! (skipping current packet with id: "
-                            + Integer.toHexString(id) + ")");
+                            + Integer.toHexString(id) + ')');
         }
 
         if (id == 0x0) {
@@ -181,7 +181,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             })) return;
 
             throw new IllegalStateException("An error occurred while decoding - the packet to decode wasn't recognizable because it wasn't registered before! ("
-                            + Integer.toHexString(id) + ")");
+                            + Integer.toHexString(id) + ')');
         }
 
         read(out, new ArrayList<>(packet.getData().length), buffer, packet, 0, null);

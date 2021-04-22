@@ -6,7 +6,6 @@ import de.terrarier.netlistening.internals.CancelSignal;
 import de.terrarier.netlistening.utils.TwoArgsBooleanFunction;
 import de.terrarier.netlistening.utils.TwoArgsFunction;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @since 1.01

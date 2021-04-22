@@ -6,7 +6,6 @@ import de.terrarier.netlistening.api.event.Event;
 import de.terrarier.netlistening.api.event.PacketListener;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;

@@ -5,7 +5,6 @@ import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @since 1.0

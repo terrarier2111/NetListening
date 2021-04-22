@@ -1,7 +1,6 @@
 package de.terrarier.netlistening.internals;
 
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @since 1.0

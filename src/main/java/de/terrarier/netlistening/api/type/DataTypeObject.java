@@ -8,7 +8,6 @@ import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.internals.CancelSignal;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @since 1.0
