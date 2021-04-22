@@ -68,15 +68,6 @@ public interface Application {
 	void stop();
 
 	/**
-	 * Disconnects a specific connection.
-	 *
-	 * @param connection the connection which should be disconnected.
-	 * @deprecated use {@link Connection#disconnect()} or {@link Client#disconnect()} instead.
-	 */
-	@Deprecated
-	void disconnect(Connection connection);
-
-	/**
 	 * Sends data to a specific connection.
 	 *
 	 * @param data the data which gets sent.

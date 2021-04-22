@@ -1,6 +1,5 @@
 package de.terrarier.netlistening.internals;
 
-import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
@@ -8,7 +7,6 @@ import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandlerContext;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -26,16 +24,16 @@ public final class DataTypeEncrypt extends DataType<Void> {
     }
 
     @Override
-    public Void read0(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull ApplicationImpl application,
-            @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) throws Exception {
+    public Void read0(@NotNull PacketDataDecoder.DecoderContext decoderContext, @NotNull List<Object> out,
+                      @NotNull ByteBuf buffer) throws Exception {
         checkReadable(buffer, 4);
         final int size = buffer.readInt();
         checkReadable(buffer, size);
-        final byte[] decrypted = connection.getEncryptionContext().decrypt(ByteBufUtilExtension.readBytes(buffer, size));
-        final PacketDataDecoder decoder = (PacketDataDecoder) ctx.channel().pipeline().get(Application.DECODER);
+        final byte[] decrypted = decoderContext.getConnection().getEncryptionContext().decrypt(ByteBufUtilExtension.readBytes(buffer, size));
+        final PacketDataDecoder decoder = decoderContext.getDecoder();
         final ByteBuf dataBuffer = Unpooled.wrappedBuffer(decrypted);
         decoder.releaseNext();
-        decoder.decode(ctx, dataBuffer, out);
+        decoder.decode(decoderContext.getHandlerContext(), dataBuffer, out);
         return null;
     }
 

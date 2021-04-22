@@ -201,7 +201,7 @@ public final class DataContainer {
 	}
 
 	/**
-	 * @return an array containing all content of the DataContainer which
+	 * @return an array containing the DataContainer's content which
 	 * wasn't read yet.
 	 */
 	@NotNull

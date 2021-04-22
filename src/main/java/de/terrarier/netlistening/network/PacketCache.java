@@ -146,10 +146,5 @@ public final class PacketCache {
 			registerBuffer.release();
 		}
 	}
-
-	public void clear() {
-		packets.clear();
-		// TODO: Check if we have to reset this to its default.
-	}
 	
 }

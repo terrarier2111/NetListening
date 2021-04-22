@@ -116,7 +116,7 @@ public final class ConnectionImpl implements Connection {
 
 	void disconnect0() {
 		if(application.getCaching() != PacketCaching.GLOBAL) {
-			cache.clear();
+			cache.getPackets().clear();
 		}
 		channel.close();
 	}

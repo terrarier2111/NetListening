@@ -35,6 +35,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     private final ApplicationImpl application;
     private final DataHandler handler;
     private final ConnectionImpl connection;
+    private DecoderContext context;
     private boolean framing;
     private ByteBuf holdingBuffer;
     private List<DataComponent<?>> storedData;
@@ -78,12 +79,12 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             boolean release = false;
             if (!hasId) {
                 final boolean[] idReadValidator = new boolean[1];
-                readPacket(ctx, buffer, out, tmp, idReadValidator);
+                readPacket(buffer, out, tmp, idReadValidator);
                 release = idReadValidator[0];
             } else {
                 hasId = false;
                 if (packet != null) {
-                    read(ctx, out, storedData, buffer, packet, index, tmp);
+                    read(out, storedData, buffer, packet, index, tmp);
                 } else {
                     readPayLoad(tmp);
                 }
@@ -104,10 +105,10 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
             throw new IllegalStateException("Received an empty packet!");
         }
-        readPacket(ctx, buffer, out, buffer, null);
+        readPacket(buffer, out, buffer, null);
     }
 
-    private void readPacket(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf buffer, @NotNull List<Object> out,
+    private void readPacket(@NotNull ByteBuf buffer, @NotNull List<Object> out,
                             @NotNull ByteBuf idBuffer, boolean[] packetIdReadValidator) throws Exception {
         final int id;
         try {
@@ -145,7 +146,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
             ((ClientImpl) application).pushCachedData();
             if (buffer.isReadable()) {
-                decode(ctx, buffer, out);
+                decode(context.getHandlerContext(), buffer, out);
             }
             return;
         }
@@ -182,11 +183,11 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                             + Integer.toHexString(id) + ")");
         }
 
-        read(ctx, out, new ArrayList<>(packet.getData().length), buffer, packet, 0, null);
+        read(out, new ArrayList<>(packet.getData().length), buffer, packet, 0, null);
     }
 
     @SuppressWarnings("unchecked")
-    private void read(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull List<DataComponent<?>> data,
+    private void read(@NotNull List<Object> out, @NotNull List<DataComponent<?>> data,
                       @NotNull ByteBuf buffer, @NotNull PacketSkeleton packet, int index, ByteBuf framingBuffer)
             throws Exception {
         final DataType<?>[] dataTypes = packet.getData();
@@ -202,7 +203,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             final ByteBuf decodeBuffer = useFramingBuffer ? framingBuffer : buffer;
             final int start = decodeBuffer.readerIndex();
             try {
-                data.add(new DataComponent(dataType, dataType.read0(ctx, out, application, connection, decodeBuffer)));
+                data.add(new DataComponent(dataType, dataType.read0(context, out, decodeBuffer)));
             } catch (CancelReadSignal signal) {
                 // prepare framing of data
                 holdingBuffer = Unpooled.buffer(signal.size + decodeBuffer.readerIndex() - start +
@@ -223,7 +224,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                     invalidData = true;
                     final int readable = buffer.readableBytes();
                     if(readable != 0) {
-                        decode(ctx, buffer, out);
+                        decode(context.getHandlerContext(), buffer, out);
                         return;
                     }else {
                         this.packet = packet;
@@ -307,6 +308,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     @Override
     public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
+        context = new DecoderContext(application, connection, this, ctx);
         if (application instanceof Server) {
             connection.check();
         }
@@ -324,6 +326,43 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
         final ExceptionTrowEvent event = new ExceptionTrowEvent(cause);
         application.getEventManager().handleExceptionThrown(event);
+    }
+
+    public static final class DecoderContext {
+
+        private final ApplicationImpl application;
+        private final ConnectionImpl connection;
+        private final PacketDataDecoder decoder;
+        private final ChannelHandlerContext handlerContext;
+
+        public DecoderContext(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
+                              @NotNull PacketDataDecoder decoder, @NotNull ChannelHandlerContext handlerContext) {
+            this.application = application;
+            this.connection = connection;
+            this.decoder = decoder;
+            this.handlerContext = handlerContext;
+        }
+
+        @NotNull
+        public ApplicationImpl getApplication() {
+            return application;
+        }
+
+        @NotNull
+        public ConnectionImpl getConnection() {
+            return connection;
+        }
+
+        @NotNull
+        public PacketDataDecoder getDecoder() {
+            return decoder;
+        }
+
+        @NotNull
+        public ChannelHandlerContext getHandlerContext() {
+            return handlerContext;
+        }
+
     }
 
 }

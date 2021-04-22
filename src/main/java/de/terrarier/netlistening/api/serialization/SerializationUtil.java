@@ -47,7 +47,7 @@ public final class SerializationUtil {
             }
         }
         mainProvider.handleException(new UnsupportedOperationException(
-                "There is no serialization provider available which can perform this operation on this Object. (" + param.getClass().getName() + ")"));
+                "There is no serialization provider available which can perform this operation on this Object. (" + param.getClass().getName() + ')'));
         throw CancelSignal.INSTANCE;
     }
 

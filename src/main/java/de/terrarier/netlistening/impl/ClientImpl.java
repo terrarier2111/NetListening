@@ -214,21 +214,13 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         group = null;
         worker.interrupt();
         worker = null;
-        cache.clear();
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Deprecated
-    @Override
-    public void disconnect(Connection connection) {
-        disconnect();
+        cache.getPackets().clear();
     }
 
     /**
      * @see Client
      */
+    @Deprecated
     @Override
     public void disconnect() {
         if (connection == null) {

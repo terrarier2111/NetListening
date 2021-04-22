@@ -28,7 +28,7 @@ public final class DataTypeString extends DataType<String> {
 			if (length == 0) {
 				return EMPTY_STRING;
 			}
-			throw new IllegalStateException("Received a malicious string with length " + length + ".");
+			throw new IllegalStateException("Received a malicious string of length " + length + '.');
 		}
 		
 		checkReadable(buffer, length);

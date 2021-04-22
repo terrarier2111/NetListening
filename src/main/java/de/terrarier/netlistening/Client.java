@@ -23,6 +23,7 @@ public interface Client extends Application {
     /**
      * Interrupts the connection to the server if there is one.
      */
+    @Deprecated
     void disconnect();
 
     /**

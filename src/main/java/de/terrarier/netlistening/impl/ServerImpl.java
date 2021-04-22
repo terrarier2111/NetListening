@@ -168,7 +168,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         group = null;
         worker.interrupt();
         worker = null;
-        cache.clear();
+        cache.getPackets().clear();
         if(!delayedExecutor.isShutdown()) {
             delayedExecutor.shutdown();
             try {
@@ -180,15 +180,6 @@ public final class ServerImpl extends ApplicationImpl implements Server {
             }
             delayedExecutor = null;
         }
-    }
-
-    /**
-     * @see de.terrarier.netlistening.Application
-     */
-    @Deprecated
-    @Override
-    public void disconnect(@NotNull Connection connection) {
-        connection.disconnect();
     }
 
     void disconnect0(@NotNull Connection connection) {

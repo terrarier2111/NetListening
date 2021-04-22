@@ -4,13 +4,14 @@ import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.internals.*;
+import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @since 1.0
@@ -29,7 +30,7 @@ public abstract class DataType<T> {
 	public static final DataType<String> STRING = new DataTypeString();
 	public static final DataType<Long> LONG = new DataTypeLong();
 	public static final DataType<Object> OBJECT = new DataTypeObject();
-	public static final DataType<java.util.UUID> UUID = new DataTypeUUID();
+	public static final DataType<UUID> UUID = new DataTypeUUID();
 	public static final DataType<Float> FLOAT = new DataTypeFloat();
 
 	private static final DataTypeInternalPayload INTERNAL_PAYLOAD = new DataTypeInternalPayload();
@@ -47,10 +48,10 @@ public abstract class DataType<T> {
 	}
 
 	@ApiStatus.Internal
-	public T read0(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull ApplicationImpl application,
-				   @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) throws Exception {
+	public T read0(@NotNull PacketDataDecoder.DecoderContext context, @NotNull List<Object> out,
+				   @NotNull ByteBuf buffer) throws Exception {
 		checkReadable(buffer, minSize);
-		return read(application, connection, buffer);
+		return read(context.getApplication(), context.getConnection(), buffer);
 	}
 
 	protected abstract T read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
@@ -131,7 +132,7 @@ public abstract class DataType<T> {
 					return FLOAT;
 				default:
 					throw new IllegalArgumentException("Tried to resolve a data type with an invalid id! ("
-							+ Integer.toHexString(id) + ")");
+							+ Integer.toHexString(id) + ')');
 			}
 	}
 

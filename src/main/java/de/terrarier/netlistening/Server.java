@@ -74,14 +74,6 @@ public interface Server extends Application {
     }
 
     /**
-     * @see Application
-     * @deprecated use {@link Connection#disconnect} instead.
-     */
-    @Deprecated
-    @Override
-    void disconnect(@NotNull Connection connection);
-
-    /**
      * Creates a new builder with the passed arguments.
      *
      * @param port the port the server should bind/listen to.

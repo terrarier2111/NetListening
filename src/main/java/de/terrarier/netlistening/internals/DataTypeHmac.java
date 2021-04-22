@@ -1,6 +1,5 @@
 package de.terrarier.netlistening.internals;
 
-import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.api.encryption.hash.HashUtil;
 import de.terrarier.netlistening.api.event.LengthExtensionDetectionEvent;
 import de.terrarier.netlistening.api.type.DataType;
@@ -10,7 +9,6 @@ import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandlerContext;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,26 +27,26 @@ public final class DataTypeHmac extends DataType<Void> {
     }
 
     @Override
-    public Void read0(@NotNull ChannelHandlerContext ctx, @NotNull List<Object> out, @NotNull ApplicationImpl application,
-                      @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) throws Exception {
+    public Void read0(@NotNull PacketDataDecoder.DecoderContext context, @NotNull List<Object> out,
+                      @NotNull ByteBuf buffer) throws Exception {
         checkReadable(buffer, 6);
         final int size = buffer.readInt();
         final short hashSize = buffer.readShort();
         checkReadable(buffer, size + hashSize);
         final byte[] traffic = ByteBufUtilExtension.readBytes(buffer, size);
         final byte[] hash = ByteBufUtilExtension.readBytes(buffer, hashSize);
-        final byte[] computedHash = HashUtil.calculateHMAC(traffic, connection.getHmacKey(),
-                application.getEncryptionSetting().getHmacSetting().getHashingAlgorithm());
+        final byte[] computedHash = HashUtil.calculateHMAC(traffic, context.getConnection().getHmacKey(),
+                context.getApplication().getEncryptionSetting().getHmacSetting().getHashingAlgorithm());
         if(!Arrays.equals(hash, computedHash)) {
             final LengthExtensionDetectionEvent event = new LengthExtensionDetectionEvent(hash, computedHash);
             if(event.getResult() == LengthExtensionDetectionEvent.Result.DROP_DATA) {
                 return null;
             }
         }
-        final PacketDataDecoder decoder = (PacketDataDecoder) ctx.channel().pipeline().get(Application.DECODER);
+        final PacketDataDecoder decoder = context.getDecoder();
         final ByteBuf dataBuffer = Unpooled.wrappedBuffer(traffic);
         decoder.releaseNext();
-        decoder.decode(ctx, dataBuffer, out);
+        decoder.decode(context.getHandlerContext(), dataBuffer, out);
         return null;
     }
 
