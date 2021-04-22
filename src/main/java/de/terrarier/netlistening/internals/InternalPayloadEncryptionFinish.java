@@ -20,14 +20,14 @@ public final class InternalPayloadEncryptionFinish extends InternalPayload {
     }
 
     @Override
-    void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
+    void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer) {
         if(application instanceof Server) {
             throw new UnsupportedOperationException("This payload can only be sent by a client!");
         }
     }
 
     @Override
-    public void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer) {
+    public void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection, @AssumeNotNull ByteBuf buffer) {
         if(application instanceof Client) {
             throw new UnsupportedOperationException("The server sent an invalid payload!");
         }

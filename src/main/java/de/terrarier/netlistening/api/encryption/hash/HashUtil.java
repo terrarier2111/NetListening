@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.encryption.hash;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -24,11 +25,11 @@ public final class HashUtil {
         throw new UnsupportedOperationException("This class may not be instantiated!");
     }
 
-    public static byte[] hash(@NotNull HashingAlgorithm hashingAlgorithm, byte[] data) throws NoSuchAlgorithmException {
+    public static byte[] hash(@AssumeNotNull HashingAlgorithm hashingAlgorithm, byte[] data) throws NoSuchAlgorithmException {
         return hash(hashingAlgorithm, data, 0);
     }
 
-    private static byte[] hash(@NotNull HashingAlgorithm hashingAlgorithm, byte[] data, int salt)
+    private static byte[] hash(@AssumeNotNull HashingAlgorithm hashingAlgorithm, byte[] data, int salt)
             throws NoSuchAlgorithmException {
         final MessageDigest digest = MessageDigest.getInstance(hashingAlgorithm.getRawName());
         if(salt > 0) {
@@ -47,7 +48,7 @@ public final class HashUtil {
         return salt;
     }
 
-    public static byte[] calculateHMAC(byte[] data, byte[] key, @NotNull HashingAlgorithm algorithm)
+    public static byte[] calculateHMAC(byte[] data, byte[] key, @AssumeNotNull HashingAlgorithm algorithm)
             throws NoSuchAlgorithmException, InvalidKeyException {
         final String macName = algorithm.getMacName();
         final SecretKeySpec secretKeySpec = new SecretKeySpec(key, macName);

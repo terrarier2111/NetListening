@@ -2,6 +2,7 @@ package de.terrarier.netlistening.api.type;
 
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,13 +17,13 @@ public final class DataTypeByte extends DataType<Byte> {
 	}
 
 	@Override
-	protected Byte read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
-						@NotNull ByteBuf buffer) {
+	protected Byte read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+						@AssumeNotNull ByteBuf buffer) {
 		return buffer.readByte();
 	}
 
 	@Override
-	protected void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, @NotNull Byte data) {
+	protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, @AssumeNotNull Byte data) {
 		buffer.writeByte(data);
 	}
 

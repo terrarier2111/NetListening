@@ -3,6 +3,7 @@ package de.terrarier.netlistening.api.event;
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.impl.ConnectionImpl;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.network.PreparedListener;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +20,7 @@ public final class DataHandler {
 
 	private final List<PreparedListener> listeners = new ArrayList<>();
 
-    public void processData(@NotNull List<DataComponent<?>> data, @NotNull ConnectionImpl connection) {
+    public void processData(@AssumeNotNull List<DataComponent<?>> data, @AssumeNotNull ConnectionImpl connection) {
         final int dataSize = data.size();
         if (dataSize == 0) {
             return;
@@ -53,7 +54,7 @@ public final class DataHandler {
         }
 	}
 
-	void addListener(@NotNull DecodeListener listener) {
+	void addListener(@AssumeNotNull DecodeListener listener) {
         try {
             listeners.add(new PreparedListener(listener));
         } catch (NoSuchMethodException | SecurityException e) {

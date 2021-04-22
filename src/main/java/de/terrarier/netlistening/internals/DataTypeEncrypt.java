@@ -24,8 +24,8 @@ public final class DataTypeEncrypt extends DataType<Void> {
     }
 
     @Override
-    public Void read0(@NotNull PacketDataDecoder.DecoderContext decoderContext, @NotNull List<Object> out,
-                      @NotNull ByteBuf buffer) throws Exception {
+    public Void read0(@AssumeNotNull PacketDataDecoder.DecoderContext decoderContext, @AssumeNotNull List<Object> out,
+                      @AssumeNotNull ByteBuf buffer) throws Exception {
         checkReadable(buffer, 4);
         final int size = buffer.readInt();
         checkReadable(buffer, size);
@@ -38,12 +38,12 @@ public final class DataTypeEncrypt extends DataType<Void> {
     }
 
     @Override
-    protected Void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
-                        @NotNull ByteBuf buffer) {
+    protected Void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+                        @AssumeNotNull ByteBuf buffer) {
         return null;
     }
 
     @Override
-    protected void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, Void empty) {}
+    protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, Void empty) {}
 
 }

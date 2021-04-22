@@ -12,6 +12,7 @@ import de.terrarier.netlistening.api.event.ExceptionTrowEvent;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.internals.CancelSignal;
 import de.terrarier.netlistening.internals.InternalPayloadRegisterPacket;
 import de.terrarier.netlistening.internals.InternalUtil;
@@ -40,15 +41,15 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
     private final ExecutorService delayedExecutor;
     private final ConnectionImpl connection;
 
-    public PacketDataEncoder(@NotNull ApplicationImpl application, ExecutorService delayedExecutor,
-                             @NotNull ConnectionImpl connection) {
+    public PacketDataEncoder(@AssumeNotNull ApplicationImpl application, ExecutorService delayedExecutor,
+                             @AssumeNotNull ConnectionImpl connection) {
         this.application = application;
         this.delayedExecutor = delayedExecutor;
         this.connection = connection;
     }
 
     @Override
-    protected void encode(@NotNull ChannelHandlerContext ctx, @NotNull DataContainer data, @NotNull ByteBuf buffer) {
+    protected void encode(@AssumeNotNull ChannelHandlerContext ctx, @AssumeNotNull DataContainer data, @AssumeNotNull ByteBuf buffer) {
         final List<DataComponent<?>> containedData = data.getData();
         final int dataSize = containedData.size();
 
@@ -125,7 +126,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
         }
     }
 
-    private void writeToBuffer(@NotNull ByteBuf buffer, @NotNull DataContainer data, int packetId) throws CancelSignal {
+    private void writeToBuffer(@AssumeNotNull ByteBuf buffer, @AssumeNotNull DataContainer data, int packetId) throws CancelSignal {
         InternalUtil.writeInt(application, buffer, packetId);
         final List<DataComponent<?>> dataComponentList = data.getData();
         final int dataSize = dataComponentList.size();
@@ -135,7 +136,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
         }
     }
 
-    private void appendHmac(@NotNull ByteBuf src, @NotNull ByteBuf dst, @NotNull ConnectionImpl connection) {
+    private void appendHmac(@AssumeNotNull ByteBuf src, @AssumeNotNull ByteBuf dst, @AssumeNotNull ConnectionImpl connection) {
         final byte[] data = ByteBufUtilExtension.getBytes(src);
         src.release();
         try {

@@ -27,8 +27,8 @@ public final class DataTypeHmac extends DataType<Void> {
     }
 
     @Override
-    public Void read0(@NotNull PacketDataDecoder.DecoderContext context, @NotNull List<Object> out,
-                      @NotNull ByteBuf buffer) throws Exception {
+    public Void read0(@AssumeNotNull PacketDataDecoder.DecoderContext context, @AssumeNotNull List<Object> out,
+                      @AssumeNotNull ByteBuf buffer) throws Exception {
         checkReadable(buffer, 6);
         final int size = buffer.readInt();
         final short hashSize = buffer.readShort();
@@ -51,12 +51,12 @@ public final class DataTypeHmac extends DataType<Void> {
     }
 
     @Override
-    protected Void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
-                        @NotNull ByteBuf buffer) {
+    protected Void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+                        @AssumeNotNull ByteBuf buffer) {
         return null;
     }
 
     @Override
-    protected void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, Void empty) {}
+    protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, Void empty) {}
 
 }

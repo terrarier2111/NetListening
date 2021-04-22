@@ -11,6 +11,7 @@ import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
 import de.terrarier.netlistening.api.event.*;
 import de.terrarier.netlistening.api.proxy.Proxy;
 import de.terrarier.netlistening.api.proxy.ProxyType;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.network.PacketDataEncoder;
 import de.terrarier.netlistening.network.TimeOutHandler;
@@ -303,7 +304,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         private boolean changedHashingAlgorithm;
         private Proxy proxy;
 
-        public Builder(@NotNull SocketAddress remoteAddress) {
+        public Builder(@AssumeNotNull SocketAddress remoteAddress) {
             super(new ClientImpl());
             this.remoteAddress = remoteAddress;
         }
@@ -319,7 +320,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         /**
          * @see Client.Builder
          */
-        public void serverKeyHashingAlgorithm(@NotNull HashingAlgorithm hashingAlgorithm) {
+        public void serverKeyHashingAlgorithm(@AssumeNotNull HashingAlgorithm hashingAlgorithm) {
             validate();
             application.serverKeyHashing = hashingAlgorithm;
             changedHashingAlgorithm = true;
@@ -339,7 +340,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         /**
          * @see Client.Builder
          */
-        public void proxy(@NotNull SocketAddress address, @NotNull ProxyType proxyType) {
+        public void proxy(@AssumeNotNull SocketAddress address, @AssumeNotNull ProxyType proxyType) {
             validate();
             proxy = proxyType.getInstance(address);
         }

@@ -4,6 +4,7 @@ import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.internals.InternalPayloadRegisterPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -40,13 +41,13 @@ public final class PacketCache {
 		packets.put(0x4, HMAC_PACKET_SKELETON);
 	}
 
-	@NotNull
+	@AssumeNotNull
 	public Map<Integer, PacketSkeleton> getPackets() {
 		return packets;
 	}
 
-	@NotNull
-	PacketSkeleton registerPacket(@NotNull DataType<?>... data) {
+	@AssumeNotNull
+	PacketSkeleton registerPacket(@AssumeNotNull DataType<?>... data) {
 		final Lock writeLock = lock.writeLock();
 		writeLock.lock();
 		try {
@@ -56,8 +57,8 @@ public final class PacketCache {
 		}
 	}
 
-	@NotNull
-	public PacketSkeleton tryRegisterPacket(int id, @NotNull DataType<?>... data) {
+	@AssumeNotNull
+	public PacketSkeleton tryRegisterPacket(int id, @AssumeNotNull DataType<?>... data) {
 		final Lock writeLock = lock.writeLock();
 		writeLock.lock();
 		try {
@@ -76,7 +77,7 @@ public final class PacketCache {
 		}
 	}
 
-	public void forceRegisterPacket(int id, @NotNull DataType<?>... data) {
+	public void forceRegisterPacket(int id, @AssumeNotNull DataType<?>... data) {
 		final Lock writeLock = lock.writeLock();
 		writeLock.lock();
 		try {
@@ -93,14 +94,14 @@ public final class PacketCache {
 		}
 	}
 
-	@NotNull
-	private PacketSkeleton registerPacket0(int id, @NotNull DataType<?>... data) {
+	@AssumeNotNull
+	private PacketSkeleton registerPacket0(int id, @AssumeNotNull DataType<?>... data) {
 		final PacketSkeleton packet = new PacketSkeleton(id, data);
 		packets.put(id, packet);
 		return packet;
 	}
 
-	PacketSkeleton getPacket(@NotNull DataType<?>... data) {
+	PacketSkeleton getPacket(@AssumeNotNull DataType<?>... data) {
 		final int dataLength = data.length;
 		final int dataHash = Arrays.hashCode(data);
 
@@ -122,7 +123,7 @@ public final class PacketCache {
 		return packets.get(id);
 	}
 
-	public void broadcastRegister(@NotNull ApplicationImpl application, @NotNull InternalPayloadRegisterPacket payload,
+	public void broadcastRegister(@AssumeNotNull ApplicationImpl application, @AssumeNotNull InternalPayloadRegisterPacket payload,
 								  Channel ignored, ByteBuf buffer) {
 		final Collection<Connection> connections = application.getConnections();
 		if (ignored == null || connections.size() > 1) {

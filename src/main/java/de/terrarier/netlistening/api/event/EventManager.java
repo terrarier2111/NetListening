@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.event;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -20,12 +21,12 @@ public final class EventManager {
 	private final Map<ListenerType, List<Listener<?>>[]> listeners = new ConcurrentHashMap<>();
 	private final DataHandler handler;
 	
-	public EventManager(@NotNull DataHandler handler) {
+	public EventManager(@AssumeNotNull DataHandler handler) {
 		this.handler = handler;
 	}
 
 	@SuppressWarnings("unchecked")
-	public void registerListener(@NotNull Listener<?> listener) {
+	public void registerListener(@AssumeNotNull Listener<?> listener) {
 		final Class<?> listenerClass = listener.getClass();
 		final ListenerType type = ListenerType.resolveType(listenerClass);
 		Objects.requireNonNull(type, "The type of the listener " + listenerClass.getName() + " cannot be resolved!");
@@ -47,7 +48,7 @@ public final class EventManager {
 		demanded.add(listener);
 	}
 
-	public void unregisterListeners(@NotNull ListenerType listenerType) {
+	public void unregisterListeners(@AssumeNotNull ListenerType listenerType) {
 		if(listenerType == ListenerType.DECODE) {
 			handler.unregisterListeners();
 		}
@@ -62,18 +63,18 @@ public final class EventManager {
 		}
 	}
 
-	public boolean callEvent(@NotNull ListenerType listenerType, @NotNull Event event) {
+	public boolean callEvent(@AssumeNotNull ListenerType listenerType, @AssumeNotNull Event event) {
 		return callEvent(listenerType, CancelAction.IGNORE, event);
 	}
 
-	public boolean callEvent(@NotNull ListenerType listenerType, @NotNull CancelAction cancelAction,
-							 @NotNull Event event) {
+	public boolean callEvent(@AssumeNotNull ListenerType listenerType, @AssumeNotNull CancelAction cancelAction,
+							 @AssumeNotNull Event event) {
 		return callEvent(listenerType, cancelAction, new NoopEventProvider(event));
 	}
 
 	@SuppressWarnings("unchecked")
-	public boolean callEvent(@NotNull ListenerType listenerType, @NotNull CancelAction cancelAction,
-							 @NotNull EventProvider<?> eventProvider) {
+	public boolean callEvent(@AssumeNotNull ListenerType listenerType, @AssumeNotNull CancelAction cancelAction,
+							 @AssumeNotNull EventProvider<?> eventProvider) {
 		final List<Listener<?>>[] listeners = this.listeners.get(listenerType);
 		if(listeners == null) {
 			return false;
@@ -107,7 +108,7 @@ public final class EventManager {
 	}
 
 	@NotNull
-	private EventListener.Priority resolvePriority(@NotNull Listener<?> listener) {
+	private EventListener.Priority resolvePriority(@AssumeNotNull Listener<?> listener) {
 		try {
 			final Method method = listener.getClass().getDeclaredMethod("trigger", Event.class);
 			final EventListener eventListener = method.getAnnotation(EventListener.class);
@@ -120,7 +121,7 @@ public final class EventManager {
 		return EventListener.Priority.MEDIUM;
 	}
 
-	public void handleExceptionThrown(@NotNull ExceptionTrowEvent exceptionTrowEvent) {
+	public void handleExceptionThrown(@AssumeNotNull ExceptionTrowEvent exceptionTrowEvent) {
 		callEvent(ListenerType.EXCEPTION_THROW, exceptionTrowEvent);
 		if (exceptionTrowEvent.isPrint()) {
 			exceptionTrowEvent.getException().printStackTrace();
@@ -144,7 +145,7 @@ public final class EventManager {
 
 		private final Event event;
 
-		private NoopEventProvider(@NotNull Event event) {
+		private NoopEventProvider(@AssumeNotNull Event event) {
 			this.event = event;
 		}
 

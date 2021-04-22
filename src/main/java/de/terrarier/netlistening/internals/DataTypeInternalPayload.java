@@ -19,15 +19,15 @@ public final class DataTypeInternalPayload extends DataType<InternalPayload> {
 	}
 	
 	@Override
-	public InternalPayload read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
-								@NotNull ByteBuf buffer) throws CancelReadSignal {
+	public InternalPayload read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+								@AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
 		final byte payloadId = buffer.readByte();
 		InternalPayload.fromId(payloadId).read(application, connection, buffer);
 		return null;
 	}
 
 	@Override
-	public void write0(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, @NotNull InternalPayload data) {
+	public void write0(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, @AssumeNotNull InternalPayload data) {
 		InternalUtil.writeInt(application, buffer, 0x0); // We use this sneaky hack which allows us to ignore the fact that we
 															   // have to send the packet id of the packet containing the payload
 															   // (0x0) when using InternalPayloads.
@@ -35,7 +35,7 @@ public final class DataTypeInternalPayload extends DataType<InternalPayload> {
 	}
 
 	@Override
-	public void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, @NotNull InternalPayload data) {
+	public void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, @AssumeNotNull InternalPayload data) {
 		data.write0(application, buffer);
 	}
 	

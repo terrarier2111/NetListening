@@ -2,6 +2,7 @@ package de.terrarier.netlistening.api.type;
 
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.internals.CancelReadSignal;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
@@ -19,8 +20,8 @@ public final class DataTypeByteArray extends DataType<byte[]> {
 	}
 
 	@Override
-	protected byte[] read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
-						  @NotNull ByteBuf buffer) throws CancelReadSignal {
+	protected byte[] read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+						  @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
 		final int length = buffer.readInt();
 
 		if(length < 1) {
@@ -36,7 +37,7 @@ public final class DataTypeByteArray extends DataType<byte[]> {
 	}
 
 	@Override
-	protected void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, byte[] data) {
+	protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, byte[] data) {
 		ByteBufUtilExtension.writeBytes(buffer, data, application.getBuffer());
 	}
 

@@ -8,6 +8,7 @@ import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.internals.CancelReadSignal;
 import de.terrarier.netlistening.internals.CancelSignal;
 import de.terrarier.netlistening.internals.InternalUtil;
@@ -45,15 +46,15 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     private boolean invalidData;
     private boolean release;
 
-    public PacketDataDecoder(@NotNull ApplicationImpl application, @NotNull DataHandler handler,
-                             @NotNull ConnectionImpl connection) {
+    public PacketDataDecoder(@AssumeNotNull ApplicationImpl application, @AssumeNotNull DataHandler handler,
+                             @AssumeNotNull ConnectionImpl connection) {
         this.application = application;
         this.handler = handler;
         this.connection = connection;
     }
 
     @Override
-    public void decode(@NotNull ChannelHandlerContext ctx, @NotNull ByteBuf buffer, @NotNull List<Object> out)
+    public void decode(@AssumeNotNull ChannelHandlerContext ctx, @AssumeNotNull ByteBuf buffer, @AssumeNotNull List<Object> out)
             throws Exception {
 
         // This prevents empty buffers from being decoded after the connection was closed.
@@ -108,8 +109,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         readPacket(buffer, out, buffer, null);
     }
 
-    private void readPacket(@NotNull ByteBuf buffer, @NotNull List<Object> out,
-                            @NotNull ByteBuf idBuffer, boolean[] packetIdReadValidator) throws Exception {
+    private void readPacket(@AssumeNotNull ByteBuf buffer, @AssumeNotNull List<Object> out,
+                            @AssumeNotNull ByteBuf idBuffer, boolean[] packetIdReadValidator) throws Exception {
         final int id;
         try {
             id = InternalUtil.readInt(application, idBuffer);
@@ -187,8 +188,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     }
 
     @SuppressWarnings("unchecked")
-    private void read(@NotNull List<Object> out, @NotNull List<DataComponent<?>> data,
-                      @NotNull ByteBuf buffer, @NotNull PacketSkeleton packet, int index, ByteBuf framingBuffer)
+    private void read(@AssumeNotNull List<Object> out, @AssumeNotNull List<DataComponent<?>> data,
+                      @AssumeNotNull ByteBuf buffer, @AssumeNotNull PacketSkeleton packet, int index, ByteBuf framingBuffer)
             throws Exception {
         final DataType<?>[] dataTypes = packet.getData();
         final int length = dataTypes.length;
@@ -253,7 +254,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
     }
 
-    private void readPayLoad(@NotNull ByteBuf buffer) {
+    private void readPayLoad(@AssumeNotNull ByteBuf buffer) {
         final int start = buffer.readerIndex();
         try {
             DataType.getDTIP().read(application, connection, buffer);
@@ -272,7 +273,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
     }
 
-    private void tryRelease(@NotNull ByteBuf buffer) {
+    private void tryRelease(@AssumeNotNull ByteBuf buffer) {
         if (release && buffer instanceof UnpooledHeapByteBuf) {
             release = false;
             buffer.release();
@@ -285,7 +286,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 frameEvent);
     }
 
-    private void transferRemaining(@NotNull ByteBuf buffer) {
+    private void transferRemaining(@AssumeNotNull ByteBuf buffer) {
         final byte[] remaining = ByteBufUtilExtension.readBytes(buffer, buffer.readableBytes());
         tryRelease(buffer);
         if (remaining.length != 0) {
@@ -299,14 +300,14 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     }
 
     @Override
-    public void channelUnregistered(@NotNull ChannelHandlerContext ctx) throws Exception {
+    public void channelUnregistered(@AssumeNotNull ChannelHandlerContext ctx) throws Exception {
         final ConnectionDisconnectEvent event = new ConnectionDisconnectEvent(connection);
         application.getEventManager().callEvent(ListenerType.DISCONNECT, event);
         super.channelUnregistered(ctx);
     }
 
     @Override
-    public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(@AssumeNotNull ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
         context = new DecoderContext(application, connection, this, ctx);
         if (application instanceof Server) {
@@ -315,7 +316,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     }
 
     @Override
-    public void exceptionCaught(@NotNull ChannelHandlerContext ctx, @NotNull Throwable cause) {
+    public void exceptionCaught(@AssumeNotNull ChannelHandlerContext ctx, @AssumeNotNull Throwable cause) {
         if(cause instanceof OutOfMemoryError) {
             // Don't handle OOM errors because handling them could lead into more OOM errors being thrown.
             return;
@@ -335,30 +336,30 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         private final PacketDataDecoder decoder;
         private final ChannelHandlerContext handlerContext;
 
-        public DecoderContext(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
-                              @NotNull PacketDataDecoder decoder, @NotNull ChannelHandlerContext handlerContext) {
+        public DecoderContext(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+                              @AssumeNotNull PacketDataDecoder decoder, @AssumeNotNull ChannelHandlerContext handlerContext) {
             this.application = application;
             this.connection = connection;
             this.decoder = decoder;
             this.handlerContext = handlerContext;
         }
 
-        @NotNull
+        @AssumeNotNull
         public ApplicationImpl getApplication() {
             return application;
         }
 
-        @NotNull
+        @AssumeNotNull
         public ConnectionImpl getConnection() {
             return connection;
         }
 
-        @NotNull
+        @AssumeNotNull
         public PacketDataDecoder getDecoder() {
             return decoder;
         }
 
-        @NotNull
+        @AssumeNotNull
         public ChannelHandlerContext getHandlerContext() {
             return handlerContext;
         }

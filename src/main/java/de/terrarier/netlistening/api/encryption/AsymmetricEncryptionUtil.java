@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.encryption;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -24,7 +25,7 @@ public final class AsymmetricEncryptionUtil {
     }
 
     @NotNull
-    static AsymmetricEncryptionData generate(@NotNull EncryptionOptions encryptionOptions)
+    static AsymmetricEncryptionData generate(@AssumeNotNull EncryptionOptions encryptionOptions)
             throws NoSuchAlgorithmException {
         final KeyPairGenerator generator = KeyPairGenerator.getInstance(encryptionOptions.getType().name());
         final SecureRandom random = new SecureRandom();
@@ -33,15 +34,15 @@ public final class AsymmetricEncryptionUtil {
         return new AsymmetricEncryptionData(encryptionOptions, key.getPrivate(), key.getPublic());
     }
 
-    public static byte[] encrypt(byte[] input, @NotNull EncryptionOptions encryptionOptions, @NotNull PublicKey key) {
+    public static byte[] encrypt(byte[] input, @AssumeNotNull EncryptionOptions encryptionOptions, @AssumeNotNull PublicKey key) {
         return performCipher(input, encryptionOptions, key, Cipher.ENCRYPT_MODE);
     }
 
-    public static byte[] decrypt(byte[] input, @NotNull AsymmetricEncryptionData encryptionData) {
+    public static byte[] decrypt(byte[] input, @AssumeNotNull AsymmetricEncryptionData encryptionData) {
         return performCipher(input, encryptionData.getOptions(), encryptionData.getPrivateKey(), Cipher.DECRYPT_MODE);
     }
 
-    static byte[] performCipher(byte[] input, @NotNull EncryptionOptions encryptionOptions, @NotNull Key key,
+    static byte[] performCipher(byte[] input, @AssumeNotNull EncryptionOptions encryptionOptions, @AssumeNotNull Key key,
                                           int mode) {
 
         try {
@@ -56,7 +57,7 @@ public final class AsymmetricEncryptionUtil {
     }
 
     @NotNull
-    public static PublicKey readPublicKey(byte[] publicKey, @NotNull EncryptionOptions encryptionOptions)
+    public static PublicKey readPublicKey(byte[] publicKey, @AssumeNotNull EncryptionOptions encryptionOptions)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
         final X509EncodedKeySpec spec = new X509EncodedKeySpec(publicKey);
         final KeyFactory factory = KeyFactory.getInstance(encryptionOptions.getType().name());
@@ -64,7 +65,7 @@ public final class AsymmetricEncryptionUtil {
     }
 
     @NotNull
-    static PrivateKey readPrivateKey(byte[] bytes, @NotNull EncryptionOptions encryptionOptions)
+    static PrivateKey readPrivateKey(byte[] bytes, @AssumeNotNull EncryptionOptions encryptionOptions)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
         final PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytes);
         return KeyFactory.getInstance(encryptionOptions.getType().name()).generatePrivate(spec);

@@ -4,6 +4,7 @@ import de.terrarier.netlistening.api.Type;
 import de.terrarier.netlistening.api.event.DecodeListener;
 import de.terrarier.netlistening.api.event.Event;
 import de.terrarier.netlistening.api.event.PacketListener;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,7 +23,7 @@ public final class PreparedListener {
 	private final Type[] types;
 	private final int hash;
 	
-	public PreparedListener(@NotNull DecodeListener listener) throws NoSuchMethodException, SecurityException {
+	public PreparedListener(@AssumeNotNull DecodeListener listener) throws NoSuchMethodException, SecurityException {
 		wrapped = listener;
 		final Method method = listener.getClass().getDeclaredMethod("trigger", Event.class);
 		final PacketListener packetListener = method.getAnnotation(PacketListener.class);
@@ -30,12 +31,12 @@ public final class PreparedListener {
 		hash = Arrays.hashCode(types);
 	}
 
-	@NotNull
+	@AssumeNotNull
 	public DecodeListener getWrapped() {
 		return wrapped;
 	}
 
-	@NotNull
+	@AssumeNotNull
 	public Type[] getTypes() {
 		return types;
 	}

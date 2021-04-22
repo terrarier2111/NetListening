@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.compression;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -47,7 +48,7 @@ public final class VarIntUtil {
 		return bytes;
 	}
 	
-	public static void writeVarInt(int value, @NotNull ByteBuf out) {
+	public static void writeVarInt(int value, @AssumeNotNull ByteBuf out) {
 		if(value > 0x0FFFFFFF || value < 0) out.writeByte((byte)(0x80 | ((value >>> 28))));
 		if(value > 0x1FFFFF || value < 0)   out.writeByte((byte)(0x80 | ((value >>> 21) & 0x7F)));
 		if(value > 0x3FFF || value < 0)     out.writeByte((byte)(0x80 | ((value >>> 14) & 0x7F)));
@@ -56,7 +57,7 @@ public final class VarIntUtil {
 		out.writeByte((byte)(value & 0x7F));
 	}
 	
-	public static int getVarInt(@NotNull ByteBuf buffer) throws VarIntParseException {
+	public static int getVarInt(@AssumeNotNull ByteBuf buffer) throws VarIntParseException {
 		if(!buffer.isReadable()) {
 			throw VarIntParseException.ONE_BYTE;
 		}

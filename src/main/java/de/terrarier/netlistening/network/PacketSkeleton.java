@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.network;
 
 import de.terrarier.netlistening.api.type.DataType;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,7 +19,7 @@ public final class PacketSkeleton {
 	private final int hash;
 	private volatile boolean registered;
 	
-	PacketSkeleton(int id, @NotNull DataType<?>... data) {
+	PacketSkeleton(int id, @AssumeNotNull DataType<?>... data) {
 		this.id = id;
 		this.data = data;
 		hash = Arrays.hashCode(data);
@@ -28,7 +29,7 @@ public final class PacketSkeleton {
 		return id;
 	}
 
-	@NotNull
+	@AssumeNotNull
 	public DataType<?>[] getData() {
 		return data;
 	}

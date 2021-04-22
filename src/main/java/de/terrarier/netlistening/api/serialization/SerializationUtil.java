@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.api.serialization;
 
 import de.terrarier.netlistening.impl.ApplicationImpl;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.internals.CancelSignal;
 import de.terrarier.netlistening.utils.TwoArgsBooleanFunction;
 import de.terrarier.netlistening.utils.TwoArgsFunction;
@@ -18,18 +19,18 @@ public final class SerializationUtil {
         throw new UnsupportedOperationException("This class may not be instantiated!");
     }
 
-    public static byte[] serialize(@NotNull ApplicationImpl application, @NotNull Object obj) throws CancelSignal {
+    public static byte[] serialize(@AssumeNotNull ApplicationImpl application, @AssumeNotNull Object obj) throws CancelSignal {
         return performOperation(application, SerializationProvider::isSerializable, SerializationProvider::serialize, obj);
     }
 
-    public static Object deserialize(@NotNull ApplicationImpl application, byte[] data) throws CancelSignal {
+    public static Object deserialize(@AssumeNotNull ApplicationImpl application, byte[] data) throws CancelSignal {
         return performOperation(application, SerializationProvider::isDeserializable,
                 SerializationProvider::deserialize, data);
     }
 
-    private static <A, R> R performOperation(@NotNull ApplicationImpl application,
-                                             @NotNull TwoArgsBooleanFunction<SerializationProvider, A> check,
-                                             @NotNull TwoArgsFunction<SerializationProvider, A, R> op, A param)
+    private static <A, R> R performOperation(@AssumeNotNull ApplicationImpl application,
+                                             @AssumeNotNull TwoArgsBooleanFunction<SerializationProvider, A> check,
+                                             @AssumeNotNull TwoArgsFunction<SerializationProvider, A, R> op, A param)
             throws CancelSignal {
 
         final SerializationProvider mainProvider = application.getSerializationProvider();

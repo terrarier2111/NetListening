@@ -10,6 +10,7 @@ import de.terrarier.netlistening.api.event.Listener;
 import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.api.serialization.JavaIoSerializationProvider;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.network.PacketCache;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -129,14 +130,14 @@ public abstract class ApplicationImpl implements Application {
         long timeout;
         private boolean built;
 
-        Builder(@NotNull A application) {
+        Builder(@AssumeNotNull A application) {
             this.application = application;
             // https://en.wikipedia.org/wiki/Type_of_service
             options.put(ChannelOption.IP_TOS, 0x18);
         }
 
         @SuppressWarnings("unchecked")
-        @NotNull
+        @AssumeNotNull
         public final B timeout(long timeout) {
             validate();
             this.timeout = timeout;
@@ -144,7 +145,7 @@ public abstract class ApplicationImpl implements Application {
         }
 
         @SuppressWarnings("unchecked")
-        @NotNull
+        @AssumeNotNull
         public final B buffer(int buffer) {
             validate();
             application.buffer = buffer;
@@ -152,22 +153,22 @@ public abstract class ApplicationImpl implements Application {
         }
 
         @SuppressWarnings("unchecked")
-        @NotNull
-        public final <T> B option(@NotNull ChannelOption<T> option, T value) {
+        @AssumeNotNull
+        public final <T> B option(@AssumeNotNull ChannelOption<T> option, T value) {
             validate();
             options.put(option, value);
             return (B) this;
         }
 
         @SuppressWarnings("unchecked")
-        @NotNull
-        public final B serialization(@NotNull SerializationProvider serializationProvider) {
+        @AssumeNotNull
+        public final B serialization(@AssumeNotNull SerializationProvider serializationProvider) {
             validate();
             application.serializationProvider = serializationProvider;
             return (B) this;
         }
 
-        @NotNull
+        @AssumeNotNull
         public final A build() {
             validate();
             built = true;

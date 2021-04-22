@@ -48,22 +48,24 @@ public abstract class DataType<T> {
 	}
 
 	@ApiStatus.Internal
-	public T read0(@NotNull PacketDataDecoder.DecoderContext context, @NotNull List<Object> out,
-				   @NotNull ByteBuf buffer) throws Exception {
+	public T read0(@AssumeNotNull PacketDataDecoder.DecoderContext context, @AssumeNotNull List<Object> out,
+				   @AssumeNotNull ByteBuf buffer) throws Exception {
 		checkReadable(buffer, minSize);
 		return read(context.getApplication(), context.getConnection(), buffer);
 	}
 
-	protected abstract T read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
-							  @NotNull ByteBuf buffer) throws CancelSignal;
+	@ApiStatus.Internal
+	protected abstract T read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+							  @AssumeNotNull ByteBuf buffer) throws CancelSignal;
 
 	@ApiStatus.Internal
-	public void write0(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, T data) throws CancelSignal {
+	public void write0(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, T data) throws CancelSignal {
 		checkWriteable(application, buffer, minSize);
 		write(application, buffer, data);
 	}
 
-	protected abstract void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, T data)
+	@ApiStatus.Internal
+	protected abstract void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, T data)
 			throws CancelSignal;
 	
 	public final byte getId() {
@@ -87,18 +89,19 @@ public abstract class DataType<T> {
 
 	@ApiStatus.Internal
 	@SuppressWarnings("unchecked")
-	public final void writeUnchecked(@NotNull ApplicationImpl application, @NotNull ByteBuf buf, @NotNull Object data)
+	public final void writeUnchecked(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buf, @AssumeNotNull Object data)
 			throws CancelSignal {
 		write0(application, buf, (T) data);
 	}
 
-	protected static void checkReadable(@NotNull ByteBuf buffer, int length) throws CancelReadSignal {
+	@ApiStatus.Internal
+	protected static void checkReadable(@AssumeNotNull ByteBuf buffer, int length) throws CancelReadSignal {
 		if (buffer.readableBytes() < length) {
 			throw new CancelReadSignal(length);
 		}
 	}
 
-	static void checkWriteable(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, int length) {
+	static void checkWriteable(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, int length) {
 		ByteBufUtilExtension.correctSize(buffer, length, application.getBuffer());
 	}
 

@@ -2,6 +2,7 @@ package de.terrarier.netlistening.api.type;
 
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,13 +17,13 @@ public final class DataTypeDouble extends DataType<Double> {
 	}
 
 	@Override
-	protected Double read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
-						  @NotNull ByteBuf buffer) {
+	protected Double read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+						  @AssumeNotNull ByteBuf buffer) {
 		return buffer.readDouble();
 	}
 
 	@Override
-	protected void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, @NotNull Double data) {
+	protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, @AssumeNotNull Double data) {
 		buffer.writeDouble(data);
 	}
 

@@ -2,6 +2,7 @@ package de.terrarier.netlistening.api.type;
 
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.NotNull;
 
@@ -18,15 +19,15 @@ public final class DataTypeUUID extends DataType<UUID> {
 	}
 
 	@Override
-	protected UUID read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
-						@NotNull ByteBuf buffer) {
+	protected UUID read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+						@AssumeNotNull ByteBuf buffer) {
 		final long mostSignificantBits = buffer.readLong();
 		final long leastSignificantBits = buffer.readLong();
 		return new UUID(mostSignificantBits, leastSignificantBits);
 	}
 
 	@Override
-	protected void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, @NotNull UUID uuid) {
+	protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, @AssumeNotNull UUID uuid) {
 		final long mostSignificantBits = uuid.getMostSignificantBits();
 		final long leastSignificantBits = uuid.getLeastSignificantBits();
 		buffer.writeLong(mostSignificantBits);

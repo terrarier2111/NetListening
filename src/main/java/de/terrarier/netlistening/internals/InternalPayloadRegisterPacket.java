@@ -24,14 +24,14 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
     private final int packetId;
     private final DataType<?>[] types;
 
-    public InternalPayloadRegisterPacket(int packetId, @NotNull DataType<?>... types) {
+    public InternalPayloadRegisterPacket(int packetId, @AssumeNotNull DataType<?>... types) {
         super((byte) 0x1);
         this.packetId = packetId;
         this.types = types;
     }
 
     @Override
-    void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
+    void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer) {
         final int typesLength = types.length;
 
         if(typesLength == 0) {
@@ -61,7 +61,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
     }
 
     @Override
-    public void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
+    public void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection, @AssumeNotNull ByteBuf buffer)
             throws CancelReadSignal {
         checkReadable(buffer, 4);
 
@@ -133,7 +133,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
         }
     }
 
-    public int getSize(@NotNull ApplicationImpl application) {
+    public int getSize(@AssumeNotNull ApplicationImpl application) {
         int size = 2 + InternalUtil.getSize(application, packetId);
 
         if(application.getCompressionSetting().isNibbleCompression()) {

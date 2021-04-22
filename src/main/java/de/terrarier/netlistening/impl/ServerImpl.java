@@ -12,6 +12,7 @@ import de.terrarier.netlistening.api.event.ConnectionPostInitEvent;
 import de.terrarier.netlistening.api.event.ConnectionPreInitEvent;
 import de.terrarier.netlistening.api.event.EventManager;
 import de.terrarier.netlistening.api.event.ListenerType;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.network.PacketDataEncoder;
 import de.terrarier.netlistening.network.TimeOutHandler;
@@ -217,7 +218,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         /**
          * @see Server.Builder
          */
-        public void caching(@NotNull PacketCaching caching) {
+        public void caching(@AssumeNotNull PacketCaching caching) {
             validate();
             application.caching = caching;
         }
@@ -225,7 +226,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         /**
          * @see Server.Builder
          */
-        public void compression(@NotNull CompressionSetting compressionSetting) {
+        public void compression(@AssumeNotNull CompressionSetting compressionSetting) {
             validate();
             application.compressionSetting = compressionSetting;
         }
@@ -233,7 +234,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         /**
          * @see Server.Builder
          */
-        public void stringEncoding(@NotNull Charset charset) {
+        public void stringEncoding(@AssumeNotNull Charset charset) {
             validate();
             application.stringEncoding = charset;
         }
@@ -241,7 +242,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         /**
          * @see Server.Builder
          */
-        public void encryption(@NotNull EncryptionSetting encryptionSetting) {
+        public void encryption(@AssumeNotNull EncryptionSetting encryptionSetting) {
             validate();
             application.encryptionSetting = encryptionSetting;
         }

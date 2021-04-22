@@ -25,18 +25,18 @@ public abstract class InternalPayload {
         this.id = id;
     }
 
-    final void write0(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
+    final void write0(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer) {
         checkWriteable(application, buffer, 1);
         buffer.writeByte(id);
         write(application, buffer);
     }
 
-    abstract void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer);
+    abstract void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer);
 
-    public abstract void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection,
-                              @NotNull ByteBuf buffer) throws CancelReadSignal;
+    public abstract void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+                              @AssumeNotNull ByteBuf buffer) throws CancelReadSignal;
 
-    @NotNull
+    @AssumeNotNull
     static InternalPayload fromId(byte id) {
         switch (id) {
             case 0x1:
@@ -53,13 +53,13 @@ public abstract class InternalPayload {
         }
     }
 
-    static void checkReadable(@NotNull ByteBuf buffer, int additional) throws CancelReadSignal {
+    static void checkReadable(@AssumeNotNull ByteBuf buffer, int additional) throws CancelReadSignal {
         if (buffer.readableBytes() < additional) {
             throw new CancelReadSignal(additional);
         }
     }
 
-    static void checkWriteable(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, int length) {
+    static void checkWriteable(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, int length) {
         ByteBufUtilExtension.correctSize(buffer, length, application.getBuffer());
     }
 

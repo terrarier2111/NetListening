@@ -19,12 +19,12 @@ public final class InternalUtil {
 		throw new UnsupportedOperationException("This class may not be instantiated!");
 	}
 
-	public static void writeInt(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, int value) {
+	public static void writeInt(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, int value) {
 		ByteBufUtilExtension.correctSize(buffer, getSize(application, value), application.getBuffer());
 		writeIntUnchecked(application, buffer, value);
 	}
 
-	public static void writeIntUnchecked(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer, int value) {
+	public static void writeIntUnchecked(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, int value) {
 		if (!application.getCompressionSetting().isVarIntCompression()) {
 			buffer.writeInt(value);
 			return;
@@ -32,7 +32,7 @@ public final class InternalUtil {
 		VarIntUtil.writeVarInt(value, buffer);
 	}
 	
-	public static int readInt(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) throws VarIntParseException {
+	public static int readInt(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer) throws VarIntParseException {
 		if(application.getCompressionSetting().isVarIntCompression()) {
 			return VarIntUtil.getVarInt(buffer);
 		}
@@ -42,7 +42,7 @@ public final class InternalUtil {
 		return buffer.readInt();
 	}
 	
-	static int getSize(@NotNull ApplicationImpl application, int value) {
+	static int getSize(@AssumeNotNull ApplicationImpl application, int value) {
 		return application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.varIntSize(value) : 4;
 	}
 

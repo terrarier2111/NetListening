@@ -6,6 +6,7 @@ import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.internals.InternalUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -36,7 +37,7 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 	private byte counter = MIN_VALUE;
 	private ByteBuf buffer;
 	
-	public TimeOutHandler(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, long timeout) {
+	public TimeOutHandler(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection, long timeout) {
 		super(timeout, TimeUnit.MILLISECONDS);
 		this.application = application;
 		this.connection = connection;
@@ -72,7 +73,7 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 	}
 
 	@Override
-	protected void readTimedOut(@NotNull ChannelHandlerContext ctx) throws Exception {
+	protected void readTimedOut(@AssumeNotNull ChannelHandlerContext ctx) throws Exception {
 		if (!callTimeOut()) {
 			cancel();
 			super.readTimedOut(ctx);
@@ -80,13 +81,13 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 	}
 	
 	@Override
-	public void handlerRemoved(@NotNull ChannelHandlerContext ctx) throws Exception {
+	public void handlerRemoved(@AssumeNotNull ChannelHandlerContext ctx) throws Exception {
 		cancel();
 		super.handlerRemoved(ctx);
 	}
 	
 	@Override
-	public void close(@NotNull ChannelHandlerContext ctx, @NotNull ChannelPromise promise) throws Exception {
+	public void close(@AssumeNotNull ChannelHandlerContext ctx, @AssumeNotNull ChannelPromise promise) throws Exception {
 		cancel();
 		super.close(ctx, promise);
 	}

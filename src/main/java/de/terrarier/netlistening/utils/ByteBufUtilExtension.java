@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.utils;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import org.jetbrains.annotations.ApiStatus;
@@ -35,7 +36,7 @@ public final class ByteBufUtilExtension {
 		throw new UnsupportedOperationException("This class may not be instantiated!");
 	}
 	
-	public static byte[] readBytes(@NotNull ByteBuf buffer, int bytes) {
+	public static byte[] readBytes(@AssumeNotNull ByteBuf buffer, int bytes) {
 		if(bytes == 0) {
 			return EMPTY_BYTES;
 		}
@@ -45,7 +46,7 @@ public final class ByteBufUtilExtension {
 		return read;
 	}
 	
-	public static void writeBytes(@NotNull ByteBuf buf, byte[] bytes, int buffer) {
+	public static void writeBytes(@AssumeNotNull ByteBuf buf, byte[] bytes, int buffer) {
 		final int length = bytes.length;
 		correctSize(buf, 4 + length, buffer);
 		buf.writeInt(length);
@@ -54,7 +55,7 @@ public final class ByteBufUtilExtension {
 		}
 	}
 	
-	public static void correctSize(@NotNull ByteBuf buf, int bytes, int buffer) {
+	public static void correctSize(@AssumeNotNull ByteBuf buf, int bytes, int buffer) {
 		final int capacity = buf.capacity();
 		final int available = capacity - (buf.writerIndex() + bytes);
 		
@@ -63,7 +64,7 @@ public final class ByteBufUtilExtension {
 		}
 	}
 
-	public static byte[] getBytes(@NotNull ByteBuf buffer, int bytes) {
+	public static byte[] getBytes(@AssumeNotNull ByteBuf buffer, int bytes) {
 		if(bytes == 0) {
 			return EMPTY_BYTES;
 		}
@@ -71,7 +72,7 @@ public final class ByteBufUtilExtension {
 		return NEW_NETTY_VERSION ? ByteBufUtil.getBytes(buffer, buffer.readerIndex(), bytes) : getBytes0(buffer, bytes);
 	}
 
-	public static byte[] getBytes(@NotNull ByteBuf buffer) {
+	public static byte[] getBytes(@AssumeNotNull ByteBuf buffer) {
 		return getBytes(buffer, buffer.readableBytes());
 	}
 	
@@ -81,7 +82,7 @@ public final class ByteBufUtilExtension {
 	 * @see <a href="https://github.com/netty/netty/blob/4.1/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java">https://github.com/netty/netty/blob/4.1/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java</a>
 	 */
 
-	private static byte[] getBytes0(@NotNull ByteBuf buffer, int length) {
+	private static byte[] getBytes0(@AssumeNotNull ByteBuf buffer, int length) {
 		final int start = buffer.readerIndex();
         final int capacity = buffer.capacity();
         

@@ -29,7 +29,7 @@ public final class InternalPayloadHandshake extends InternalPayload {
     }
 
 	@Override
-	void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
+	void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer) {
 		final CompressionSetting compressionSetting = application.getCompressionSetting();
 		final Charset charset = application.getStringEncoding();
 		final boolean utf8 = charset.equals(UTF_8);
@@ -67,7 +67,7 @@ public final class InternalPayloadHandshake extends InternalPayload {
 	}
 
 	@Override
-	public void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
+	public void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection, @AssumeNotNull ByteBuf buffer)
 			throws CancelReadSignal {
 		if(application instanceof Server) {
 			throw new IllegalStateException("The connection " + connection.getChannel() + " has sent invalid data!");

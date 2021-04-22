@@ -31,8 +31,8 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
     private final PublicKey publicKey;
     private final byte[] hmacKey;
 
-    private InternalPayloadEncryptionInit(@NotNull SymmetricEncryptionData symmetricEncryptionData,
-                                          @NotNull PublicKey publicKey, byte[] hmacKey) {
+    private InternalPayloadEncryptionInit(@AssumeNotNull SymmetricEncryptionData symmetricEncryptionData,
+                                          @AssumeNotNull PublicKey publicKey, byte[] hmacKey) {
         super((byte) 0x3);
         this.symmetricEncryptionData = symmetricEncryptionData;
         this.publicKey = publicKey;
@@ -47,7 +47,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
     }
 
     @Override
-    void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
+    void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer) {
         if (application instanceof Server) {
             final EncryptionOptions asymmetricSetting = application.getEncryptionSetting().getAsymmetricSetting();
             final byte[] key = symmetricEncryptionData.getSecretKey().getEncoded();
@@ -70,7 +70,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
     }
 
     @Override
-    public void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
+    public void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection, @AssumeNotNull ByteBuf buffer)
             throws CancelReadSignal {
         final byte[] key = readKey(buffer);
         if (application instanceof Client) {
@@ -116,7 +116,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
     }
 
     @NotNull
-    private static EncryptionOptions readOptions(@NotNull ByteBuf buffer) {
+    private static EncryptionOptions readOptions(@AssumeNotNull ByteBuf buffer) {
         final byte type = buffer.readByte();
         final int keySize = buffer.readInt();
         final byte mode = buffer.readByte();
@@ -129,8 +129,8 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
         return encryptionOptions;
     }
 
-    private static void writeOptions(@NotNull EncryptionOptions options, byte[] key, @NotNull ByteBuf buffer,
-                              @NotNull ApplicationImpl application) {
+    private static void writeOptions(@AssumeNotNull EncryptionOptions options, byte[] key, @AssumeNotNull ByteBuf buffer,
+                              @AssumeNotNull ApplicationImpl application) {
         writeKey(key, buffer, application);
         checkWriteable(application, buffer, 1 + 4 + 1 + 1);
         buffer.writeByte(options.getType().ordinal());
@@ -139,14 +139,14 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
         buffer.writeByte(options.getPadding().ordinal());
     }
 
-    private static void writeKey(byte[] key, @NotNull ByteBuf buffer, @NotNull ApplicationImpl application) {
+    private static void writeKey(byte[] key, @AssumeNotNull ByteBuf buffer, @AssumeNotNull ApplicationImpl application) {
         final int keyLength = key.length;
         checkWriteable(application, buffer, 4 + keyLength);
         buffer.writeInt(keyLength);
         buffer.writeBytes(key);
     }
 
-    private static byte[] readKey(@NotNull ByteBuf buffer) throws CancelReadSignal {
+    private static byte[] readKey(@AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
         checkReadable(buffer, 4 + 1);
         final int keyLength = buffer.readInt();
         checkReadable(buffer, keyLength);
