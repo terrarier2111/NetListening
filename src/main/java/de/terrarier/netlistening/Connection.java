@@ -2,6 +2,7 @@ package de.terrarier.netlistening;
 
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 
@@ -63,13 +64,13 @@ public interface Connection {
     /**
      * @return the channel underlying the connection.
      */
-    @NotNull
+    @AssumeNotNull
     Channel getChannel();
 
     /**
      * @return the remote address of the connection.
      */
-    @NotNull
+    @AssumeNotNull
     InetSocketAddress getRemoteAddress();
 
     /**

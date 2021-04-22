@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.encryption;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -25,7 +26,7 @@ public final class EncryptionOptionsWrapper<T extends EncryptionOptionsSuperBuil
     /**
      * @see EncryptionOptions
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionOptionsWrapper<T> type(@NotNull CipherEncryptionAlgorithm type) {
         encryptionOptions.type(type);
         return this;
@@ -34,7 +35,7 @@ public final class EncryptionOptionsWrapper<T extends EncryptionOptionsSuperBuil
     /**
      * @see EncryptionOptions
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionOptionsWrapper<T> keySize(int keySize) {
         encryptionOptions.keySize(keySize);
         return this;
@@ -43,7 +44,7 @@ public final class EncryptionOptionsWrapper<T extends EncryptionOptionsSuperBuil
     /**
      * @see EncryptionOptions
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionOptionsWrapper<T> mode(@NotNull CipherAlgorithmMode mode) {
         encryptionOptions.mode(mode);
         return this;
@@ -52,7 +53,7 @@ public final class EncryptionOptionsWrapper<T extends EncryptionOptionsSuperBuil
     /**
      * @see EncryptionOptions
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionOptionsWrapper<T> padding(@NotNull CipherAlgorithmPadding padding) {
         encryptionOptions.padding(padding);
         return this;
@@ -66,7 +67,7 @@ public final class EncryptionOptionsWrapper<T extends EncryptionOptionsSuperBuil
      * @return an encryption setting wrapper.
      */
     @SuppressWarnings("unchecked")
-    @NotNull
+    @AssumeNotNull
     public T build() {
         encryptionBuilder.encryptionOptions(encryptionOptions);
         return (T) encryptionBuilder;

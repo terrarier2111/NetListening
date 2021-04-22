@@ -2,6 +2,7 @@ package de.terrarier.netlistening.api.encryption.hash;
 
 import de.terrarier.netlistening.api.encryption.CipherEncryptionAlgorithm;
 import de.terrarier.netlistening.api.encryption.EncryptionOptions;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -20,7 +21,7 @@ public final class HmacSetting {
      * @param hashingAlgorithm the hashing algorithm which should be used to calculate the hmac of messages.
      * @return the local reference.
      */
-    @NotNull
+    @AssumeNotNull
     public HmacSetting hashingAlgorithm(@NotNull HashingAlgorithm hashingAlgorithm) {
         this.hashingAlgorithm = hashingAlgorithm;
         return this;
@@ -32,7 +33,7 @@ public final class HmacSetting {
      * @param encryption the options for the hmac chosen by the user or if not present by default.
      * @return the local reference.
      */
-    @NotNull
+    @AssumeNotNull
     public HmacSetting encryptionOptions(@NotNull EncryptionOptions encryption) {
         encryption.getKeySize(); // This line makes sure that checkBuilt was called before any get ops could be performed.
         this.encryptionOptions = encryption;
@@ -45,7 +46,7 @@ public final class HmacSetting {
      * @param useCase the useCase in which a hmac is to be sent besides the traffic.
      * @return the local reference.
      */
-    @NotNull
+    @AssumeNotNull
     public HmacSetting useCase(@NotNull HmacUseCase useCase) {
         this.useCase = useCase;
         return this;
@@ -54,7 +55,7 @@ public final class HmacSetting {
     /**
      * @return the hashing algorithm set by the user or otherwise by default.
      */
-    @NotNull
+    @AssumeNotNull
     public HashingAlgorithm getHashingAlgorithm() {
         return hashingAlgorithm;
     }
@@ -62,7 +63,7 @@ public final class HmacSetting {
     /**
      * @return the encryption configuration set by the user or otherwise by default.
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionOptions getEncryptionSetting() {
         return encryptionOptions;
     }
@@ -70,7 +71,7 @@ public final class HmacSetting {
     /**
      * @return the useCase in which a hmac is sent besides the traffic.
      */
-    @NotNull
+    @AssumeNotNull
     public HmacUseCase getUseCase() {
         return useCase;
     }

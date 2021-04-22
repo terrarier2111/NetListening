@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.encryption;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -17,7 +18,7 @@ public abstract class EncryptionData {
     /**
      * @return the options applied on the key specified in the constructor.
      */
-    @NotNull
+    @AssumeNotNull
     public final EncryptionOptions getOptions() {
         return options;
     }

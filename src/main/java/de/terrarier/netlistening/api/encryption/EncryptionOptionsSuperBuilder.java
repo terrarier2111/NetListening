@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.encryption;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -16,7 +17,7 @@ public abstract class EncryptionOptionsSuperBuilder<T extends EncryptionOptionsS
      * @param encryption the EncryptionOptions which get set for the underlying builder.
      * @return the underlying builder.
      */
-    @NotNull
+    @AssumeNotNull
     protected abstract T encryptionOptions(@NotNull EncryptionOptions encryption);
 
 }

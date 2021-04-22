@@ -1,6 +1,6 @@
 package de.terrarier.netlistening.api.encryption.hash;
 
-import org.jetbrains.annotations.NotNull;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 
 /**
  * @since 1.0
@@ -12,7 +12,7 @@ public enum HmacUseCase {
 
     private static final HmacUseCase[] VALUES = values();
 
-    @NotNull
+    @AssumeNotNull
     public static HmacUseCase fromId(byte id) {
         return VALUES[id];
     }

@@ -48,14 +48,14 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         final ThreadFactory factory = Executors.defaultThreadFactory();
 
         @Override
-        public Thread newThread(@NotNull Runnable r) {
+        public Thread newThread(@AssumeNotNull Runnable r) {
             final Thread t = factory.newThread(r);
             t.setDaemon(true);
             return t;
         }
     });
 
-    private void start(long timeout, int port, @NotNull Map<ChannelOption<?>, Object> options) {
+    private void start(long timeout, int port, @AssumeNotNull Map<ChannelOption<?>, Object> options) {
         if (group != null) {
             throw new IllegalStateException("The server is already started!");
         }
@@ -183,7 +183,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         }
     }
 
-    void disconnect0(@NotNull Connection connection) {
+    void disconnect0(@AssumeNotNull Connection connection) {
         connections.remove(connection.getChannel());
     }
 

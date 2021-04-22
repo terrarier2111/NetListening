@@ -47,8 +47,8 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     private HashingAlgorithm serverKeyHashing = HashingAlgorithm.SHA_256;
     private ServerKey serverKey;
 
-    private void start(long timeout, int localPort, @NotNull Map<ChannelOption<?>, Object> options,
-                       @NotNull SocketAddress remoteAddress, Proxy proxy) {
+    private void start(long timeout, int localPort, @AssumeNotNull Map<ChannelOption<?>, Object> options,
+                       @AssumeNotNull SocketAddress remoteAddress, Proxy proxy) {
         if (group != null) {
             throw new IllegalStateException("The client is already running!");
         }
@@ -111,7 +111,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     }
 
     @ApiStatus.Internal
-    public void receiveHandshake(@NotNull CompressionSetting compressionSetting, Charset stringEncoding,
+    public void receiveHandshake(@AssumeNotNull CompressionSetting compressionSetting, Charset stringEncoding,
                                  EncryptionSetting encryptionSetting, byte[] serverKey) {
         this.compressionSetting = compressionSetting;
 
@@ -149,7 +149,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     }
 
     @ApiStatus.Internal
-    public void sendRawData(@NotNull ByteBuf data) {
+    public void sendRawData(@AssumeNotNull ByteBuf data) {
         channel.writeAndFlush(data);
     }
 
@@ -254,7 +254,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         return setServerKey(new ServerKey(data));
     }
 
-    private void setServerKey(byte[] serverKeyData, @NotNull HashingAlgorithm hashingAlgorithm) {
+    private void setServerKey(byte[] serverKeyData, @AssumeNotNull HashingAlgorithm hashingAlgorithm) {
         final ServerKey serverKey;
         try {
             serverKey = new ServerKey(serverKeyData, hashingAlgorithm);
@@ -265,7 +265,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         setServerKey(serverKey);
     }
 
-    private boolean setServerKey(@NotNull ServerKey serverKey) {
+    private boolean setServerKey(@AssumeNotNull ServerKey serverKey) {
         if(!eventManager.callEvent(ListenerType.KEY_CHANGE, EventManager.CancelAction.IGNORE,
                 (EventManager.EventProvider<KeyChangeEvent>) () -> {
             final boolean replace = this.serverKey != null;

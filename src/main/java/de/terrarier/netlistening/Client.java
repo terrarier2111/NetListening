@@ -6,6 +6,7 @@ import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
 import de.terrarier.netlistening.api.proxy.ProxyType;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.impl.ClientImpl;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.channel.ChannelOption;
 import org.jetbrains.annotations.NotNull;
 
@@ -95,7 +96,7 @@ public interface Client extends Application {
         /**
          * @see Application.Builder
          */
-        @NotNull
+        @AssumeNotNull
         @Override
         public Builder timeout(long timeout) {
             impl.timeout(timeout);
@@ -108,7 +109,7 @@ public interface Client extends Application {
          * @param localPort the port the client is getting bound to.
          * @return the local reference.
          */
-        @NotNull
+        @AssumeNotNull
         public Builder localPort(int localPort) {
             impl.localPort(localPort);
             return this;
@@ -117,7 +118,7 @@ public interface Client extends Application {
         /**
          * @see Application.Builder
          */
-        @NotNull
+        @AssumeNotNull
         @Override
         public Builder buffer(int buffer) {
             impl.buffer(buffer);
@@ -131,7 +132,7 @@ public interface Client extends Application {
          * @param hashingAlgorithm the hashing algorithm used to hash the key provided by the server.
          * @return the local reference.
          */
-        @NotNull
+        @AssumeNotNull
         public Builder serverKeyHashingAlgorithm(@NotNull HashingAlgorithm hashingAlgorithm) {
             impl.serverKeyHashingAlgorithm(hashingAlgorithm);
             return this;
@@ -144,7 +145,7 @@ public interface Client extends Application {
          * @param bytes the key represented as a byte array.
          * @return the local reference.
          */
-        @NotNull
+        @AssumeNotNull
         public Builder serverKeyHash(byte[] bytes) {
             impl.serverKeyHash(bytes);
             return this;
@@ -153,7 +154,7 @@ public interface Client extends Application {
         /**
          * @see Application.Builder
          */
-        @NotNull
+        @AssumeNotNull
         @Override
         public <T> Builder option(@NotNull ChannelOption<T> option, T value) {
             impl.option(option, value);
@@ -163,7 +164,7 @@ public interface Client extends Application {
         /**
          * @see Application.Builder
          */
-        @NotNull
+        @AssumeNotNull
         @Override
         public Builder serialization(@NotNull SerializationProvider serializationProvider) {
             impl.serialization(serializationProvider);
@@ -178,7 +179,7 @@ public interface Client extends Application {
          * @param proxyType the type of the proxy server that the client should connect to.
          * @return the local reference.
          */
-        @NotNull
+        @AssumeNotNull
         public Builder proxy(@NotNull SocketAddress address, @NotNull ProxyType proxyType) {
             impl.proxy(address, proxyType);
             return this;
@@ -187,7 +188,7 @@ public interface Client extends Application {
         /**
          * @see Application.Builder
          */
-        @NotNull
+        @AssumeNotNull
         @Override
         public Client build() {
             return impl.build();

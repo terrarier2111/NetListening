@@ -3,7 +3,6 @@ package de.terrarier.netlistening.api.compression;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @since 1.0
@@ -94,13 +93,13 @@ public final class VarIntUtil {
 			this.requiredBytes = requiredBytes;
 		}
 
-		@NotNull
+		@AssumeNotNull
 		@Override
 		public Throwable initCause(Throwable cause) {
 			return this;
 		}
 
-		@NotNull
+		@AssumeNotNull
 		@Override
 		public Throwable fillInStackTrace() {
 			return this;

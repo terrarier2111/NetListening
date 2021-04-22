@@ -54,7 +54,7 @@ public abstract class ApplicationImpl implements Application {
      * to packet content.
      */
     @ApiStatus.Internal
-    @NotNull
+    @AssumeNotNull
     public final PacketCache getCache() {
         return cache;
     }
@@ -117,7 +117,7 @@ public abstract class ApplicationImpl implements Application {
     }
 
     @ApiStatus.Internal
-    @NotNull
+    @AssumeNotNull
     public final EventManager getEventManager() {
         return eventManager;
     }
@@ -154,7 +154,7 @@ public abstract class ApplicationImpl implements Application {
 
         @SuppressWarnings("unchecked")
         @AssumeNotNull
-        public final <T> B option(@AssumeNotNull ChannelOption<T> option, T value) {
+        public final <T> B option(@NotNull ChannelOption<T> option, T value) {
             validate();
             options.put(option, value);
             return (B) this;
@@ -162,7 +162,7 @@ public abstract class ApplicationImpl implements Application {
 
         @SuppressWarnings("unchecked")
         @AssumeNotNull
-        public final B serialization(@AssumeNotNull SerializationProvider serializationProvider) {
+        public final B serialization(@NotNull SerializationProvider serializationProvider) {
             validate();
             application.serializationProvider = serializationProvider;
             return (B) this;

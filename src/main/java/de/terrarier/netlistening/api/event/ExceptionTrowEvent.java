@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.event;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -27,7 +28,7 @@ public final class ExceptionTrowEvent implements Event {
     /**
      * @return the exception which got thrown.
      */
-    @NotNull
+    @AssumeNotNull
     public Throwable getException() {
         return exception;
     }

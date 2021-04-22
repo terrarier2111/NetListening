@@ -1,6 +1,6 @@
 package de.terrarier.netlistening.api.compression;
 
-import org.jetbrains.annotations.NotNull;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 
 /**
  * @since 1.0
@@ -18,7 +18,7 @@ public final class CompressionSetting {
      * @param enabled if VarInt compression should be used.
      * @return the local reference.
      */
-    @NotNull
+    @AssumeNotNull
     public CompressionSetting varIntCompression(boolean enabled) {
         this.varIntCompression = enabled;
         return this;
@@ -30,7 +30,7 @@ public final class CompressionSetting {
      * @param enabled if nibble compression should be used.
      * @return the local reference.
      */
-    @NotNull
+    @AssumeNotNull
     public CompressionSetting nibbleCompression(boolean enabled) {
         this.nibbleCompression = enabled;
         return this;

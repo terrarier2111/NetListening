@@ -2,7 +2,6 @@ package de.terrarier.netlistening.api.encryption;
 
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -24,7 +23,7 @@ public final class AsymmetricEncryptionUtil {
         throw new UnsupportedOperationException("This class may not be instantiated!");
     }
 
-    @NotNull
+    @AssumeNotNull
     static AsymmetricEncryptionData generate(@AssumeNotNull EncryptionOptions encryptionOptions)
             throws NoSuchAlgorithmException {
         final KeyPairGenerator generator = KeyPairGenerator.getInstance(encryptionOptions.getType().name());
@@ -56,7 +55,7 @@ public final class AsymmetricEncryptionUtil {
         return null;
     }
 
-    @NotNull
+    @AssumeNotNull
     public static PublicKey readPublicKey(byte[] publicKey, @AssumeNotNull EncryptionOptions encryptionOptions)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
         final X509EncodedKeySpec spec = new X509EncodedKeySpec(publicKey);
@@ -64,7 +63,7 @@ public final class AsymmetricEncryptionUtil {
         return factory.generatePublic(spec);
     }
 
-    @NotNull
+    @AssumeNotNull
     static PrivateKey readPrivateKey(byte[] bytes, @AssumeNotNull EncryptionOptions encryptionOptions)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
         final PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytes);

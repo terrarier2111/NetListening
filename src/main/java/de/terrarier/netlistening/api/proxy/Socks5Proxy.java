@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.proxy;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.proxy.Socks5ProxyHandler;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +17,7 @@ final class Socks5Proxy extends Proxy {
         super(address);
     }
 
-    @NotNull
+    @AssumeNotNull
     @Override
     public ChannelHandler newHandler() {
         return new Socks5ProxyHandler(address);

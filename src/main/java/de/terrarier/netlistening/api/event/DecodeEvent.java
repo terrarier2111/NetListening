@@ -2,6 +2,7 @@ package de.terrarier.netlistening.api.event;
 
 import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.DataContainer;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -22,7 +23,7 @@ public final class DecodeEvent extends ConnectionEvent {
 	/**
 	 * @return the data which was decoded.
 	 */
-	@NotNull
+	@AssumeNotNull
 	public DataContainer getData() {
 		return data;
 	}

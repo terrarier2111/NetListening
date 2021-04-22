@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.api.event;
 
 import de.terrarier.netlistening.Connection;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -18,7 +19,7 @@ public abstract class ConnectionEvent extends Cancellable implements Event {
     /**
      * @return the connection this event is related to.
      */
-    @NotNull
+    @AssumeNotNull
     public final Connection getConnection() {
         return connection;
     }

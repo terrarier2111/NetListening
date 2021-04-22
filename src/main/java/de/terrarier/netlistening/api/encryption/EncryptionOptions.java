@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.encryption;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -20,7 +21,7 @@ public final class EncryptionOptions {
      * @param type the encryption algorithm which should be used.
      * @return the local reference.
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionOptions type(@NotNull CipherEncryptionAlgorithm type) {
         checkModifiable();
         this.type = type;
@@ -33,7 +34,7 @@ public final class EncryptionOptions {
      * @param keySize the size of the key.
      * @return the local reference.
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionOptions keySize(int keySize) {
         checkModifiable();
         this.keySize = keySize & 0x7FFFFFF8; // this magic number is validating the key size such that it is a multiple of 8.
@@ -46,7 +47,7 @@ public final class EncryptionOptions {
      * @param mode the algorithm mode which should be used for the en-/decryption of data.
      * @return the local reference.
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionOptions mode(@NotNull CipherAlgorithmMode mode) {
         checkModifiable();
         this.mode = mode;
@@ -59,7 +60,7 @@ public final class EncryptionOptions {
      * @param padding the padding which is used for the en-/decryption of data.
      * @return the local reference.
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionOptions padding(@NotNull CipherAlgorithmPadding padding) {
         checkModifiable();
         this.padding = padding;
@@ -69,7 +70,7 @@ public final class EncryptionOptions {
     /**
      * @return a string representing all available options for the creation of an instance of cipher.
      */
-    @NotNull
+    @AssumeNotNull
     public String build() {
         checkBuilt();
         return type.name() + "/" + mode.name() + "/" + padding.getPaddingName();
@@ -102,7 +103,7 @@ public final class EncryptionOptions {
     /**
      * @return the encryption algorithm which is used to en-/decrypt data.
      */
-    @NotNull
+    @AssumeNotNull
     public CipherEncryptionAlgorithm getType() {
         checkBuilt();
         return type;
@@ -119,7 +120,7 @@ public final class EncryptionOptions {
     /**
      * @return the algorithm mode which is used for the en-/decryption of data.
      */
-    @NotNull
+    @AssumeNotNull
     public CipherAlgorithmMode getMode() {
         checkBuilt();
         return mode;
@@ -128,7 +129,7 @@ public final class EncryptionOptions {
     /**
      * @return the padding which is used for the en-/decryption of data.
      */
-    @NotNull
+    @AssumeNotNull
     public CipherAlgorithmPadding getPadding() {
         checkBuilt();
         return padding;

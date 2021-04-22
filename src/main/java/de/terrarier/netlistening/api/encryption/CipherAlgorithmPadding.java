@@ -1,6 +1,6 @@
 package de.terrarier.netlistening.api.encryption;
 
-import org.jetbrains.annotations.NotNull;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 
 /**
  * @since 1.0
@@ -12,12 +12,12 @@ public enum CipherAlgorithmPadding {
 
     private static final CipherAlgorithmPadding[] VALUES = values();
 
-    @NotNull
+    @AssumeNotNull
     public String getPaddingName() {
         return name() + "Padding";
     }
 
-    @NotNull
+    @AssumeNotNull
     public static CipherAlgorithmPadding fromId(byte id) {
         return VALUES[id];
     }

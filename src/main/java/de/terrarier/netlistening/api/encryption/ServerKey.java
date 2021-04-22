@@ -4,6 +4,7 @@ import de.terrarier.netlistening.Client;
 import de.terrarier.netlistening.api.encryption.hash.HashUtil;
 import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
 import de.terrarier.netlistening.impl.ClientImpl;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -59,7 +60,7 @@ public final class ServerKey {
     /**
      * @return the hashing algorithm used to hash the public key provided by the server.
      */
-    @NotNull
+    @AssumeNotNull
     public HashingAlgorithm getHashingAlgorithm() {
         return hashingAlgorithm;
     }
@@ -89,7 +90,7 @@ public final class ServerKey {
      * @param client the Client the ServerKey gets created for.
      * @return the ServerKey generated from the hash.
      */
-    @NotNull
+    @AssumeNotNull
     public static ServerKey fromHash(byte[] keyHash, @NotNull Client client) {
         return fromHash(keyHash, ((ClientImpl) client).getServerKeyHashing());
     }
@@ -99,7 +100,7 @@ public final class ServerKey {
      * @param hashingAlgorithm the HashingAlgorithm used to hash the ServerKey.
      * @return the ServerKey generated from the hash.
      */
-    @NotNull
+    @AssumeNotNull
     public static ServerKey fromHash(byte[] keyHash, @NotNull HashingAlgorithm hashingAlgorithm) {
         return new ServerKey(null, keyHash, hashingAlgorithm);
     }

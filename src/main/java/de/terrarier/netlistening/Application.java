@@ -5,6 +5,7 @@ import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.api.event.Listener;
 import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import org.jetbrains.annotations.ApiStatus;
@@ -27,7 +28,7 @@ public interface Application {
 	 * @return the encoding used to encode String which are being sent through the network.
 	 */
 	@ApiStatus.Internal
-	@NotNull
+	@AssumeNotNull
 	Charset getStringEncoding();
 
 	/**
@@ -59,7 +60,7 @@ public interface Application {
 	/**
 	 * @return a list of all connections.
 	 */
-	@NotNull
+	@AssumeNotNull
 	Set<Connection> getConnections();
 
 	/**
@@ -132,7 +133,7 @@ public interface Application {
 		 * @param timeout the amount of milliseconds in which any data should be received.
 		 * @return the local reference.
 		 */
-		@NotNull
+		@AssumeNotNull
 		public abstract B timeout(long timeout);
 
 		/**
@@ -142,7 +143,7 @@ public interface Application {
 		 * @param buffer the additional size added to the buffer.
 		 * @return the local reference.
 		 */
-		@NotNull
+		@AssumeNotNull
 		public abstract B buffer(int buffer);
 
 		/**
@@ -154,7 +155,7 @@ public interface Application {
 		 * @param <T> the type of the option.
 		 * @return the local reference.
 		 */
-		@NotNull
+		@AssumeNotNull
 		public abstract <T> B option(@NotNull ChannelOption<T> option, T value);
 
 		/**
@@ -165,7 +166,7 @@ public interface Application {
 		 * an implementation for serialization operations.
 		 * @return the local reference.
 		 */
-		@NotNull
+		@AssumeNotNull
 		public abstract B serialization(@NotNull SerializationProvider serializationProvider);
 
 		/**
@@ -173,7 +174,7 @@ public interface Application {
 		 *
 		 * @return the started application.
 		 */
-		@NotNull
+		@AssumeNotNull
 		public abstract A build();
 
 	}

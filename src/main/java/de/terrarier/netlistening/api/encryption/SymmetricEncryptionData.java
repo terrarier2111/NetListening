@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.encryption;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.SecretKey;
@@ -20,7 +21,7 @@ public final class SymmetricEncryptionData extends EncryptionData {
     /**
      * @return the key used to en-/decrypt data.
      */
-    @NotNull
+    @AssumeNotNull
     public SecretKey getSecretKey() {
         return secretKey;
     }

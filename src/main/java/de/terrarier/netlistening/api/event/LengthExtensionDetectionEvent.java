@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.event;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -36,7 +37,7 @@ public final class LengthExtensionDetectionEvent implements Event {
     /**
      * @return the result of the event which determines what action should be performed.
      */
-    @NotNull
+    @AssumeNotNull
     public Result getResult() {
         return result;
     }

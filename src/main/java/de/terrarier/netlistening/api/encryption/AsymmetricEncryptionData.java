@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.encryption;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -40,7 +41,7 @@ public final class AsymmetricEncryptionData extends EncryptionData {
     /**
      * @return the asymmetric private key used to decrypt the asymmetric public key sent by the client.
      */
-    @NotNull
+    @AssumeNotNull
     public PrivateKey getPrivateKey() {
         return privateKey;
     }
@@ -48,7 +49,7 @@ public final class AsymmetricEncryptionData extends EncryptionData {
     /**
      * @return the asymmetric public key used to encrypt the asymmetric key sent by the client.
      */
-    @NotNull
+    @AssumeNotNull
     public PublicKey getPublicKey() {
         return publicKey;
     }

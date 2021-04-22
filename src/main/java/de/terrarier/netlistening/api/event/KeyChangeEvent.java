@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.event;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -38,7 +39,7 @@ public final class KeyChangeEvent extends Cancellable implements Event {
     /**
      * @return the result of the key change.
      */
-    @NotNull
+    @AssumeNotNull
     public KeyChangeResult getResult() {
         return result;
     }

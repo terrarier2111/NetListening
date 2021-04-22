@@ -4,6 +4,7 @@ import de.terrarier.netlistening.api.encryption.EncryptionOptions;
 import de.terrarier.netlistening.api.encryption.EncryptionOptionsSuperBuilder;
 import de.terrarier.netlistening.api.encryption.EncryptionOptionsWrapper;
 import de.terrarier.netlistening.api.encryption.EncryptionSettingWrapper;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -22,7 +23,7 @@ public final class HmacSettingWrapper extends EncryptionOptionsSuperBuilder<Hmac
     /**
      * @see HmacSetting
      */
-    @NotNull
+    @AssumeNotNull
     public HmacSettingWrapper hashingAlgorithm(@NotNull HashingAlgorithm hashingAlgorithm) {
         hmacSetting.hashingAlgorithm(hashingAlgorithm);
         return this;
@@ -31,7 +32,7 @@ public final class HmacSettingWrapper extends EncryptionOptionsSuperBuilder<Hmac
     /**
      * @see HmacSetting
      */
-    @NotNull
+    @AssumeNotNull
     @Override
     public HmacSettingWrapper encryptionOptions(@NotNull EncryptionOptions encryption) {
         hmacSetting.encryptionOptions(encryption);
@@ -41,7 +42,7 @@ public final class HmacSettingWrapper extends EncryptionOptionsSuperBuilder<Hmac
     /**
      * @see HmacSetting
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionOptionsWrapper<HmacSettingWrapper> encryptionOptions() {
         return new EncryptionOptionsWrapper<>(this);
     }
@@ -49,7 +50,7 @@ public final class HmacSettingWrapper extends EncryptionOptionsSuperBuilder<Hmac
     /**
      * @see HmacSetting
      */
-    @NotNull
+    @AssumeNotNull
     public HmacSettingWrapper useCase(@NotNull HmacUseCase useCase) {
         hmacSetting.useCase(useCase);
         return this;
@@ -60,7 +61,7 @@ public final class HmacSettingWrapper extends EncryptionOptionsSuperBuilder<Hmac
      *
      * @return the builder which was used before.
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionSettingWrapper build() {
         builder.hmac(hmacSetting);
         return builder;

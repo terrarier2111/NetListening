@@ -1,7 +1,7 @@
 package de.terrarier.netlistening.api.event;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * @since 1.0
@@ -24,7 +24,7 @@ public enum ListenerType {
         this.type = type;
     }
 
-    static ListenerType resolveType(@NotNull Class<?> clazz) {
+    static ListenerType resolveType(@AssumeNotNull Class<?> clazz) {
         for (Class<?> implemented : clazz.getInterfaces()) {
             for (ListenerType type : VALUES) {
                 final Class<?> listenerType = type.type;

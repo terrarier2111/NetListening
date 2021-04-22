@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.api.proxy;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.channel.ChannelHandler;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +18,7 @@ public abstract class Proxy {
         this.address = address;
     }
 
-    @NotNull
+    @AssumeNotNull
     public abstract ChannelHandler newHandler();
 
 }

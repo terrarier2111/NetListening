@@ -1,5 +1,7 @@
 package de.terrarier.netlistening.api.event;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
+
 /**
  * @since 1.0
  * @author Terrarier2111
@@ -13,6 +15,6 @@ public interface Listener<T extends Event> {
 	 *
 	 * @param value the event which is called.
 	 */
-	void trigger(T value);
+	void trigger(@AssumeNotNull T value);
 	
 }

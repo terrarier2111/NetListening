@@ -1,6 +1,6 @@
 package de.terrarier.netlistening.api.encryption;
 
-import org.jetbrains.annotations.NotNull;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 
 /**
  * @since 1.0
@@ -12,7 +12,7 @@ public enum CipherAlgorithmMode {
 
     private static final CipherAlgorithmMode[] VALUES = values();
 
-    @NotNull
+    @AssumeNotNull
     public static CipherAlgorithmMode fromId(byte id) {
         return VALUES[id];
     }

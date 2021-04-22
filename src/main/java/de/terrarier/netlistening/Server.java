@@ -8,6 +8,7 @@ import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.EncryptionSettingWrapper;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.impl.ServerImpl;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import org.jetbrains.annotations.NotNull;
@@ -79,7 +80,7 @@ public interface Server extends Application {
      * @param port the port the server should bind/listen to.
      * @return the new builder.
      */
-    @NotNull
+    @AssumeNotNull
     static Builder builder(int port) {
         return new Builder(port);
     }
@@ -98,7 +99,7 @@ public interface Server extends Application {
          * @param caching the caching mode.
          * @return the local reference.
          */
-        @NotNull
+        @AssumeNotNull
         public Builder caching(@NotNull PacketCaching caching) {
             impl.caching(caching);
             return this;
@@ -107,7 +108,7 @@ public interface Server extends Application {
         /**
          * @see Application.Builder
          */
-        @NotNull
+        @AssumeNotNull
         @Override
         public Builder timeout(long timeout) {
             impl.timeout(timeout);
@@ -117,7 +118,7 @@ public interface Server extends Application {
         /**
          * @see Application.Builder
          */
-        @NotNull
+        @AssumeNotNull
         @Override
         public Builder buffer(int buffer) {
             impl.buffer(buffer);
@@ -130,7 +131,7 @@ public interface Server extends Application {
          * @param charset the charset which should be used to encode/decode strings.
          * @return the local reference.
          */
-        @NotNull
+        @AssumeNotNull
         public Builder stringEncoding(@NotNull Charset charset) {
             impl.stringEncoding(charset);
             return this;
@@ -143,7 +144,7 @@ public interface Server extends Application {
          * @param compressionSetting the compression setting which should be used.
          * @return the local reference.
          */
-        @NotNull
+        @AssumeNotNull
         public Builder compression(@NotNull CompressionSetting compressionSetting) {
             impl.compression(compressionSetting);
             return this;
@@ -155,7 +156,7 @@ public interface Server extends Application {
          *
          * @return a compression setting wrapper.
          */
-        @NotNull
+        @AssumeNotNull
         public CompressionSettingWrapper compression() {
             return new CompressionSettingWrapper(this);
         }
@@ -167,7 +168,7 @@ public interface Server extends Application {
          * @param encryptionSetting the setting which should be used to encrypt specific traffic.
          * @return the local reference.
          */
-        @NotNull
+        @AssumeNotNull
         public Builder encryption(@NotNull EncryptionSetting encryptionSetting) {
             impl.encryption(encryptionSetting);
             return this;
@@ -179,7 +180,7 @@ public interface Server extends Application {
          *
          * @return an encryption setting wrapper.
          */
-        @NotNull
+        @AssumeNotNull
         public EncryptionSettingWrapper encryption() {
             return new EncryptionSettingWrapper(this);
         }
@@ -187,7 +188,7 @@ public interface Server extends Application {
         /**
          * @see Application.Builder
          */
-        @NotNull
+        @AssumeNotNull
         @Override
         public <T> Builder option(@NotNull ChannelOption<T> option, T value) {
             impl.option(option, value);
@@ -197,7 +198,7 @@ public interface Server extends Application {
         /**
          * @see Application.Builder
          */
-        @NotNull
+        @AssumeNotNull
         @Override
         public Builder serialization(@NotNull SerializationProvider serializationProvider) {
             impl.serialization(serializationProvider);
@@ -207,7 +208,7 @@ public interface Server extends Application {
         /**
          * @see Application.Builder
          */
-        @NotNull
+        @AssumeNotNull
         @Override
         public Server build() {
             return impl.build();

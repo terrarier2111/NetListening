@@ -3,6 +3,7 @@ package de.terrarier.netlistening.api.encryption;
 import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
 import de.terrarier.netlistening.api.encryption.hash.HmacSettingWrapper;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -21,7 +22,7 @@ public final class EncryptionSettingWrapper extends EncryptionOptionsSuperBuilde
     /**
      * @see EncryptionSetting
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionSettingWrapper asymmetricEncryptionOptions(@NotNull EncryptionOptions asymmetricEncryption) {
         encryptionSetting.asymmetricEncryptionOptions(asymmetricEncryption);
         return this;
@@ -30,7 +31,7 @@ public final class EncryptionSettingWrapper extends EncryptionOptionsSuperBuilde
     /**
      * @see EncryptionSetting
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionOptionsWrapper<EncryptionSettingWrapper> asymmetricEncryptionOptions() {
         return new EncryptionOptionsWrapper<>(this);
     }
@@ -38,7 +39,7 @@ public final class EncryptionSettingWrapper extends EncryptionOptionsSuperBuilde
     /**
      * @see EncryptionSetting
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionOptionsWrapper<EncryptionSettingWrapper> symmetricEncryptionOptions(
             @NotNull EncryptionOptions symmetricEncryption) {
         return new EncryptionOptionsWrapper<>(this, symmetricEncryption);
@@ -47,7 +48,7 @@ public final class EncryptionSettingWrapper extends EncryptionOptionsSuperBuilde
     /**
      * @see EncryptionSetting
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionOptionsWrapper<EncryptionSettingWrapper> symmetricEncryptionOptions() {
         return new EncryptionOptionsWrapper<>(this);
     }
@@ -55,7 +56,7 @@ public final class EncryptionSettingWrapper extends EncryptionOptionsSuperBuilde
     /**
      * @see EncryptionSetting
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionSettingWrapper hmac(HmacSetting hmacSetting) {
         encryptionSetting.hmac(hmacSetting);
         return this;
@@ -67,7 +68,7 @@ public final class EncryptionSettingWrapper extends EncryptionOptionsSuperBuilde
      *
      * @return a hmac setting wrapper.
      */
-    @NotNull
+    @AssumeNotNull
     public HmacSettingWrapper hmac() {
         return new HmacSettingWrapper(this);
     }
@@ -75,7 +76,7 @@ public final class EncryptionSettingWrapper extends EncryptionOptionsSuperBuilde
     /**
      * @see EncryptionSetting
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionSettingWrapper disableHmac() {
         return hmac(null);
     }
@@ -86,7 +87,7 @@ public final class EncryptionSettingWrapper extends EncryptionOptionsSuperBuilde
      *
      * @return the builder which was used before.
      */
-    @NotNull
+    @AssumeNotNull
     public Server.Builder build() {
         return builder.encryption(encryptionSetting);
     }
@@ -94,7 +95,7 @@ public final class EncryptionSettingWrapper extends EncryptionOptionsSuperBuilde
     /**
      * @see EncryptionOptionsSuperBuilder
      */
-    @NotNull
+    @AssumeNotNull
     @Override
     protected EncryptionSettingWrapper encryptionOptions(@NotNull EncryptionOptions encryption) {
         asymmetricEncryptionOptions(encryption);

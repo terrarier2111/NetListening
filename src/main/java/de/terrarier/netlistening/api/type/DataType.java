@@ -8,7 +8,6 @@ import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.UUID;
@@ -82,7 +81,7 @@ public abstract class DataType<T> {
 	}
 
 	@Deprecated
-	@NotNull
+	@AssumeNotNull
 	public final DataComponent<T> newComponent(T content) {
 		return new DataComponent<>(this, content);
 	}
@@ -101,12 +100,13 @@ public abstract class DataType<T> {
 		}
 	}
 
+	@ApiStatus.Internal
 	static void checkWriteable(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, int length) {
 		ByteBufUtilExtension.correctSize(buffer, length, application.getBuffer());
 	}
 
 	@ApiStatus.Internal
-	@NotNull
+	@AssumeNotNull
 	public static DataType<?> fromId(byte id) {
 			switch (id) {
 				case 0x1:
@@ -140,19 +140,19 @@ public abstract class DataType<T> {
 	}
 
 	@ApiStatus.Internal
-	@NotNull
+	@AssumeNotNull
 	public static DataTypeInternalPayload getDTIP() {
 		return INTERNAL_PAYLOAD;
 	}
 
 	@ApiStatus.Internal
-	@NotNull
+	@AssumeNotNull
 	public static DataType<Void> getDTE() {
 		return ENCRYPT;
 	}
 
 	@ApiStatus.Internal
-	@NotNull
+	@AssumeNotNull
 	public static DataType<Void> getDTHMAC() {
 		return HMAC;
 	}

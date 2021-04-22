@@ -1,6 +1,6 @@
 package de.terrarier.netlistening.api.encryption.hash;
 
-import org.jetbrains.annotations.NotNull;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 
 /**
  * @since 1.0
@@ -14,17 +14,17 @@ public enum HashingAlgorithm {
     private final String rawName = name().replace('_', '-');
     private final String macName = "Hmac" + name().replaceFirst("_", "");
 
-    @NotNull
+    @AssumeNotNull
     public String getRawName() {
         return rawName;
     }
 
-    @NotNull
+    @AssumeNotNull
     public String getMacName() {
         return macName;
     }
 
-    @NotNull
+    @AssumeNotNull
     public static HashingAlgorithm fromId(byte id) {
         return VALUES[id];
     }

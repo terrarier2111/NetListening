@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.api;
 
 import de.terrarier.netlistening.api.type.DataType;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -21,7 +22,7 @@ public final class DataComponent<T> {
 	/**
 	 * @return the type of the content.
 	 */
-	@NotNull
+	@AssumeNotNull
 	public DataType<T> getType() {
 		return type;
 	}

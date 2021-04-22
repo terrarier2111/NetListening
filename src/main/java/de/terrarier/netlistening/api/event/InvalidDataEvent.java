@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.api.event;
 
 import de.terrarier.netlistening.Connection;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -23,7 +24,7 @@ public final class InvalidDataEvent extends ConnectionEvent {
 	/**
 	 * @return the reason why the data is considered invalid.
 	 */
-	@NotNull
+	@AssumeNotNull
 	public DataInvalidReason getReason() {
 		return reason;
 	}

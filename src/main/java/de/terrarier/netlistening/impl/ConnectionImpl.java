@@ -10,10 +10,7 @@ import de.terrarier.netlistening.api.encryption.EncryptionOptions;
 import de.terrarier.netlistening.api.encryption.SymmetricEncryptionContext;
 import de.terrarier.netlistening.api.encryption.SymmetricEncryptionUtil;
 import de.terrarier.netlistening.api.type.DataType;
-import de.terrarier.netlistening.internals.DataTypeInternalPayload;
-import de.terrarier.netlistening.internals.InternalPayload;
-import de.terrarier.netlistening.internals.InternalPayloadRegisterPacket;
-import de.terrarier.netlistening.internals.InternalUtil;
+import de.terrarier.netlistening.internals.*;
 import de.terrarier.netlistening.network.PacketCache;
 import de.terrarier.netlistening.network.PacketSkeleton;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
@@ -50,7 +47,7 @@ public final class ConnectionImpl implements Connection {
 	// TODO: Improve and test delayed data sending mechanics.
 
 	@ApiStatus.Internal
-	ConnectionImpl(@NotNull ApplicationImpl application, @NotNull Channel channel) {
+	ConnectionImpl(@AssumeNotNull ApplicationImpl application, @AssumeNotNull Channel channel) {
 		this.application = application;
 		this.channel = channel;
 		if(application.getCaching() != PacketCaching.INDIVIDUAL) {
@@ -129,7 +126,7 @@ public final class ConnectionImpl implements Connection {
 		return channel.isActive() || channel.isOpen();
 	}
 
-	@NotNull
+	@AssumeNotNull
 	@Deprecated
 	public Application getApplication() {
 		return application;
@@ -138,7 +135,7 @@ public final class ConnectionImpl implements Connection {
 	/**
 	 * @see Connection
 	 */
-	@NotNull
+	@AssumeNotNull
 	@Override
 	public Channel getChannel() {
 		return channel;
@@ -147,7 +144,7 @@ public final class ConnectionImpl implements Connection {
 	/**
 	 * @see Connection
 	 */
-	@NotNull
+	@AssumeNotNull
 	@Override
 	public InetSocketAddress getRemoteAddress() {
 		return (InetSocketAddress) channel.remoteAddress();
@@ -219,7 +216,7 @@ public final class ConnectionImpl implements Connection {
 	}
 
 	@ApiStatus.Internal
-	@NotNull
+	@AssumeNotNull
 	public PacketCache getCache() {
 		return cache;
 	}
@@ -281,7 +278,7 @@ public final class ConnectionImpl implements Connection {
 	}
 
 	@ApiStatus.Internal
-	public void writeToInitialBuffer(@NotNull ByteBuf buffer) {
+	public void writeToInitialBuffer(@AssumeNotNull ByteBuf buffer) {
 		final DataSendState dataSendState = this.dataSendState; // caching volatile field get result
 		if (!dataSendState.isAtLeast(DataSendState.SENDING)) {
 			checkReceived();
@@ -309,7 +306,7 @@ public final class ConnectionImpl implements Connection {
 		}
 	}
 
-	private boolean trySend(@NotNull ByteBuf buffer) {
+	private boolean trySend(@AssumeNotNull ByteBuf buffer) {
 		final DataSendState dataSendState = this.dataSendState; // caching volatile field get result
 		if(dataSendState.isAtLeast(DataSendState.FINISHING)) {
 			if(dataSendState == DataSendState.FINISHING) {
@@ -322,7 +319,7 @@ public final class ConnectionImpl implements Connection {
 		return false;
 	}
 
-	private void transferData(@NotNull ByteBuf buffer) {
+	private void transferData(@AssumeNotNull ByteBuf buffer) {
 		final int readable = buffer.readableBytes();
 		synchronized (this) {
 			ByteBufUtilExtension.correctSize(preConnectBuffer, readable, application.getBuffer());

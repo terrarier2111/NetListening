@@ -2,7 +2,6 @@ package de.terrarier.netlistening.api.event;
 
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -107,7 +106,7 @@ public final class EventManager {
 		return cancellable && ((Cancellable) event).isCancelled();
 	}
 
-	@NotNull
+	@AssumeNotNull
 	private EventListener.Priority resolvePriority(@AssumeNotNull Listener<?> listener) {
 		try {
 			final Method method = listener.getClass().getDeclaredMethod("trigger", Event.class);
@@ -136,7 +135,7 @@ public final class EventManager {
 
 	public interface EventProvider<T extends Event> {
 
-		@NotNull
+		@AssumeNotNull
 		T provide();
 
 	}
@@ -149,7 +148,7 @@ public final class EventManager {
 			this.event = event;
 		}
 
-		@NotNull
+		@AssumeNotNull
 		@Override
 		public Event provide() {
 			return event;

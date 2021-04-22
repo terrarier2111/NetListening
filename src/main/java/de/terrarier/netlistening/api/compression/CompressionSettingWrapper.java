@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.api.compression;
 
 import de.terrarier.netlistening.Server;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -19,7 +20,7 @@ public final class CompressionSettingWrapper {
     /**
      * @see CompressionSetting
      */
-    @NotNull
+    @AssumeNotNull
     public CompressionSettingWrapper varIntCompression(boolean enabled) {
         compressionSetting.varIntCompression(enabled);
         return this;
@@ -28,7 +29,7 @@ public final class CompressionSettingWrapper {
     /**
      * @see CompressionSetting
      */
-    @NotNull
+    @AssumeNotNull
     public CompressionSettingWrapper nibbleCompression(boolean enabled) {
         compressionSetting.nibbleCompression(enabled);
         return this;
@@ -40,7 +41,7 @@ public final class CompressionSettingWrapper {
      *
      * @return the builder which was used before.
      */
-    @NotNull
+    @AssumeNotNull
     public Server.Builder build() {
         return builder.compression(compressionSetting);
     }

@@ -2,7 +2,6 @@ package de.terrarier.netlistening.api.encryption;
 
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -22,7 +21,7 @@ public final class SymmetricEncryptionUtil {
         throw new UnsupportedOperationException("This class may not be instantiated!");
     }
 
-    @NotNull
+    @AssumeNotNull
     public static SymmetricEncryptionData generate(@AssumeNotNull EncryptionOptions encryptionOptions)
             throws NoSuchAlgorithmException {
         final KeyGenerator generator = KeyGenerator.getInstance(encryptionOptions.getType().name());
@@ -43,7 +42,7 @@ public final class SymmetricEncryptionUtil {
         return AsymmetricEncryptionUtil.performCipher(input, encryptionData.getOptions(), secretKey, mode);
     }
 
-    @NotNull
+    @AssumeNotNull
     public static SecretKey readSecretKey(byte[] secretKey, @AssumeNotNull EncryptionOptions encryptionOptions) {
         return new SecretKeySpec(secretKey, encryptionOptions.getType().name());
     }

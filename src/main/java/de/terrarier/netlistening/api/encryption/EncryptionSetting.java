@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.api.encryption;
 
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.NoSuchAlgorithmException;
@@ -23,7 +24,7 @@ public final class EncryptionSetting {
      * @param asymmetricEncryption the options for the symmetric encryption chosen by the user or if not present by default.
      * @return the local reference.
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionSetting asymmetricEncryptionOptions(@NotNull EncryptionOptions asymmetricEncryption) {
         if(asymmetricEncryptionSetting != null) {
             asymmetricEncryption.getKeySize();
@@ -38,7 +39,7 @@ public final class EncryptionSetting {
      * @param symmetricEncryption the options for the symmetric encryption chosen by the user or if not present by default.
      * @return the local reference.
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionSetting symmetricEncryptionOptions(@NotNull EncryptionOptions symmetricEncryption) {
         if(symmetricEncryptionSetting != null) {
             symmetricEncryption.getKeySize();
@@ -53,7 +54,7 @@ public final class EncryptionSetting {
      * @param hmacSetting the setting which should be used to hash traffic.
      * @return the local reference.
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionSetting hmac(HmacSetting hmacSetting) {
         this.hmacSetting = hmacSetting;
         return this;
@@ -64,7 +65,7 @@ public final class EncryptionSetting {
      *
      * @return the local reference.
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionSetting disableHmac() {
         return hmac(null);
     }
@@ -72,7 +73,7 @@ public final class EncryptionSetting {
     /**
      * @return the asymmetric encryption configuration set by the user or otherwise by default.
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionOptions getAsymmetricSetting() {
         return asymmetricEncryptionSetting;
     }
@@ -80,7 +81,7 @@ public final class EncryptionSetting {
     /**
      * @return the symmetric encryption configuration set by the user or otherwise by default.
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionOptions getSymmetricSetting() {
         return symmetricEncryptionSetting;
     }
@@ -100,7 +101,7 @@ public final class EncryptionSetting {
      * @throws NoSuchAlgorithmException when the algorithm specified in the asymmetricEncryptionSetting isn't defined in the current JDK!
      * @throws InvalidKeySpecException when the the passed key is invalid.
      */
-    @NotNull
+    @AssumeNotNull
     public EncryptionSetting init(byte[] key) throws NoSuchAlgorithmException, InvalidKeySpecException {
         if(key != null) {
             asymmetricEncryptionData = new AsymmetricEncryptionData(asymmetricEncryptionSetting, key);
@@ -113,7 +114,7 @@ public final class EncryptionSetting {
     /**
      * @return the asymmetricEncryptionData which provides an asymmetric key pair.
      */
-    @NotNull
+    @AssumeNotNull
     public AsymmetricEncryptionData getEncryptionData() {
         return asymmetricEncryptionData;
     }

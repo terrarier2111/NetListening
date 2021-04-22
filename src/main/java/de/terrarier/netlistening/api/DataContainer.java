@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.api;
 
 import de.terrarier.netlistening.api.type.DataType;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -102,7 +103,7 @@ public final class DataContainer {
 	/**
 	 * @return a list containing the data contained in this container.
 	 */
-	@NotNull
+	@AssumeNotNull
 	@ApiStatus.Internal
 	public List<DataComponent<?>> getData() {
 		return data;
@@ -149,7 +150,7 @@ public final class DataContainer {
 	 * @param startIndex the index from which the sub container should be filled.
 	 * @return the created sub container.
 	 */
-	@NotNull
+	@AssumeNotNull
 	public DataContainer subContainer(int startIndex) {
 		return subContainer(startIndex, data.size());
 	}
@@ -163,7 +164,7 @@ public final class DataContainer {
 	 * @return the created sub container.
 	 * @throws IllegalArgumentException if {@code startIndex} is greater than {@code endIndex}.
 	 */
-	@NotNull
+	@AssumeNotNull
 	public DataContainer subContainer(int startIndex, int endIndex) {
 		if(startIndex > endIndex) {
 			throw new IllegalArgumentException("startIndex has to be smaller than endIndex!");
@@ -204,7 +205,7 @@ public final class DataContainer {
 	 * @return an array containing the DataContainer's content which
 	 * wasn't read yet.
 	 */
-	@NotNull
+	@AssumeNotNull
 	public Object[] readRemaining() {
 		final int remainingReads = remainingReads();
 		final Object[] ret = new Object[remainingReads];
@@ -272,7 +273,7 @@ public final class DataContainer {
 	/**
 	 * @see Object
 	 */
-	@NotNull
+	@AssumeNotNull
 	@Override
 	public String toString() {
 		return "Length: " + data.size() + " ReaderIndex: " + readerIndex;

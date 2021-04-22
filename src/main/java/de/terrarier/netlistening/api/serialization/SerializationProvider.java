@@ -2,6 +2,7 @@ package de.terrarier.netlistening.api.serialization;
 
 import de.terrarier.netlistening.api.event.EventManager;
 import de.terrarier.netlistening.api.event.ExceptionTrowEvent;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -82,19 +83,19 @@ public abstract class SerializationProvider {
             this.cause = cause;
         }
 
-        @NotNull
+        @AssumeNotNull
         @Override
         public Exception getCause() {
             return cause;
         }
 
-        @NotNull
+        @AssumeNotNull
         @Override
         public Throwable initCause(Throwable cause) {
             return this;
         }
 
-        @NotNull
+        @AssumeNotNull
         @Override
         public Throwable fillInStackTrace() {
             return this;

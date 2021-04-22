@@ -1,6 +1,6 @@
 package de.terrarier.netlistening.api.encryption;
 
-import org.jetbrains.annotations.NotNull;
+import de.terrarier.netlistening.internals.AssumeNotNull;
 
 /**
  * @since 1.0
@@ -19,8 +19,8 @@ public enum CipherEncryptionAlgorithm {
     private final CipherAlgorithmPadding defaultPadding;
     private final boolean symmetric;
 
-    CipherEncryptionAlgorithm(int defaultSize, @NotNull CipherAlgorithmMode defaultMode,
-                              @NotNull CipherAlgorithmPadding defaultPadding, boolean symmetric) {
+    CipherEncryptionAlgorithm(int defaultSize, @AssumeNotNull CipherAlgorithmMode defaultMode,
+                              @AssumeNotNull CipherAlgorithmPadding defaultPadding, boolean symmetric) {
         this.defaultSize = defaultSize;
         this.defaultMode = defaultMode;
         this.defaultPadding = defaultPadding;
@@ -31,12 +31,12 @@ public enum CipherEncryptionAlgorithm {
         return defaultSize;
     }
 
-    @NotNull
+    @AssumeNotNull
     public CipherAlgorithmMode getDefaultMode() {
         return defaultMode;
     }
 
-    @NotNull
+    @AssumeNotNull
     public CipherAlgorithmPadding getDefaultPadding() {
         return defaultPadding;
     }
@@ -45,7 +45,7 @@ public enum CipherEncryptionAlgorithm {
         return symmetric;
     }
 
-    @NotNull
+    @AssumeNotNull
     public static CipherEncryptionAlgorithm fromId(byte id) {
         return VALUES[id];
     }
