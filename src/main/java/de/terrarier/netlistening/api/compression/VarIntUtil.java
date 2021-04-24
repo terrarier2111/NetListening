@@ -79,7 +79,8 @@ public final class VarIntUtil {
 
 		return value;
 	  }
-	
+
+	@ApiStatus.Internal
 	public static final class VarIntParseException extends Exception {
 
 		public static final VarIntParseException ONE_BYTE = new VarIntParseException((byte) 1);

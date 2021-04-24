@@ -48,7 +48,8 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
     }
 
     @Override
-    protected void encode(@AssumeNotNull ChannelHandlerContext ctx, @AssumeNotNull DataContainer data, @AssumeNotNull ByteBuf buffer) {
+    protected void encode(@AssumeNotNull ChannelHandlerContext ctx, @AssumeNotNull DataContainer data,
+                          @AssumeNotNull ByteBuf buffer) {
         final List<DataComponent<?>> containedData = data.getData();
         final int dataSize = containedData.size();
 
@@ -125,7 +126,8 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
         }
     }
 
-    private void writeToBuffer(@AssumeNotNull ByteBuf buffer, @AssumeNotNull DataContainer data, int packetId) throws CancelSignal {
+    private void writeToBuffer(@AssumeNotNull ByteBuf buffer, @AssumeNotNull DataContainer data, int packetId)
+            throws CancelSignal {
         InternalUtil.writeInt(application, buffer, packetId);
         final List<DataComponent<?>> dataComponentList = data.getData();
         final int dataSize = dataComponentList.size();
@@ -135,7 +137,8 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
         }
     }
 
-    private void appendHmac(@AssumeNotNull ByteBuf src, @AssumeNotNull ByteBuf dst, @AssumeNotNull ConnectionImpl connection) {
+    private void appendHmac(@AssumeNotNull ByteBuf src, @AssumeNotNull ByteBuf dst,
+                            @AssumeNotNull ConnectionImpl connection) {
         final byte[] data = ByteBufUtilExtension.getBytes(src);
         src.release();
         try {

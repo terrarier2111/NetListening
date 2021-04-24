@@ -27,6 +27,7 @@ public enum CipherEncryptionAlgorithm {
         this.symmetric = symmetric;
     }
 
+    // TODO: Add doc for methods.
     public int getDefaultSize() {
         return defaultSize;
     }

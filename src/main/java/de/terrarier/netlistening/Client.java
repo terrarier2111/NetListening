@@ -8,10 +8,13 @@ import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.channel.ChannelOption;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+
+import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositive;
 
 /**
  * @since 1.0
@@ -49,7 +52,7 @@ public interface Client extends Application {
     boolean setServerKey(byte[] data);
 
     /**
-     * @see Application
+     * @see Application#sendData(Connection, DataContainer)
      * @deprecated use {@link Connection#sendData(DataContainer)} instead.
      */
     @Deprecated
@@ -65,8 +68,9 @@ public interface Client extends Application {
      * @param remotePort the port the client should connect to.
      * @return the new builder.
      */
-    @NotNull
+    @AssumeNotNull
     static Builder builder(@NotNull String host, int remotePort) {
+        checkPositive(remotePort, "remotePort");
         return new Builder(host, remotePort);
     }
 
@@ -76,11 +80,12 @@ public interface Client extends Application {
      * @param remoteAddress the address to which the client should connect to.
      * @return the new builder.
      */
-    @NotNull
+    @AssumeNotNull
     static Builder builder(@NotNull SocketAddress remoteAddress) {
         return new Builder(remoteAddress);
     }
 
+    @ApiStatus.Internal
     final class Builder extends Application.Builder<Client, Builder> {
 
         private final ClientImpl.Builder impl;
@@ -94,7 +99,7 @@ public interface Client extends Application {
         }
 
         /**
-         * @see Application.Builder
+         * @see Application.Builder#timeout(long)
          */
         @AssumeNotNull
         @Override
@@ -116,7 +121,7 @@ public interface Client extends Application {
         }
 
         /**
-         * @see Application.Builder
+         * @see Application.Builder#buffer(int) 
          */
         @AssumeNotNull
         @Override
@@ -152,7 +157,7 @@ public interface Client extends Application {
         }
 
         /**
-         * @see Application.Builder
+         * @see Application.Builder#option(ChannelOption, Object) 
          */
         @AssumeNotNull
         @Override
@@ -162,7 +167,7 @@ public interface Client extends Application {
         }
 
         /**
-         * @see Application.Builder
+         * @see Application.Builder#serialization(SerializationProvider) 
          */
         @AssumeNotNull
         @Override
@@ -186,7 +191,7 @@ public interface Client extends Application {
         }
 
         /**
-         * @see Application.Builder
+         * @see Application.Builder#build()
          */
         @AssumeNotNull
         @Override

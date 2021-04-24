@@ -127,12 +127,14 @@ public final class EventManager {
 		}
 	}
 
+	@ApiStatus.Internal
 	public enum CancelAction {
 
 		IGNORE, INTERRUPT
 
 	}
 
+	@ApiStatus.Internal
 	public interface EventProvider<T extends Event> {
 
 		@AssumeNotNull

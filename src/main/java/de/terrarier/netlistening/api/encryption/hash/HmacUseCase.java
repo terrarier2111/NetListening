@@ -12,6 +12,7 @@ public enum HmacUseCase {
 
     private static final HmacUseCase[] VALUES = values();
 
+    // TODO: Add a doc.
     @AssumeNotNull
     public static HmacUseCase fromId(byte id) {
         return VALUES[id];

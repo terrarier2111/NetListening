@@ -40,8 +40,12 @@ public final class PreparedListener {
 		return types;
 	}
 
+	/**
+	 * @see Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		return hash;
 	}
+
 }

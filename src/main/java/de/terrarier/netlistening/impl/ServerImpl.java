@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.impl;
 
+import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.api.DataContainer;
@@ -34,6 +35,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import java.util.concurrent.*;
+
+import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositiveOrZero;
 
 /**
  * @since 1.0
@@ -118,15 +121,16 @@ public final class ServerImpl extends ApplicationImpl implements Server {
     }
 
     /**
-     * @see de.terrarier.netlistening.Application
+     * @see ApplicationImpl#getCaching()
      */
+    @AssumeNotNull
     @Override
-    public @NotNull PacketCaching getCaching() {
+    public PacketCaching getCaching() {
         return caching;
     }
 
     /**
-     * @see de.terrarier.netlistening.Application
+     * @see Server#getConnection(Channel) 
      */
     @Override
     public Connection getConnection(@NotNull Channel channel) {
@@ -134,11 +138,12 @@ public final class ServerImpl extends ApplicationImpl implements Server {
     }
 
     /**
-     * @see de.terrarier.netlistening.Application
+     * @see Server#getConnection(int) 
      */
     @Override
     public Connection getConnection(int id) {
-        if(id < 0 || id > ConnectionImpl.ID.get()) {
+        checkPositiveOrZero(id, "id");
+        if(id > ConnectionImpl.ID.get()) {
             return null;
         }
 
@@ -151,7 +156,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
     }
 
     /**
-     * @see de.terrarier.netlistening.Application
+     * @see Application#stop()
      */
     @Override
     public void stop() {
@@ -188,7 +193,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
     }
 
     /**
-     * @see de.terrarier.netlistening.Application
+     * @see Application#sendData(DataContainer)
      */
     @Override
     public void sendData(@NotNull DataContainer data) {
@@ -198,10 +203,11 @@ public final class ServerImpl extends ApplicationImpl implements Server {
     }
 
     /**
-     * @see de.terrarier.netlistening.Application
+     * @see Application#getConnections()
      */
+    @AssumeNotNull
     @Override
-    public @NotNull Set<Connection> getConnections() {
+    public Set<Connection> getConnections() {
         return Collections.unmodifiableSet(new HashSet<>(connections.values()));
     }
 
@@ -216,7 +222,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         }
 
         /**
-         * @see Server.Builder
+         * @see Server.Builder#caching(PacketCaching)
          */
         public void caching(@AssumeNotNull PacketCaching caching) {
             validate();
@@ -224,7 +230,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         }
 
         /**
-         * @see Server.Builder
+         * @see Server.Builder#compression(CompressionSetting)
          */
         public void compression(@AssumeNotNull CompressionSetting compressionSetting) {
             validate();
@@ -232,7 +238,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         }
 
         /**
-         * @see Server.Builder
+         * @see Server.Builder#stringEncoding(Charset)
          */
         public void stringEncoding(@AssumeNotNull Charset charset) {
             validate();
@@ -240,7 +246,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         }
 
         /**
-         * @see Server.Builder
+         * @see Server.Builder#encryption(EncryptionSetting)
          */
         public void encryption(@AssumeNotNull EncryptionSetting encryptionSetting) {
             validate();
@@ -248,7 +254,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         }
 
         /**
-         * @see ApplicationImpl.Builder
+         * @see ApplicationImpl.Builder#build()
          */
         @Override
         void build0() {

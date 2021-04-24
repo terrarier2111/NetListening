@@ -60,8 +60,8 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
     }
 
     @Override
-    public void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection, @AssumeNotNull ByteBuf buffer)
-            throws CancelReadSignal {
+    public void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+                     @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
         checkReadable(buffer, 4);
 
         final int packetId;

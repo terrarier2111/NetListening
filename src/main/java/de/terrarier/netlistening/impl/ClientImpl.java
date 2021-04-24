@@ -1,5 +1,6 @@
 package de.terrarier.netlistening.impl;
 
+import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.Client;
 import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.DataContainer;
@@ -154,7 +155,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     }
 
     /**
-     * @see de.terrarier.netlistening.Application
+     * @see Application#sendData(DataContainer)
      */
     @Override
     public void sendData(@NotNull DataContainer data) {
@@ -172,7 +173,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     }
 
     /**
-     * @see de.terrarier.netlistening.Application
+     * @see Application#getConnection(Channel)
      */
     @Deprecated
     @Override
@@ -181,24 +182,25 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     }
 
     /**
-     * @see de.terrarier.netlistening.Application
+     * @see Application#getConnections()
      */
-    @NotNull
+    @AssumeNotNull
     @Override
     public Set<Connection> getConnections() {
         return Collections.singleton(connection);
     }
 
     /**
-     * @see de.terrarier.netlistening.Application
+     * @see ApplicationImpl#getCaching()
      */
+    @AssumeNotNull
     @Override
-    public @NotNull PacketCaching getCaching() {
+    public PacketCaching getCaching() {
         return CACHING;
     }
 
     /**
-     * @see de.terrarier.netlistening.Application
+     * @see Application#stop()
      */
     @Override
     public void stop() {
@@ -219,7 +221,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     }
 
     /**
-     * @see Client
+     * @see Client#disconnect()
      */
     @Deprecated
     @Override
@@ -231,7 +233,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     }
 
     /**
-     * @see Client
+     * @see Client#getConnection()
      */
     @Override
     public Connection getConnection() {
@@ -239,7 +241,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     }
 
     /**
-     * @see Client
+     * @see Client#getServerKey()
      */
     @Override
     public ServerKey getServerKey() {
@@ -247,7 +249,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     }
 
     /**
-     * @see Client
+     * @see Client#setServerKey(byte[]) 
      */
     @Override
     public boolean setServerKey(byte[] data) {
@@ -310,7 +312,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         }
 
         /**
-         * @see Client.Builder
+         * @see Client.Builder#localPort(int) 
          */
         public void localPort(int localPort) {
             validate();
@@ -318,7 +320,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         }
 
         /**
-         * @see Client.Builder
+         * @see Client.Builder#serverKeyHashingAlgorithm(HashingAlgorithm) 
          */
         public void serverKeyHashingAlgorithm(@AssumeNotNull HashingAlgorithm hashingAlgorithm) {
             validate();
@@ -327,7 +329,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         }
 
         /**
-         * @see Client.Builder
+         * @see Client.Builder#serverKeyHash(byte[]) 
          */
         public void serverKeyHash(byte[] bytes) {
             validate();
@@ -338,7 +340,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         }
 
         /**
-         * @see Client.Builder
+         * @see Client.Builder#proxy(SocketAddress, ProxyType) 
          */
         public void proxy(@AssumeNotNull SocketAddress address, @AssumeNotNull ProxyType proxyType) {
             validate();

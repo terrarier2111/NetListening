@@ -11,6 +11,7 @@ import de.terrarier.netlistening.impl.ServerImpl;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
+import io.netty.util.internal.ObjectUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.Charset;
@@ -90,6 +91,7 @@ public interface Server extends Application {
         private final ServerImpl.Builder impl;
 
         public Builder(int port) {
+            ObjectUtil.checkPositive(port, "port");
             this.impl = new ServerImpl.Builder(port);
         }
 
@@ -106,7 +108,7 @@ public interface Server extends Application {
         }
 
         /**
-         * @see Application.Builder
+         * @see Application.Builder#timeout(long) 
          */
         @AssumeNotNull
         @Override
@@ -116,7 +118,7 @@ public interface Server extends Application {
         }
 
         /**
-         * @see Application.Builder
+         * @see Application.Builder#buffer(int) 
          */
         @AssumeNotNull
         @Override
@@ -186,7 +188,7 @@ public interface Server extends Application {
         }
 
         /**
-         * @see Application.Builder
+         * @see Application.Builder#option(ChannelOption, Object) 
          */
         @AssumeNotNull
         @Override
@@ -196,7 +198,7 @@ public interface Server extends Application {
         }
 
         /**
-         * @see Application.Builder
+         * @see Application.Builder#serialization(SerializationProvider) 
          */
         @AssumeNotNull
         @Override
@@ -206,7 +208,7 @@ public interface Server extends Application {
         }
 
         /**
-         * @see Application.Builder
+         * @see Application.Builder#build()
          */
         @AssumeNotNull
         @Override

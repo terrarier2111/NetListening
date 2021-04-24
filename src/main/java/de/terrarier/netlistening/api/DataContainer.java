@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static de.terrarier.netlistening.api.type.DataType.*;
+import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositiveOrZero;
 
 /**
  * @since 1.0
@@ -166,9 +167,11 @@ public final class DataContainer {
 	 */
 	@AssumeNotNull
 	public DataContainer subContainer(int startIndex, int endIndex) {
+		checkPositiveOrZero(startIndex, "startIndex");
 		if(startIndex > endIndex) {
 			throw new IllegalArgumentException("startIndex has to be smaller than endIndex!");
 		}
+
 		final DataContainer ret = new DataContainer();
 		for(int i = startIndex; i < endIndex; i++) {
 			ret.data.add(data.get(i));
@@ -245,6 +248,8 @@ public final class DataContainer {
 	 * @throws IllegalArgumentException if {@code elements} is greater than {@code this#getSize()}.
 	 */
 	public void skip(int elements) {
+		checkPositiveOrZero(elements, "elements");
+
 		final int result = readerIndex + elements;
 		if(result > data.size()) {
 			throw new IllegalArgumentException("elements may not be > size");
@@ -271,7 +276,7 @@ public final class DataContainer {
 	}
 
 	/**
-	 * @see Object
+	 * @see Object#toString()
 	 */
 	@AssumeNotNull
 	@Override

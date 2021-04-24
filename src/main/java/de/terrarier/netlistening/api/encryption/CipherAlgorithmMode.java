@@ -12,6 +12,7 @@ public enum CipherAlgorithmMode {
 
     private static final CipherAlgorithmMode[] VALUES = values();
 
+    // TODO: Add doc!
     @AssumeNotNull
     public static CipherAlgorithmMode fromId(byte id) {
         return VALUES[id];

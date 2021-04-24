@@ -36,7 +36,8 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 	private byte counter = MIN_VALUE;
 	private ByteBuf buffer;
 	
-	public TimeOutHandler(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection, long timeout) {
+	public TimeOutHandler(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+						  long timeout) {
 		super(timeout, TimeUnit.MILLISECONDS);
 		this.application = application;
 		this.connection = connection;

@@ -3,7 +3,7 @@ package de.terrarier.netlistening.api.serialization;
 import de.terrarier.netlistening.api.event.EventManager;
 import de.terrarier.netlistening.api.event.ExceptionTrowEvent;
 import de.terrarier.netlistening.internals.AssumeNotNull;
-import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * @since 1.01
@@ -33,7 +33,7 @@ public abstract class SerializationProvider {
      * @return whether or not the underlying implementation can serialize the
      * passed object.
      */
-    protected abstract boolean isSerializable(Object obj);
+    protected abstract boolean isSerializable(@AssumeNotNull Object obj);
 
     /**
      * @param data the byte array to check.
@@ -50,7 +50,7 @@ public abstract class SerializationProvider {
      * @return the byte array that represents the passed object.
      * @throws Exception if something unexpected happens.
      */
-    protected abstract byte[] serialize(Object obj) throws Exception;
+    protected abstract byte[] serialize(@AssumeNotNull Object obj) throws Exception;
 
     /**
      * Deserializes an object from a byte array that represents
@@ -62,7 +62,8 @@ public abstract class SerializationProvider {
      */
     protected abstract Object deserialize(byte[] data) throws Exception;
 
-    public final void setEventManager(@NotNull EventManager eventManager) {
+    @ApiStatus.Internal
+    public final void setEventManager(@AssumeNotNull EventManager eventManager) {
         if(this.eventManager == null) {
             this.eventManager = eventManager;
         }else {
@@ -70,16 +71,18 @@ public abstract class SerializationProvider {
         }
     }
 
-    protected final void handleException(@NotNull Exception exception) {
+    @ApiStatus.Internal
+    protected final void handleException(@AssumeNotNull Exception exception) {
         final ExceptionTrowEvent event = new ExceptionTrowEvent(new SerializationException(exception));
         eventManager.handleExceptionThrown(event);
     }
 
+    @ApiStatus.Internal
     public static final class SerializationException extends Exception {
 
         private transient final Exception cause;
 
-        private SerializationException(@NotNull Exception cause) {
+        private SerializationException(@AssumeNotNull Exception cause) {
             this.cause = cause;
         }
 

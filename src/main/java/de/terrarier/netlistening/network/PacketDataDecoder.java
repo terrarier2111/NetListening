@@ -53,8 +53,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     }
 
     @Override
-    public void decode(@AssumeNotNull ChannelHandlerContext ctx, @AssumeNotNull ByteBuf buffer, @AssumeNotNull List<Object> out)
-            throws Exception {
+    public void decode(@AssumeNotNull ChannelHandlerContext ctx, @AssumeNotNull ByteBuf buffer,
+                       @AssumeNotNull List<Object> out) throws Exception {
 
         // This prevents empty buffers from being decoded after the connection was closed.
         // TODO: Check if we should ignore all and not only empty buffers.
@@ -329,6 +329,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         application.getEventManager().handleExceptionThrown(event);
     }
 
+    @ApiStatus.Internal
     public static final class DecoderContext {
 
         private final ApplicationImpl application;
@@ -336,8 +337,9 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         private final PacketDataDecoder decoder;
         private final ChannelHandlerContext handlerContext;
 
-        public DecoderContext(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
-                              @AssumeNotNull PacketDataDecoder decoder, @AssumeNotNull ChannelHandlerContext handlerContext) {
+        private DecoderContext(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+                              @AssumeNotNull PacketDataDecoder decoder,
+                               @AssumeNotNull ChannelHandlerContext handlerContext) {
             this.application = application;
             this.connection = connection;
             this.decoder = decoder;

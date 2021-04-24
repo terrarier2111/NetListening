@@ -31,7 +31,8 @@ public final class InternalUtil {
 		VarIntUtil.writeVarInt(value, buffer);
 	}
 	
-	public static int readInt(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer) throws VarIntParseException {
+	public static int readInt(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer)
+			throws VarIntParseException {
 		if(application.getCompressionSetting().isVarIntCompression()) {
 			return VarIntUtil.getVarInt(buffer);
 		}

@@ -18,7 +18,8 @@ public final class SerializationUtil {
         throw new UnsupportedOperationException("This class may not be instantiated!");
     }
 
-    public static byte[] serialize(@AssumeNotNull ApplicationImpl application, @AssumeNotNull Object obj) throws CancelSignal {
+    public static byte[] serialize(@AssumeNotNull ApplicationImpl application, @AssumeNotNull Object obj)
+            throws CancelSignal {
         return performOperation(application, SerializationProvider::isSerializable, SerializationProvider::serialize, obj);
     }
 
@@ -47,7 +48,8 @@ public final class SerializationUtil {
             }
         }
         mainProvider.handleException(new UnsupportedOperationException(
-                "There is no serialization provider available which can perform this operation on this Object. (" + param.getClass().getName() + ')'));
+                "There is no serialization provider available which can perform this operation on this Object. (" +
+                        param.getClass().getName() + ')'));
         throw CancelSignal.INSTANCE;
     }
 

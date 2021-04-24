@@ -18,6 +18,7 @@ public final class ConnectionDataFrameEvent extends ConnectionEvent {
         this.frameSize = frameSize;
     }
 
+    // TODO: Add doc!
     public int getFrameSize() {
         return frameSize;
     }

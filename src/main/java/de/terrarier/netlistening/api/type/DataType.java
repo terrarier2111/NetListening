@@ -157,11 +157,17 @@ public abstract class DataType<T> {
 		return HMAC;
 	}
 
+	/**
+	 * @see Object#equals(Object)
+	 */
 	@Override
 	public final boolean equals(Object obj) {
 		return obj != null && getClass() == obj.getClass();
 	}
 
+	/**
+	 * @see Object#hashCode()
+	 */
 	@Override
 	public final int hashCode() {
 		return id;

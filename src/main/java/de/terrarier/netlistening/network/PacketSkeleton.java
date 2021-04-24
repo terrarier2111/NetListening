@@ -41,8 +41,12 @@ public final class PacketSkeleton {
 		registered = true;
 	}
 
+	/**
+	 * @see Object#hashCode()
+	 */
 	@Override
 	public int hashCode() {
 		return hash;
 	}
+
 }

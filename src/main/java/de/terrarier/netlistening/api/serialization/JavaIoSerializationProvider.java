@@ -1,7 +1,7 @@
 package de.terrarier.netlistening.api.serialization;
 
+import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.utils.ConversionUtil;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 
@@ -25,7 +25,7 @@ public final class JavaIoSerializationProvider extends SerializationProvider {
      * @see SerializationProvider
      */
     @Override
-    protected boolean isSerializable(@NotNull Object obj) {
+    protected boolean isSerializable(@AssumeNotNull Object obj) {
         return obj instanceof Serializable;
     }
 
@@ -45,7 +45,7 @@ public final class JavaIoSerializationProvider extends SerializationProvider {
      * @see SerializationProvider
      */
     @Override
-    protected byte[] serialize(@NotNull Object obj) throws Exception {
+    protected byte[] serialize(@AssumeNotNull Object obj) throws Exception {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             final ObjectOutputStream os = new ObjectOutputStream(out);
             os.writeObject(obj);

@@ -22,6 +22,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositiveOrZero;
+
 /**
  * @since 1.02
  * @author Terrarier2111
@@ -40,10 +42,10 @@ public abstract class ApplicationImpl implements Application {
     EventLoopGroup group;
 
     /**
-     * @see Application
+     * @see Application#getStringEncoding()
      */
     @ApiStatus.Internal
-    @NotNull
+    @AssumeNotNull
     @Override
     public final Charset getStringEncoding() {
         return stringEncoding;
@@ -62,7 +64,7 @@ public abstract class ApplicationImpl implements Application {
     /**
      * @return the caching mode is used to cache packets.
      */
-    @NotNull
+    @AssumeNotNull
     public abstract PacketCaching getCaching();
 
     /**
@@ -86,7 +88,7 @@ public abstract class ApplicationImpl implements Application {
      * about which compression techniques should be applied on
      * specific data.
      */
-    @NotNull
+    @AssumeNotNull
     public final CompressionSetting getCompressionSetting() {
         return compressionSetting;
     }
@@ -95,13 +97,13 @@ public abstract class ApplicationImpl implements Application {
      * @return the serialization provider which handles the serialization
      * of specific data.
      */
-    @NotNull
+    @AssumeNotNull
     public final SerializationProvider getSerializationProvider() {
         return serializationProvider;
     }
 
     /**
-     * @see Application
+     * @see Application#registerListener(Listener)
      */
     @Override
     public final void registerListener(@NotNull Listener<?> listener) {
@@ -109,7 +111,7 @@ public abstract class ApplicationImpl implements Application {
     }
 
     /**
-     * @see Application
+     * @see Application#unregisterListeners(ListenerType) 
      */
     @Override
     public final void unregisterListeners(@NotNull ListenerType listenerType) {
@@ -136,22 +138,33 @@ public abstract class ApplicationImpl implements Application {
             options.put(ChannelOption.IP_TOS, 0x18);
         }
 
+        /**
+         * @see Application.Builder#timeout(long)
+         */
         @SuppressWarnings("unchecked")
         @AssumeNotNull
         public final B timeout(long timeout) {
             validate();
+            checkPositiveOrZero(timeout, "timeout");
             this.timeout = timeout;
             return (B) this;
         }
 
+        /**
+         * @see Application.Builder#buffer(int)
+         */
         @SuppressWarnings("unchecked")
         @AssumeNotNull
         public final B buffer(int buffer) {
             validate();
+            checkPositiveOrZero(buffer, "buffer");
             application.buffer = buffer;
             return (B) this;
         }
 
+        /**
+         * @see Application.Builder#option(ChannelOption, Object)
+         */
         @SuppressWarnings("unchecked")
         @AssumeNotNull
         public final <T> B option(@NotNull ChannelOption<T> option, T value) {
@@ -160,6 +173,9 @@ public abstract class ApplicationImpl implements Application {
             return (B) this;
         }
 
+        /**
+         * @see Application.Builder#serialization(SerializationProvider)
+         */
         @SuppressWarnings("unchecked")
         @AssumeNotNull
         public final B serialization(@NotNull SerializationProvider serializationProvider) {
@@ -168,6 +184,9 @@ public abstract class ApplicationImpl implements Application {
             return (B) this;
         }
 
+        /**
+         * @see Application.Builder#build()
+         */
         @AssumeNotNull
         public final A build() {
             validate();

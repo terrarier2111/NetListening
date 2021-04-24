@@ -30,6 +30,7 @@ public final class DataComponent<T> {
 	/**
 	 * @return the contained data.
 	 */
+	@NotNull
 	public T getData() {
 		return content;
 	}

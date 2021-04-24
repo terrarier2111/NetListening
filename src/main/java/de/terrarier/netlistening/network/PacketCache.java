@@ -122,8 +122,8 @@ public final class PacketCache {
 		return packets.get(id);
 	}
 
-	public void broadcastRegister(@AssumeNotNull ApplicationImpl application, @AssumeNotNull InternalPayloadRegisterPacket payload,
-								  Channel ignored, ByteBuf buffer) {
+	public void broadcastRegister(@AssumeNotNull ApplicationImpl application,
+								  @AssumeNotNull InternalPayloadRegisterPacket payload, Channel ignored, ByteBuf buffer) {
 		final Collection<Connection> connections = application.getConnections();
 		if (ignored == null || connections.size() > 1) {
 			final ByteBuf registerBuffer = buffer != null ? buffer : Unpooled.buffer(

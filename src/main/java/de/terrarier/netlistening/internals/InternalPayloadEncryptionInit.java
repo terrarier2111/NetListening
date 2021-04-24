@@ -14,7 +14,6 @@ import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -70,8 +69,8 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
     }
 
     @Override
-    public void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection, @AssumeNotNull ByteBuf buffer)
-            throws CancelReadSignal {
+    public void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+                     @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
         final byte[] key = readKey(buffer);
         if (application instanceof Client) {
             checkReadable(buffer, 7 + 1);
@@ -115,7 +114,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
         }
     }
 
-    @NotNull
+    @AssumeNotNull
     private static EncryptionOptions readOptions(@AssumeNotNull ByteBuf buffer) {
         final byte type = buffer.readByte();
         final int keySize = buffer.readInt();
