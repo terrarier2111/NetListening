@@ -11,16 +11,27 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class ConnectionDataFrameEvent extends ConnectionEvent {
 
-    private final int frameSize;
+    private final int frameBytes;
+    private final int readBytes;
 
-    public ConnectionDataFrameEvent(@NotNull Connection connection, int frameSize) {
+    public ConnectionDataFrameEvent(@NotNull Connection connection, int frameBytes, int readBytes) {
         super(connection);
-        this.frameSize = frameSize;
+        this.frameBytes = frameBytes;
+        this.readBytes = readBytes;
     }
 
-    // TODO: Add doc!
-    public int getFrameSize() {
-        return frameSize;
+    /**
+     * @return The number of bytes which should be framed.
+     */
+    public int getFrameBytes() {
+        return frameBytes;
+    }
+
+    /**
+     * @return The number of bytes which were already read of this packet part.
+     */
+    public int getReadBytes() {
+        return readBytes;
     }
 
 }

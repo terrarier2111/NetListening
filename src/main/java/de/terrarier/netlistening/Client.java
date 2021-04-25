@@ -8,7 +8,6 @@ import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.channel.ChannelOption;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.InetSocketAddress;
@@ -85,7 +84,6 @@ public interface Client extends Application {
         return new Builder(remoteAddress);
     }
 
-    @ApiStatus.Internal
     final class Builder extends Application.Builder<Client, Builder> {
 
         private final ClientImpl.Builder impl;

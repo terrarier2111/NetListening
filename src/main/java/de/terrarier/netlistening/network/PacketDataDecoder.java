@@ -261,7 +261,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         } catch (CancelReadSignal signal) {
             // prepare framing of payload
             final int frameSize = signal.size + buffer.readerIndex() - start;
-            if(!callFrameEvent(frameSize)) {
+            if(!callFrameEvent(signal.size, frameSize - signal.size)) {
                 holdingBuffer = Unpooled.buffer(frameSize);
                 buffer.readerIndex(start);
                 transferRemaining(buffer);
@@ -280,8 +280,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
     }
 
-    private boolean callFrameEvent(int frameSize) {
-        final ConnectionDataFrameEvent frameEvent = new ConnectionDataFrameEvent(connection, frameSize);
+    private boolean callFrameEvent(int frameBytes, int readBytes) {
+        final ConnectionDataFrameEvent frameEvent = new ConnectionDataFrameEvent(connection, frameBytes, readBytes);
         return application.getEventManager().callEvent(ListenerType.FRAME, EventManager.CancelAction.INTERRUPT,
                 frameEvent);
     }

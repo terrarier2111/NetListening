@@ -4,8 +4,8 @@ import de.terrarier.netlistening.Client;
 import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.api.encryption.*;
 import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
+import de.terrarier.netlistening.api.encryption.hash.HmacApplicationPolicy;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
-import de.terrarier.netlistening.api.encryption.hash.HmacUseCase;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ClientImpl;
@@ -60,7 +60,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
                 final EncryptionOptions hmacOptions = hmacSetting.getEncryptionSetting();
                 writeOptions(hmacOptions, hmacKey, buffer, application);
                 checkWriteable(application, buffer, 1 + 1);
-                buffer.writeByte(hmacSetting.getUseCase().ordinal());
+                buffer.writeByte(hmacSetting.getApplicationPolicy().ordinal());
                 buffer.writeByte(hmacSetting.getHashingAlgorithm().ordinal());
             }
             return;
@@ -83,7 +83,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
                 final byte useCase = buffer.readByte();
                 final byte hashingAlgorithm = buffer.readByte();
                 final HmacSetting hmacSetting = new HmacSetting();
-                hmacSetting.useCase(HmacUseCase.fromId(useCase));
+                hmacSetting.applicationPolicy(HmacApplicationPolicy.fromId(useCase));
                 hmacSetting.hashingAlgorithm(HashingAlgorithm.fromId(hashingAlgorithm));
                 hmacSetting.encryptionOptions(hmacOptions);
 

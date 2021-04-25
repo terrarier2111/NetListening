@@ -18,7 +18,7 @@ public final class CompressionSettingWrapper {
     }
 
     /**
-     * @see CompressionSetting
+     * @see CompressionSetting#varIntCompression(boolean) 
      */
     @AssumeNotNull
     public CompressionSettingWrapper varIntCompression(boolean enabled) {
@@ -27,7 +27,7 @@ public final class CompressionSettingWrapper {
     }
 
     /**
-     * @see CompressionSetting
+     * @see CompressionSetting#nibbleCompression(boolean)
      */
     @AssumeNotNull
     public CompressionSettingWrapper nibbleCompression(boolean enabled) {

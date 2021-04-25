@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.api.encryption;
 
 import de.terrarier.netlistening.internals.AssumeNotNull;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * @since 1.0
@@ -27,7 +28,7 @@ public enum CipherEncryptionAlgorithm {
         this.symmetric = symmetric;
     }
 
-    // TODO: Add doc for methods.
+    // TODO: Add docs for methods!
     public int getDefaultSize() {
         return defaultSize;
     }
@@ -42,10 +43,17 @@ public enum CipherEncryptionAlgorithm {
         return defaultPadding;
     }
 
+    @ApiStatus.Experimental
     public boolean isSymmetric() {
         return symmetric;
     }
 
+    /**
+     * Maps an ordinal number to its respective algorithm.
+     *
+     * @param id the ordinal of the algorithm which should be returned.
+     * @return the algorithm which has an ordinal of id.
+     */
     @AssumeNotNull
     public static CipherEncryptionAlgorithm fromId(byte id) {
         return VALUES[id];

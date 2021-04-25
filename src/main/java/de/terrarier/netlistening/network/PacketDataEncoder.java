@@ -6,8 +6,8 @@ import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.hash.HashUtil;
+import de.terrarier.netlistening.api.encryption.hash.HmacApplicationPolicy;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
-import de.terrarier.netlistening.api.encryption.hash.HmacUseCase;
 import de.terrarier.netlistening.api.event.ExceptionTrowEvent;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
@@ -102,7 +102,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
                 writeToBuffer(buffer, data, packet.getId());
                 return;
             }
-            final boolean hmac = encrypted || hmacSetting.getUseCase() == HmacUseCase.ALL; // TODO: Include this one in the check above.
+            final boolean hmac = encrypted || hmacSetting.getApplicationPolicy() == HmacApplicationPolicy.ALL; // TODO: Include this one in the check above.
             final ByteBuf dst = hmac ? Unpooled.buffer() : buffer;
             final ByteBuf dataBuffer = encrypted ? Unpooled.buffer() : dst;
             writeToBuffer(dataBuffer, data, packet.getId());

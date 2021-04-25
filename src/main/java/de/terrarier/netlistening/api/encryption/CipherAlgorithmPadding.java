@@ -12,12 +12,21 @@ public enum CipherAlgorithmPadding {
 
     private static final CipherAlgorithmPadding[] VALUES = values();
 
-    // TODO: Add doc for methods.
+    /**
+     * @return the padding name used as part of the parameter passed to
+     * {@code javax.crypto.Cipher#getInstance(String)}.
+     */
     @AssumeNotNull
     public String getPaddingName() {
         return name() + "Padding";
     }
 
+    /**
+     * Maps an ordinal number to its respective padding.
+     *
+     * @param id the ordinal of the padding which should be returned.
+     * @return the padding which has an ordinal of id.
+     */
     @AssumeNotNull
     public static CipherAlgorithmPadding fromId(byte id) {
         return VALUES[id];

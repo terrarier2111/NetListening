@@ -12,7 +12,12 @@ public enum CipherAlgorithmMode {
 
     private static final CipherAlgorithmMode[] VALUES = values();
 
-    // TODO: Add doc!
+    /**
+     * Maps an ordinal number to its respective mode.
+     *
+     * @param id the ordinal of the mode which should be returned.
+     * @return the mode which has an ordinal of id.
+     */
     @AssumeNotNull
     public static CipherAlgorithmMode fromId(byte id) {
         return VALUES[id];

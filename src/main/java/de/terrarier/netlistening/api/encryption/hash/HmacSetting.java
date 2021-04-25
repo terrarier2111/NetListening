@@ -13,7 +13,7 @@ public final class HmacSetting {
 
     private EncryptionOptions encryptionOptions = new EncryptionOptions().type(CipherEncryptionAlgorithm.AES);
     private HashingAlgorithm hashingAlgorithm = HashingAlgorithm.SHA_256;
-    private HmacUseCase useCase = HmacUseCase.ENCRYPTED;
+    private HmacApplicationPolicy applicationPolicy = HmacApplicationPolicy.ENCRYPTED;
 
     /**
      * Sets the hashing algorithm which should be used to calculate the hmac of messages.
@@ -43,12 +43,12 @@ public final class HmacSetting {
     /**
      * Sets in which case a hmac is to be sent besides the traffic.
      *
-     * @param useCase the useCase in which a hmac is to be sent besides the traffic.
+     * @param applicationPolicy the application policy in which a hmac is to be sent along sides the traffic.
      * @return the local reference.
      */
     @AssumeNotNull
-    public HmacSetting useCase(@NotNull HmacUseCase useCase) {
-        this.useCase = useCase;
+    public HmacSetting applicationPolicy(@NotNull HmacApplicationPolicy applicationPolicy) {
+        this.applicationPolicy = applicationPolicy;
         return this;
     }
 
@@ -72,8 +72,8 @@ public final class HmacSetting {
      * @return the useCase in which a hmac is sent besides the traffic.
      */
     @AssumeNotNull
-    public HmacUseCase getUseCase() {
-        return useCase;
+    public HmacApplicationPolicy getApplicationPolicy() {
+        return applicationPolicy;
     }
 
 }

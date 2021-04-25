@@ -20,7 +20,7 @@ public final class EncryptionSettingWrapper extends EncryptionOptionsSuperBuilde
     }
 
     /**
-     * @see EncryptionSetting
+     * @see EncryptionSetting#asymmetricEncryptionOptions(EncryptionOptions)
      */
     @AssumeNotNull
     public EncryptionSettingWrapper asymmetricEncryptionOptions(@NotNull EncryptionOptions asymmetricEncryption) {
@@ -37,7 +37,7 @@ public final class EncryptionSettingWrapper extends EncryptionOptionsSuperBuilde
     }
 
     /**
-     * @see EncryptionSetting
+     * @see EncryptionSetting#symmetricEncryptionOptions(EncryptionOptions)
      */
     @AssumeNotNull
     public EncryptionOptionsWrapper<EncryptionSettingWrapper> symmetricEncryptionOptions(
@@ -54,7 +54,7 @@ public final class EncryptionSettingWrapper extends EncryptionOptionsSuperBuilde
     }
 
     /**
-     * @see EncryptionSetting
+     * @see EncryptionSetting#hmac(HmacSetting)
      */
     @AssumeNotNull
     public EncryptionSettingWrapper hmac(HmacSetting hmacSetting) {
@@ -93,7 +93,7 @@ public final class EncryptionSettingWrapper extends EncryptionOptionsSuperBuilde
     }
 
     /**
-     * @see EncryptionOptionsSuperBuilder
+     * @see EncryptionOptionsSuperBuilder#encryptionOptions(EncryptionOptions)
      */
     @AssumeNotNull
     @Override

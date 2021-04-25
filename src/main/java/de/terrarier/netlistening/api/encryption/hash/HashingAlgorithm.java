@@ -14,6 +14,7 @@ public enum HashingAlgorithm {
     private final String rawName = name().replace('_', '-');
     private final String macName = "Hmac" + name().replaceFirst("_", "");
 
+    // TODO: Add docs for methods!
     @AssumeNotNull
     public String getRawName() {
         return rawName;
@@ -24,6 +25,12 @@ public enum HashingAlgorithm {
         return macName;
     }
 
+    /**
+     * Maps an ordinal number to its respective algorithm.
+     *
+     * @param id the ordinal of the algorithm which should be returned.
+     * @return the algorithm which has an ordinal of id.
+     */
     @AssumeNotNull
     public static HashingAlgorithm fromId(byte id) {
         return VALUES[id];

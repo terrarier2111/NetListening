@@ -11,10 +11,11 @@ import de.terrarier.netlistening.impl.ServerImpl;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
-import io.netty.util.internal.ObjectUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.Charset;
+
+import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositive;
 
 /**
  * @since 1.0
@@ -91,7 +92,7 @@ public interface Server extends Application {
         private final ServerImpl.Builder impl;
 
         public Builder(int port) {
-            ObjectUtil.checkPositive(port, "port");
+            checkPositive(port, "port");
             this.impl = new ServerImpl.Builder(port);
         }
 
