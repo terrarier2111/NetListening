@@ -41,9 +41,9 @@ public final class HmacSetting {
     }
 
     /**
-     * Sets in which case a hmac is to be sent besides the traffic.
+     * Specifies in which case an hmac should be sent alongside the traffic.
      *
-     * @param applicationPolicy the application policy in which a hmac is to be sent along sides the traffic.
+     * @param applicationPolicy the application policy in which an hmac should be sent alongside the traffic.
      * @return the local reference.
      */
     @AssumeNotNull
@@ -53,7 +53,8 @@ public final class HmacSetting {
     }
 
     /**
-     * @return the hashing algorithm set by the user or otherwise by default.
+     * @return the hashing algorithm set by the user or, if not present,
+     * the hashing algorithm specified by default.
      */
     @AssumeNotNull
     public HashingAlgorithm getHashingAlgorithm() {
@@ -61,7 +62,8 @@ public final class HmacSetting {
     }
 
     /**
-     * @return the encryption configuration set by the user or otherwise by default.
+     * @return the encryption configuration set by the user or, if not present,
+     * the encryption configuration specified by default.
      */
     @AssumeNotNull
     public EncryptionOptions getEncryptionSetting() {
@@ -69,7 +71,8 @@ public final class HmacSetting {
     }
 
     /**
-     * @return the useCase in which a hmac is sent besides the traffic.
+     * @return the application policy that specifies in which cases the hmac should be applied
+     * to the traffic and therefore should be sent alongside the traffic.
      */
     @AssumeNotNull
     public HmacApplicationPolicy getApplicationPolicy() {

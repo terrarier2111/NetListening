@@ -56,6 +56,8 @@ public final class DataTypeHmac extends DataType<Void> {
     }
 
     @Override
-    protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, Void empty) {}
+    protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, Void empty) {
+        // We won't ever need this, because the writing is performed in the PacketDataEncoder directly.
+    }
 
 }

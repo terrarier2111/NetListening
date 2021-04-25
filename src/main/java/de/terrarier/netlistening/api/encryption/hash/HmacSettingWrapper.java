@@ -51,8 +51,8 @@ public final class HmacSettingWrapper extends EncryptionOptionsSuperBuilder<Hmac
      * @see HmacSetting
      */
     @AssumeNotNull
-    public HmacSettingWrapper useCase(@NotNull HmacUseCase useCase) {
-        hmacSetting.useCase(useCase);
+    public HmacSettingWrapper applicationPolicy(@NotNull HmacApplicationPolicy applicationPolicy) {
+        hmacSetting.applicationPolicy(applicationPolicy);
         return this;
     }
 
