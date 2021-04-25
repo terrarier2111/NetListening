@@ -3,7 +3,7 @@ package de.terrarier.netlistening.api.encryption.hash;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 
 /**
- * @since 1.0
+ * @since 1.08
  * @author Terrarier2111
  */
 public enum HmacApplicationPolicy {
