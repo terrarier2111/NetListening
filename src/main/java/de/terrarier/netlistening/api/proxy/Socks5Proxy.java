@@ -3,7 +3,6 @@ package de.terrarier.netlistening.api.proxy;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.channel.ChannelHandler;
 import io.netty.handler.proxy.Socks5ProxyHandler;
-import org.jetbrains.annotations.NotNull;
 
 import java.net.SocketAddress;
 
@@ -13,7 +12,7 @@ import java.net.SocketAddress;
  */
 final class Socks5Proxy extends Proxy {
 
-    Socks5Proxy(@NotNull SocketAddress address) {
+    Socks5Proxy(@AssumeNotNull SocketAddress address) {
         super(address);
     }
 

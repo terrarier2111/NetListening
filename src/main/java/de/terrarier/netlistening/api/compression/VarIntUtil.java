@@ -11,7 +11,7 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public final class VarIntUtil {
 
-	// Source: https://github.com/Netflix/hollow/blob/master/hollow/src/main/java/com/netflix/hollow/core/memory/encoding/VarInt.java
+	// Original source: https://github.com/Netflix/hollow/blob/master/hollow/src/main/java/com/netflix/hollow/core/memory/encoding/VarInt.java
 	
 	private VarIntUtil() {
 		throw new UnsupportedOperationException("This class may not be instantiated!");

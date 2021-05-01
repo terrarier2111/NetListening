@@ -12,6 +12,7 @@ public enum ProxyType {
 
     SOCKS4, SOCKS5;
 
+    // TODO: Add doc!
     public Proxy getInstance(@NotNull SocketAddress address) {
         switch (this) {
             case SOCKS4:

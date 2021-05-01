@@ -80,7 +80,6 @@ public final class ByteBufUtilExtension {
 	 * 
 	 * @see <a href="https://github.com/netty/netty/blob/4.1/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java">https://github.com/netty/netty/blob/4.1/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java</a>
 	 */
-
 	private static byte[] getBytes0(@AssumeNotNull ByteBuf buffer, int length) {
 		final int start = buffer.readerIndex();
         final int capacity = buffer.capacity();
@@ -109,7 +108,6 @@ public final class ByteBufUtilExtension {
 	 * 
 	 * https://github.com/netty/netty/blob/4.1/common/src/main/java/io/netty/util/internal/MathUtil.java
 	 */
-	
 	private static boolean isOutOfBounds(int index, int length, int capacity) {
         return (index | length | (index + length) | (capacity - (index + length))) < 0;
     }

@@ -46,7 +46,6 @@ public final class ConnectionImpl implements Connection {
 	private byte[] hmacKey;
 	// TODO: Improve and test delayed data sending mechanics.
 
-	@ApiStatus.Internal
 	ConnectionImpl(@AssumeNotNull ApplicationImpl application, @AssumeNotNull Channel channel) {
 		this.application = application;
 		this.channel = channel;
@@ -354,7 +353,6 @@ public final class ConnectionImpl implements Connection {
 		dataSendState = DataSendState.FINISHED;
 	}
 
-	@ApiStatus.Internal
 	private enum DataSendState {
 
 		IDLE, SENDING, WAITING_FOR_FINISH, FINISHING, FINISHED;

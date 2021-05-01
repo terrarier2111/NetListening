@@ -14,7 +14,7 @@ import static java.io.ObjectStreamConstants.*;
 public final class JavaIoSerializationProvider extends SerializationProvider {
 
     /**
-     * @see SerializationProvider
+     * @see SerializationProvider#getFallback()
      */
     @Override
     protected SerializationProvider getFallback() {
@@ -22,7 +22,7 @@ public final class JavaIoSerializationProvider extends SerializationProvider {
     }
 
     /**
-     * @see SerializationProvider
+     * @see SerializationProvider#isSerializable(Object) 
      */
     @Override
     protected boolean isSerializable(@AssumeNotNull Object obj) {
@@ -30,7 +30,7 @@ public final class JavaIoSerializationProvider extends SerializationProvider {
     }
 
     /**
-     * @see SerializationProvider
+     * @see SerializationProvider#isDeserializable(byte[]) 
      */
     @Override
     protected boolean isDeserializable(byte[] data) {
@@ -42,7 +42,7 @@ public final class JavaIoSerializationProvider extends SerializationProvider {
     }
 
     /**
-     * @see SerializationProvider
+     * @see SerializationProvider#serialize(Object) 
      */
     @Override
     protected byte[] serialize(@AssumeNotNull Object obj) throws Exception {
@@ -54,7 +54,7 @@ public final class JavaIoSerializationProvider extends SerializationProvider {
     }
 
     /**
-     * @see SerializationProvider
+     * @see SerializationProvider#deserialize(byte[])
      */
     @Override
     protected Object deserialize(byte[] data) throws Exception {
@@ -63,4 +63,5 @@ public final class JavaIoSerializationProvider extends SerializationProvider {
             return is.readObject();
         }
     }
+
 }

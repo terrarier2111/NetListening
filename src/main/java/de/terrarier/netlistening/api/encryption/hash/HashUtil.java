@@ -24,7 +24,8 @@ public final class HashUtil {
         throw new UnsupportedOperationException("This class may not be instantiated!");
     }
 
-    public static byte[] hash(@AssumeNotNull HashingAlgorithm hashingAlgorithm, byte[] data) throws NoSuchAlgorithmException {
+    public static byte[] hash(@AssumeNotNull HashingAlgorithm hashingAlgorithm, byte[] data)
+            throws NoSuchAlgorithmException {
         return hash(hashingAlgorithm, data, 0);
     }
 
