@@ -113,7 +113,7 @@ public abstract class ApplicationImpl implements Application {
     /**
      * @see Application#unregisterListeners(ListenerType) 
      */
-    @Deprecated
+    @ApiStatus.Experimental
     @Override
     public final void unregisterListeners(@NotNull ListenerType listenerType) {
         eventManager.unregisterListeners(listenerType);

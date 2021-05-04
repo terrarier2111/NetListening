@@ -6,7 +6,6 @@ import de.terrarier.netlistening.api.event.Listener;
 import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.internals.AssumeNotNull;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -36,6 +35,7 @@ public interface Application {
 	 * when a certain event happens.
 	 *
 	 * @param listener the listener which should be registered.
+	 * @return an id which the listener can be identified by.
 	 */
 	long registerListener(@NotNull Listener<?> listener);
 
@@ -44,21 +44,16 @@ public interface Application {
 	 *
 	 * @param listenerType the type of the listeners which should be unregistered.
 	 */
-	@Deprecated
+	@ApiStatus.Experimental
 	void unregisterListeners(@NotNull ListenerType listenerType);
 
-	void unregisterListener(long listenerId);
-
 	/**
-	 * Maps a specific channel to the connection wrapping the specified channel.
-	 *
-	 * @param channel the channel which underlies the connection.
-	 * @return the connection which wraps the passed channel and
-	 * if not available, null.
-	 * @deprecated use {@link Server#getConnection(Channel)} or {@link Client#getConnection()} instead.
+	 * Unregisters a specific listener which is identified by
+	 * the return value of {@link Application#registerListener(Listener)}.
+	 * 
+	 * @param listenerId the id the specific listener is identified by.
 	 */
-	@Deprecated
-	Connection getConnection(Channel channel);
+	void unregisterListener(long listenerId);
 
 	/**
 	 * @return a list of all connections.
@@ -70,16 +65,6 @@ public interface Application {
 	 * Stops the application and closes all connections.
 	 */
 	void stop();
-
-	/**
-	 * Sends data to a specific connection.
-	 *
-	 * @param data the data which gets sent.
-	 * @param connection the connection the data gets sent to.
-	 * @deprecated use {@link Connection#sendData(DataContainer)} instead.
-	 */
-	@Deprecated
-	void sendData(Connection connection, @NotNull DataContainer data);
 
 	/**
 	 * Sends data to all connections.

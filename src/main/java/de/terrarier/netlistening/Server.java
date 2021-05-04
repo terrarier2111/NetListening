@@ -1,6 +1,5 @@
 package de.terrarier.netlistening;
 
-import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.compression.CompressionSettingWrapper;
@@ -40,41 +39,6 @@ public interface Server extends Application {
      * if not available, null.
      */
     Connection getConnection(@NotNull Channel channel);
-
-    /**
-     * @see Application
-     * @deprecated use {@link Connection#sendData(DataContainer)} instead.
-     */
-    @Deprecated
-    @Override
-    default void sendData(@NotNull Connection connection, @NotNull DataContainer data) {
-        connection.sendData(data);
-    }
-
-    /**
-     * Sends data to a specific connection.
-     *
-     * @param data the data which gets sent.
-     * @param connection the connection the data gets sent to.
-     * @deprecated use {@link Connection#sendData(Object...)} instead.
-     */
-    @Deprecated
-    default void sendData(@NotNull Connection connection, @NotNull Object... data) {
-        connection.sendData(data);
-    }
-
-    /**
-     * Sends data to a specific connection.
-     *
-     * @param connection the connection the data gets sent to.
-     * @param encrypted if the traffic is to be encrypted.
-     * @param data the data which gets sent.
-     * @deprecated use {@link Connection#sendData(boolean, Object...)} instead.
-     */
-    @Deprecated
-    default void sendData(@NotNull Connection connection, boolean encrypted, @NotNull Object... data) {
-        connection.sendData(encrypted, data);
-    }
 
     /**
      * Creates a new builder with the passed arguments.

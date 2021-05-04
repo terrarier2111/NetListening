@@ -11,7 +11,7 @@ public interface Listener<T extends Event> {
 
 	/**
 	 * This method is getting called each time the event
-	 * passed as the generic type parameter gets called
+	 * passed as the generic type parameter gets called.
 	 *
 	 * @param value the event which is called.
 	 */

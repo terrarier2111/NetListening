@@ -28,21 +28,32 @@ public enum CipherEncryptionAlgorithm {
         this.symmetric = symmetric;
     }
 
-    // TODO: Add docs for methods!
+    /**
+     * @return the size which is used by default.
+     */
     public int getDefaultSize() {
         return defaultSize;
     }
 
+    /**
+     * @return the mode which is used by default.
+     */
     @AssumeNotNull
     public CipherAlgorithmMode getDefaultMode() {
         return defaultMode;
     }
 
+    /**
+     * @return the padding which is used by default.
+     */
     @AssumeNotNull
     public CipherAlgorithmPadding getDefaultPadding() {
         return defaultPadding;
     }
 
+    /**
+     * @return whether the algorithm is symmetric or not.
+     */
     @ApiStatus.Experimental
     public boolean isSymmetric() {
         return symmetric;

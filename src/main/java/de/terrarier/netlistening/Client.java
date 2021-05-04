@@ -1,6 +1,5 @@
 package de.terrarier.netlistening;
 
-import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.api.encryption.ServerKey;
 import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
 import de.terrarier.netlistening.api.proxy.ProxyType;
@@ -24,12 +23,6 @@ public interface Client extends Application {
     String PROXY_HANDLER = "nl_proxy_handler";
 
     /**
-     * Interrupts the connection to the server if there is one.
-     */
-    @Deprecated
-    void disconnect();
-
-    /**
      * @return the connection of the Client and if not available, null.
      */
     Connection getConnection();
@@ -49,16 +42,6 @@ public interface Client extends Application {
      * @return whether or not setting the key was successful.
      */
     boolean setServerKey(byte[] data);
-
-    /**
-     * @see Application#sendData(Connection, DataContainer)
-     * @deprecated use {@link Connection#sendData(DataContainer)} instead.
-     */
-    @Deprecated
-    @Override
-    default void sendData(Connection connection, @NotNull DataContainer data) {
-        sendData(data);
-    }
 
     /**
      * Creates a new builder with the passed arguments.

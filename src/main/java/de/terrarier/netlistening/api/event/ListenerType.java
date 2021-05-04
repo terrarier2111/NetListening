@@ -36,9 +36,4 @@ public enum ListenerType {
         return null;
     }
 
-    @AssumeNotNull
-    static ListenerType fromId(int id) {
-        return VALUES[id];
-    }
-
 }

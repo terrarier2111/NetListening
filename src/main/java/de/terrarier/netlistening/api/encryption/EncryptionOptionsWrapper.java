@@ -24,7 +24,7 @@ public final class EncryptionOptionsWrapper<T extends EncryptionOptionsSuperBuil
     }
 
     /**
-     * @see EncryptionOptions
+     * @see EncryptionOptions#type(CipherEncryptionAlgorithm) 
      */
     @AssumeNotNull
     public EncryptionOptionsWrapper<T> type(@NotNull CipherEncryptionAlgorithm type) {
@@ -33,7 +33,7 @@ public final class EncryptionOptionsWrapper<T extends EncryptionOptionsSuperBuil
     }
 
     /**
-     * @see EncryptionOptions
+     * @see EncryptionOptions#keySize(int) 
      */
     @AssumeNotNull
     public EncryptionOptionsWrapper<T> keySize(int keySize) {
@@ -42,7 +42,7 @@ public final class EncryptionOptionsWrapper<T extends EncryptionOptionsSuperBuil
     }
 
     /**
-     * @see EncryptionOptions
+     * @see EncryptionOptions#mode(CipherAlgorithmMode) 
      */
     @AssumeNotNull
     public EncryptionOptionsWrapper<T> mode(@NotNull CipherAlgorithmMode mode) {
@@ -51,7 +51,7 @@ public final class EncryptionOptionsWrapper<T extends EncryptionOptionsSuperBuil
     }
 
     /**
-     * @see EncryptionOptions
+     * @see EncryptionOptions#padding(CipherAlgorithmPadding) 
      */
     @AssumeNotNull
     public EncryptionOptionsWrapper<T> padding(@NotNull CipherAlgorithmPadding padding) {

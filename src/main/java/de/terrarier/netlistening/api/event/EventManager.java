@@ -53,7 +53,7 @@ public final class EventManager {
 		return listenerId;
 	}
 
-	@Deprecated
+	@ApiStatus.Experimental
 	public void unregisterListeners(@AssumeNotNull ListenerType listenerType) {
 		if(listenerType == ListenerType.DECODE) {
 			handler.unregisterListeners();
@@ -70,7 +70,7 @@ public final class EventManager {
 	}
 
 	public void unregisterListener(long listenerId) {
-		final ListenerType type = ListenerType.fromId((byte) (listenerId >>> 40));
+		final ListenerType type = ListenerType.VALUES[(byte) (listenerId >>> 40)];
 		if(type == ListenerType.DECODE) {
 			handler.removeListener((char) (listenerId >>> 16));
 		}

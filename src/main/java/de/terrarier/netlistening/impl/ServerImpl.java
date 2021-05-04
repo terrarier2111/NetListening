@@ -51,7 +51,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         final ThreadFactory factory = Executors.defaultThreadFactory();
 
         @Override
-        public Thread newThread(@AssumeNotNull Runnable r) {
+        public Thread newThread(@NotNull Runnable r) {
             final Thread t = factory.newThread(r);
             t.setDaemon(true);
             return t;

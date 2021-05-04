@@ -173,15 +173,6 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     }
 
     /**
-     * @see Application#getConnection(Channel)
-     */
-    @Deprecated
-    @Override
-    public Connection getConnection(Channel channel) {
-        return connection;
-    }
-
-    /**
      * @see Application#getConnections()
      */
     @AssumeNotNull
@@ -218,18 +209,6 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         worker.interrupt();
         worker = null;
         cache.getPackets().clear();
-    }
-
-    /**
-     * @see Client#disconnect()
-     */
-    @Deprecated
-    @Override
-    public void disconnect() {
-        if (connection == null) {
-            throw new IllegalStateException("The connection is not established!");
-        }
-        connection.disconnect();
     }
 
     /**
