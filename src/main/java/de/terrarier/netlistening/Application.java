@@ -37,14 +37,17 @@ public interface Application {
 	 *
 	 * @param listener the listener which should be registered.
 	 */
-	void registerListener(@NotNull Listener<?> listener);
+	long registerListener(@NotNull Listener<?> listener);
 
 	/**
 	 * Unregisters all listeners of a specific type.
 	 *
 	 * @param listenerType the type of the listeners which should be unregistered.
 	 */
+	@Deprecated
 	void unregisterListeners(@NotNull ListenerType listenerType);
+
+	void unregisterListener(long listenerId);
 
 	/**
 	 * Maps a specific channel to the connection wrapping the specified channel.

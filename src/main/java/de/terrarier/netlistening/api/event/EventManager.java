@@ -17,6 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @ApiStatus.Internal
 public final class EventManager {
 
+	// TODO: Make this multithreading safe!
+
 	private final Map<ListenerType, List<Listener<?>>[]> listeners = new ConcurrentHashMap<>();
 	private final DataHandler handler;
 	
@@ -25,28 +27,33 @@ public final class EventManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void registerListener(@AssumeNotNull Listener<?> listener) {
+	public long registerListener(@AssumeNotNull Listener<?> listener) {
 		final Class<?> listenerClass = listener.getClass();
 		final ListenerType type = ListenerType.resolveType(listenerClass);
 		Objects.requireNonNull(type, "The type of the listener " + listenerClass.getName() + " cannot be resolved!");
-		
-		if(type == ListenerType.DECODE) {
-			handler.addListener((DecodeListener) listener);
-		}
 
 		final EventListener.Priority priority = resolvePriority(listener);
 		final List<Listener<?>>[] listenerPriorities = listeners.computeIfAbsent(type, k -> new List[5]);
-		final int ordinal = priority.ordinal();
-		List<Listener<?>> demanded = listenerPriorities[ordinal];
+		final int priorityId = priority.ordinal();
+		List<Listener<?>> demanded = listenerPriorities[priorityId];
 
 		if(demanded == null) {
 			demanded = new ArrayList<>();
-			listenerPriorities[ordinal] = demanded;
+			listenerPriorities[priorityId] = demanded;
+		}
+		long listenerId = demanded.size();
+		listenerId |= (long) priorityId << 32;
+		listenerId |= (long) type.ordinal() << 40;
+
+		if(type == ListenerType.DECODE) {
+			listenerId |= ((long) handler.addListener((DecodeListener) listener)) << 16;
 		}
 
 		demanded.add(listener);
+		return listenerId;
 	}
 
+	@Deprecated
 	public void unregisterListeners(@AssumeNotNull ListenerType listenerType) {
 		if(listenerType == ListenerType.DECODE) {
 			handler.unregisterListeners();
@@ -60,6 +67,15 @@ public final class EventManager {
 				}
 			}
 		}
+	}
+
+	public void unregisterListener(long listenerId) {
+		final ListenerType type = ListenerType.fromId((byte) (listenerId >>> 40));
+		if(type == ListenerType.DECODE) {
+			handler.removeListener((char) (listenerId >>> 16));
+		}
+		final List<Listener<?>>[] listenerPriorities = listeners.get(type);
+		listenerPriorities[(byte) (listenerId >>> 32)].remove((char) listenerId);
 	}
 
 	public boolean callEvent(@AssumeNotNull ListenerType listenerType, @AssumeNotNull Event event) {

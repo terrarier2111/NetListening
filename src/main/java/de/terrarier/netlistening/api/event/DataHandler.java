@@ -17,6 +17,8 @@ import java.util.List;
 @ApiStatus.Internal
 public final class DataHandler {
 
+    // TODO: Make this multithreading safe!
+
 	private final List<PreparedListener> listeners = new ArrayList<>();
 
     public void processData(@AssumeNotNull List<DataComponent<?>> data, @AssumeNotNull ConnectionImpl connection) {
@@ -53,12 +55,21 @@ public final class DataHandler {
         }
 	}
 
-	void addListener(@AssumeNotNull DecodeListener listener) {
+	int addListener(@AssumeNotNull DecodeListener listener) {
+        final int id = listeners.size();
+        if(id == Character.MAX_VALUE) {
+            throw new IllegalStateException("It is only possible to register at most " + (int) Character.MAX_VALUE + " listeners!");
+        }
         try {
             listeners.add(new PreparedListener(listener));
         } catch (NoSuchMethodException | SecurityException e) {
             e.printStackTrace();
         }
+        return id;
+    }
+
+    void removeListener(int id) {
+        listeners.remove(id);
     }
 
 	public void unregisterListeners() {

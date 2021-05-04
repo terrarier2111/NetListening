@@ -106,16 +106,25 @@ public abstract class ApplicationImpl implements Application {
      * @see Application#registerListener(Listener)
      */
     @Override
-    public final void registerListener(@NotNull Listener<?> listener) {
-        eventManager.registerListener(listener);
+    public final long registerListener(@NotNull Listener<?> listener) {
+        return eventManager.registerListener(listener);
     }
 
     /**
      * @see Application#unregisterListeners(ListenerType) 
      */
+    @Deprecated
     @Override
     public final void unregisterListeners(@NotNull ListenerType listenerType) {
         eventManager.unregisterListeners(listenerType);
+    }
+
+    /**
+     * @see Application#unregisterListener(long)
+     */
+    @Override
+    public final void unregisterListener(long listenerId) {
+        eventManager.unregisterListener(listenerId);
     }
 
     @ApiStatus.Internal
