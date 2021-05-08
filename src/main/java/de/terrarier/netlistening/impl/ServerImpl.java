@@ -130,7 +130,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
     }
 
     /**
-     * @see Server#getConnection(Channel) 
+     * @see Server#getConnection(Channel)
      */
     @Override
     public Connection getConnection(@NotNull Channel channel) {
@@ -138,12 +138,11 @@ public final class ServerImpl extends ApplicationImpl implements Server {
     }
 
     /**
-     * @see Server#getConnection(int) 
+     * @see Server#getConnection(int)
      */
     @Override
     public Connection getConnection(int id) {
-        checkPositiveOrZero(id, "id");
-        if(id > ConnectionImpl.ID.get()) {
+        if(checkPositiveOrZero(id, "id") > ConnectionImpl.ID.get()) {
             return null;
         }
 

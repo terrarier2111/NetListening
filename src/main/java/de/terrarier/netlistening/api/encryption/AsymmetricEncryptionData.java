@@ -1,7 +1,9 @@
 package de.terrarier.netlistening.api.encryption;
 
 import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internals.CheckNotNull;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
+import de.terrarier.netlistening.utils.ObjectUtilFallback;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.NotNull;
@@ -27,10 +29,10 @@ public final class AsymmetricEncryptionData extends EncryptionData {
         this.publicKey = publicKey;
     }
 
-    public AsymmetricEncryptionData(@NotNull EncryptionOptions encryptionOptions, byte[] encryptionData)
+    public AsymmetricEncryptionData(@NotNull EncryptionOptions encryptionOptions, @CheckNotNull byte[] encryptionData)
             throws InvalidKeySpecException, NoSuchAlgorithmException {
         super(encryptionOptions);
-        final ByteBuf buffer = Unpooled.wrappedBuffer(encryptionData);
+        final ByteBuf buffer = Unpooled.wrappedBuffer(ObjectUtilFallback.checkNotNull(encryptionData, "encryptionData"));
         privateKey = AsymmetricEncryptionUtil.readPrivateKey(ByteBufUtilExtension.readBytes(buffer, buffer.readInt()),
                 encryptionOptions);
         publicKey = AsymmetricEncryptionUtil.readPublicKey(ByteBufUtilExtension.getBytes(buffer, buffer.readInt()),
@@ -62,6 +64,7 @@ public final class AsymmetricEncryptionData extends EncryptionData {
      *
      * @return the keys represented as a byte array.
      */
+    @AssumeNotNull
     public byte[] keysToBytes() {
         final byte[] privateKeyData = privateKey.getEncoded();
         final int privateKeyLength = privateKeyData.length;
@@ -80,6 +83,7 @@ public final class AsymmetricEncryptionData extends EncryptionData {
     /**
      * @deprecated use keysToBytes instead!
      */
+    @AssumeNotNull
     @Deprecated
     public byte[] keysToByteArray() {
         return keysToBytes();

@@ -57,7 +57,7 @@ public final class ConnectionImpl implements Connection {
 	}
 
 	/**
-	 * @see Connection
+	 * @see Connection#sendData(DataContainer)
 	 */
 	@Override
 	public void sendData(@NotNull DataContainer data) {
@@ -85,7 +85,7 @@ public final class ConnectionImpl implements Connection {
 	}
 
 	/**
-	 * @see Connection
+	 * @see Connection#sendData(boolean, Object...)
 	 */
 	@Override
 	public void sendData(boolean encrypted, @NotNull Object... data) {
@@ -96,7 +96,7 @@ public final class ConnectionImpl implements Connection {
 	}
 
 	/**
-	 * @see Connection
+	 * @see Connection#disconnect()
 	 */
 	@Override
 	public void disconnect() {
@@ -118,7 +118,7 @@ public final class ConnectionImpl implements Connection {
 	}
 
 	/**
-	 * @see Connection
+	 * @see Connection#isConnected()
 	 */
 	@Override
 	public boolean isConnected() {
@@ -132,7 +132,7 @@ public final class ConnectionImpl implements Connection {
 	}
 
 	/**
-	 * @see Connection
+	 * @see Connection#getChannel()
 	 */
 	@AssumeNotNull
 	@Override
@@ -141,7 +141,7 @@ public final class ConnectionImpl implements Connection {
 	}
 
 	/**
-	 * @see Connection
+	 * @see Connection#getRemoteAddress()
 	 */
 	@AssumeNotNull
 	@Override
@@ -202,7 +202,7 @@ public final class ConnectionImpl implements Connection {
 	}
 
 	/**
-	 * @see Connection
+	 * @see Connection#getId()
 	 */
 	@Override
 	public int getId() {

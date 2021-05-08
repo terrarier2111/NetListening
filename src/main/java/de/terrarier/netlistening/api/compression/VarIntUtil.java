@@ -31,7 +31,7 @@ public final class VarIntUtil {
 		return 5;
 	  }
 
-	public static void writeVarInt(int value, byte[] data) {
+	public static void writeVarInt(int value, @AssumeNotNull byte[] data) {
 		int pos = 0;
 		if(value > 0x0FFFFFFF || value < 0) data[pos++] = (byte)(0x80 | ((value >>> 28)));
 		if(value > 0x1FFFFF || value < 0)   data[pos++] = (byte)(0x80 | ((value >>> 21) & 0x7F));
@@ -40,7 +40,8 @@ public final class VarIntUtil {
 
 		data[pos] = (byte)(value & 0x7F);
 	}
-	
+
+	@AssumeNotNull
 	public static byte[] toVarInt(int value) {
 		final byte[] bytes = new byte[varIntSize(value)];
 		writeVarInt(value, bytes);

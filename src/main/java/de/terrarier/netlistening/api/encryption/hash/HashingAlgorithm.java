@@ -14,12 +14,18 @@ public enum HashingAlgorithm {
     private final String rawName = name().replace('_', '-');
     private final String macName = "Hmac" + name().replaceFirst("_", "");
 
-    // TODO: Add docs for methods!
+    /**
+     * @return the name of the hashing algorithm in a raw form.
+     */
     @AssumeNotNull
     public String getRawName() {
         return rawName;
     }
 
+    /**
+     * @return the name of the hashing algorithm in form which can be
+     * used to initialize a secret key.
+     */
     @AssumeNotNull
     public String getMacName() {
         return macName;

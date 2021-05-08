@@ -128,8 +128,8 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
         return encryptionOptions;
     }
 
-    private static void writeOptions(@AssumeNotNull EncryptionOptions options, byte[] key, @AssumeNotNull ByteBuf buffer,
-                              @AssumeNotNull ApplicationImpl application) {
+    private static void writeOptions(@AssumeNotNull EncryptionOptions options, @AssumeNotNull byte[] key,
+                                     @AssumeNotNull ByteBuf buffer, @AssumeNotNull ApplicationImpl application) {
         writeKey(key, buffer, application);
         checkWriteable(application, buffer, 1 + 4 + 1 + 1);
         buffer.writeByte(options.getType().ordinal());
@@ -138,13 +138,15 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
         buffer.writeByte(options.getPadding().ordinal());
     }
 
-    private static void writeKey(byte[] key, @AssumeNotNull ByteBuf buffer, @AssumeNotNull ApplicationImpl application) {
+    private static void writeKey(@AssumeNotNull byte[] key, @AssumeNotNull ByteBuf buffer,
+                                 @AssumeNotNull ApplicationImpl application) {
         final int keyLength = key.length;
         checkWriteable(application, buffer, 4 + keyLength);
         buffer.writeInt(keyLength);
         buffer.writeBytes(key);
     }
 
+    @AssumeNotNull
     private static byte[] readKey(@AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
         checkReadable(buffer, 4 + 1);
         final int keyLength = buffer.readInt();

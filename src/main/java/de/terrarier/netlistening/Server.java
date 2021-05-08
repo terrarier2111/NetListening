@@ -56,8 +56,7 @@ public interface Server extends Application {
         private final ServerImpl.Builder impl;
 
         public Builder(int port) {
-            checkPositive(port, "port");
-            this.impl = new ServerImpl.Builder(port);
+            impl = new ServerImpl.Builder(checkPositive(port, "port"));
         }
 
         /**
@@ -73,7 +72,7 @@ public interface Server extends Application {
         }
 
         /**
-         * @see Application.Builder#timeout(long) 
+         * @see Application.Builder#timeout(long)
          */
         @AssumeNotNull
         @Override
@@ -83,7 +82,7 @@ public interface Server extends Application {
         }
 
         /**
-         * @see Application.Builder#buffer(int) 
+         * @see Application.Builder#buffer(int)
          */
         @AssumeNotNull
         @Override
@@ -153,7 +152,7 @@ public interface Server extends Application {
         }
 
         /**
-         * @see Application.Builder#option(ChannelOption, Object) 
+         * @see Application.Builder#option(ChannelOption, Object)
          */
         @AssumeNotNull
         @Override
@@ -163,7 +162,7 @@ public interface Server extends Application {
         }
 
         /**
-         * @see Application.Builder#serialization(SerializationProvider) 
+         * @see Application.Builder#serialization(SerializationProvider)
          */
         @AssumeNotNull
         @Override

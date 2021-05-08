@@ -40,7 +40,7 @@ public abstract class SerializationProvider {
      * @return whether or not the underlying implementation can deserialize the
      * passed byte array.
      */
-    protected abstract boolean isDeserializable(byte[] data);
+    protected abstract boolean isDeserializable(@AssumeNotNull byte[] data);
 
     /**
      * Serializes an object and return a byte array that represents that
@@ -60,7 +60,7 @@ public abstract class SerializationProvider {
      * @return the object that was deserialized from the passed byte array.
      * @throws Exception if something unexpected happens.
      */
-    protected abstract Object deserialize(byte[] data) throws Exception;
+    protected abstract Object deserialize(@AssumeNotNull byte[] data) throws Exception;
 
     @ApiStatus.Internal
     public final void setEventManager(@AssumeNotNull EventManager eventManager) {

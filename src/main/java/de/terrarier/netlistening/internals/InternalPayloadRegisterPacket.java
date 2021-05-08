@@ -116,7 +116,8 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
             final PacketSkeleton packet = cache.tryRegisterPacket(packetId, types);
             if(packet.getId() == packetId) {
                 if (application.getCaching() == PacketCaching.GLOBAL) {
-                    cache.broadcastRegister(application, new InternalPayloadRegisterPacket(packetId, types), connection.getChannel(), null);
+                    cache.broadcastRegister(application, new InternalPayloadRegisterPacket(packetId, types), connection,
+                            null);
                 }
             }else {
                 final InternalPayloadRegisterPacket register = new InternalPayloadRegisterPacket(packet.getId());

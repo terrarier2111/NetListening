@@ -29,21 +29,26 @@ public final class SymmetricEncryptionUtil {
         return new SymmetricEncryptionData(encryptionOptions, generator.generateKey());
     }
 
-    static byte[] encrypt(byte[] input, @AssumeNotNull SymmetricEncryptionData encryptionData) {
+    @AssumeNotNull
+    static byte[] encrypt(@AssumeNotNull byte[] input, @AssumeNotNull SymmetricEncryptionData encryptionData) {
         return performCipher(input, encryptionData, Cipher.ENCRYPT_MODE);
     }
 
-    static byte[] decrypt(byte[] input, @AssumeNotNull SymmetricEncryptionData encryptionData) {
+    @AssumeNotNull
+    static byte[] decrypt(@AssumeNotNull byte[] input, @AssumeNotNull SymmetricEncryptionData encryptionData) {
         return performCipher(input, encryptionData, Cipher.DECRYPT_MODE);
     }
 
-    private static byte[] performCipher(byte[] input, @AssumeNotNull SymmetricEncryptionData encryptionData, int mode) {
+    @AssumeNotNull
+    private static byte[] performCipher(@AssumeNotNull byte[] input,
+                                        @AssumeNotNull SymmetricEncryptionData encryptionData, int mode) {
         final SecretKey secretKey = encryptionData.getSecretKey();
         return AsymmetricEncryptionUtil.performCipher(input, encryptionData.getOptions(), secretKey, mode);
     }
 
     @AssumeNotNull
-    public static SecretKey readSecretKey(byte[] secretKey, @AssumeNotNull EncryptionOptions encryptionOptions) {
+    public static SecretKey readSecretKey(@AssumeNotNull byte[] secretKey,
+                                          @AssumeNotNull EncryptionOptions encryptionOptions) {
         return new SecretKeySpec(secretKey, encryptionOptions.getType().name());
     }
 

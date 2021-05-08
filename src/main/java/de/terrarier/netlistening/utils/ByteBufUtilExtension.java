@@ -34,7 +34,8 @@ public final class ByteBufUtilExtension {
 	private ByteBufUtilExtension() {
 		throw new UnsupportedOperationException("This class may not be instantiated!");
 	}
-	
+
+	@AssumeNotNull
 	public static byte[] readBytes(@AssumeNotNull ByteBuf buffer, int bytes) {
 		if(bytes == 0) {
 			return EMPTY_BYTES;
@@ -45,7 +46,7 @@ public final class ByteBufUtilExtension {
 		return read;
 	}
 	
-	public static void writeBytes(@AssumeNotNull ByteBuf buf, byte[] bytes, int buffer) {
+	public static void writeBytes(@AssumeNotNull ByteBuf buf, @AssumeNotNull byte[] bytes, int buffer) {
 		final int length = bytes.length;
 		correctSize(buf, 4 + length, buffer);
 		buf.writeInt(length);
@@ -63,6 +64,7 @@ public final class ByteBufUtilExtension {
 		}
 	}
 
+	@AssumeNotNull
 	public static byte[] getBytes(@AssumeNotNull ByteBuf buffer, int bytes) {
 		if(bytes == 0) {
 			return EMPTY_BYTES;
@@ -71,6 +73,7 @@ public final class ByteBufUtilExtension {
 		return NEW_NETTY_VERSION ? ByteBufUtil.getBytes(buffer, buffer.readerIndex(), bytes) : getBytes0(buffer, bytes);
 	}
 
+	@AssumeNotNull
 	public static byte[] getBytes(@AssumeNotNull ByteBuf buffer) {
 		return getBytes(buffer, buffer.readableBytes());
 	}
@@ -80,6 +83,7 @@ public final class ByteBufUtilExtension {
 	 * 
 	 * @see <a href="https://github.com/netty/netty/blob/4.1/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java">https://github.com/netty/netty/blob/4.1/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java</a>
 	 */
+	@AssumeNotNull
 	private static byte[] getBytes0(@AssumeNotNull ByteBuf buffer, int length) {
 		final int start = buffer.readerIndex();
         final int capacity = buffer.capacity();

@@ -13,6 +13,7 @@ import de.terrarier.netlistening.api.event.*;
 import de.terrarier.netlistening.api.proxy.Proxy;
 import de.terrarier.netlistening.api.proxy.ProxyType;
 import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internals.CheckNotNull;
 import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.network.PacketDataEncoder;
 import de.terrarier.netlistening.network.TimeOutHandler;
@@ -33,6 +34,8 @@ import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
+
+import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkNotNull;
 
 /**
  * @since 1.0
@@ -231,11 +234,11 @@ public final class ClientImpl extends ApplicationImpl implements Client {
      * @see Client#setServerKey(byte[]) 
      */
     @Override
-    public boolean setServerKey(byte[] data) {
-        return setServerKey(new ServerKey(data));
+    public boolean setServerKey(@CheckNotNull byte[] data) {
+        return setServerKey(new ServerKey(checkNotNull(data, "data")));
     }
 
-    private void setServerKey(byte[] serverKeyData, @AssumeNotNull HashingAlgorithm hashingAlgorithm) {
+    private void setServerKey(@AssumeNotNull byte[] serverKeyData, @AssumeNotNull HashingAlgorithm hashingAlgorithm) {
         final ServerKey serverKey;
         try {
             serverKey = new ServerKey(serverKeyData, hashingAlgorithm);
@@ -291,7 +294,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         }
 
         /**
-         * @see Client.Builder#localPort(int) 
+         * @see Client.Builder#localPort(int)
          */
         public void localPort(int localPort) {
             validate();
@@ -299,7 +302,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         }
 
         /**
-         * @see Client.Builder#serverKeyHashingAlgorithm(HashingAlgorithm) 
+         * @see Client.Builder#serverKeyHashingAlgorithm(HashingAlgorithm)
          */
         public void serverKeyHashingAlgorithm(@AssumeNotNull HashingAlgorithm hashingAlgorithm) {
             validate();
@@ -308,18 +311,18 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         }
 
         /**
-         * @see Client.Builder#serverKeyHash(byte[]) 
+         * @see Client.Builder#serverKeyHash(byte[])
          */
-        public void serverKeyHash(byte[] bytes) {
+        public void serverKeyHash(@CheckNotNull byte[] bytes) {
             validate();
-            application.serverKey = new ServerKey(bytes);
+            application.serverKey = new ServerKey(checkNotNull(bytes, "bytes"));
             if(!changedHashingAlgorithm) {
                 application.serverKeyHashing = application.serverKey.getHashingAlgorithm();
             }
         }
 
         /**
-         * @see Client.Builder#proxy(SocketAddress, ProxyType) 
+         * @see Client.Builder#proxy(SocketAddress, ProxyType)
          */
         public void proxy(@AssumeNotNull SocketAddress address, @AssumeNotNull ProxyType proxyType) {
             validate();

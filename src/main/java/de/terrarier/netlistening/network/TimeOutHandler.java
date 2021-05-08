@@ -50,8 +50,7 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 
 			@Override
 			public void run() {
-				if ((!client && !connection.isStable())
-						|| (client && !((ClientImpl) application).hasReceivedHandshake())) {
+				if (client ? !((ClientImpl) application).hasReceivedHandshake() : !connection.isStable()) {
 					return;
 				}
 

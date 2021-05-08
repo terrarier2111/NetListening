@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.api.encryption;
 
 import de.terrarier.netlistening.internals.AssumeNotNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.SecretKey;
@@ -14,7 +15,8 @@ public final class SymmetricEncryptionContext {
     private final SecretKey secretKey;
     private final SymmetricEncryptionData symmetricEncryptionData;
 
-    public SymmetricEncryptionContext(@NotNull EncryptionOptions symmetricEncryptionOptions, @NotNull SecretKey secretKey) {
+    public SymmetricEncryptionContext(@NotNull EncryptionOptions symmetricEncryptionOptions,
+                                      @NotNull SecretKey secretKey) {
         this.symmetricEncryptionData = new SymmetricEncryptionData(symmetricEncryptionOptions, secretKey);
         this.secretKey = secretKey;
     }
@@ -31,7 +33,9 @@ public final class SymmetricEncryptionContext {
      * @param data the data to be encrypted.
      * @return the data encrypted with the internal encryption key.
      */
-    public byte[] encrypt(byte[] data) {
+    @ApiStatus.Internal
+    @AssumeNotNull
+    public byte[] encrypt(@AssumeNotNull byte[] data) {
         return SymmetricEncryptionUtil.encrypt(data, symmetricEncryptionData);
     }
 
@@ -39,7 +43,9 @@ public final class SymmetricEncryptionContext {
      * @param data the data to be decrypted.
      * @return the data decrypted with the internal encryption key.
      */
-    public byte[] decrypt(byte[] data) {
+    @ApiStatus.Internal
+    @AssumeNotNull
+    public byte[] decrypt(@AssumeNotNull byte[] data) {
         return SymmetricEncryptionUtil.decrypt(data, symmetricEncryptionData);
     }
 

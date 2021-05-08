@@ -8,7 +8,6 @@ import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.internals.InternalPayloadRegisterPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Arrays;
@@ -123,7 +122,7 @@ public final class PacketCache {
 	}
 
 	public void broadcastRegister(@AssumeNotNull ApplicationImpl application,
-								  @AssumeNotNull InternalPayloadRegisterPacket payload, Channel ignored, ByteBuf buffer) {
+								  @AssumeNotNull InternalPayloadRegisterPacket payload, Connection ignored, ByteBuf buffer) {
 		final Collection<Connection> connections = application.getConnections();
 		if (ignored == null || connections.size() > 1) {
 			final ByteBuf registerBuffer = buffer != null ? buffer : Unpooled.buffer(
@@ -134,7 +133,7 @@ public final class PacketCache {
 			}
 
 			for (Connection connection : connections) {
-				if (ignored == null || !connection.getChannel().equals(ignored)) {
+				if (ignored == null || connection.getId() != ignored.getId()) {
 					registerBuffer.retain();
 					if (connection.isConnected()) {
 						connection.getChannel().writeAndFlush(registerBuffer);

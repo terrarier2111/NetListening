@@ -22,7 +22,7 @@ public final class JavaIoSerializationProvider extends SerializationProvider {
     }
 
     /**
-     * @see SerializationProvider#isSerializable(Object) 
+     * @see SerializationProvider#isSerializable(Object)
      */
     @Override
     protected boolean isSerializable(@AssumeNotNull Object obj) {
@@ -30,10 +30,10 @@ public final class JavaIoSerializationProvider extends SerializationProvider {
     }
 
     /**
-     * @see SerializationProvider#isDeserializable(byte[]) 
+     * @see SerializationProvider#isDeserializable(byte[])
      */
     @Override
-    protected boolean isDeserializable(byte[] data) {
+    protected boolean isDeserializable(@AssumeNotNull byte[] data) {
         // Common stream header hex: ACED0005
         final int dataLength = data.length;
         return (dataLength > 5 || (dataLength == 5 && data[4] != TC_NULL))
@@ -42,7 +42,7 @@ public final class JavaIoSerializationProvider extends SerializationProvider {
     }
 
     /**
-     * @see SerializationProvider#serialize(Object) 
+     * @see SerializationProvider#serialize(Object)
      */
     @Override
     protected byte[] serialize(@AssumeNotNull Object obj) throws Exception {
@@ -57,7 +57,7 @@ public final class JavaIoSerializationProvider extends SerializationProvider {
      * @see SerializationProvider#deserialize(byte[])
      */
     @Override
-    protected Object deserialize(byte[] data) throws Exception {
+    protected Object deserialize(@AssumeNotNull byte[] data) throws Exception {
         try (ByteArrayInputStream in = new ByteArrayInputStream(data)) {
             final ObjectInputStream is = new ObjectInputStream(in);
             return is.readObject();

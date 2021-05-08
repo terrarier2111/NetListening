@@ -33,16 +33,20 @@ public final class AsymmetricEncryptionUtil {
         return new AsymmetricEncryptionData(encryptionOptions, key.getPrivate(), key.getPublic());
     }
 
-    public static byte[] encrypt(byte[] input, @AssumeNotNull EncryptionOptions encryptionOptions, @AssumeNotNull PublicKey key) {
+    @AssumeNotNull
+    public static byte[] encrypt(@AssumeNotNull byte[] input, @AssumeNotNull EncryptionOptions encryptionOptions,
+                                 @AssumeNotNull PublicKey key) {
         return performCipher(input, encryptionOptions, key, Cipher.ENCRYPT_MODE);
     }
 
-    public static byte[] decrypt(byte[] input, @AssumeNotNull AsymmetricEncryptionData encryptionData) {
+    @AssumeNotNull
+    public static byte[] decrypt(@AssumeNotNull byte[] input, @AssumeNotNull AsymmetricEncryptionData encryptionData) {
         return performCipher(input, encryptionData.getOptions(), encryptionData.getPrivateKey(), Cipher.DECRYPT_MODE);
     }
 
-    static byte[] performCipher(byte[] input, @AssumeNotNull EncryptionOptions encryptionOptions, @AssumeNotNull Key key,
-                                          int mode) {
+    @AssumeNotNull
+    static byte[] performCipher(@AssumeNotNull byte[] input, @AssumeNotNull EncryptionOptions encryptionOptions,
+                                @AssumeNotNull Key key, int mode) {
 
         try {
             final Cipher cipher = Cipher.getInstance(encryptionOptions.build());
@@ -56,7 +60,7 @@ public final class AsymmetricEncryptionUtil {
     }
 
     @AssumeNotNull
-    public static PublicKey readPublicKey(byte[] publicKey, @AssumeNotNull EncryptionOptions encryptionOptions)
+    public static PublicKey readPublicKey(@AssumeNotNull byte[] publicKey, @AssumeNotNull EncryptionOptions encryptionOptions)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
         final X509EncodedKeySpec spec = new X509EncodedKeySpec(publicKey);
         final KeyFactory factory = KeyFactory.getInstance(encryptionOptions.getType().name());
@@ -64,7 +68,7 @@ public final class AsymmetricEncryptionUtil {
     }
 
     @AssumeNotNull
-    static PrivateKey readPrivateKey(byte[] bytes, @AssumeNotNull EncryptionOptions encryptionOptions)
+    static PrivateKey readPrivateKey(@AssumeNotNull byte[] bytes, @AssumeNotNull EncryptionOptions encryptionOptions)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
         final PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytes);
         return KeyFactory.getInstance(encryptionOptions.getType().name()).generatePrivate(spec);

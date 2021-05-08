@@ -24,12 +24,12 @@ public final class HashUtil {
         throw new UnsupportedOperationException("This class may not be instantiated!");
     }
 
-    public static byte[] hash(@AssumeNotNull HashingAlgorithm hashingAlgorithm, byte[] data)
+    public static byte[] hash(@AssumeNotNull HashingAlgorithm hashingAlgorithm, @AssumeNotNull byte[] data)
             throws NoSuchAlgorithmException {
         return hash(hashingAlgorithm, data, 0);
     }
 
-    private static byte[] hash(@AssumeNotNull HashingAlgorithm hashingAlgorithm, byte[] data, int salt)
+    private static byte[] hash(@AssumeNotNull HashingAlgorithm hashingAlgorithm, @AssumeNotNull byte[] data, int salt)
             throws NoSuchAlgorithmException {
         final MessageDigest digest = MessageDigest.getInstance(hashingAlgorithm.getRawName());
         if(salt > 0) {
@@ -42,13 +42,16 @@ public final class HashUtil {
         return digest.digest(data);
     }
 
+    @AssumeNotNull
     private static byte[] getSalt(int length) {
         final byte[] salt = new byte[length];
         new SecureRandom().nextBytes(salt);
         return salt;
     }
 
-    public static byte[] calculateHMAC(byte[] data, byte[] key, @AssumeNotNull HashingAlgorithm algorithm)
+    @AssumeNotNull
+    public static byte[] calculateHMAC(@AssumeNotNull byte[] data, @AssumeNotNull byte[] key,
+                                       @AssumeNotNull HashingAlgorithm algorithm)
             throws NoSuchAlgorithmException, InvalidKeyException {
         final String macName = algorithm.getMacName();
         final SecretKeySpec secretKeySpec = new SecretKeySpec(key, macName);

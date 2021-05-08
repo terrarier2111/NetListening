@@ -21,7 +21,7 @@ public final class HmacSettingWrapper extends EncryptionOptionsSuperBuilder<Hmac
     }
 
     /**
-     * @see HmacSetting
+     * @see HmacSetting#hashingAlgorithm(HashingAlgorithm)
      */
     @AssumeNotNull
     public HmacSettingWrapper hashingAlgorithm(@NotNull HashingAlgorithm hashingAlgorithm) {
@@ -30,7 +30,7 @@ public final class HmacSettingWrapper extends EncryptionOptionsSuperBuilder<Hmac
     }
 
     /**
-     * @see HmacSetting
+     * @see HmacSetting#encryptionOptions(EncryptionOptions)
      */
     @AssumeNotNull
     @Override
@@ -48,7 +48,7 @@ public final class HmacSettingWrapper extends EncryptionOptionsSuperBuilder<Hmac
     }
 
     /**
-     * @see HmacSetting
+     * @see HmacSetting#applicationPolicy(HmacApplicationPolicy)
      */
     @AssumeNotNull
     public HmacSettingWrapper applicationPolicy(@NotNull HmacApplicationPolicy applicationPolicy) {

@@ -73,7 +73,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
                 DataType.getDTIP().write0(application, registerBuffer, register);
                 buffer.writeBytes(ByteBufUtilExtension.getBytes(registerBuffer));
                 if (application.getCaching() == PacketCaching.GLOBAL) {
-                    cache.broadcastRegister(application, register, ctx.channel(), registerBuffer);
+                    cache.broadcastRegister(application, register, connection, registerBuffer);
                 } else {
                     registerBuffer.release();
                 }

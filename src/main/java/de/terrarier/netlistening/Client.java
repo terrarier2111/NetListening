@@ -6,6 +6,7 @@ import de.terrarier.netlistening.api.proxy.ProxyType;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internals.CheckNotNull;
 import io.netty.channel.ChannelOption;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,7 +42,7 @@ public interface Client extends Application {
      * @param data the data representing the expected key.
      * @return whether or not setting the key was successful.
      */
-    boolean setServerKey(byte[] data);
+    boolean setServerKey(@CheckNotNull byte[] data);
 
     /**
      * Creates a new builder with the passed arguments.
@@ -72,11 +73,11 @@ public interface Client extends Application {
         private final ClientImpl.Builder impl;
 
         public Builder(@NotNull String host, int remotePort) {
-            this(new InetSocketAddress(host, remotePort));
+            this(new InetSocketAddress(host, checkPositive(remotePort, "remotePort")));
         }
 
         public Builder(@NotNull SocketAddress remoteAddress) {
-            this.impl = new ClientImpl.Builder(remoteAddress);
+            impl = new ClientImpl.Builder(remoteAddress);
         }
 
         /**
@@ -102,7 +103,7 @@ public interface Client extends Application {
         }
 
         /**
-         * @see Application.Builder#buffer(int) 
+         * @see Application.Builder#buffer(int)
          */
         @AssumeNotNull
         @Override
@@ -132,13 +133,13 @@ public interface Client extends Application {
          * @return the local reference.
          */
         @AssumeNotNull
-        public Builder serverKeyHash(byte[] bytes) {
+        public Builder serverKeyHash(@CheckNotNull byte[] bytes) {
             impl.serverKeyHash(bytes);
             return this;
         }
 
         /**
-         * @see Application.Builder#option(ChannelOption, Object) 
+         * @see Application.Builder#option(ChannelOption, Object)
          */
         @AssumeNotNull
         @Override
@@ -148,7 +149,7 @@ public interface Client extends Application {
         }
 
         /**
-         * @see Application.Builder#serialization(SerializationProvider) 
+         * @see Application.Builder#serialization(SerializationProvider)
          */
         @AssumeNotNull
         @Override
