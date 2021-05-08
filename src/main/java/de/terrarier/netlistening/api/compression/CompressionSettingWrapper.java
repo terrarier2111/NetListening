@@ -18,7 +18,7 @@ public final class CompressionSettingWrapper {
     }
 
     /**
-     * @see CompressionSetting#varIntCompression(boolean) 
+     * @see CompressionSetting#varIntCompression(boolean)
      */
     @AssumeNotNull
     public CompressionSettingWrapper varIntCompression(boolean enabled) {

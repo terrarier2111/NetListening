@@ -81,7 +81,7 @@ public final class AsymmetricEncryptionData extends EncryptionData {
     }
 
     /**
-     * @deprecated use keysToBytes instead!
+     * @deprecated use {@link AsymmetricEncryptionData#keysToBytes} instead!
      */
     @AssumeNotNull
     @Deprecated

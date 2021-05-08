@@ -22,7 +22,8 @@ public final class DataTypeFloat extends DataType<Float> {
 	}
 
 	@Override
-	protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, @AssumeNotNull Float data) {
+	protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer,
+						 @AssumeNotNull Float data) {
 		buffer.writeFloat(data);
 	}
 

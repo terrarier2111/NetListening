@@ -2,6 +2,7 @@ package de.terrarier.netlistening.api.event;
 
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.channel.Channel;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -13,7 +14,8 @@ import org.jetbrains.annotations.NotNull;
 public final class ConnectionPreInitEvent extends Cancellable implements Event {
 	
 	private final Channel channel;
-	
+
+	@ApiStatus.Internal
 	public ConnectionPreInitEvent(@NotNull Channel channel) {
 		this.channel = channel;
 	}

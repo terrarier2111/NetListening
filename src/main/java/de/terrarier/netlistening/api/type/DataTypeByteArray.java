@@ -29,7 +29,6 @@ public final class DataTypeByteArray extends DataType<byte[]> {
 			}
 			throw new IllegalStateException("Received a malicious byte array of length " + length + '.');
 		}
-
 		checkReadable(buffer, length);
 		
 		return ByteBufUtilExtension.readBytes(buffer, length);

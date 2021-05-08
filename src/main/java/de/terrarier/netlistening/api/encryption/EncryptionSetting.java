@@ -94,12 +94,12 @@ public final class EncryptionSetting {
     }
 
     /**
-     * Sets the AsymmetricEncryptionData used to encrypt the symmetric key sent to the clients.
+     * Sets the {@code asymmetricEncryptionData} used to encrypt the symmetric key sent to the clients.
      *
      * @param key the asymmetric keys represented as a byte array.
      * @return the reference to the local reference.
-     * @throws NoSuchAlgorithmException when the algorithm specified in the asymmetricEncryptionSetting isn't defined in the current JDK!
-     * @throws InvalidKeySpecException when the the passed key is invalid.
+     * @throws NoSuchAlgorithmException when the algorithm specified in the {@code asymmetricEncryptionSetting} isn't defined in the current JDK.
+     * @throws InvalidKeySpecException when the passed key is invalid.
      */
     @AssumeNotNull
     public EncryptionSetting init(byte[] key) throws NoSuchAlgorithmException, InvalidKeySpecException {
@@ -112,7 +112,7 @@ public final class EncryptionSetting {
     }
 
     /**
-     * @return the asymmetricEncryptionData which provides an asymmetric key pair.
+     * @return the {@code asymmetricEncryptionData} which provides an asymmetric key pair.
      */
     @AssumeNotNull
     public AsymmetricEncryptionData getEncryptionData() {
@@ -120,7 +120,7 @@ public final class EncryptionSetting {
     }
 
     /**
-     * @return if the asymmetricEncryptionData was already set.
+     * @return if the {@code asymmetricEncryptionData} was already set.
      */
     public boolean isInitialized() {
         return asymmetricEncryptionData != null;

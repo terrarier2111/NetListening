@@ -2,6 +2,7 @@ package de.terrarier.netlistening.api.event;
 
 import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.internals.AssumeNotNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -14,8 +15,10 @@ public final class InvalidDataEvent extends ConnectionEvent {
 
 	private final DataInvalidReason reason;
 	private final byte[] data;
-	
-	public InvalidDataEvent(@NotNull Connection connection, @NotNull DataInvalidReason reason, byte[] data) {
+
+	@ApiStatus.Internal
+	public InvalidDataEvent(@NotNull Connection connection, @NotNull DataInvalidReason reason,
+							@AssumeNotNull byte[] data) {
 		super(connection);
 		this.reason = reason;
 		this.data = data;

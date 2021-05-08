@@ -111,7 +111,7 @@ public abstract class ApplicationImpl implements Application {
     }
 
     /**
-     * @see Application#unregisterListeners(ListenerType) 
+     * @see Application#unregisterListeners(ListenerType)
      */
     @ApiStatus.Experimental
     @Override
@@ -154,8 +154,7 @@ public abstract class ApplicationImpl implements Application {
         @AssumeNotNull
         public final B timeout(long timeout) {
             validate();
-            checkPositiveOrZero(timeout, "timeout");
-            this.timeout = timeout;
+            this.timeout = checkPositiveOrZero(timeout, "timeout");
             return (B) this;
         }
 
@@ -166,8 +165,7 @@ public abstract class ApplicationImpl implements Application {
         @AssumeNotNull
         public final B buffer(int buffer) {
             validate();
-            checkPositiveOrZero(buffer, "buffer");
-            application.buffer = buffer;
+            application.buffer = checkPositiveOrZero(buffer, "buffer");
             return (B) this;
         }
 

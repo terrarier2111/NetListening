@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.api.event;
 
 import de.terrarier.netlistening.Connection;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -14,6 +15,7 @@ public final class ConnectionDataFrameEvent extends ConnectionEvent {
     private final int frameBytes;
     private final int readBytes;
 
+    @ApiStatus.Internal
     public ConnectionDataFrameEvent(@NotNull Connection connection, int frameBytes, int readBytes) {
         super(connection);
         this.frameBytes = frameBytes;

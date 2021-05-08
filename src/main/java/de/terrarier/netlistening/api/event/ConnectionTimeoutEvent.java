@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.api.event;
 
 import de.terrarier.netlistening.Connection;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -13,7 +14,8 @@ import org.jetbrains.annotations.NotNull;
  * @author Terrarier2111
  */
 public final class ConnectionTimeoutEvent extends ConnectionEvent {
-	
+
+	@ApiStatus.Internal
 	public ConnectionTimeoutEvent(@NotNull Connection connection) {
 		super(connection);
 	}

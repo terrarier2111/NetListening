@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.api.event;
 
 import de.terrarier.netlistening.internals.AssumeNotNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -15,7 +16,8 @@ public final class LengthExtensionDetectionEvent implements Event {
     private final byte[] actualHash;
     private Result result = Result.DROP_DATA;
 
-    public LengthExtensionDetectionEvent(byte[] expectedHash, byte[] actualHash) {
+    @ApiStatus.Internal
+    public LengthExtensionDetectionEvent(@AssumeNotNull byte[] expectedHash, @AssumeNotNull byte[] actualHash) {
         this.expectedHash = expectedHash;
         this.actualHash = actualHash;
     }
@@ -23,6 +25,7 @@ public final class LengthExtensionDetectionEvent implements Event {
     /**
      * @return the hash received from the other connection.
      */
+    @AssumeNotNull
     public byte[] getExpectedHash() {
         return expectedHash;
     }
@@ -30,6 +33,7 @@ public final class LengthExtensionDetectionEvent implements Event {
     /**
      * @return the actual hash code calculated from the data.
      */
+    @AssumeNotNull
     public byte[] getActualHash() {
         return actualHash;
     }

@@ -231,7 +231,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     }
 
     /**
-     * @see Client#setServerKey(byte[]) 
+     * @see Client#setServerKey(byte[])
      */
     @Override
     public boolean setServerKey(@CheckNotNull byte[] data) {

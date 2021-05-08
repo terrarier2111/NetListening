@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.api.event;
 
 import de.terrarier.netlistening.Connection;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -11,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class ConnectionDisconnectEvent extends ConnectionEvent {
 
+    @ApiStatus.Internal
     public ConnectionDisconnectEvent(@NotNull Connection connection) {
         super(connection);
     }

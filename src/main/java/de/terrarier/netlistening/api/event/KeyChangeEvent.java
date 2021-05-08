@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.api.event;
 
 import de.terrarier.netlistening.internals.AssumeNotNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -16,7 +17,9 @@ public final class KeyChangeEvent extends Cancellable implements Event {
     private final byte[] receivedKeyHash;
     private final KeyChangeResult result;
 
-    public KeyChangeEvent(byte[] currentKeyHash, byte[] receivedKeyHash, @NotNull KeyChangeResult result) {
+    @ApiStatus.Internal
+    public KeyChangeEvent(@AssumeNotNull byte[] currentKeyHash, @AssumeNotNull byte[] receivedKeyHash,
+                          @NotNull KeyChangeResult result) {
         this.currentKeyHash = currentKeyHash;
         this.receivedKeyHash = receivedKeyHash;
         this.result = result;
@@ -25,6 +28,7 @@ public final class KeyChangeEvent extends Cancellable implements Event {
     /**
      * @return the hash of the key which was previously received from the server.
      */
+    @AssumeNotNull
     public byte[] getCurrentKeyHash() {
         return currentKeyHash;
     }
@@ -32,6 +36,7 @@ public final class KeyChangeEvent extends Cancellable implements Event {
     /**
      * @return the hash of the received key.
      */
+    @AssumeNotNull
     public byte[] getReceivedKeyHash() {
         return receivedKeyHash;
     }

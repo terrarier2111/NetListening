@@ -8,6 +8,8 @@ public abstract class Cancellable {
 
 	private boolean cancelled;
 
+	Cancellable() {}
+
 	/**
 	 * Sets if the event is to be cancelled or not.
 	 *
@@ -18,7 +20,7 @@ public abstract class Cancellable {
 	}
 
 	/**
-	 * @return if the event is canceled.
+	 * @return whether the event is cancelled or not.
 	 */
 	public final boolean isCancelled() {
 		return cancelled;

@@ -167,8 +167,7 @@ public final class DataContainer {
 	 */
 	@AssumeNotNull
 	public DataContainer subContainer(int startIndex, int endIndex) {
-		checkPositiveOrZero(startIndex, "startIndex");
-		if(startIndex > endIndex) {
+		if(checkPositiveOrZero(startIndex, "startIndex") > endIndex) {
 			throw new IllegalArgumentException("startIndex has to be smaller than endIndex!");
 		}
 

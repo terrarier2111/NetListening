@@ -13,7 +13,7 @@ public final class CompressionSetting {
 
     /**
      * Sets if VarInt compression should be used to compress internal data
-     * like packetIds.
+     * like packet ids.
      *
      * @param enabled if VarInt compression should be used.
      * @return the local reference.

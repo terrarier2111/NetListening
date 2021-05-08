@@ -1,6 +1,7 @@
 package de.terrarier.netlistening.api.event;
 
 import de.terrarier.netlistening.internals.AssumeNotNull;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -14,6 +15,7 @@ public final class ExceptionTrowEvent implements Event {
     private boolean print = true;
     private final Throwable exception;
 
+    @ApiStatus.Internal
     public ExceptionTrowEvent(@NotNull Throwable exception) {
         this.exception = exception;
     }

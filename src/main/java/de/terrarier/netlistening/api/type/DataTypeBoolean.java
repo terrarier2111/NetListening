@@ -22,7 +22,8 @@ public final class DataTypeBoolean extends DataType<Boolean> {
 	}
 
 	@Override
-	protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, @AssumeNotNull Boolean data) {
+	protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer,
+						 @AssumeNotNull Boolean data) {
 		buffer.writeBoolean(data);
 	}
 

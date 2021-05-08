@@ -22,7 +22,8 @@ public final class DataTypeByte extends DataType<Byte> {
 	}
 
 	@Override
-	protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, @AssumeNotNull Byte data) {
+	protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer,
+						 @AssumeNotNull Byte data) {
 		buffer.writeByte(data);
 	}
 
