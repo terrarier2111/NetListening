@@ -78,9 +78,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             framing = false;
             boolean release = false;
             if (!hasId) {
-                final boolean[] idReadValidator = new boolean[1];
-                readPacket(buffer, out, tmp, idReadValidator);
-                release = idReadValidator[0];
+                release = readPacket(buffer, out, tmp);
             } else {
                 hasId = false;
                 if (packet != null) {
@@ -106,30 +104,27 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
             throw new IllegalStateException("Received an empty packet!");
         }
-        readPacket(buffer, out, buffer, null);
+        readPacket(buffer, out, buffer);
     }
 
-    private void readPacket(@AssumeNotNull ByteBuf buffer, @AssumeNotNull List<Object> out,
-                            @AssumeNotNull ByteBuf idBuffer, boolean[] packetIdReadValidator) throws Exception {
+    private boolean readPacket(@AssumeNotNull ByteBuf buffer, @AssumeNotNull List<Object> out,
+                            @AssumeNotNull ByteBuf idBuffer) throws Exception {
         final int id;
         try {
             id = InternalUtil.readInt(application, idBuffer);
-            if (packetIdReadValidator != null) {
-                packetIdReadValidator[0] = true;
-            }
         } catch (VarIntUtil.VarIntParseException varIntParseException) {
             // preparing framing of packet id
             holdingBuffer = Unpooled.buffer(varIntParseException.requiredBytes);
             transferRemaining(buffer);
             packet = null;
             hasId = false;
-            return;
+            return false;
         }
 
         if (id == 0x1) {
             // Dropping the keep alive packet content.
             buffer.skipBytes(1);
-            return;
+            return true;
         }
 
         if (id == 0x2) {
@@ -140,7 +135,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                             ? VarIntUtil.toVarInt(0x2) : ConversionUtil.intToBytes(0x2);
 
                     return new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.MALICIOUS_ACTION, data);
-                })) return;
+                })) return true;
 
                 throw new IllegalStateException("Received malicious data! (0x2)");
             }
@@ -149,7 +144,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             if (buffer.isReadable()) {
                 decode(context.getHandlerContext(), buffer, out);
             }
-            return;
+            return true;
         }
 
         if (!buffer.isReadable()) {
@@ -159,7 +154,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                         : ConversionUtil.intToBytes(id);
 
                 return new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.INCOMPLETE_PACKET, data);
-            })) return;
+            })) return true;
 
             throw new IllegalStateException("An error occurred while decoding - the packet to decode was empty! (skipping current packet with id: "
                             + Integer.toHexString(id) + ')');
@@ -167,7 +162,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
         if (id == 0x0) {
             readPayLoad(buffer);
-            return;
+            return true;
         }
 
         final PacketSkeleton packet = connection.getCache().getPacket(id);
@@ -178,19 +173,20 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                         : ConversionUtil.intToBytes(id);
 
                 return new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.INVALID_ID, data);
-            })) return;
+            })) return true;
 
             throw new IllegalStateException("An error occurred while decoding - the packet to decode wasn't recognizable because it wasn't registered before! ("
                             + Integer.toHexString(id) + ')');
         }
 
         read(out, new ArrayList<>(packet.getData().length), buffer, packet, 0, null);
+        return true;
     }
 
     @SuppressWarnings("unchecked")
     private void read(@AssumeNotNull List<Object> out, @AssumeNotNull List<DataComponent<?>> data,
-                      @AssumeNotNull ByteBuf buffer, @AssumeNotNull PacketSkeleton packet, int index, ByteBuf framingBuffer)
-            throws Exception {
+                      @AssumeNotNull ByteBuf buffer, @AssumeNotNull PacketSkeleton packet, int index,
+                      ByteBuf framingBuffer) throws Exception {
         final DataType<?>[] dataTypes = packet.getData();
         final int length = dataTypes.length;
         boolean ignore = false;

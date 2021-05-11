@@ -85,7 +85,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
                     return;
                 }
                 final PacketSkeleton finalPacket = packet;
-                // Sending data delayed, awaiting the packet's registration to finish
+                // Sending data delayed, awaiting the packet's registration to finish.
                 delayedExecutor.execute(() -> {
                     final Channel channel = ctx.channel();
                     while (!finalPacket.isRegistered());
@@ -98,11 +98,13 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
             final HmacSetting hmacSetting;
             final boolean encrypted = data.isEncrypted();
             if (encryptionSetting == null ||
-                    ((hmacSetting = encryptionSetting.getHmacSetting()) == null && !encrypted)) {
+                    (((hmacSetting = encryptionSetting.getHmacSetting()) == null ||
+                            hmacSetting.getApplicationPolicy() == HmacApplicationPolicy.ENCRYPTED) && !encrypted)) {
                 writeToBuffer(buffer, data, packet.getId());
                 return;
             }
-            final boolean hmac = encrypted || hmacSetting.getApplicationPolicy() == HmacApplicationPolicy.ALL; // TODO: Include this one in the check above.
+            final boolean hmac = (encrypted || hmacSetting.getApplicationPolicy() == HmacApplicationPolicy.ALL) &&
+                    hmacSetting != null;
             final ByteBuf dst = hmac ? Unpooled.buffer() : buffer;
             final ByteBuf dataBuffer = encrypted ? Unpooled.buffer() : dst;
             writeToBuffer(dataBuffer, data, packet.getId());

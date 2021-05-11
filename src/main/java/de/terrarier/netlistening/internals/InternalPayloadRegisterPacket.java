@@ -84,11 +84,11 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
             final byte id;
             if(nibbleCompression) {
                 if(nibblePair != 0) {
-                    id = NibbleUtil.getSecondNibble(nibblePair);
+                    id = NibbleUtil.getLowNibble(nibblePair);
                     nibblePair = 0;
                 }else {
                     nibblePair = buffer.readByte();
-                    id = NibbleUtil.getFirstNibble(nibblePair);
+                    id = NibbleUtil.getHighNibble(nibblePair);
                 }
             }else {
                 id = buffer.readByte();

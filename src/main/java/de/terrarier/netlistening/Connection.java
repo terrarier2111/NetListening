@@ -47,12 +47,16 @@ public interface Connection {
      *
      * @param encrypted whether the traffic is to be encrypted.
      * @param data the data which gets sent.
+     * @deprecated passing a boolean as the first part of data might unexpectedly
+     * be compiled to this method.
      */
+    @Deprecated
     void sendData(boolean encrypted, @NotNull Object... data);
 
     /**
      * Disconnects the connection.
-     * @throws IllegalStateException if {@code this.isConnected()} returns {@code false}.
+     *
+     * @throws IllegalStateException if {@code Connection#isConnected()} returns {@code false}.
      */
     void disconnect();
 

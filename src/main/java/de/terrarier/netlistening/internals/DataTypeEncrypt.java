@@ -28,7 +28,8 @@ public final class DataTypeEncrypt extends DataType<Void> {
         checkReadable(buffer, 4);
         final int size = buffer.readInt();
         checkReadable(buffer, size);
-        final byte[] decrypted = decoderContext.getConnection().getEncryptionContext().decrypt(ByteBufUtilExtension.readBytes(buffer, size));
+        final byte[] decrypted = decoderContext.getConnection().getEncryptionContext().decrypt(
+                ByteBufUtilExtension.readBytes(buffer, size));
         final PacketDataDecoder decoder = decoderContext.getDecoder();
         final ByteBuf dataBuffer = Unpooled.wrappedBuffer(decrypted);
         decoder.releaseNext();

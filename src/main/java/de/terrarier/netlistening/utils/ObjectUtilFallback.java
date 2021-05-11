@@ -63,7 +63,7 @@ public final class ObjectUtilFallback {
 
     public static <T> T checkNotNull(T obj, String name) {
         if(obj == null) {
-            throw new IllegalStateException(name + " may not be null!");
+            throw new IllegalArgumentException(name + " may not be null!");
         }
         return obj;
     }

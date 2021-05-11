@@ -131,7 +131,8 @@ public final class EventManager {
 				return eventListener.priority();
 			}
 		} catch (NoSuchMethodException e) {
-			e.printStackTrace(); // TODO: Handle this better because it's something what shouldn't occur at all.
+			// This shouldn't occur ever!
+			e.printStackTrace();
 		}
 		return EventListener.Priority.MEDIUM;
 	}

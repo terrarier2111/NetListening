@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -132,6 +133,10 @@ public abstract class ApplicationImpl implements Application {
     public final EventManager getEventManager() {
         return eventManager;
     }
+
+    @ApiStatus.Internal
+    @AssumeNotNull
+    public abstract Collection<ConnectionImpl> getConnectionsRaw();
 
     @ApiStatus.Internal
     static abstract class Builder<A extends ApplicationImpl, B extends Builder<A, B>> extends Application.Builder<A, B> {

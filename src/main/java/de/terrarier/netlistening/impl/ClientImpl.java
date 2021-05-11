@@ -184,6 +184,13 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         return Collections.singleton(connection);
     }
 
+    @AssumeNotNull
+    @Override
+    public Collection<ConnectionImpl> getConnectionsRaw() {
+        // currently unused as of 1.09
+        return Collections.singleton(connection);
+    }
+
     /**
      * @see ApplicationImpl#getCaching()
      */

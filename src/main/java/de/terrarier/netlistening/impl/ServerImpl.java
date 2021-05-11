@@ -51,10 +51,10 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         final ThreadFactory factory = Executors.defaultThreadFactory();
 
         @Override
-        public Thread newThread(@NotNull Runnable r) {
-            final Thread t = factory.newThread(r);
-            t.setDaemon(true);
-            return t;
+        public Thread newThread(@NotNull Runnable runnable) {
+            final Thread thread = factory.newThread(runnable);
+            thread.setDaemon(true);
+            return thread;
         }
     });
 
@@ -208,6 +208,12 @@ public final class ServerImpl extends ApplicationImpl implements Server {
     @Override
     public Set<Connection> getConnections() {
         return Collections.unmodifiableSet(new HashSet<>(connections.values()));
+    }
+
+    @AssumeNotNull
+    @Override
+    public Collection<ConnectionImpl> getConnectionsRaw() {
+        return connections.values();
     }
 
     @ApiStatus.Internal

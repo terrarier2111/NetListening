@@ -91,11 +91,11 @@ public final class InternalPayloadHandshake extends InternalPayload {
 			final int keySize = buffer.readInt();
 			final byte mode = buffer.readByte();
 			final byte padding = buffer.readByte();
-			final EncryptionOptions asymmetricEncryptionOptions = new EncryptionOptions();
-			asymmetricEncryptionOptions.type(CipherEncryptionAlgorithm.fromId(type));
-			asymmetricEncryptionOptions.keySize(keySize);
-			asymmetricEncryptionOptions.mode(CipherAlgorithmMode.fromId(mode));
-			asymmetricEncryptionOptions.padding(CipherAlgorithmPadding.fromId(padding));
+			final EncryptionOptions asymmetricEncryptionOptions = new EncryptionOptions()
+					.type(CipherEncryptionAlgorithm.fromId(type))
+					.keySize(keySize)
+					.mode(CipherAlgorithmMode.fromId(mode))
+					.padding(CipherAlgorithmPadding.fromId(padding));
 			final int serverKeyLength = buffer.readInt();
 			checkReadable(buffer, serverKeyLength);
 			serverKey = ByteBufUtilExtension.readBytes(buffer, serverKeyLength);
@@ -103,7 +103,8 @@ public final class InternalPayloadHandshake extends InternalPayload {
 			encryptionSetting.asymmetricEncryptionOptions(asymmetricEncryptionOptions);
 		}
 		final ClientImpl client = (ClientImpl) application;
-		final CompressionSetting compressionSetting = new CompressionSetting().varIntCompression((mask & 1) != 0)
+		final CompressionSetting compressionSetting = new CompressionSetting()
+				.varIntCompression((mask & 1) != 0)
 				.nibbleCompression((mask & 1 << 1) != 0);
 		client.receiveHandshake(compressionSetting, charset, encryptionSetting, serverKey);
 

@@ -122,8 +122,9 @@ public final class PacketCache {
 	}
 
 	public void broadcastRegister(@AssumeNotNull ApplicationImpl application,
-								  @AssumeNotNull InternalPayloadRegisterPacket payload, Connection ignored, ByteBuf buffer) {
-		final Collection<Connection> connections = application.getConnections();
+								  @AssumeNotNull InternalPayloadRegisterPacket payload,
+								  Connection ignored, ByteBuf buffer) {
+		final Collection<ConnectionImpl> connections = application.getConnectionsRaw();
 		if (ignored == null || connections.size() > 1) {
 			final ByteBuf registerBuffer = buffer != null ? buffer : Unpooled.buffer(
 					(application.getCompressionSetting().isVarIntCompression() ? 2 : 5) + payload.getSize(application));
@@ -132,13 +133,13 @@ public final class PacketCache {
 				DataType.getDTIP().write0(application, registerBuffer, payload);
 			}
 
-			for (Connection connection : connections) {
+			for (ConnectionImpl connection : connections) {
 				if (ignored == null || connection.getId() != ignored.getId()) {
 					registerBuffer.retain();
 					if (connection.isConnected()) {
 						connection.getChannel().writeAndFlush(registerBuffer);
 					} else {
-						((ConnectionImpl) connection).writeToInitialBuffer(registerBuffer);
+						connection.writeToInitialBuffer(registerBuffer);
 					}
 				}
 			}

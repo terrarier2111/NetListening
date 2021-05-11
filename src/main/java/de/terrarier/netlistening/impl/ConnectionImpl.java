@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkNotNull;
+
 /**
  * @since 1.0
  * @author Terrarier2111
@@ -161,8 +163,9 @@ public final class ConnectionImpl implements Connection {
 	 * @param options the options which should be used to interpret the key data.
 	 * @param symmetricKey the data which should be used to generate the key.
 	 */
-	public void setSymmetricKey(@NotNull EncryptionOptions options, byte[] symmetricKey) {
-		final SecretKey secretKey = SymmetricEncryptionUtil.readSecretKey(symmetricKey, options);
+	public void setSymmetricKey(@NotNull EncryptionOptions options, @CheckNotNull byte[] symmetricKey) {
+		final SecretKey secretKey = SymmetricEncryptionUtil.readSecretKey(checkNotNull(symmetricKey, "symmetricKey"),
+				options);
 		encryptionContext = new SymmetricEncryptionContext(options, secretKey);
 	}
 
@@ -178,22 +181,25 @@ public final class ConnectionImpl implements Connection {
 		encryptionContext = new SymmetricEncryptionContext(options, secretKey);
 	}
 
-	// TODO: Add any sort of documentation to this method!
+	/**
+	 * @return the internal symmetric key which is used to hash data.
+	 * If hashing is disabled, it returns null.
+	 */
 	public byte[] getHmacKey() {
 		return hmacKey;
 	}
 
 	/**
-	 * Sets an internal symmetric key of the connection!
+	 * Sets an internal symmetric key of the connection.
 	 *
 	 * @param key the key which should be used to hash data.
 	 */
-	public void setHmacKey(byte[] key) {
-		hmacKey = key;
+	public void setHmacKey(@CheckNotNull byte[] key) {
+		hmacKey = checkNotNull(key, "key");
 	}
 
 	/**
-	 * Sets an internal symmetric key of the connection!
+	 * Sets an internal symmetric key of the connection.
 	 *
 	 * @param secretKey the SecretKey which should be used to generate hmacs for data.
 	 */
@@ -263,7 +269,7 @@ public final class ConnectionImpl implements Connection {
 					channel.writeAndFlush(preConnectBuffer);
 					preConnectBuffer = null;
 				} else {
-					// writing the init data to the channel (without hitting the pre connect buffer).
+					// Writing the init data to the channel (without hitting the pre connect buffer).
 					checkReceived();
 				}
 			}
@@ -285,7 +291,7 @@ public final class ConnectionImpl implements Connection {
 		} else {
 			if(!trySend(buffer)) {
 				// TODO: Test logic to send data delayed!
-				if(dataSendState != DataSendState.WAITING_FOR_FINISH) { // check if the connection isn't in the waiting state and therefore
+				if(dataSendState != DataSendState.WAITING_FOR_FINISH) { // Check if the connection isn't in the waiting state and therefore
 																		// currently it isn't waiting for a response from the other end of the connection.
 					while(true) {
 						if(this.dataSendState == DataSendState.WAITING_FOR_FINISH) {
@@ -309,7 +315,7 @@ public final class ConnectionImpl implements Connection {
 		final DataSendState dataSendState = this.dataSendState; // caching volatile field get result
 		if(dataSendState.isAtLeast(DataSendState.FINISHING)) {
 			if(dataSendState == DataSendState.FINISHING) {
-				// we are waiting until the execution of the prepare method has finished.
+				// We are waiting until the execution of the prepare method has finished.
 				while(this.dataSendState != DataSendState.FINISHED);
 			}
 			channel.writeAndFlush(buffer);

@@ -47,16 +47,17 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
 
     @Override
     void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer) {
+        final EncryptionSetting encryptionSetting = application.getEncryptionSetting();
         if (application instanceof Server) {
-            final EncryptionOptions asymmetricSetting = application.getEncryptionSetting().getAsymmetricSetting();
+            final EncryptionOptions asymmetricSetting = encryptionSetting.getAsymmetricSetting();
             final byte[] key = symmetricEncryptionData.getSecretKey().getEncoded();
             final byte[] secretKey = AsymmetricEncryptionUtil.encrypt(key, asymmetricSetting, publicKey);
             writeOptions(symmetricEncryptionData.getOptions(), secretKey, buffer, application);
-            final HmacSetting hmacSetting = application.getEncryptionSetting().getHmacSetting();
-            final boolean hmac = hmacSetting != null;
+            final boolean hmac = hmacKey != null;
             checkWriteable(application, buffer, 1);
             buffer.writeBoolean(hmac);
             if(hmac) {
+                final HmacSetting hmacSetting = encryptionSetting.getHmacSetting();
                 final EncryptionOptions hmacOptions = hmacSetting.getEncryptionSetting();
                 writeOptions(hmacOptions, hmacKey, buffer, application);
                 checkWriteable(application, buffer, 1 + 1);
@@ -65,7 +66,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
             }
             return;
         }
-        writeKey(application.getEncryptionSetting().getEncryptionData().getPublicKey().getEncoded(), buffer, application);
+        writeKey(encryptionSetting.getEncryptionData().getPublicKey().getEncoded(), buffer, application);
     }
 
     @Override
@@ -82,10 +83,10 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
                 final EncryptionOptions hmacOptions = readOptions(buffer);
                 final byte useCase = buffer.readByte();
                 final byte hashingAlgorithm = buffer.readByte();
-                final HmacSetting hmacSetting = new HmacSetting();
-                hmacSetting.applicationPolicy(HmacApplicationPolicy.fromId(useCase));
-                hmacSetting.hashingAlgorithm(HashingAlgorithm.fromId(hashingAlgorithm));
-                hmacSetting.encryptionOptions(hmacOptions);
+                final HmacSetting hmacSetting = new HmacSetting()
+                        .applicationPolicy(HmacApplicationPolicy.fromId(useCase))
+                        .hashingAlgorithm(HashingAlgorithm.fromId(hashingAlgorithm))
+                        .encryptionOptions(hmacOptions);
 
                 encryptionSetting.hmac(hmacSetting);
                 connection.setHmacKey(hmacKey);
@@ -96,8 +97,8 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
             DataType.getDTIP().write0(application, finishBuffer, ENCRYPTION_FINISH);
             ((ClientImpl) application).sendRawData(finishBuffer);
         } else {
+            final EncryptionSetting encryptionSetting = application.getEncryptionSetting();
             try {
-                final EncryptionSetting encryptionSetting = application.getEncryptionSetting();
                 final PublicKey publicKey = AsymmetricEncryptionUtil.readPublicKey(key,
                         encryptionSetting.getAsymmetricSetting());
                 final ByteBuf initBuffer = Unpooled.buffer();
@@ -120,12 +121,11 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
         final int keySize = buffer.readInt();
         final byte mode = buffer.readByte();
         final byte padding = buffer.readByte();
-        final EncryptionOptions encryptionOptions = new EncryptionOptions();
-        encryptionOptions.type(CipherEncryptionAlgorithm.fromId(type));
-        encryptionOptions.keySize(keySize);
-        encryptionOptions.mode(CipherAlgorithmMode.fromId(mode));
-        encryptionOptions.padding(CipherAlgorithmPadding.fromId(padding));
-        return encryptionOptions;
+        return new EncryptionOptions()
+                .type(CipherEncryptionAlgorithm.fromId(type))
+                .keySize(keySize)
+                .mode(CipherAlgorithmMode.fromId(mode))
+                .padding(CipherAlgorithmPadding.fromId(padding));
     }
 
     private static void writeOptions(@AssumeNotNull EncryptionOptions options, @AssumeNotNull byte[] key,
