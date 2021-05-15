@@ -15,10 +15,16 @@ public final class SymmetricEncryptionContext {
     private final SecretKey secretKey;
     private final SymmetricEncryptionData symmetricEncryptionData;
 
+    @Deprecated
     public SymmetricEncryptionContext(@NotNull EncryptionOptions symmetricEncryptionOptions,
                                       @NotNull SecretKey secretKey) {
-        this.symmetricEncryptionData = new SymmetricEncryptionData(symmetricEncryptionOptions, secretKey);
+        this(secretKey, symmetricEncryptionOptions);
+    }
+
+    public SymmetricEncryptionContext(@NotNull SecretKey secretKey,
+                                      @NotNull EncryptionOptions symmetricEncryptionOptions) {
         this.secretKey = secretKey;
+        this.symmetricEncryptionData = new SymmetricEncryptionData(symmetricEncryptionOptions, secretKey);
     }
 
     /**

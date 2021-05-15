@@ -35,7 +35,7 @@ public final class HashUtil {
         if(salt > 0) {
             final ByteBuf dataBuffer = Unpooled.buffer(data.length + salt);
             dataBuffer.writeBytes(data);
-            dataBuffer.writeBytes(getSalt(salt));
+            dataBuffer.writeBytes(generateSalt(salt));
             data = ByteBufUtilExtension.getBytes(dataBuffer);
             dataBuffer.release();
         }
@@ -43,7 +43,7 @@ public final class HashUtil {
     }
 
     @AssumeNotNull
-    private static byte[] getSalt(int length) {
+    private static byte[] generateSalt(int length) {
         final byte[] salt = new byte[length];
         new SecureRandom().nextBytes(salt);
         return salt;

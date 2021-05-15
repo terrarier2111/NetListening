@@ -58,7 +58,8 @@ public abstract class DataType<T> {
 							  @AssumeNotNull ByteBuf buffer) throws CancelSignal;
 
 	@ApiStatus.Internal
-	public void write0(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, T data) throws CancelSignal {
+	public void write0(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, T data)
+			throws CancelSignal {
 		checkWriteable(application, buffer, minSize);
 		write(application, buffer, data);
 	}
@@ -88,8 +89,8 @@ public abstract class DataType<T> {
 
 	@ApiStatus.Internal
 	@SuppressWarnings("unchecked")
-	public final void writeUnchecked(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buf, @AssumeNotNull Object data)
-			throws CancelSignal {
+	public final void writeUnchecked(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buf,
+									 @AssumeNotNull Object data) throws CancelSignal {
 		write0(application, buf, (T) data);
 	}
 
@@ -134,6 +135,7 @@ public abstract class DataType<T> {
 				case 0xC:
 					return FLOAT;
 				default:
+					// TODO: Call invalid data event here!
 					throw new IllegalArgumentException("Tried to resolve a data type with an invalid id! ("
 							+ Integer.toHexString(id) + ')');
 			}

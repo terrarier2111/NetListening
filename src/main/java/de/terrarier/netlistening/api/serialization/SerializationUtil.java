@@ -20,7 +20,8 @@ public final class SerializationUtil {
 
     public static byte[] serialize(@AssumeNotNull ApplicationImpl application, @AssumeNotNull Object obj)
             throws CancelSignal {
-        return performOperation(application, SerializationProvider::isSerializable, SerializationProvider::serialize, obj);
+        return performOperation(application, SerializationProvider::isSerializable, SerializationProvider::serialize,
+                obj);
     }
 
     public static Object deserialize(@AssumeNotNull ApplicationImpl application, byte[] data) throws CancelSignal {

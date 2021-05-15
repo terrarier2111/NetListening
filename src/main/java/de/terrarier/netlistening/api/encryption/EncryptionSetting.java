@@ -28,7 +28,7 @@ public final class EncryptionSetting {
     public EncryptionSetting asymmetricEncryptionOptions(@NotNull EncryptionOptions asymmetricEncryption) {
         if(asymmetricEncryptionSetting != null) {
             asymmetricEncryption.getKeySize();
-            this.asymmetricEncryptionSetting = asymmetricEncryption;
+            asymmetricEncryptionSetting = asymmetricEncryption;
         }
         return this;
     }
@@ -43,7 +43,7 @@ public final class EncryptionSetting {
     public EncryptionSetting symmetricEncryptionOptions(@NotNull EncryptionOptions symmetricEncryption) {
         if(symmetricEncryptionSetting != null) {
             symmetricEncryption.getKeySize();
-            this.symmetricEncryptionSetting = symmetricEncryption;
+            symmetricEncryptionSetting = symmetricEncryption;
         }
         return this;
     }
@@ -105,9 +105,9 @@ public final class EncryptionSetting {
     public EncryptionSetting init(byte[] key) throws NoSuchAlgorithmException, InvalidKeySpecException {
         if(key != null) {
             asymmetricEncryptionData = new AsymmetricEncryptionData(asymmetricEncryptionSetting, key);
-            return this;
+        }else {
+            asymmetricEncryptionData = AsymmetricEncryptionUtil.generate(asymmetricEncryptionSetting);
         }
-        asymmetricEncryptionData = AsymmetricEncryptionUtil.generate(asymmetricEncryptionSetting);
         return this;
     }
 

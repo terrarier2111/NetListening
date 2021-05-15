@@ -84,25 +84,14 @@ public final class EventManager {
 
 	public boolean callEvent(@AssumeNotNull ListenerType listenerType, @AssumeNotNull CancelAction cancelAction,
 							 @AssumeNotNull Event event) {
-		return callEvent(listenerType, cancelAction, new NoopEventProvider(event));
-	}
-
-	@SuppressWarnings("unchecked")
-	public boolean callEvent(@AssumeNotNull ListenerType listenerType, @AssumeNotNull CancelAction cancelAction,
-							 @AssumeNotNull EventProvider<?> eventProvider) {
 		final List<Listener<?>>[] listeners = this.listeners.get(listenerType);
 		if(listeners == null) {
 			return false;
 		}
-		boolean cancellable = false;
-		Event event = null;
+		final boolean cancellable = event instanceof Cancellable;
 		for (int i = 0; i < 5; i++) {
 			final List<Listener<?>> priorityListeners = listeners[i];
 			if(priorityListeners != null) {
-				if(event == null) {
-					event = eventProvider.provide();
-					cancellable = event instanceof Cancellable;
-				}
 				for(int j = 0; j < priorityListeners.size(); j++) {
 					final Listener listener = priorityListeners.get(j);
 					try {
@@ -148,30 +137,6 @@ public final class EventManager {
 	public enum CancelAction {
 
 		IGNORE, INTERRUPT
-
-	}
-
-	@ApiStatus.Internal
-	public interface EventProvider<T extends Event> {
-
-		@AssumeNotNull
-		T provide();
-
-	}
-
-	private static final class NoopEventProvider implements EventProvider<Event> {
-
-		private final Event event;
-
-		private NoopEventProvider(@AssumeNotNull Event event) {
-			this.event = event;
-		}
-
-		@AssumeNotNull
-		@Override
-		public Event provide() {
-			return event;
-		}
 
 	}
 

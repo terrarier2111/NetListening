@@ -23,7 +23,8 @@ public final class InternalUtil {
 		writeIntUnchecked(application, buffer, value);
 	}
 
-	public static void writeIntUnchecked(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, int value) {
+	public static void writeIntUnchecked(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer,
+										 int value) {
 		if (!application.getCompressionSetting().isVarIntCompression()) {
 			buffer.writeInt(value);
 			return;

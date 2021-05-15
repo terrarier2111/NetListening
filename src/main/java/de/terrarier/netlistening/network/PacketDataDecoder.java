@@ -20,6 +20,7 @@ import io.netty.buffer.UnpooledHeapByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.util.internal.EmptyArrays;
+import io.netty.util.internal.SystemPropertyUtil;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
@@ -31,6 +32,9 @@ import java.util.List;
  */
 @ApiStatus.Internal
 public final class PacketDataDecoder extends ByteToMessageDecoder {
+
+    private static final boolean IGNORE_EMPTY_PACKETS = SystemPropertyUtil.getBoolean(
+            "de.terrarier.netlistening.IgnoreEmptyPackets", true);
 
     private final ApplicationImpl application;
     private final DataHandler handler;
@@ -44,6 +48,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     private boolean hasId;
     private boolean invalidData;
     private boolean release;
+    private byte lastKeepAliveId = Byte.MIN_VALUE;
+    private boolean readKeepAliveId;
 
     public PacketDataDecoder(@AssumeNotNull ApplicationImpl application, @AssumeNotNull DataHandler handler,
                              @AssumeNotNull ConnectionImpl connection) {
@@ -55,21 +61,25 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     @Override
     public void decode(@AssumeNotNull ChannelHandlerContext ctx, @AssumeNotNull ByteBuf buffer,
                        @AssumeNotNull List<Object> out) throws Exception {
-
-        // This prevents empty buffers from being decoded after the connection was closed.
-        // TODO: Check if we should ignore all and not only empty buffers.
-        if (!ctx.channel().isActive() && !buffer.isReadable()) {
-            return;
+        final int readable = buffer.readableBytes();
+        // This prevents empty packets from being decoded after the connection was closed.
+        if (readable < 1) {
+            if(IGNORE_EMPTY_PACKETS || !ctx.channel().isActive()) {
+                return;
+            }
+            if(callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.EMPTY_PACKET, EmptyArrays.EMPTY_BYTES)) {
+                return;
+            }
+            throw new IllegalStateException("Received an empty packet!");
         }
 
-        final int readable = buffer.readableBytes();
         if (framing) {
             // Framing
             final ByteBuf tmp = holdingBuffer;
             final int writable = tmp.writableBytes();
             final boolean block = writable > readable;
             final byte[] remaining = ByteBufUtilExtension.readBytes(buffer, block ? readable : writable);
-            if (remaining.length != 0) { // check for an empty packet, should never occur
+            if (IGNORE_EMPTY_PACKETS || remaining.length != 0) { // check for empty packets, should never occur
                 tmp.writeBytes(remaining);
             }
             if (block) {
@@ -96,14 +106,14 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             return;
         }
 
-        if (readable == 0) {
-            if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
-                    (EventManager.EventProvider<InvalidDataEvent>)
-                            () -> new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.EMPTY_PACKET,
-                                    EmptyArrays.EMPTY_BYTES))) return;
-
-            throw new IllegalStateException("Received an empty packet!");
+        if(readKeepAliveId) {
+            readKeepAliveId = false;
+            readKeepAlive(buffer);
+            if(!buffer.isReadable()) {
+                return;
+            }
         }
+
         readPacket(buffer, out, buffer);
     }
 
@@ -122,20 +132,23 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
 
         if (id == 0x1) {
-            // Dropping the keep alive packet content.
-            buffer.skipBytes(1);
+            // Handling keep alive packets.
+            if(buffer.isReadable()) {
+                readKeepAlive(buffer);
+            }else {
+                readKeepAliveId = true;
+            }
             return true;
         }
 
         if (id == 0x2) {
             if (application instanceof Server) {
-                if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
-                        (EventManager.EventProvider<InvalidDataEvent>) () -> {
-                    final byte[] data = application.getCompressionSetting().isVarIntCompression()
-                            ? VarIntUtil.toVarInt(0x2) : ConversionUtil.intToBytes(0x2);
+                // TODO: Probably we should cache this byte array.
+                final byte[] data = ConversionUtil.intToBytes(0x2);
 
-                    return new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.MALICIOUS_ACTION, data);
-                })) return true;
+                if(callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.MALICIOUS_ACTION, data)) {
+                    return true;
+                }
 
                 throw new IllegalStateException("Received malicious data! (0x2)");
             }
@@ -148,13 +161,11 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
 
         if (!buffer.isReadable()) {
-            if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
-                    (EventManager.EventProvider<InvalidDataEvent>) () -> {
-                final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id)
-                        : ConversionUtil.intToBytes(id);
+            final byte[] data = ConversionUtil.intToBytes(id);
 
-                return new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.INCOMPLETE_PACKET, data);
-            })) return true;
+            if(callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.INCOMPLETE_PACKET, data)) {
+                return true;
+            }
 
             throw new IllegalStateException("An error occurred while decoding - the packet to decode was empty! (skipping current packet with id: "
                             + Integer.toHexString(id) + ')');
@@ -167,13 +178,11 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
         final PacketSkeleton packet = connection.getCache().getPacket(id);
         if (packet == null) {
-            if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
-                    (EventManager.EventProvider<InvalidDataEvent>) () -> {
-                final byte[] data = application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.toVarInt(id)
-                        : ConversionUtil.intToBytes(id);
+            final byte[] data = ConversionUtil.intToBytes(id);
 
-                return new InvalidDataEvent(connection, InvalidDataEvent.DataInvalidReason.INVALID_ID, data);
-            })) return true;
+            if(callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.INVALID_ID, data)) {
+                return true;
+            }
 
             throw new IllegalStateException("An error occurred while decoding - the packet to decode wasn't recognizable because it wasn't registered before! ("
                             + Integer.toHexString(id) + ')');
@@ -207,7 +216,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                         (useFramingBuffer ? buffer.readableBytes() : 0));
                 decodeBuffer.readerIndex(start);
                 transferRemaining(decodeBuffer);
-                if(useFramingBuffer) {
+                if (useFramingBuffer) {
                     transferRemaining(buffer);
                 }
                 this.packet = packet;
@@ -216,36 +225,39 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 hasId = true;
                 return;
             } catch (CancelSignal signal) {
-                if(i + 1 < length) {
-                    // TODO: Test cancel logic - this occurs when an invalid object is being deserialized.
-                    invalidData = true;
-                    final int readable = buffer.readableBytes();
-                    if(readable != 0) {
-                        decode(context.getHandlerContext(), buffer, out);
-                        return;
-                    }else {
-                        this.packet = packet;
-                        this.index = i;
-                        storedData = data;
-                        hasId = true;
-                        holdingBuffer = Unpooled.buffer(dataTypes[i + 1].getMinSize());
-                        framing = true;
-                    }
+                // Handling cases in which objects couldn't get deserialized.
+                if (i + 1 == length) {
+                    tryRelease(buffer);
+                    return;
                 }
-                tryRelease(buffer);
-                return;
+                invalidData = true;
+                final int readable = buffer.readableBytes();
+                if (readable == 0) {
+                    // prepare framing for data which can be discarded
+                    this.packet = packet;
+                    this.index = i;
+                    storedData = data;
+                    hasId = true;
+                    holdingBuffer = Unpooled.buffer(dataTypes[i + 1].getMinSize());
+                    framing = true;
+                    tryRelease(buffer);
+                    return;
+                }
+                ignore = true;
             }
+
             if (useFramingBuffer) {
                 framingBuffer = null;
             }
         }
 
         tryRelease(buffer);
-        if(invalidData) {
+        if (invalidData) {
             invalidData = false;
             return;
         }
         if (!ignore) {
+            // Passing the result to the decode listeners (if present).
             handler.processData(data, connection);
         }
     }
@@ -282,6 +294,30 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 frameEvent);
     }
 
+    private boolean callInvalidDataEvent(@AssumeNotNull InvalidDataEvent.DataInvalidReason reason,
+                                         @AssumeNotNull byte[] data) {
+        final InvalidDataEvent event = new InvalidDataEvent(connection, reason, data);
+
+        return application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+                event);
+    }
+
+    private void readKeepAlive(@AssumeNotNull ByteBuf buffer) {
+        final byte keepAliveId = buffer.readByte();
+        final byte nextId = (byte) ((lastKeepAliveId == Byte.MAX_VALUE ? Byte.MIN_VALUE : lastKeepAliveId) + 1);
+        if(keepAliveId != nextId) {
+            final byte[] data = new byte[] { lastKeepAliveId, nextId, keepAliveId };
+            lastKeepAliveId = nextId;
+
+            if(callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.INVALID_KEEP_ALIVE_ID, data)) {
+                return;
+            }
+
+            throw new IllegalStateException("Received a keep alive packet with an invalid id! (expected: " + nextId + " received: " + keepAliveId + ")");
+        }
+        lastKeepAliveId = keepAliveId;
+    }
+
     private void transferRemaining(@AssumeNotNull ByteBuf buffer) {
         final byte[] remaining = ByteBufUtilExtension.readBytes(buffer, buffer.readableBytes());
         tryRelease(buffer);
@@ -307,6 +343,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         super.channelActive(ctx);
         context = new DecoderContext(application, connection, this, ctx);
         if (application instanceof Server) {
+            // Check if we have to initialize stuff in the connection.
             connection.check();
         }
     }

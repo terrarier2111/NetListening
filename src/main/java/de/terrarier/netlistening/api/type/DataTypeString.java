@@ -1,10 +1,14 @@
 package de.terrarier.netlistening.api.type;
 
+import de.terrarier.netlistening.api.event.EventManager;
+import de.terrarier.netlistening.api.event.InvalidDataEvent;
+import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.internals.CancelReadSignal;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
+import de.terrarier.netlistening.utils.ConversionUtil;
 import io.netty.buffer.ByteBuf;
 
 /**
@@ -28,6 +32,15 @@ public final class DataTypeString extends DataType<String> {
 			if (length == 0) {
 				return EMPTY_STRING;
 			}
+			final byte[] data = new byte[] { 0x7, 0x0, 0x0, 0x0, 0x0 };
+			ConversionUtil.intToBytes(data, 1, length);
+			final InvalidDataEvent event = new InvalidDataEvent(connection,
+					InvalidDataEvent.DataInvalidReason.INVALID_LENGTH, data);
+
+			if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE, event)) {
+				return EMPTY_STRING;
+			}
+
 			throw new IllegalStateException("Received a malicious string of length " + length + '.');
 		}
 		

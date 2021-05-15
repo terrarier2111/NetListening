@@ -63,7 +63,7 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
 				}
 
 				buffer.resetWriterIndex();
-				buffer.writeByte(counter++);
+				buffer.writeByte(++counter);
 
 				buffer.retain();
 				channel.writeAndFlush(buffer);

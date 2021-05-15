@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
-import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositive;
+import static de.terrarier.netlistening.utils.ObjectUtilFallback.*;
 
 /**
  * @since 1.0
@@ -53,8 +53,7 @@ public interface Client extends Application {
      */
     @AssumeNotNull
     static Builder builder(@NotNull String host, int remotePort) {
-        checkPositive(remotePort, "remotePort");
-        return new Builder(host, remotePort);
+        return new Builder(host, checkPositive(remotePort, "remotePort"));
     }
 
     /**
@@ -86,7 +85,7 @@ public interface Client extends Application {
         @AssumeNotNull
         @Override
         public Builder timeout(long timeout) {
-            impl.timeout(timeout);
+            impl.timeout(checkPositiveOrZero(timeout, "timeout"));
             return this;
         }
 
@@ -98,7 +97,7 @@ public interface Client extends Application {
          */
         @AssumeNotNull
         public Builder localPort(int localPort) {
-            impl.localPort(localPort);
+            impl.localPort(checkPositiveOrZero(localPort, "localPort"));
             return this;
         }
 
@@ -108,7 +107,7 @@ public interface Client extends Application {
         @AssumeNotNull
         @Override
         public Builder buffer(int buffer) {
-            impl.buffer(buffer);
+            impl.buffer(checkPositiveOrZero(buffer, "buffer"));
             return this;
         }
 
@@ -134,7 +133,7 @@ public interface Client extends Application {
          */
         @AssumeNotNull
         public Builder serverKeyHash(@CheckNotNull byte[] bytes) {
-            impl.serverKeyHash(bytes);
+            impl.serverKeyHash(checkNotNull(bytes, "bytes"));
             return this;
         }
 

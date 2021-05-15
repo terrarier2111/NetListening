@@ -257,15 +257,16 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     }
 
     private boolean setServerKey(@AssumeNotNull ServerKey serverKey) {
-        if(!eventManager.callEvent(ListenerType.KEY_CHANGE, EventManager.CancelAction.IGNORE,
-                (EventManager.EventProvider<KeyChangeEvent>) () -> {
-            final boolean replace = this.serverKey != null;
-            final boolean hashChanged = replace && !Arrays.equals(this.serverKey.getKeyHash(), serverKey.getKeyHash());
-            final KeyChangeEvent.KeyChangeResult result = replace ?
-                    (hashChanged ? KeyChangeEvent.KeyChangeResult.HASH_CHANGED : KeyChangeEvent.KeyChangeResult.HASH_EQUAL)
-                    : KeyChangeEvent.KeyChangeResult.HASH_ABSENT;
-            return new KeyChangeEvent(replace ? this.serverKey.getKeyHash() : null, serverKey.getKeyHash(), result);
-        })) return false;
+        final boolean replace = this.serverKey != null;
+        final boolean hashChanged = replace && !Arrays.equals(this.serverKey.getKeyHash(), serverKey.getKeyHash());
+        final KeyChangeEvent.KeyChangeResult result = replace ?
+                (hashChanged ? KeyChangeEvent.KeyChangeResult.HASH_CHANGED : KeyChangeEvent.KeyChangeResult.HASH_EQUAL)
+                : KeyChangeEvent.KeyChangeResult.HASH_ABSENT;
+        final KeyChangeEvent event = new KeyChangeEvent(replace ? this.serverKey.getKeyHash() : null, serverKey.getKeyHash(), result);
+
+        if(!eventManager.callEvent(ListenerType.KEY_CHANGE, EventManager.CancelAction.IGNORE, event)) {
+            return false;
+        }
 
         this.serverKey = serverKey;
         return true;
@@ -320,9 +321,9 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         /**
          * @see Client.Builder#serverKeyHash(byte[])
          */
-        public void serverKeyHash(@CheckNotNull byte[] bytes) {
+        public void serverKeyHash(@AssumeNotNull byte[] bytes) {
             validate();
-            application.serverKey = new ServerKey(checkNotNull(bytes, "bytes"));
+            application.serverKey = new ServerKey(bytes);
             if(!changedHashingAlgorithm) {
                 application.serverKeyHashing = application.serverKey.getHashingAlgorithm();
             }

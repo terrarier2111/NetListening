@@ -28,7 +28,7 @@ public final class DataContainer {
 	}
 
 	@ApiStatus.Internal
-	public DataContainer(@NotNull List<DataComponent<?>> components) {
+	public DataContainer(@AssumeNotNull List<DataComponent<?>> components) {
 		data = components;
 	}
 
@@ -45,7 +45,7 @@ public final class DataContainer {
 	 * @param component the component which should be added.
 	 */
 	@ApiStatus.Internal
-	public void addComponent(@NotNull DataComponent<?> component) {
+	public void addComponent(@AssumeNotNull DataComponent<?> component) {
 		data.add(component);
 	}
 
@@ -204,7 +204,7 @@ public final class DataContainer {
 	}
 
 	/**
-	 * @return an array containing the DataContainer's content which
+	 * @return an array containing the data container's content which
 	 * wasn't read yet.
 	 */
 	@AssumeNotNull
@@ -218,7 +218,7 @@ public final class DataContainer {
 	}
 
 	/**
-	 * @return whether it can be read from the DataContainer or not.
+	 * @return whether it can be read from the data container or not.
 	 */
 	public boolean isReadable() {
 		return readerIndex < data.size();
@@ -244,12 +244,10 @@ public final class DataContainer {
 	 * Increases the {@code readerIndex} by {@code elements}.
 	 *
 	 * @param elements the number of elements which should be skipped.
-	 * @throws IllegalArgumentException if {@code elements} is greater than {@code this#getSize()}.
+	 * @throws IllegalArgumentException if {@code elements} is greater than {@code DataContainer#getSize()}.
 	 */
 	public void skip(int elements) {
-		checkPositiveOrZero(elements, "elements");
-
-		final int result = readerIndex + elements;
+		final int result = readerIndex + checkPositiveOrZero(elements, "elements");
 		if(result > data.size()) {
 			throw new IllegalArgumentException("elements may not be > size");
 		}
@@ -258,7 +256,7 @@ public final class DataContainer {
 
 	/**
 	 * Sets whether the data contained in this container gets
-	 * encrypted.
+	 * encrypted or not.
 	 *
 	 * @param encrypted if the data contained gets encrypted.
 	 */
@@ -267,7 +265,7 @@ public final class DataContainer {
 	}
 
 	/**
-	 * @return whether the data contained in this DataContainer gets encrypted
+	 * @return whether the data contained in this data container gets encrypted
 	 * when it is sent through the network or not.
 	 */
 	public boolean isEncrypted() {

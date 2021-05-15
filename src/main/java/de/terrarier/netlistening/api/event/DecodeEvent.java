@@ -4,7 +4,6 @@ import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * This event is called when a packet gets decoded.
@@ -17,7 +16,7 @@ public final class DecodeEvent extends ConnectionEvent {
 	private final DataContainer data;
 
 	@ApiStatus.Internal
-	public DecodeEvent(@NotNull Connection connection, @NotNull DataContainer data) {
+	public DecodeEvent(@AssumeNotNull Connection connection, @AssumeNotNull DataContainer data) {
 		super(connection);
 		this.data = data;
 	}

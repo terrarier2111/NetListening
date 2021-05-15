@@ -166,7 +166,7 @@ public final class ConnectionImpl implements Connection {
 	public void setSymmetricKey(@NotNull EncryptionOptions options, @CheckNotNull byte[] symmetricKey) {
 		final SecretKey secretKey = SymmetricEncryptionUtil.readSecretKey(checkNotNull(symmetricKey, "symmetricKey"),
 				options);
-		encryptionContext = new SymmetricEncryptionContext(options, secretKey);
+		encryptionContext = new SymmetricEncryptionContext(secretKey, options);
 	}
 
 	/**
@@ -178,7 +178,7 @@ public final class ConnectionImpl implements Connection {
 	 */
 	public void setSymmetricKey(@NotNull ApplicationImpl application, @NotNull SecretKey secretKey) {
 		final EncryptionOptions options = application.getEncryptionSetting().getSymmetricSetting();
-		encryptionContext = new SymmetricEncryptionContext(options, secretKey);
+		encryptionContext = new SymmetricEncryptionContext(secretKey, options);
 	}
 
 	/**

@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.charset.Charset;
 
 import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositive;
+import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositiveOrZero;
 
 /**
  * @since 1.0
@@ -77,7 +78,7 @@ public interface Server extends Application {
         @AssumeNotNull
         @Override
         public Builder timeout(long timeout) {
-            impl.timeout(timeout);
+            impl.timeout(checkPositiveOrZero(timeout, "timeout"));
             return this;
         }
 
@@ -87,7 +88,7 @@ public interface Server extends Application {
         @AssumeNotNull
         @Override
         public Builder buffer(int buffer) {
-            impl.buffer(buffer);
+            impl.buffer(checkPositiveOrZero(buffer, "buffer"));
             return this;
         }
 

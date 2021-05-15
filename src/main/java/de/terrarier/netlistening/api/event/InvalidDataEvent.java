@@ -3,7 +3,8 @@ package de.terrarier.netlistening.api.event;
 import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
+
+import static io.netty.util.internal.EmptyArrays.EMPTY_BYTES;
 
 /**
  * This event gets called when invalid data was received.
@@ -17,11 +18,18 @@ public final class InvalidDataEvent extends ConnectionEvent {
 	private final byte[] data;
 
 	@ApiStatus.Internal
-	public InvalidDataEvent(@NotNull Connection connection, @NotNull DataInvalidReason reason,
+	public InvalidDataEvent(@AssumeNotNull Connection connection, @AssumeNotNull DataInvalidReason reason,
 							@AssumeNotNull byte[] data) {
 		super(connection);
 		this.reason = reason;
 		this.data = data;
+	}
+
+	@ApiStatus.Internal
+	public InvalidDataEvent(@AssumeNotNull Connection connection, @AssumeNotNull DataInvalidReason reason) {
+		super(connection);
+		this.reason = reason;
+		this.data = EMPTY_BYTES;
 	}
 
 	/**
@@ -35,13 +43,15 @@ public final class InvalidDataEvent extends ConnectionEvent {
 	/**
 	 * @return the data which was detected as invalid.
 	 */
+	@AssumeNotNull
 	public byte[] getData() {
 		return data;
 	}
 
 	public enum DataInvalidReason {
 
-		EMPTY_PACKET, INCOMPLETE_PACKET, INVALID_ID, MALICIOUS_ACTION, INVALID_DATA_TYPE, UNSPECIFIED
+		EMPTY_PACKET, INCOMPLETE_PACKET, MALICIOUS_ACTION, INVALID_ID, INVALID_LENGTH, INVALID_DATA_TYPE,
+		INVALID_KEEP_ALIVE_ID, INVALID_HANDSHAKE, UNSPECIFIED
 
 	}
 

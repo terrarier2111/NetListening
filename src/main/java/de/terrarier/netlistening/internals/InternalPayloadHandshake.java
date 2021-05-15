@@ -3,6 +3,9 @@ package de.terrarier.netlistening.internals;
 import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.encryption.*;
+import de.terrarier.netlistening.api.event.EventManager;
+import de.terrarier.netlistening.api.event.InvalidDataEvent;
+import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ClientImpl;
@@ -69,7 +72,14 @@ public final class InternalPayloadHandshake extends InternalPayload {
 	public void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
 					 @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
 		if(application instanceof Server) {
-			// TODO: Add to invalid data event!
+			final InvalidDataEvent event = new InvalidDataEvent(connection,
+					InvalidDataEvent.DataInvalidReason.INVALID_HANDSHAKE);
+
+			if(application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+					event)) {
+				return;
+			}
+
 			throw new IllegalStateException("The connection " + connection.getChannel() + " has sent invalid data!");
 		}
 

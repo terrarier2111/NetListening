@@ -34,7 +34,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
         final int typesLength = types.length;
 
         if(typesLength == 0) {
-            throw new IllegalStateException("Tried to send an empty packet!");
+            throw new IllegalArgumentException("Tried to send an empty packet!");
         }
         checkWriteable(application, buffer, getSize(application));
 
@@ -94,14 +94,14 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
                 id = buffer.readByte();
             }
             if (id < 0x0) {
-                if (application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
-                        (EventManager.EventProvider<InvalidDataEvent>) () -> {
-                            final byte[] idData = application.getCompressionSetting().isVarIntCompression()
-                                    ? VarIntUtil.toVarInt(id) : ConversionUtil.intToBytes(id);
+                final InvalidDataEvent event = new InvalidDataEvent(connection,
+                        InvalidDataEvent.DataInvalidReason.INVALID_DATA_TYPE,
+                        ConversionUtil.intToBytes(id));
 
-                            return new InvalidDataEvent(connection,
-                                    InvalidDataEvent.DataInvalidReason.INVALID_DATA_TYPE, idData);
-                        })) return;
+                if (application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+                        event)) {
+                    return;
+                }
 
                 throw new IllegalStateException("The connection tried to register a packet containing an internal payload!");
             }
@@ -120,10 +120,11 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
                             null);
                 }
             }else {
-                final InternalPayloadRegisterPacket register = new InternalPayloadRegisterPacket(packet.getId());
+                // TODO: Check if we have to "fix" this (we probably have to).
+                final InternalPayloadRegisterPacket register = new InternalPayloadRegisterPacket(packet.getId(), types);
                 if (application.getCaching() == PacketCaching.GLOBAL) {
                     cache.broadcastRegister(application, register, null, null);
-                }else {
+                } else {
                     final ByteBuf registerBuffer = Unpooled.buffer(
                             (application.getCompressionSetting().isVarIntCompression() ? 2 : 5) + getSize(application));
                     DataType.getDTIP().write0(application, registerBuffer, register);

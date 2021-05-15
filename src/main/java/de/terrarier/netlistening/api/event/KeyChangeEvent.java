@@ -2,7 +2,6 @@ package de.terrarier.netlistening.api.event;
 
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * This event can be used to detect MITM attacks.
@@ -19,7 +18,7 @@ public final class KeyChangeEvent extends Cancellable implements Event {
 
     @ApiStatus.Internal
     public KeyChangeEvent(@AssumeNotNull byte[] currentKeyHash, @AssumeNotNull byte[] receivedKeyHash,
-                          @NotNull KeyChangeResult result) {
+                          @AssumeNotNull KeyChangeResult result) {
         this.currentKeyHash = currentKeyHash;
         this.receivedKeyHash = receivedKeyHash;
         this.result = result;

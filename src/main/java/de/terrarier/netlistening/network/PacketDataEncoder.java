@@ -54,77 +54,93 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
         final int dataSize = containedData.size();
 
         if (dataSize < 1) {
-            return;
+            throw new IllegalArgumentException("Tried to send an empty packet!");
         }
 
         final DataType<?>[] types = new DataType[dataSize];
+        boolean serialize = false;
         for (int i = 0; i < dataSize; i++) {
-            types[i] = containedData.get(i).getType();
+            final DataType<?> type = containedData.get(i).getType();
+            types[i] = type;
+            if(type == DataType.OBJECT) {
+                serialize = true;
+            }
         }
         final PacketCache cache = application.getCache();
         PacketSkeleton packet = cache.getPacket(types);
 
-        final int start = buffer.writerIndex();
-        try {
-            if (packet == null) {
-                packet = cache.registerPacket(types);
-                final InternalPayloadRegisterPacket register = new InternalPayloadRegisterPacket(packet.getId(), types);
-                final ByteBuf registerBuffer = Unpooled.buffer(5 + dataSize);
-                DataType.getDTIP().write0(application, registerBuffer, register);
-                buffer.writeBytes(ByteBufUtilExtension.getBytes(registerBuffer));
-                if (application.getCaching() == PacketCaching.GLOBAL) {
-                    cache.broadcastRegister(application, register, connection, registerBuffer);
-                } else {
-                    registerBuffer.release();
-                }
-                packet.register();
+        if (packet == null) {
+            packet = cache.registerPacket(types);
+            final InternalPayloadRegisterPacket register = new InternalPayloadRegisterPacket(packet.getId(), types);
+            final ByteBuf registerBuffer = Unpooled.buffer(5 + dataSize);
+            DataType.getDTIP().write0(application, registerBuffer, register);
+            buffer.writeBytes(registerBuffer);
+            if (application.getCaching() == PacketCaching.GLOBAL) {
+                cache.broadcastRegister(application, register, connection, registerBuffer);
+            } else {
+                registerBuffer.release();
             }
+            packet.register();
+        }
 
-            if (application instanceof Server && !packet.isRegistered()) {
-                if (delayedExecutor.isShutdown()) {
-                    return;
-                }
-                final PacketSkeleton finalPacket = packet;
-                // Sending data delayed, awaiting the packet's registration to finish.
-                delayedExecutor.execute(() -> {
-                    final Channel channel = ctx.channel();
-                    while (!finalPacket.isRegistered());
-                    channel.writeAndFlush(data);
-                });
+        if (application instanceof Server && !packet.isRegistered()) {
+            if (delayedExecutor.isShutdown()) {
                 return;
             }
+            final PacketSkeleton finalPacket = packet;
+            // Sending data delayed, awaiting the packet's registration to finish.
+            delayedExecutor.execute(() -> {
+                final Channel channel = ctx.channel();
+                while (!finalPacket.isRegistered());
+                channel.writeAndFlush(data);
+            });
+            return;
+        }
+        final ByteBuf dstBuffer = serialize ? Unpooled.buffer() : buffer;
+        final EncryptionSetting encryptionSetting = application.getEncryptionSetting();
+        final boolean encrypted = data.isEncrypted();
+        final HmacSetting hmacSetting;
 
-            final EncryptionSetting encryptionSetting = application.getEncryptionSetting();
-            final HmacSetting hmacSetting;
-            final boolean encrypted = data.isEncrypted();
+        try {
             if (encryptionSetting == null ||
                     (((hmacSetting = encryptionSetting.getHmacSetting()) == null ||
                             hmacSetting.getApplicationPolicy() == HmacApplicationPolicy.ENCRYPTED) && !encrypted)) {
-                writeToBuffer(buffer, data, packet.getId());
+                writeToBuffer(dstBuffer, data, packet.getId());
+                if(serialize) {
+                    buffer.writeBytes(dstBuffer);
+                    dstBuffer.release();
+                }
                 return;
             }
+
             final boolean hmac = (encrypted || hmacSetting.getApplicationPolicy() == HmacApplicationPolicy.ALL) &&
                     hmacSetting != null;
-            final ByteBuf dst = hmac ? Unpooled.buffer() : buffer;
-            final ByteBuf dataBuffer = encrypted ? Unpooled.buffer() : dst;
-            writeToBuffer(dataBuffer, data, packet.getId());
+            final ByteBuf hmacBuffer = hmac ? Unpooled.buffer() : dstBuffer;
+            final ByteBuf encryptionBuffer = encrypted ? Unpooled.buffer() : hmacBuffer;
+            writeToBuffer(encryptionBuffer, data, packet.getId());
             if (encrypted) {
-                InternalUtil.writeInt(application, dst, 0x3);
+                InternalUtil.writeInt(application, hmacBuffer, 0x3);
                 final byte[] encryptedData = connection.getEncryptionContext().encrypt(
-                        ByteBufUtilExtension.getBytes(dataBuffer));
-                dataBuffer.release();
+                        ByteBufUtilExtension.getBytes(encryptionBuffer));
+                encryptionBuffer.release();
                 final int size = encryptedData.length;
-                ByteBufUtilExtension.correctSize(dst, 4 + size, application.getBuffer());
-                dst.writeInt(size);
-                dst.writeBytes(encryptedData);
+                ByteBufUtilExtension.correctSize(hmacBuffer, 4 + size, application.getBuffer());
+                hmacBuffer.writeInt(size);
+                hmacBuffer.writeBytes(encryptedData);
             }
 
+            if(serialize) {
+                buffer.writeBytes(dstBuffer);
+                dstBuffer.release();
+            }
             if (hmac) {
-                appendHmac(dst, buffer, connection);
+                appendHmac(hmacBuffer, buffer, connection);
             }
         } catch (CancelSignal ignored) {
 			// This is here in order to prevent packets from being sent which contain unserializable data.
-            buffer.writerIndex(start);
+            if(serialize) { // TODO: Check if this check is needed!
+                dstBuffer.release();
+            }
         }
     }
 
@@ -146,11 +162,10 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
         try {
             final byte[] hash = HashUtil.calculateHMAC(data, connection.getHmacKey(),
                     application.getEncryptionSetting().getHmacSetting().getHashingAlgorithm());
-            final int buffer = application.getBuffer();
             final int dataLength = data.length;
             final short hashLength = (short) hash.length;
             InternalUtil.writeInt(application, dst, 0x4);
-            ByteBufUtilExtension.correctSize(dst, 6 + dataLength + hashLength, buffer);
+            ByteBufUtilExtension.correctSize(dst, 4 + 2 + dataLength + hashLength, application.getBuffer());
             dst.writeInt(dataLength);
             dst.writeShort(hashLength);
             dst.writeBytes(data);
