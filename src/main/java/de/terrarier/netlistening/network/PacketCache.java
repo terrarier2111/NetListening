@@ -20,131 +20,131 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 @ApiStatus.Internal
 public final class PacketCache {
 
-	private static final PacketSkeleton INTERNAL_PAYLOAD_PACKET_SKELETON = new PacketSkeleton(0x0, DataType.getDTIP());
-	private static final PacketSkeleton ENCRYPTION_PACKET_SKELETON = new PacketSkeleton(0x3, DataType.getDTE());
-	private static final PacketSkeleton HMAC_PACKET_SKELETON = new PacketSkeleton(0x4, DataType.getDTHMAC());
-	private final Map<Integer, PacketSkeleton> packets = new ConcurrentHashMap<>();
-	private final AtomicInteger id = new AtomicInteger(5);
-	private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
-	
-	public PacketCache() {
-		packets.put(0x0, INTERNAL_PAYLOAD_PACKET_SKELETON);
-		packets.put(0x3, ENCRYPTION_PACKET_SKELETON);
-		packets.put(0x4, HMAC_PACKET_SKELETON);
-	}
+    private static final PacketSkeleton INTERNAL_PAYLOAD_PACKET_SKELETON = new PacketSkeleton(0x0, DataType.getDTIP());
+    private static final PacketSkeleton ENCRYPTION_PACKET_SKELETON = new PacketSkeleton(0x3, DataType.getDTE());
+    private static final PacketSkeleton HMAC_PACKET_SKELETON = new PacketSkeleton(0x4, DataType.getDTHMAC());
+    private final Map<Integer, PacketSkeleton> packets = new ConcurrentHashMap<>();
+    private final AtomicInteger id = new AtomicInteger(5);
+    private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 
-	@AssumeNotNull
-	public Map<Integer, PacketSkeleton> getPackets() {
-		return packets;
-	}
+    public PacketCache() {
+        packets.put(0x0, INTERNAL_PAYLOAD_PACKET_SKELETON);
+        packets.put(0x3, ENCRYPTION_PACKET_SKELETON);
+        packets.put(0x4, HMAC_PACKET_SKELETON);
+    }
 
-	@AssumeNotNull
-	PacketSkeleton registerPacket(@AssumeNotNull DataType<?>... data) {
-		final Lock writeLock = lock.writeLock();
-		writeLock.lock();
-		try {
-			return registerPacket0(id.getAndIncrement(), data);
-		}finally {
-			writeLock.unlock();
-		}
-	}
+    @AssumeNotNull
+    public Map<Integer, PacketSkeleton> getPackets() {
+        return packets;
+    }
 
-	@AssumeNotNull
-	public PacketSkeleton tryRegisterPacket(int id, @AssumeNotNull DataType<?>... data) {
-		final Lock writeLock = lock.writeLock();
-		writeLock.lock();
-		try {
-			final int currId = this.id.get();
-			final boolean valid = id == currId;
-			if(!valid) {
-				final PacketSkeleton packet = getPacket(data);
-				if(packet != null) {
-					return packet;
-				}
-				// TODO: Check if we have to add a "proper fix" at this place.
-			}
-			return registerPacket0(this.id.getAndIncrement(), data);
-		}finally {
-			writeLock.unlock();
-		}
-	}
+    @AssumeNotNull
+    PacketSkeleton registerPacket(@AssumeNotNull DataType<?>... data) {
+        final Lock writeLock = lock.writeLock();
+        writeLock.lock();
+        try {
+            return registerPacket0(id.getAndIncrement(), data);
+        } finally {
+            writeLock.unlock();
+        }
+    }
 
-	public void forceRegisterPacket(int id, @AssumeNotNull DataType<?>... data) {
-		final Lock writeLock = lock.writeLock();
-		writeLock.lock();
-		try {
-			final int curr = this.id.get();
-			if (id > curr) {
-				this.id.set(id);
-			}else if (id == curr) {
-				this.id.getAndIncrement();
-			}
+    @AssumeNotNull
+    public PacketSkeleton tryRegisterPacket(int id, @AssumeNotNull DataType<?>... data) {
+        final Lock writeLock = lock.writeLock();
+        writeLock.lock();
+        try {
+            final int currId = this.id.get();
+            final boolean valid = id == currId;
+            if (!valid) {
+                final PacketSkeleton packet = getPacket(data);
+                if (packet != null) {
+                    return packet;
+                }
+                // TODO: Check if we have to add a "proper fix" at this place.
+            }
+            return registerPacket0(this.id.getAndIncrement(), data);
+        } finally {
+            writeLock.unlock();
+        }
+    }
 
-			registerPacket0(id, data);
-		}finally {
-			writeLock.unlock();
-		}
-	}
+    public void forceRegisterPacket(int id, @AssumeNotNull DataType<?>... data) {
+        final Lock writeLock = lock.writeLock();
+        writeLock.lock();
+        try {
+            final int curr = this.id.get();
+            if (id > curr) {
+                this.id.set(id);
+            } else if (id == curr) {
+                this.id.getAndIncrement();
+            }
 
-	@AssumeNotNull
-	private PacketSkeleton registerPacket0(int id, @AssumeNotNull DataType<?>... data) {
-		final PacketSkeleton packet = new PacketSkeleton(id, data);
-		packets.put(id, packet);
-		return packet;
-	}
+            registerPacket0(id, data);
+        } finally {
+            writeLock.unlock();
+        }
+    }
 
-	PacketSkeleton getPacket(@AssumeNotNull DataType<?>... data) {
-		final int dataLength = data.length;
-		final int dataHash = Arrays.hashCode(data);
+    @AssumeNotNull
+    private PacketSkeleton registerPacket0(int id, @AssumeNotNull DataType<?>... data) {
+        final PacketSkeleton packet = new PacketSkeleton(id, data);
+        packets.put(id, packet);
+        return packet;
+    }
 
-		final Lock readLock = lock.readLock();
-		readLock.lock();
-		try {
-			for (PacketSkeleton packet : packets.values()) {
-				if (packet.getData().length == dataLength && dataHash == packet.hashCode()) {
-					return packet;
-				}
-			}
-		}finally {
-			readLock.unlock();
-		}
-		return null;
-	}
+    PacketSkeleton getPacket(@AssumeNotNull DataType<?>... data) {
+        final int dataLength = data.length;
+        final int dataHash = Arrays.hashCode(data);
 
-	PacketSkeleton getPacket(int id) {
-		return packets.get(id);
-	}
+        final Lock readLock = lock.readLock();
+        readLock.lock();
+        try {
+            for (PacketSkeleton packet : packets.values()) {
+                if (packet.getData().length == dataLength && dataHash == packet.hashCode()) {
+                    return packet;
+                }
+            }
+        } finally {
+            readLock.unlock();
+        }
+        return null;
+    }
 
-	public void broadcastRegister(@AssumeNotNull ApplicationImpl application,
-								  @AssumeNotNull InternalPayloadRegisterPacket payload,
-								  Connection ignored, ByteBuf buffer) {
-		final Collection<ConnectionImpl> connections = application.getConnectionsRaw();
-		if (ignored == null || connections.size() > 1) {
-			final ByteBuf registerBuffer = buffer != null ? buffer : Unpooled.buffer(
-					(application.getCompressionSetting().isVarIntCompression() ? 2 : 5) + payload.getSize(application));
+    PacketSkeleton getPacket(int id) {
+        return packets.get(id);
+    }
 
-			if(buffer == null) {
-				DataType.getDTIP().write0(application, registerBuffer, payload);
-			}
+    public void broadcastRegister(@AssumeNotNull ApplicationImpl application,
+                                  @AssumeNotNull InternalPayloadRegisterPacket payload,
+                                  Connection ignored, ByteBuf buffer) {
+        final Collection<ConnectionImpl> connections = application.getConnectionsRaw();
+        if (ignored == null || connections.size() > 1) {
+            final ByteBuf registerBuffer = buffer != null ? buffer : Unpooled.buffer(
+                    (application.getCompressionSetting().isVarIntCompression() ? 2 : 5) + payload.getSize(application));
 
-			for (ConnectionImpl connection : connections) {
-				if (ignored == null || connection.getId() != ignored.getId()) {
-					registerBuffer.retain();
-					if (connection.isConnected()) {
-						connection.getChannel().writeAndFlush(registerBuffer);
-					} else {
-						connection.writeToInitialBuffer(registerBuffer);
-					}
-				}
-			}
-			registerBuffer.release();
-		}
-	}
-	
+            if (buffer == null) {
+                DataType.getDTIP().write0(application, registerBuffer, payload);
+            }
+
+            for (ConnectionImpl connection : connections) {
+                if (ignored == null || connection.getId() != ignored.getId()) {
+                    registerBuffer.retain();
+                    if (connection.isConnected()) {
+                        connection.getChannel().writeAndFlush(registerBuffer);
+                    } else {
+                        connection.writeToInitialBuffer(registerBuffer);
+                    }
+                }
+            }
+            registerBuffer.release();
+        }
+    }
+
 }

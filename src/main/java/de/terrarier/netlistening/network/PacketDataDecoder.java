@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 @ApiStatus.Internal
 public final class PacketDataDecoder extends ByteToMessageDecoder {
@@ -64,10 +64,10 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         final int readable = buffer.readableBytes();
         // This prevents empty packets from being decoded after the connection was closed.
         if (readable < 1) {
-            if(IGNORE_EMPTY_PACKETS || !ctx.channel().isActive()) {
+            if (IGNORE_EMPTY_PACKETS || !ctx.channel().isActive()) {
                 return;
             }
-            if(callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.EMPTY_PACKET, EmptyArrays.EMPTY_BYTES)) {
+            if (callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.EMPTY_PACKET, EmptyArrays.EMPTY_BYTES)) {
                 return;
             }
             throw new IllegalStateException("Received an empty packet!");
@@ -106,10 +106,10 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             return;
         }
 
-        if(readKeepAliveId) {
+        if (readKeepAliveId) {
             readKeepAliveId = false;
             readKeepAlive(buffer);
-            if(!buffer.isReadable()) {
+            if (!buffer.isReadable()) {
                 return;
             }
         }
@@ -118,7 +118,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     }
 
     private boolean readPacket(@AssumeNotNull ByteBuf buffer, @AssumeNotNull List<Object> out,
-                            @AssumeNotNull ByteBuf idBuffer) throws Exception {
+                               @AssumeNotNull ByteBuf idBuffer) throws Exception {
         final int id;
         try {
             id = InternalUtil.readInt(application, idBuffer);
@@ -133,9 +133,9 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
         if (id == 0x1) {
             // Handling keep alive packets.
-            if(buffer.isReadable()) {
+            if (buffer.isReadable()) {
                 readKeepAlive(buffer);
-            }else {
+            } else {
                 readKeepAliveId = true;
             }
             return true;
@@ -146,7 +146,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 // TODO: Probably we should cache this byte array.
                 final byte[] data = ConversionUtil.intToBytes(0x2);
 
-                if(callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.MALICIOUS_ACTION, data)) {
+                if (callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.MALICIOUS_ACTION, data)) {
                     return true;
                 }
 
@@ -163,12 +163,12 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         if (!buffer.isReadable()) {
             final byte[] data = ConversionUtil.intToBytes(id);
 
-            if(callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.INCOMPLETE_PACKET, data)) {
+            if (callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.INCOMPLETE_PACKET, data)) {
                 return true;
             }
 
             throw new IllegalStateException("An error occurred while decoding - the packet to decode was empty! (skipping current packet with id: "
-                            + Integer.toHexString(id) + ')');
+                    + Integer.toHexString(id) + ')');
         }
 
         if (id == 0x0) {
@@ -180,12 +180,12 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         if (packet == null) {
             final byte[] data = ConversionUtil.intToBytes(id);
 
-            if(callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.INVALID_ID, data)) {
+            if (callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.INVALID_ID, data)) {
                 return true;
             }
 
             throw new IllegalStateException("An error occurred while decoding - the packet to decode wasn't recognizable because it wasn't registered before! ("
-                            + Integer.toHexString(id) + ')');
+                    + Integer.toHexString(id) + ')');
         }
 
         read(out, new ArrayList<>(packet.getData().length), buffer, packet, 0, null);
@@ -269,13 +269,13 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         } catch (CancelReadSignal signal) {
             // prepare framing of payload
             final int frameSize = signal.size + buffer.readerIndex() - start;
-            if(!callFrameEvent(signal.size, frameSize - signal.size)) {
+            if (!callFrameEvent(signal.size, frameSize - signal.size)) {
                 holdingBuffer = Unpooled.buffer(frameSize);
                 buffer.readerIndex(start);
                 transferRemaining(buffer);
                 packet = null;
                 hasId = true;
-            }else {
+            } else {
                 tryRelease(buffer);
             }
         }
@@ -305,11 +305,11 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     private void readKeepAlive(@AssumeNotNull ByteBuf buffer) {
         final byte keepAliveId = buffer.readByte();
         final byte nextId = (byte) ((lastKeepAliveId == Byte.MAX_VALUE ? Byte.MIN_VALUE : lastKeepAliveId) + 1);
-        if(keepAliveId != nextId) {
-            final byte[] data = new byte[] { lastKeepAliveId, nextId, keepAliveId };
+        if (keepAliveId != nextId) {
+            final byte[] data = new byte[]{lastKeepAliveId, nextId, keepAliveId};
             lastKeepAliveId = nextId;
 
-            if(callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.INVALID_KEEP_ALIVE_ID, data)) {
+            if (callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.INVALID_KEEP_ALIVE_ID, data)) {
                 return;
             }
 
@@ -350,11 +350,11 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
     @Override
     public void exceptionCaught(@AssumeNotNull ChannelHandlerContext ctx, @AssumeNotNull Throwable cause) {
-        if(cause instanceof OutOfMemoryError) {
+        if (cause instanceof OutOfMemoryError) {
             // Don't handle OOM errors because handling them could lead into more OOM errors being thrown.
             return;
         }
-        if(cause instanceof ThreadDeath) {
+        if (cause instanceof ThreadDeath) {
             // Don't handle ThreadDeath
             return;
         }
@@ -371,7 +371,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         private final ChannelHandlerContext handlerContext;
 
         private DecoderContext(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
-                              @AssumeNotNull PacketDataDecoder decoder,
+                               @AssumeNotNull PacketDataDecoder decoder,
                                @AssumeNotNull ChannelHandlerContext handlerContext) {
             this.application = application;
             this.connection = connection;

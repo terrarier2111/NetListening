@@ -7,8 +7,8 @@ import org.jetbrains.annotations.ApiStatus;
  * This event can be used to detect MITM attacks.
  * It is only called on the client side.
  *
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public final class KeyChangeEvent extends Cancellable implements Event {
 

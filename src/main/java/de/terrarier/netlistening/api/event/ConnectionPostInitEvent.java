@@ -7,8 +7,8 @@ import org.jetbrains.annotations.ApiStatus;
 /**
  * This event gets called after a connection was established.
  *
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public final class ConnectionPostInitEvent extends ConnectionEvent {
 

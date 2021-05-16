@@ -13,8 +13,8 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 @ApiStatus.Internal
 public final class AsymmetricEncryptionUtil {

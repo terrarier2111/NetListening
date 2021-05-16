@@ -12,18 +12,18 @@ import java.lang.annotation.Target;
  * An annotation which can be used to annotate the trigger
  * method of a decode listener.
  *
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface PacketListener {
 
-	/**
-	 * @return the data types which should be the content of a packet in order to trigger the listener,
-	 * when no data types were specified, just call the listener without checking.
-	 */
-	@NotNull
-	Type[] dataTypes() default {};
+    /**
+     * @return the data types which should be the content of a packet in order to trigger the listener,
+     * when no data types were specified, just call the listener without checking.
+     */
+    @NotNull
+    Type[] dataTypes() default {};
 
 }

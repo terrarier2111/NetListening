@@ -6,8 +6,8 @@ import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
- * @since 1.01
  * @author Terrarier2111
+ * @since 1.01
  */
 public abstract class SerializationProvider {
 
@@ -21,7 +21,7 @@ public abstract class SerializationProvider {
      * if there is no fallback, return null.
      */
     protected SerializationProvider getFallback() {
-        if(fallback == null) {
+        if (fallback == null) {
             fallback = new JavaIoSerializationProvider();
             fallback.setEventManager(eventManager);
         }
@@ -64,9 +64,9 @@ public abstract class SerializationProvider {
 
     @ApiStatus.Internal
     public final void setEventManager(@AssumeNotNull EventManager eventManager) {
-        if(this.eventManager == null) {
+        if (this.eventManager == null) {
             this.eventManager = eventManager;
-        }else {
+        } else {
             throw new IllegalStateException("The event manager was already set!");
         }
     }
@@ -108,11 +108,11 @@ public abstract class SerializationProvider {
         public StackTraceElement[] getStackTrace() {
             try {
                 final StackTraceElement[] stackTraceElements = cause.getStackTrace();
-                if(stackTraceElements == null) {
+                if (stackTraceElements == null) {
                     return cause.fillInStackTrace().getStackTrace();
                 }
                 return stackTraceElements;
-            }finally {
+            } finally {
                 cause.fillInStackTrace();
             }
         }

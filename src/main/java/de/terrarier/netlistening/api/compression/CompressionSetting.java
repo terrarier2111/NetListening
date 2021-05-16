@@ -3,8 +3,8 @@ package de.terrarier.netlistening.api.compression;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public final class CompressionSetting {
 

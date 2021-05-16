@@ -7,46 +7,46 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.Arrays;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 @ApiStatus.Internal
 public final class PacketSkeleton {
 
-	private final int id;
-	private final DataType<?>[] data;
-	private final int hash;
-	private volatile boolean registered;
-	
-	PacketSkeleton(int id, @AssumeNotNull DataType<?>... data) {
-		this.id = id;
-		this.data = data;
-		hash = Arrays.hashCode(data);
-	}
-	
-	public int getId() {
-		return id;
-	}
+    private final int id;
+    private final DataType<?>[] data;
+    private final int hash;
+    private volatile boolean registered;
 
-	@AssumeNotNull
-	public DataType<?>[] getData() {
-		return data;
-	}
+    PacketSkeleton(int id, @AssumeNotNull DataType<?>... data) {
+        this.id = id;
+        this.data = data;
+        hash = Arrays.hashCode(data);
+    }
 
-	boolean isRegistered() {
-		return registered;
-	}
+    public int getId() {
+        return id;
+    }
 
-	public void register() {
-		registered = true;
-	}
+    @AssumeNotNull
+    public DataType<?>[] getData() {
+        return data;
+    }
 
-	/**
-	 * @see Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		return hash;
-	}
+    boolean isRegistered() {
+        return registered;
+    }
+
+    public void register() {
+        registered = true;
+    }
+
+    /**
+     * @see Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return hash;
+    }
 
 }

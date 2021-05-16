@@ -26,8 +26,8 @@ import java.util.Map;
 import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositiveOrZero;
 
 /**
- * @since 1.02
  * @author Terrarier2111
+ * @since 1.02
  */
 public abstract class ApplicationImpl implements Application {
 
@@ -210,7 +210,7 @@ public abstract class ApplicationImpl implements Application {
         abstract void build0();
 
         final void validate() {
-            if(built) {
+            if (built) {
                 throw new ApplicationAlreadyBuiltException();
             }
         }

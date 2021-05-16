@@ -6,8 +6,8 @@ import org.jetbrains.annotations.ApiStatus;
  * This util can be used to work with 4 bit integers (nibbles)
  * combined together in pairs of two to single bytes.
  *
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 @ApiStatus.Internal
 public final class NibbleUtil {
@@ -34,7 +34,7 @@ public final class NibbleUtil {
 
     /**
      * @param highNibble the high nibble.
-     * @param lowNibble the low nibble.
+     * @param lowNibble  the low nibble.
      * @return a byte representing a pair of nibbles.
      */
     public static byte buildNibblePair(byte highNibble, byte lowNibble) {

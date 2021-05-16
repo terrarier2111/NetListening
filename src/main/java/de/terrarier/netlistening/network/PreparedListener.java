@@ -11,41 +11,41 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 @ApiStatus.Internal
 public final class PreparedListener {
 
-	private static final Type[] EMPTY_TYPES = new Type[0];
-	private final DecodeListener wrapped;
-	private final Type[] types;
-	private final int hash;
-	
-	public PreparedListener(@AssumeNotNull DecodeListener listener) throws NoSuchMethodException, SecurityException {
-		wrapped = listener;
-		final Method method = listener.getClass().getDeclaredMethod("trigger", Event.class);
-		final PacketListener packetListener = method.getAnnotation(PacketListener.class);
-		types = packetListener != null ? packetListener.dataTypes() : EMPTY_TYPES;
-		hash = Arrays.hashCode(types);
-	}
+    private static final Type[] EMPTY_TYPES = new Type[0];
+    private final DecodeListener wrapped;
+    private final Type[] types;
+    private final int hash;
 
-	@AssumeNotNull
-	public DecodeListener getWrapped() {
-		return wrapped;
-	}
+    public PreparedListener(@AssumeNotNull DecodeListener listener) throws NoSuchMethodException, SecurityException {
+        wrapped = listener;
+        final Method method = listener.getClass().getDeclaredMethod("trigger", Event.class);
+        final PacketListener packetListener = method.getAnnotation(PacketListener.class);
+        types = packetListener != null ? packetListener.dataTypes() : EMPTY_TYPES;
+        hash = Arrays.hashCode(types);
+    }
 
-	@AssumeNotNull
-	public Type[] getTypes() {
-		return types;
-	}
+    @AssumeNotNull
+    public DecodeListener getWrapped() {
+        return wrapped;
+    }
 
-	/**
-	 * @see Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		return hash;
-	}
+    @AssumeNotNull
+    public Type[] getTypes() {
+        return types;
+    }
+
+    /**
+     * @see Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return hash;
+    }
 
 }

@@ -6,8 +6,8 @@ import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public final class HmacSetting {
 

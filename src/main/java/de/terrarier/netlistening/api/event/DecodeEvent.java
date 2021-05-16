@@ -8,25 +8,25 @@ import org.jetbrains.annotations.ApiStatus;
 /**
  * This event is called when a packet gets decoded.
  *
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public final class DecodeEvent extends ConnectionEvent {
 
-	private final DataContainer data;
+    private final DataContainer data;
 
-	@ApiStatus.Internal
-	public DecodeEvent(@AssumeNotNull Connection connection, @AssumeNotNull DataContainer data) {
-		super(connection);
-		this.data = data;
-	}
+    @ApiStatus.Internal
+    public DecodeEvent(@AssumeNotNull Connection connection, @AssumeNotNull DataContainer data) {
+        super(connection);
+        this.data = data;
+    }
 
-	/**
-	 * @return the data which was decoded.
-	 */
-	@AssumeNotNull
-	public DataContainer getData() {
-		return data;
-	}
+    /**
+     * @return the data which was decoded.
+     */
+    @AssumeNotNull
+    public DataContainer getData() {
+        return data;
+    }
 
 }

@@ -1,11 +1,11 @@
 package de.terrarier.netlistening.api;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public enum PacketCaching {
-	
-	GLOBAL, INDIVIDUAL, NONE
+
+    GLOBAL, INDIVIDUAL, NONE
 
 }

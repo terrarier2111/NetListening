@@ -8,8 +8,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public final class EncryptionSetting {
 
@@ -26,7 +26,7 @@ public final class EncryptionSetting {
      */
     @AssumeNotNull
     public EncryptionSetting asymmetricEncryptionOptions(@NotNull EncryptionOptions asymmetricEncryption) {
-        if(asymmetricEncryptionSetting != null) {
+        if (asymmetricEncryptionSetting != null) {
             asymmetricEncryption.getKeySize();
             asymmetricEncryptionSetting = asymmetricEncryption;
         }
@@ -41,7 +41,7 @@ public final class EncryptionSetting {
      */
     @AssumeNotNull
     public EncryptionSetting symmetricEncryptionOptions(@NotNull EncryptionOptions symmetricEncryption) {
-        if(symmetricEncryptionSetting != null) {
+        if (symmetricEncryptionSetting != null) {
             symmetricEncryption.getKeySize();
             symmetricEncryptionSetting = symmetricEncryption;
         }
@@ -99,13 +99,13 @@ public final class EncryptionSetting {
      * @param key the asymmetric keys represented as a byte array.
      * @return the reference to the local reference.
      * @throws NoSuchAlgorithmException when the algorithm specified in the {@code asymmetricEncryptionSetting} isn't defined in the current JDK.
-     * @throws InvalidKeySpecException when the passed key is invalid.
+     * @throws InvalidKeySpecException  when the passed key is invalid.
      */
     @AssumeNotNull
     public EncryptionSetting init(byte[] key) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        if(key != null) {
+        if (key != null) {
             asymmetricEncryptionData = new AsymmetricEncryptionData(asymmetricEncryptionSetting, key);
-        }else {
+        } else {
             asymmetricEncryptionData = AsymmetricEncryptionUtil.generate(asymmetricEncryptionSetting);
         }
         return this;

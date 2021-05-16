@@ -3,8 +3,8 @@ package de.terrarier.netlistening.api.encryption;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public enum CipherAlgorithmPadding {
 

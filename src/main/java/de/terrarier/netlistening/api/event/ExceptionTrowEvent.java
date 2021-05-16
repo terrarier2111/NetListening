@@ -6,8 +6,8 @@ import org.jetbrains.annotations.ApiStatus;
 /**
  * This event gets called when an exception is thrown.
  *
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public final class ExceptionTrowEvent implements Event {
 

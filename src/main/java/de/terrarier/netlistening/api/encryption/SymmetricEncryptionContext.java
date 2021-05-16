@@ -7,8 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.crypto.SecretKey;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public final class SymmetricEncryptionContext {
 

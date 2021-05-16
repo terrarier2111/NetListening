@@ -3,8 +3,8 @@ package de.terrarier.netlistening.api.encryption.hash;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 
 /**
- * @since 1.08
  * @author Terrarier2111
+ * @since 1.08
  */
 public enum HmacApplicationPolicy {
 

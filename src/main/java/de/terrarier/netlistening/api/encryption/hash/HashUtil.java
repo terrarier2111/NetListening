@@ -14,8 +14,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 @ApiStatus.Internal
 public final class HashUtil {
@@ -32,7 +32,7 @@ public final class HashUtil {
     private static byte[] hash(@AssumeNotNull HashingAlgorithm hashingAlgorithm, @AssumeNotNull byte[] data, int salt)
             throws NoSuchAlgorithmException {
         final MessageDigest digest = MessageDigest.getInstance(hashingAlgorithm.getRawName());
-        if(salt > 0) {
+        if (salt > 0) {
             final ByteBuf dataBuffer = Unpooled.buffer(data.length + salt);
             dataBuffer.writeBytes(data);
             dataBuffer.writeBytes(generateSalt(salt));

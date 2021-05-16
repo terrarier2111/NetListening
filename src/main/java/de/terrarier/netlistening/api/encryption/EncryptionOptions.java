@@ -4,8 +4,8 @@ import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public final class EncryptionOptions {
 
@@ -77,24 +77,24 @@ public final class EncryptionOptions {
     }
 
     private void checkModifiable() {
-        if(built) {
+        if (built) {
             throw new IllegalStateException("The options were already built, you can't modify them anymore!");
         }
     }
 
     private void checkBuilt() {
-        if(!built) {
-            if(type == null) {
+        if (!built) {
+            if (type == null) {
                 throw new IllegalStateException("Please set the encryption algorithm!");
             }
             built = true;
             if (keySize < 8) {
                 keySize = type.getDefaultSize();
             }
-            if(mode == null) {
+            if (mode == null) {
                 mode = type.getDefaultMode();
             }
-            if(padding == null) {
+            if (padding == null) {
                 padding = type.getDefaultPadding();
             }
         }

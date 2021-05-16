@@ -38,8 +38,8 @@ import java.util.*;
 import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkNotNull;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public final class ClientImpl extends ApplicationImpl implements Client {
 
@@ -123,7 +123,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
             this.stringEncoding = stringEncoding;
         }
 
-        if(encryptionSetting != null) {
+        if (encryptionSetting != null) {
             try {
                 encryptionSetting.init(null);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
@@ -142,7 +142,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
 
         synchronized (this) {
             if (preConnectData != null) {
-                for (Iterator<DataContainer> iterator = preConnectData.iterator(); iterator.hasNext();) {
+                for (Iterator<DataContainer> iterator = preConnectData.iterator(); iterator.hasNext(); ) {
                     channel.writeAndFlush(iterator.next());
                     iterator.remove();
                 }
@@ -209,7 +209,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
             throw new IllegalStateException("The client is not running!");
         }
 
-        if(connection != null && connection.isConnected()) {
+        if (connection != null && connection.isConnected()) {
             connection.disconnect0();
         }
 
@@ -264,7 +264,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
                 : KeyChangeEvent.KeyChangeResult.HASH_ABSENT;
         final KeyChangeEvent event = new KeyChangeEvent(replace ? this.serverKey.getKeyHash() : null, serverKey.getKeyHash(), result);
 
-        if(!eventManager.callEvent(ListenerType.KEY_CHANGE, EventManager.CancelAction.IGNORE, event)) {
+        if (!eventManager.callEvent(ListenerType.KEY_CHANGE, EventManager.CancelAction.IGNORE, event)) {
             return false;
         }
 
@@ -324,7 +324,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         public void serverKeyHash(@AssumeNotNull byte[] bytes) {
             validate();
             application.serverKey = new ServerKey(bytes);
-            if(!changedHashingAlgorithm) {
+            if (!changedHashingAlgorithm) {
                 application.serverKeyHashing = application.serverKey.getHashingAlgorithm();
             }
         }

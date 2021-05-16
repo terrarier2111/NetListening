@@ -30,343 +30,343 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkNotNull;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public final class ConnectionImpl implements Connection {
 
-	static final AtomicInteger ID = new AtomicInteger();
-	private final ApplicationImpl application;
-	private final Channel channel;
-	private final int id = ID.getAndIncrement();
-	private final PacketCache cache;
-	private volatile boolean receivedPacket;
-	private volatile DataSendState dataSendState = DataSendState.IDLE;
-	private ByteBuf preConnectBuffer;
-	private List<DataContainer> preConnectSendQueue;
-	private SymmetricEncryptionContext encryptionContext;
-	private byte[] hmacKey;
-	// TODO: Improve and test delayed data sending mechanics.
+    static final AtomicInteger ID = new AtomicInteger();
+    private final ApplicationImpl application;
+    private final Channel channel;
+    private final int id = ID.getAndIncrement();
+    private final PacketCache cache;
+    private volatile boolean receivedPacket;
+    private volatile DataSendState dataSendState = DataSendState.IDLE;
+    private ByteBuf preConnectBuffer;
+    private List<DataContainer> preConnectSendQueue;
+    private SymmetricEncryptionContext encryptionContext;
+    private byte[] hmacKey;
+    // TODO: Improve and test delayed data sending mechanics.
 
-	ConnectionImpl(@AssumeNotNull ApplicationImpl application, @AssumeNotNull Channel channel) {
-		this.application = application;
-		this.channel = channel;
-		if(application.getCaching() != PacketCaching.INDIVIDUAL) {
-			cache = application.getCache();
-		}else {
-			cache = new PacketCache();
-		}
-	}
+    ConnectionImpl(@AssumeNotNull ApplicationImpl application, @AssumeNotNull Channel channel) {
+        this.application = application;
+        this.channel = channel;
+        if (application.getCaching() != PacketCaching.INDIVIDUAL) {
+            cache = application.getCache();
+        } else {
+            cache = new PacketCache();
+        }
+    }
 
-	/**
-	 * @see Connection#sendData(DataContainer)
-	 */
-	@Override
-	public void sendData(@NotNull DataContainer data) {
-		if(application instanceof Client) {
-			application.sendData(data);
-			return;
-		}
-		final boolean connected = isConnected();
-		checkReceived();
-		if(connected && dataSendState.isAtLeast(DataSendState.SENDING)) {
-			if(dataSendState == DataSendState.FINISHED) {
-				channel.writeAndFlush(data);
-			}else {
-				// TODO: Handle stuff incoming before!
-			}
-		}else {
-			synchronized (this) {
-				if (preConnectSendQueue == null) {
-					preConnectSendQueue = new ArrayList<>();
-				}
+    /**
+     * @see Connection#sendData(DataContainer)
+     */
+    @Override
+    public void sendData(@NotNull DataContainer data) {
+        if (application instanceof Client) {
+            application.sendData(data);
+            return;
+        }
+        final boolean connected = isConnected();
+        checkReceived();
+        if (connected && dataSendState.isAtLeast(DataSendState.SENDING)) {
+            if (dataSendState == DataSendState.FINISHED) {
+                channel.writeAndFlush(data);
+            } else {
+                // TODO: Handle stuff incoming before!
+            }
+        } else {
+            synchronized (this) {
+                if (preConnectSendQueue == null) {
+                    preConnectSendQueue = new ArrayList<>();
+                }
 
-				preConnectSendQueue.add(data);
-			}
-		}
-	}
+                preConnectSendQueue.add(data);
+            }
+        }
+    }
 
-	/**
-	 * @see Connection#sendData(boolean, Object...)
-	 */
-	@Override
-	public void sendData(boolean encrypted, @NotNull Object... data) {
-		final DataContainer dataContainer = new DataContainer();
-		dataContainer.setEncrypted(encrypted);
-		dataContainer.addAll(data);
-		sendData(dataContainer);
-	}
+    /**
+     * @see Connection#sendData(boolean, Object...)
+     */
+    @Override
+    public void sendData(boolean encrypted, @NotNull Object... data) {
+        final DataContainer dataContainer = new DataContainer();
+        dataContainer.setEncrypted(encrypted);
+        dataContainer.addAll(data);
+        sendData(dataContainer);
+    }
 
-	/**
-	 * @see Connection#disconnect()
-	 */
-	@Override
-	public void disconnect() {
-		if (!isConnected()) {
-			throw new IllegalStateException(
-					"The connection " + Integer.toHexString(id) + " is not connected!");
-		}
-		if(application instanceof Server) {
-			((ServerImpl) application).disconnect0(this);
-		}
-		disconnect0();
-	}
+    /**
+     * @see Connection#disconnect()
+     */
+    @Override
+    public void disconnect() {
+        if (!isConnected()) {
+            throw new IllegalStateException(
+                    "The connection " + Integer.toHexString(id) + " is not connected!");
+        }
+        if (application instanceof Server) {
+            ((ServerImpl) application).disconnect0(this);
+        }
+        disconnect0();
+    }
 
-	void disconnect0() {
-		if(application.getCaching() != PacketCaching.GLOBAL) {
-			cache.getPackets().clear();
-		}
-		channel.close();
-	}
+    void disconnect0() {
+        if (application.getCaching() != PacketCaching.GLOBAL) {
+            cache.getPackets().clear();
+        }
+        channel.close();
+    }
 
-	/**
-	 * @see Connection#isConnected()
-	 */
-	@Override
-	public boolean isConnected() {
-		return channel.isActive() || channel.isOpen();
-	}
+    /**
+     * @see Connection#isConnected()
+     */
+    @Override
+    public boolean isConnected() {
+        return channel.isActive() || channel.isOpen();
+    }
 
-	@AssumeNotNull
-	@Deprecated
-	public Application getApplication() {
-		return application;
-	}
+    @AssumeNotNull
+    @Deprecated
+    public Application getApplication() {
+        return application;
+    }
 
-	/**
-	 * @see Connection#getChannel()
-	 */
-	@AssumeNotNull
-	@Override
-	public Channel getChannel() {
-		return channel;
-	}
+    /**
+     * @see Connection#getChannel()
+     */
+    @AssumeNotNull
+    @Override
+    public Channel getChannel() {
+        return channel;
+    }
 
-	/**
-	 * @see Connection#getRemoteAddress()
-	 */
-	@AssumeNotNull
-	@Override
-	public InetSocketAddress getRemoteAddress() {
-		return (InetSocketAddress) channel.remoteAddress();
-	}
+    /**
+     * @see Connection#getRemoteAddress()
+     */
+    @AssumeNotNull
+    @Override
+    public InetSocketAddress getRemoteAddress() {
+        return (InetSocketAddress) channel.remoteAddress();
+    }
 
-	// TODO: Add any sort of documentation to this method!
-	public SymmetricEncryptionContext getEncryptionContext() {
-		return encryptionContext;
-	}
+    // TODO: Add any sort of documentation to this method!
+    public SymmetricEncryptionContext getEncryptionContext() {
+        return encryptionContext;
+    }
 
-	/**
-	 * Defines the encryption context for this connection which determines
-	 * how data sent to/received from this connection gets en-/decrypted.
-	 *
-	 * @param options the options which should be used to interpret the key data.
-	 * @param symmetricKey the data which should be used to generate the key.
-	 */
-	public void setSymmetricKey(@NotNull EncryptionOptions options, @CheckNotNull byte[] symmetricKey) {
-		final SecretKey secretKey = SymmetricEncryptionUtil.readSecretKey(checkNotNull(symmetricKey, "symmetricKey"),
-				options);
-		encryptionContext = new SymmetricEncryptionContext(secretKey, options);
-	}
+    /**
+     * Defines the encryption context for this connection which determines
+     * how data sent to/received from this connection gets en-/decrypted.
+     *
+     * @param options      the options which should be used to interpret the key data.
+     * @param symmetricKey the data which should be used to generate the key.
+     */
+    public void setSymmetricKey(@NotNull EncryptionOptions options, @CheckNotNull byte[] symmetricKey) {
+        final SecretKey secretKey = SymmetricEncryptionUtil.readSecretKey(checkNotNull(symmetricKey, "symmetricKey"),
+                options);
+        encryptionContext = new SymmetricEncryptionContext(secretKey, options);
+    }
 
-	/**
-	 * Defines the encryption context for this connection which determines
-	 * how data sent to/received from this connection gets en-/decrypted.
-	 *
-	 * @param application the application to which this connection is related to.
-	 * @param secretKey the secret key which should be used to encrypt data.
-	 */
-	public void setSymmetricKey(@NotNull ApplicationImpl application, @NotNull SecretKey secretKey) {
-		final EncryptionOptions options = application.getEncryptionSetting().getSymmetricSetting();
-		encryptionContext = new SymmetricEncryptionContext(secretKey, options);
-	}
+    /**
+     * Defines the encryption context for this connection which determines
+     * how data sent to/received from this connection gets en-/decrypted.
+     *
+     * @param application the application to which this connection is related to.
+     * @param secretKey   the secret key which should be used to encrypt data.
+     */
+    public void setSymmetricKey(@NotNull ApplicationImpl application, @NotNull SecretKey secretKey) {
+        final EncryptionOptions options = application.getEncryptionSetting().getSymmetricSetting();
+        encryptionContext = new SymmetricEncryptionContext(secretKey, options);
+    }
 
-	/**
-	 * @return the internal symmetric key which is used to hash data.
-	 * If hashing is disabled, it returns null.
-	 */
-	public byte[] getHmacKey() {
-		return hmacKey;
-	}
+    /**
+     * @return the internal symmetric key which is used to hash data.
+     * If hashing is disabled, it returns null.
+     */
+    public byte[] getHmacKey() {
+        return hmacKey;
+    }
 
-	/**
-	 * Sets an internal symmetric key of the connection.
-	 *
-	 * @param key the key which should be used to hash data.
-	 */
-	public void setHmacKey(@CheckNotNull byte[] key) {
-		hmacKey = checkNotNull(key, "key");
-	}
+    /**
+     * Sets an internal symmetric key of the connection.
+     *
+     * @param key the key which should be used to hash data.
+     */
+    public void setHmacKey(@CheckNotNull byte[] key) {
+        hmacKey = checkNotNull(key, "key");
+    }
 
-	/**
-	 * Sets an internal symmetric key of the connection.
-	 *
-	 * @param secretKey the SecretKey which should be used to generate hmacs for data.
-	 */
-	public void setHmacKey(@NotNull SecretKey secretKey) {
-		setHmacKey(secretKey.getEncoded());
-	}
+    /**
+     * Sets an internal symmetric key of the connection.
+     *
+     * @param secretKey the SecretKey which should be used to generate hmacs for data.
+     */
+    public void setHmacKey(@NotNull SecretKey secretKey) {
+        setHmacKey(secretKey.getEncoded());
+    }
 
-	/**
-	 * @see Connection#getId()
-	 */
-	@Override
-	public int getId() {
-		return id;
-	}
+    /**
+     * @see Connection#getId()
+     */
+    @Override
+    public int getId() {
+        return id;
+    }
 
-	@ApiStatus.Internal
-	public boolean isStable() {
-		return dataSendState.isAtLeast(DataSendState.SENDING) && receivedPacket;
-	}
+    @ApiStatus.Internal
+    public boolean isStable() {
+        return dataSendState.isAtLeast(DataSendState.SENDING) && receivedPacket;
+    }
 
-	@ApiStatus.Internal
-	@AssumeNotNull
-	public PacketCache getCache() {
-		return cache;
-	}
+    @ApiStatus.Internal
+    @AssumeNotNull
+    public PacketCache getCache() {
+        return cache;
+    }
 
-	private void checkReceived() {
-		if (!receivedPacket) {
-			receivedPacket = true;
-			final boolean connected = isConnected();
+    private void checkReceived() {
+        if (!receivedPacket) {
+            receivedPacket = true;
+            final boolean connected = isConnected();
 
-			synchronized (this) {
-				if (!connected && preConnectBuffer == null) {
-					preConnectBuffer = Unpooled.buffer();
-				}
+            synchronized (this) {
+                if (!connected && preConnectBuffer == null) {
+                    preConnectBuffer = Unpooled.buffer();
+                }
 
-				final ByteBuf buffer = connected ? Unpooled.buffer() : preConnectBuffer;
-				buffer.writeInt(0x0);
-				final DataTypeInternalPayload dtip = DataType.getDTIP();
-				dtip.write(application, buffer, InternalPayload.HANDSHAKE);
-				if (application.getCaching() == PacketCaching.GLOBAL) {
+                final ByteBuf buffer = connected ? Unpooled.buffer() : preConnectBuffer;
+                buffer.writeInt(0x0);
+                final DataTypeInternalPayload dtip = DataType.getDTIP();
+                dtip.write(application, buffer, InternalPayload.HANDSHAKE);
+                if (application.getCaching() == PacketCaching.GLOBAL) {
 
-					final Map<Integer, PacketSkeleton> packets = cache.getPackets();
-					final int packetsSize = packets.size();
-					if (packetsSize > 3) {
+                    final Map<Integer, PacketSkeleton> packets = cache.getPackets();
+                    final int packetsSize = packets.size();
+                    if (packetsSize > 3) {
 
-						for (int id = 5; id < packetsSize + 2; id++) {
-							final DataType<?>[] data = packets.get(id).getData();
-							dtip.write0(application, buffer, new InternalPayloadRegisterPacket(id, data));
-						}
-					}
-				}
-				if (connected) {
-					channel.writeAndFlush(buffer);
-				}
-			}
-		}
-	}
+                        for (int id = 5; id < packetsSize + 2; id++) {
+                            final DataType<?>[] data = packets.get(id).getData();
+                            dtip.write0(application, buffer, new InternalPayloadRegisterPacket(id, data));
+                        }
+                    }
+                }
+                if (connected) {
+                    channel.writeAndFlush(buffer);
+                }
+            }
+        }
+    }
 
-	@ApiStatus.Internal
-	public void check() {
-		if(!dataSendState.isAtLeast(DataSendState.SENDING)) {
-			dataSendState = DataSendState.SENDING;
+    @ApiStatus.Internal
+    public void check() {
+        if (!dataSendState.isAtLeast(DataSendState.SENDING)) {
+            dataSendState = DataSendState.SENDING;
 
-			synchronized (this) {
-				if (preConnectBuffer != null && preConnectBuffer.writerIndex() > 0) {
-					channel.writeAndFlush(preConnectBuffer);
-					preConnectBuffer = null;
-				} else {
-					// Writing the init data to the channel (without hitting the pre connect buffer).
-					checkReceived();
-				}
-			}
+            synchronized (this) {
+                if (preConnectBuffer != null && preConnectBuffer.writerIndex() > 0) {
+                    channel.writeAndFlush(preConnectBuffer);
+                    preConnectBuffer = null;
+                } else {
+                    // Writing the init data to the channel (without hitting the pre connect buffer).
+                    checkReceived();
+                }
+            }
 
-			if(application.getEncryptionSetting() == null) {
-				prepare();
-			}else {
-				dataSendState = DataSendState.WAITING_FOR_FINISH;
-			}
-		}
-	}
+            if (application.getEncryptionSetting() == null) {
+                prepare();
+            } else {
+                dataSendState = DataSendState.WAITING_FOR_FINISH;
+            }
+        }
+    }
 
-	@ApiStatus.Internal
-	public void writeToInitialBuffer(@AssumeNotNull ByteBuf buffer) {
-		final DataSendState dataSendState = this.dataSendState; // caching volatile field get result
-		if (!dataSendState.isAtLeast(DataSendState.SENDING)) {
-			checkReceived();
-			transferData(buffer);
-		} else {
-			if(!trySend(buffer)) {
-				// TODO: Test logic to send data delayed!
-				if(dataSendState != DataSendState.WAITING_FOR_FINISH) { // Check if the connection isn't in the waiting state and therefore
-																		// currently it isn't waiting for a response from the other end of the connection.
-					while(true) {
-						if(this.dataSendState == DataSendState.WAITING_FOR_FINISH) {
-							break;
-						}else if(trySend(buffer)) {
-							return;
-						}
-					}
-				}
-				synchronized (this) {
-					if (preConnectBuffer == null) {
-						preConnectBuffer = Unpooled.buffer();
-					}
-				}
-				transferData(buffer);
-			}
-		}
-	}
+    @ApiStatus.Internal
+    public void writeToInitialBuffer(@AssumeNotNull ByteBuf buffer) {
+        final DataSendState dataSendState = this.dataSendState; // caching volatile field get result
+        if (!dataSendState.isAtLeast(DataSendState.SENDING)) {
+            checkReceived();
+            transferData(buffer);
+        } else {
+            if (!trySend(buffer)) {
+                // TODO: Test logic to send data delayed!
+                if (dataSendState != DataSendState.WAITING_FOR_FINISH) { // Check if the connection isn't in the waiting state and therefore
+                    // currently it isn't waiting for a response from the other end of the connection.
+                    while (true) {
+                        if (this.dataSendState == DataSendState.WAITING_FOR_FINISH) {
+                            break;
+                        } else if (trySend(buffer)) {
+                            return;
+                        }
+                    }
+                }
+                synchronized (this) {
+                    if (preConnectBuffer == null) {
+                        preConnectBuffer = Unpooled.buffer();
+                    }
+                }
+                transferData(buffer);
+            }
+        }
+    }
 
-	private boolean trySend(@AssumeNotNull ByteBuf buffer) {
-		final DataSendState dataSendState = this.dataSendState; // caching volatile field get result
-		if(dataSendState.isAtLeast(DataSendState.FINISHING)) {
-			if(dataSendState == DataSendState.FINISHING) {
-				// We are waiting until the execution of the prepare method has finished.
-				while(this.dataSendState != DataSendState.FINISHED);
-			}
-			channel.writeAndFlush(buffer);
-			return true;
-		}
-		return false;
-	}
+    private boolean trySend(@AssumeNotNull ByteBuf buffer) {
+        final DataSendState dataSendState = this.dataSendState; // caching volatile field get result
+        if (dataSendState.isAtLeast(DataSendState.FINISHING)) {
+            if (dataSendState == DataSendState.FINISHING) {
+                // We are waiting until the execution of the prepare method has finished.
+                while (this.dataSendState != DataSendState.FINISHED) ;
+            }
+            channel.writeAndFlush(buffer);
+            return true;
+        }
+        return false;
+    }
 
-	private void transferData(@AssumeNotNull ByteBuf buffer) {
-		final int readable = buffer.readableBytes();
-		synchronized (this) {
-			ByteBufUtilExtension.correctSize(preConnectBuffer, readable, application.getBuffer());
-			preConnectBuffer.writeBytes(ByteBufUtilExtension.getBytes(buffer, readable));
-		}
-		buffer.release();
-	}
+    private void transferData(@AssumeNotNull ByteBuf buffer) {
+        final int readable = buffer.readableBytes();
+        synchronized (this) {
+            ByteBufUtilExtension.correctSize(preConnectBuffer, readable, application.getBuffer());
+            preConnectBuffer.writeBytes(ByteBufUtilExtension.getBytes(buffer, readable));
+        }
+        buffer.release();
+    }
 
-	@ApiStatus.Internal
-	public void prepare() {
-		dataSendState = DataSendState.FINISHING;
-		synchronized (this) {
-			if (preConnectSendQueue != null) {
-				final List<DataContainer> sendQueue = preConnectSendQueue;
-				preConnectSendQueue = null;
-				for (DataContainer data : sendQueue) {
-					channel.writeAndFlush(data);
-				}
-				sendQueue.clear();
-			}
-		}
+    @ApiStatus.Internal
+    public void prepare() {
+        dataSendState = DataSendState.FINISHING;
+        synchronized (this) {
+            if (preConnectSendQueue != null) {
+                final List<DataContainer> sendQueue = preConnectSendQueue;
+                preConnectSendQueue = null;
+                for (DataContainer data : sendQueue) {
+                    channel.writeAndFlush(data);
+                }
+                sendQueue.clear();
+            }
+        }
 
-		final ByteBuf buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 1 : 4);
-		InternalUtil.writeIntUnchecked(application, buffer, 0x2);
-		channel.writeAndFlush(buffer);
-		synchronized (this) {
-			if (preConnectBuffer != null) {
-				channel.writeAndFlush(preConnectBuffer);
-				preConnectBuffer = null;
-			}
-		}
-		dataSendState = DataSendState.FINISHED;
-	}
+        final ByteBuf buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 1 : 4);
+        InternalUtil.writeIntUnchecked(application, buffer, 0x2);
+        channel.writeAndFlush(buffer);
+        synchronized (this) {
+            if (preConnectBuffer != null) {
+                channel.writeAndFlush(preConnectBuffer);
+                preConnectBuffer = null;
+            }
+        }
+        dataSendState = DataSendState.FINISHED;
+    }
 
-	private enum DataSendState {
+    private enum DataSendState {
 
-		IDLE, SENDING, WAITING_FOR_FINISH, FINISHING, FINISHED;
+        IDLE, SENDING, WAITING_FOR_FINISH, FINISHING, FINISHED;
 
-		private boolean isAtLeast(@NotNull DataSendState state) {
-			return ordinal() >= state.ordinal();
-		}
+        private boolean isAtLeast(@NotNull DataSendState state) {
+            return ordinal() >= state.ordinal();
+        }
 
-	}
-	
+    }
+
 }

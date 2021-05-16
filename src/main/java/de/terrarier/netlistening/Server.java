@@ -18,8 +18,8 @@ import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositive;
 import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositiveOrZero;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public interface Server extends Application {
 

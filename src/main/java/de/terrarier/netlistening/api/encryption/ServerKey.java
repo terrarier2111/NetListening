@@ -17,8 +17,8 @@ import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkNotNull;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public final class ServerKey {
 
@@ -92,7 +92,7 @@ public final class ServerKey {
 
     /**
      * @param keyHash the hash of a former ServerKey.
-     * @param client the Client the ServerKey gets created for.
+     * @param client  the Client the ServerKey gets created for.
      * @return the ServerKey generated from the hash.
      */
     @AssumeNotNull
@@ -101,7 +101,7 @@ public final class ServerKey {
     }
 
     /**
-     * @param keyHash the hash of a former ServerKey.
+     * @param keyHash          the hash of a former ServerKey.
      * @param hashingAlgorithm the HashingAlgorithm used to hash the ServerKey.
      * @return the ServerKey generated from the hash.
      */

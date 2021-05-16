@@ -24,85 +24,85 @@ import static java.lang.Byte.MAX_VALUE;
 import static java.lang.Byte.MIN_VALUE;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 @ApiStatus.Internal
 public final class TimeOutHandler extends ReadTimeoutHandler {
 
-	private final ApplicationImpl application;
-	private final ConnectionImpl connection;
-	private Timer timer = new Timer(true);
-	private byte counter = MIN_VALUE;
-	private ByteBuf buffer;
-	
-	public TimeOutHandler(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
-						  long timeout) {
-		super(timeout, TimeUnit.MILLISECONDS);
-		this.application = application;
-		this.connection = connection;
+    private final ApplicationImpl application;
+    private final ConnectionImpl connection;
+    private Timer timer = new Timer(true);
+    private byte counter = MIN_VALUE;
+    private ByteBuf buffer;
 
-		final long delay = timeout / 2;
-		final boolean client = application instanceof Client;
-		final Channel channel = connection.getChannel();
+    public TimeOutHandler(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+                          long timeout) {
+        super(timeout, TimeUnit.MILLISECONDS);
+        this.application = application;
+        this.connection = connection;
 
-		timer.schedule(new TimerTask() {
+        final long delay = timeout / 2;
+        final boolean client = application instanceof Client;
+        final Channel channel = connection.getChannel();
 
-			@Override
-			public void run() {
-				if (client ? !((ClientImpl) application).hasReceivedHandshake() : !connection.isStable()) {
-					return;
-				}
+        timer.schedule(new TimerTask() {
 
-				if (counter == MAX_VALUE) {
-					counter = MIN_VALUE;
-				} else if (buffer == null) {
-					buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 2 : 5);
-					InternalUtil.writeIntUnchecked(application, buffer, 0x1);
-					buffer.markWriterIndex();
-				}
+            @Override
+            public void run() {
+                if (client ? !((ClientImpl) application).hasReceivedHandshake() : !connection.isStable()) {
+                    return;
+                }
 
-				buffer.resetWriterIndex();
-				buffer.writeByte(++counter);
+                if (counter == MAX_VALUE) {
+                    counter = MIN_VALUE;
+                } else if (buffer == null) {
+                    buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 2 : 5);
+                    InternalUtil.writeIntUnchecked(application, buffer, 0x1);
+                    buffer.markWriterIndex();
+                }
 
-				buffer.retain();
-				channel.writeAndFlush(buffer);
-			}
-		}, delay, delay);
-	}
+                buffer.resetWriterIndex();
+                buffer.writeByte(++counter);
 
-	@Override
-	protected void readTimedOut(@AssumeNotNull ChannelHandlerContext ctx) throws Exception {
-		if (!callTimeOut()) {
-			cancel();
-			super.readTimedOut(ctx);
-		}
-	}
-	
-	@Override
-	public void handlerRemoved(@AssumeNotNull ChannelHandlerContext ctx) throws Exception {
-		cancel();
-		super.handlerRemoved(ctx);
-	}
-	
-	@Override
-	public void close(@AssumeNotNull ChannelHandlerContext ctx, @AssumeNotNull ChannelPromise promise) throws Exception {
-		cancel();
-		super.close(ctx, promise);
-	}
-	
-	private void cancel() {
-		if (timer != null) {
-			timer.cancel();
-			timer = null;
-			if(buffer != null && buffer.refCnt() > 0) {
-				buffer.release();
-			}
-		}
-	}
+                buffer.retain();
+                channel.writeAndFlush(buffer);
+            }
+        }, delay, delay);
+    }
 
-	private boolean callTimeOut() {
-		return application.getEventManager().callEvent(ListenerType.TIMEOUT, new ConnectionTimeoutEvent(connection));
-	}
+    @Override
+    protected void readTimedOut(@AssumeNotNull ChannelHandlerContext ctx) throws Exception {
+        if (!callTimeOut()) {
+            cancel();
+            super.readTimedOut(ctx);
+        }
+    }
+
+    @Override
+    public void handlerRemoved(@AssumeNotNull ChannelHandlerContext ctx) throws Exception {
+        cancel();
+        super.handlerRemoved(ctx);
+    }
+
+    @Override
+    public void close(@AssumeNotNull ChannelHandlerContext ctx, @AssumeNotNull ChannelPromise promise) throws Exception {
+        cancel();
+        super.close(ctx, promise);
+    }
+
+    private void cancel() {
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+            if (buffer != null && buffer.refCnt() > 0) {
+                buffer.release();
+            }
+        }
+    }
+
+    private boolean callTimeOut() {
+        return application.getEventManager().callEvent(ListenerType.TIMEOUT, new ConnectionTimeoutEvent(connection));
+    }
 
 }

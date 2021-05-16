@@ -14,8 +14,8 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public final class AsymmetricEncryptionData extends EncryptionData {
 

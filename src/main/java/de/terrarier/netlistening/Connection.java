@@ -9,8 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import java.net.InetSocketAddress;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public interface Connection {
 
@@ -46,7 +46,7 @@ public interface Connection {
      * Sends data to the connection.
      *
      * @param encrypted whether the traffic is to be encrypted.
-     * @param data the data which gets sent.
+     * @param data      the data which gets sent.
      * @deprecated passing a boolean as the first part of data might unexpectedly
      * be compiled to this method.
      */

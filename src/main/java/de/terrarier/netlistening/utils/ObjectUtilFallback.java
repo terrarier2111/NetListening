@@ -3,8 +3,8 @@ package de.terrarier.netlistening.utils;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
- * @since 1.08
  * @author Terrarier2111
+ * @since 1.08
  */
 @ApiStatus.Internal
 public final class ObjectUtilFallback {
@@ -62,7 +62,7 @@ public final class ObjectUtilFallback {
     }
 
     public static <T> T checkNotNull(T obj, String name) {
-        if(obj == null) {
+        if (obj == null) {
             throw new IllegalArgumentException(name + " may not be null!");
         }
         return obj;

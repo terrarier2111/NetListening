@@ -33,7 +33,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
     void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer) {
         final int typesLength = types.length;
 
-        if(typesLength == 0) {
+        if (typesLength == 0) {
             throw new IllegalArgumentException("Tried to send an empty packet!");
         }
         checkWriteable(application, buffer, getSize(application));
@@ -42,13 +42,13 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
         buffer.writeShort(typesLength);
 
         final boolean nibbleCompression = application.getCompressionSetting().isNibbleCompression();
-        for(int i = 0; i < typesLength; i++) {
+        for (int i = 0; i < typesLength; i++) {
             byte id = (byte) (types[i].getId() - 1);
-            if(id < 0x0) {
+            if (id < 0x0) {
                 throw new IllegalArgumentException("Tried to send a packet containing an internal payload!");
             }
 
-            if(nibbleCompression && typesLength > ++i) {
+            if (nibbleCompression && typesLength > ++i) {
                 final byte other = (byte) (types[i].getId() - 1);
                 if (other < 0x0) {
                     throw new IllegalArgumentException("Tried to send a packet containing an internal payload!");
@@ -80,17 +80,17 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
 
         final DataType<?>[] types = new DataType[size];
         byte nibblePair = 0;
-        for(int i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
             final byte id;
-            if(nibbleCompression) {
-                if(nibblePair != 0) {
+            if (nibbleCompression) {
+                if (nibblePair != 0) {
                     id = NibbleUtil.getLowNibble(nibblePair);
                     nibblePair = 0;
-                }else {
+                } else {
                     nibblePair = buffer.readByte();
                     id = NibbleUtil.getHighNibble(nibblePair);
                 }
-            }else {
+            } else {
                 id = buffer.readByte();
             }
             if (id < 0x0) {
@@ -114,12 +114,12 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
             cache.forceRegisterPacket(packetId, types);
         } else {
             final PacketSkeleton packet = cache.tryRegisterPacket(packetId, types);
-            if(packet.getId() == packetId) {
+            if (packet.getId() == packetId) {
                 if (application.getCaching() == PacketCaching.GLOBAL) {
                     cache.broadcastRegister(application, new InternalPayloadRegisterPacket(packetId, types), connection,
                             null);
                 }
-            }else {
+            } else {
                 // TODO: Check if we have to "fix" this (we probably have to).
                 final InternalPayloadRegisterPacket register = new InternalPayloadRegisterPacket(packet.getId(), types);
                 if (application.getCaching() == PacketCaching.GLOBAL) {
@@ -137,9 +137,9 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
     public int getSize(@AssumeNotNull ApplicationImpl application) {
         int size = 2 + InternalUtil.getSize(application, packetId);
 
-        if(application.getCompressionSetting().isNibbleCompression()) {
+        if (application.getCompressionSetting().isNibbleCompression()) {
             size += NibbleUtil.nibbleToByteCount(types.length);
-        }else {
+        } else {
             size += types.length;
         }
         return size;

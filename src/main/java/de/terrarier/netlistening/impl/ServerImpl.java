@@ -39,8 +39,8 @@ import java.util.concurrent.*;
 import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositiveOrZero;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public final class ServerImpl extends ApplicationImpl implements Server {
 
@@ -73,7 +73,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                         .childHandler(new ChannelInitializer<Channel>() {
                             @Override
                             protected void initChannel(Channel channel) {
-                                if(eventManager.callEvent(ListenerType.PRE_INIT, EventManager.CancelAction.INTERRUPT,
+                                if (eventManager.callEvent(ListenerType.PRE_INIT, EventManager.CancelAction.INTERRUPT,
                                         new ConnectionPreInitEvent(channel))) {
                                     channel.close();
                                     return;
@@ -142,7 +142,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
      */
     @Override
     public Connection getConnection(int id) {
-        if(checkPositiveOrZero(id, "id") > ConnectionImpl.ID.get()) {
+        if (checkPositiveOrZero(id, "id") > ConnectionImpl.ID.get()) {
             return null;
         }
 
@@ -163,7 +163,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
             throw new IllegalStateException("The server is already stopped!");
         }
 
-        for (Iterator<ConnectionImpl> iterator = connections.values().iterator(); iterator.hasNext();) {
+        for (Iterator<ConnectionImpl> iterator = connections.values().iterator(); iterator.hasNext(); ) {
             final ConnectionImpl connection = iterator.next();
             connection.disconnect0();
             iterator.remove();
@@ -174,7 +174,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         worker.interrupt();
         worker = null;
         cache.getPackets().clear();
-        if(!delayedExecutor.isShutdown()) {
+        if (!delayedExecutor.isShutdown()) {
             delayedExecutor.shutdown();
             try {
                 if (!delayedExecutor.awaitTermination(250L, TimeUnit.MILLISECONDS)) {
@@ -267,7 +267,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                 application.caching = PacketCaching.GLOBAL;
             }
 
-            if(application.compressionSetting == null) {
+            if (application.compressionSetting == null) {
                 application.compressionSetting = new CompressionSetting();
             }
 

@@ -20,8 +20,8 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 @ApiStatus.Internal
 public final class InternalPayloadEncryptionInit extends InternalPayload {
@@ -56,7 +56,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
             final boolean hmac = hmacKey != null;
             checkWriteable(application, buffer, 1);
             buffer.writeBoolean(hmac);
-            if(hmac) {
+            if (hmac) {
                 final HmacSetting hmacSetting = encryptionSetting.getHmacSetting();
                 final EncryptionOptions hmacOptions = hmacSetting.getEncryptionSetting();
                 writeOptions(hmacOptions, hmacKey, buffer, application);
@@ -77,7 +77,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
             checkReadable(buffer, 7 + 1);
             final EncryptionOptions symmetricOptions = readOptions(buffer);
             final EncryptionSetting encryptionSetting = application.getEncryptionSetting();
-            if(buffer.readBoolean()) {
+            if (buffer.readBoolean()) {
                 final byte[] hmacKey = readKey(buffer);
                 checkReadable(buffer, 7 + 1 + 1);
                 final EncryptionOptions hmacOptions = readOptions(buffer);

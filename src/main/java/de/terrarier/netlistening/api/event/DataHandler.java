@@ -11,15 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 @ApiStatus.Internal
 public final class DataHandler {
 
     // TODO: Make this multithreading safe!
 
-	private final List<PreparedListener> listeners = new ArrayList<>();
+    private final List<PreparedListener> listeners = new ArrayList<>();
 
     public void processData(@AssumeNotNull List<DataComponent<?>> data, @AssumeNotNull ConnectionImpl connection) {
         final int dataSize = data.size();
@@ -41,7 +41,7 @@ public final class DataHandler {
                 }
 
                 if (hash == 1) {
-                    for(int j = 0; j < dataSize; j++) {
+                    for (int j = 0; j < dataSize; j++) {
                         hash = 31 * hash + data.get(j).getType().hashCode();
                     }
                 }
@@ -53,11 +53,11 @@ public final class DataHandler {
             container.resetReaderIndex();
             listener.getWrapped().trigger(event);
         }
-	}
+    }
 
-	int addListener(@AssumeNotNull DecodeListener listener) {
+    int addListener(@AssumeNotNull DecodeListener listener) {
         final int id = listeners.size();
-        if(id == Character.MAX_VALUE) {
+        if (id == Character.MAX_VALUE) {
             throw new IllegalStateException("It is only possible to register at most " + (int) Character.MAX_VALUE + " listeners!");
         }
         try {
@@ -72,8 +72,8 @@ public final class DataHandler {
         listeners.remove(id);
     }
 
-	public void unregisterListeners() {
-		listeners.clear();
-	}
+    public void unregisterListeners() {
+        listeners.clear();
+    }
 
 }

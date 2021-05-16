@@ -8,8 +8,8 @@ import java.io.*;
 import static java.io.ObjectStreamConstants.*;
 
 /**
- * @since 1.01
  * @author Terrarier2111
+ * @since 1.01
  */
 public final class JavaIoSerializationProvider extends SerializationProvider {
 

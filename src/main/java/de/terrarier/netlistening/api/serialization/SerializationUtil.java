@@ -8,8 +8,8 @@ import de.terrarier.netlistening.utils.TwoArgsFunction;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
- * @since 1.01
  * @author Terrarier2111
+ * @since 1.01
  */
 @ApiStatus.Internal
 public final class SerializationUtil {

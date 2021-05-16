@@ -4,9 +4,9 @@ import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * @since 1.0
- * @author Terrarier2111
  * @param <T> the type of the underlying builder.
+ * @author Terrarier2111
+ * @since 1.0
  */
 public abstract class EncryptionOptionsSuperBuilder<T extends EncryptionOptionsSuperBuilder<T>> {
 

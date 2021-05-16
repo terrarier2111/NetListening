@@ -4,8 +4,8 @@ import de.terrarier.netlistening.Connection;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public abstract class ConnectionEvent extends Cancellable implements Event {
 

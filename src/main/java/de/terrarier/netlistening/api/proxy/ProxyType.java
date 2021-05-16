@@ -5,8 +5,8 @@ import org.jetbrains.annotations.NotNull;
 import java.net.SocketAddress;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public enum ProxyType {
 

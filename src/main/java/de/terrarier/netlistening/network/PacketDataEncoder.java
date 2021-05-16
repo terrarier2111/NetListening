@@ -62,7 +62,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
         for (int i = 0; i < dataSize; i++) {
             final DataType<?> type = containedData.get(i).getType();
             types[i] = type;
-            if(type == DataType.OBJECT) {
+            if (type == DataType.OBJECT) {
                 serialize = true;
             }
         }
@@ -106,7 +106,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
                     (((hmacSetting = encryptionSetting.getHmacSetting()) == null ||
                             hmacSetting.getApplicationPolicy() == HmacApplicationPolicy.ENCRYPTED) && !encrypted)) {
                 writeToBuffer(dstBuffer, data, packet.getId());
-                if(serialize) {
+                if (serialize) {
                     buffer.writeBytes(dstBuffer);
                     dstBuffer.release();
                 }
@@ -129,7 +129,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
                 hmacBuffer.writeBytes(encryptedData);
             }
 
-            if(serialize) {
+            if (serialize) {
                 buffer.writeBytes(dstBuffer);
                 dstBuffer.release();
             }
@@ -137,8 +137,8 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
                 appendHmac(hmacBuffer, buffer, connection);
             }
         } catch (CancelSignal ignored) {
-			// This is here in order to prevent packets from being sent which contain unserializable data.
-            if(serialize) { // TODO: Check if this check is needed!
+            // This is here in order to prevent packets from being sent which contain unserializable data.
+            if (serialize) { // TODO: Check if this check is needed!
                 dstBuffer.release();
             }
         }

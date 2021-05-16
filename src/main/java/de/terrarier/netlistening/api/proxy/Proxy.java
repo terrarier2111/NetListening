@@ -7,8 +7,8 @@ import org.jetbrains.annotations.ApiStatus;
 import java.net.SocketAddress;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 @ApiStatus.Internal
 public abstract class Proxy {

@@ -15,8 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 @ApiStatus.Internal
 public final class DataTypeHmac extends DataType<Void> {
@@ -36,9 +36,9 @@ public final class DataTypeHmac extends DataType<Void> {
         final byte[] hash = ByteBufUtilExtension.readBytes(buffer, hashSize);
         final byte[] computedHash = HashUtil.calculateHMAC(traffic, context.getConnection().getHmacKey(),
                 context.getApplication().getEncryptionSetting().getHmacSetting().getHashingAlgorithm());
-        if(!Arrays.equals(hash, computedHash)) {
+        if (!Arrays.equals(hash, computedHash)) {
             final LengthExtensionDetectionEvent event = new LengthExtensionDetectionEvent(hash, computedHash);
-            if(event.getResult() == LengthExtensionDetectionEvent.Result.DROP_DATA) {
+            if (event.getResult() == LengthExtensionDetectionEvent.Result.DROP_DATA) {
                 return null;
             }
         }

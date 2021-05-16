@@ -7,8 +7,8 @@ import io.netty.handler.proxy.Socks4ProxyHandler;
 import java.net.SocketAddress;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 final class Socks4Proxy extends Proxy {
 

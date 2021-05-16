@@ -8,8 +8,8 @@ import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 @ApiStatus.Internal
 public final class InternalPayloadEncryptionFinish extends InternalPayload {
@@ -20,7 +20,7 @@ public final class InternalPayloadEncryptionFinish extends InternalPayload {
 
     @Override
     void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer) {
-        if(application instanceof Server) {
+        if (application instanceof Server) {
             throw new UnsupportedOperationException("This payload can only be sent by a client!");
         }
     }
@@ -28,7 +28,7 @@ public final class InternalPayloadEncryptionFinish extends InternalPayload {
     @Override
     public void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                      @AssumeNotNull ByteBuf buffer) {
-        if(application instanceof Client) {
+        if (application instanceof Client) {
             throw new UnsupportedOperationException("The server sent an invalid payload!");
         }
         connection.prepare();

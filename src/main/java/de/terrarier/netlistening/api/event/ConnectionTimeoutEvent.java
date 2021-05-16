@@ -10,14 +10,14 @@ import org.jetbrains.annotations.ApiStatus;
  * timeout has to be defined in the builder of the
  * Application.
  *
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public final class ConnectionTimeoutEvent extends ConnectionEvent {
 
-	@ApiStatus.Internal
-	public ConnectionTimeoutEvent(@AssumeNotNull Connection connection) {
-		super(connection);
-	}
+    @ApiStatus.Internal
+    public ConnectionTimeoutEvent(@AssumeNotNull Connection connection) {
+        super(connection);
+    }
 
 }

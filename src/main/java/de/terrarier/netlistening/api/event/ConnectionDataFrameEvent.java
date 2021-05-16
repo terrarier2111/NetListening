@@ -7,8 +7,8 @@ import org.jetbrains.annotations.ApiStatus;
 /**
  * This event is called when data is framed.
  *
- * @since 1.05
  * @author Terrarier2111
+ * @since 1.05
  */
 public final class ConnectionDataFrameEvent extends ConnectionEvent {
 

@@ -16,8 +16,8 @@ import java.net.SocketAddress;
 import static de.terrarier.netlistening.utils.ObjectUtilFallback.*;
 
 /**
- * @since 1.0
  * @author Terrarier2111
+ * @since 1.0
  */
 public interface Client extends Application {
 
@@ -47,7 +47,7 @@ public interface Client extends Application {
     /**
      * Creates a new builder with the passed arguments.
      *
-     * @param host the host the client should connect to.
+     * @param host       the host the client should connect to.
      * @param remotePort the port the client should connect to.
      * @return the new builder.
      */
@@ -161,7 +161,7 @@ public interface Client extends Application {
          * Sets a proxy to which the client connects to in order
          * to hide its identity.
          *
-         * @param address the address of the proxy server to which the client should connect to.
+         * @param address   the address of the proxy server to which the client should connect to.
          * @param proxyType the type of the proxy server that the client should connect to.
          * @return the local reference.
          */
