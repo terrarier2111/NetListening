@@ -52,12 +52,37 @@ public interface Server extends Application {
         return new Builder(port);
     }
 
+    /**
+     * Creates a new builder with the passed arguments.
+     *
+     * @param filePath the filePath the server should write to, uses a UDS(UnixDomainSocket) under the hood.
+     * @return the new builder.
+     */
+    @AssumeNotNull
+    static Builder builder(String filePath) {
+        return new Builder(filePath);
+    }
+
     final class Builder extends Application.Builder<Server, Builder> {
 
         private final ServerImpl.Builder impl;
 
+        /**
+         * Constructs a builder for a default multi-use socket.
+         *
+         * @param port the port of the socket.
+         */
         public Builder(int port) {
             impl = new ServerImpl.Builder(checkPositive(port, "port"));
+        }
+
+        /**
+         * Constructs a builder for an UDS (UnixDomainSocket), works only locally.
+         *
+         * @param filePath the filePath the Server should write to.
+         */
+        public Builder(@NotNull String filePath) {
+            impl = new ServerImpl.Builder(filePath);
         }
 
         /**

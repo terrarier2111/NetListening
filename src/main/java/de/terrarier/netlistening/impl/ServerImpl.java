@@ -17,16 +17,12 @@ import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.network.PacketDataEncoder;
 import de.terrarier.netlistening.network.TimeOutHandler;
+import de.terrarier.netlistening.utils.UDS;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.epoll.EpollServerSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -58,66 +54,56 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         }
     });
 
-    private void start(long timeout, int port, @AssumeNotNull Map<ChannelOption<?>, Object> options) {
+    private ServerBootstrap start(long timeout, @AssumeNotNull Map<ChannelOption<?>, Object> options,
+                                  boolean uds) {
         if (group != null) {
             throw new IllegalStateException("The server is already started!");
         }
         serializationProvider.setEventManager(eventManager);
 
-        final boolean epoll = Epoll.isAvailable();
-        group = epoll ? new EpollEventLoopGroup() : new NioEventLoopGroup();
-        worker = new Thread(() -> {
-            try {
-                final Channel channel = new ServerBootstrap().group(group)
-                        .channel(epoll ? EpollServerSocketChannel.class : NioServerSocketChannel.class)
-                        .childHandler(new ChannelInitializer<Channel>() {
-                            @Override
-                            protected void initChannel(Channel channel) {
-                                if (eventManager.callEvent(ListenerType.PRE_INIT, EventManager.CancelAction.INTERRUPT,
-                                        new ConnectionPreInitEvent(channel))) {
-                                    channel.close();
-                                    return;
+        group = UDS.eventLoopGroup();
+        return new ServerBootstrap().group(group)
+                .channel(UDS.serverChannel(uds))
+                .childHandler(new ChannelInitializer<Channel>() {
+                    @Override
+                    protected void initChannel(Channel channel) {
+                        if (eventManager.callEvent(ListenerType.PRE_INIT, EventManager.CancelAction.INTERRUPT,
+                                new ConnectionPreInitEvent(channel))) {
+                            channel.close();
+                            return;
+                        }
+                        channel.config().setOptions(options);
+
+                        final ConnectionImpl connection = new ConnectionImpl(ServerImpl.this, channel);
+                        if (encryptionSetting != null) {
+                            try {
+                                connection.setSymmetricKey(ServerImpl.this,
+                                        SymmetricEncryptionUtil.generate(encryptionSetting.getSymmetricSetting())
+                                                .getSecretKey());
+
+                                final HmacSetting hmacSetting = encryptionSetting.getHmacSetting();
+                                if (hmacSetting != null) {
+                                    connection.setHmacKey(SymmetricEncryptionUtil.generate(
+                                            hmacSetting.getEncryptionSetting()).getSecretKey());
                                 }
-                                channel.config().setOptions(options);
-
-                                final ConnectionImpl connection = new ConnectionImpl(ServerImpl.this, channel);
-                                if (encryptionSetting != null) {
-                                    try {
-                                        connection.setSymmetricKey(ServerImpl.this,
-                                                SymmetricEncryptionUtil.generate(encryptionSetting.getSymmetricSetting())
-                                                        .getSecretKey());
-
-                                        final HmacSetting hmacSetting = encryptionSetting.getHmacSetting();
-                                        if (hmacSetting != null) {
-                                            connection.setHmacKey(SymmetricEncryptionUtil.generate(
-                                                    hmacSetting.getEncryptionSetting()).getSecretKey());
-                                        }
-                                    } catch (NoSuchAlgorithmException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                final ChannelPipeline pipeline = channel.pipeline();
-
-                                if (timeout > 0) {
-                                    pipeline.addLast(TIMEOUT_HANDLER,
-                                            new TimeOutHandler(ServerImpl.this, connection, timeout));
-                                }
-                                pipeline.addLast(DECODER, new PacketDataDecoder(ServerImpl.this, handler, connection))
-                                        .addAfter(DECODER, ENCODER, new PacketDataEncoder(ServerImpl.this, delayedExecutor,
-                                                connection));
-
-                                connections.put(channel, connection);
-                                eventManager.callEvent(ListenerType.POST_INIT, new ConnectionPostInitEvent(connection));
-
+                            } catch (NoSuchAlgorithmException e) {
+                                e.printStackTrace();
                             }
-                        }).bind(port).sync().channel();
-                channel.config().setOptions(options);
-                channel.closeFuture().syncUninterruptibly();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-        worker.start();
+                        }
+                        final ChannelPipeline pipeline = channel.pipeline();
+
+                        if (timeout > 0) {
+                            pipeline.addLast(TIMEOUT_HANDLER,
+                                    new TimeOutHandler(ServerImpl.this, connection, timeout));
+                        }
+                        pipeline.addLast(DECODER, new PacketDataDecoder(ServerImpl.this, handler, connection))
+                                .addAfter(DECODER, ENCODER, new PacketDataEncoder(ServerImpl.this, delayedExecutor,
+                                        connection));
+
+                        connections.put(channel, connection);
+                        eventManager.callEvent(ListenerType.POST_INIT, new ConnectionPostInitEvent(connection));
+                    }
+                });
     }
 
     /**
@@ -220,10 +206,21 @@ public final class ServerImpl extends ApplicationImpl implements Server {
     public static final class Builder extends ApplicationImpl.Builder<ServerImpl, Builder> {
 
         private final int port;
+        private final String filePath;
 
         public Builder(int port) {
             super(new ServerImpl());
             this.port = port;
+            filePath = null;
+        }
+
+        public Builder(@AssumeNotNull String filePath) {
+            super(new ServerImpl());
+            if(!UDS.isAvailable(true)) {
+                throw new UnsupportedOperationException("UDS are not supported in this environment.");
+            }
+            this.filePath = filePath;
+            port = 0;
         }
 
         /**
@@ -279,7 +276,22 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                     return;
                 }
             }
-            application.start(timeout, port, options);
+            application.worker = new Thread(() -> {
+                try {
+                    final Channel channel;
+                    if(filePath != null) {
+                        channel = application.start(timeout, options, true).bind(
+                                UDS.domainSocketAddress(filePath)).sync().channel();
+                    }else {
+                        channel = application.start(timeout, options, false).bind(port).sync().channel();
+                    }
+                    channel.config().setOptions(options);
+                    channel.closeFuture().syncUninterruptibly();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+            application.worker.start();
         }
 
     }

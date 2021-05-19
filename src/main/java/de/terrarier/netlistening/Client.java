@@ -52,8 +52,8 @@ public interface Client extends Application {
      * @return the new builder.
      */
     @AssumeNotNull
-    static Builder builder(@NotNull String host, int remotePort) {
-        return new Builder(host, checkPositive(remotePort, "remotePort"));
+    static Builder builder(String host, int remotePort) {
+        return new Builder(host, remotePort);
     }
 
     /**
@@ -63,20 +63,51 @@ public interface Client extends Application {
      * @return the new builder.
      */
     @AssumeNotNull
-    static Builder builder(@NotNull SocketAddress remoteAddress) {
+    static Builder builder(SocketAddress remoteAddress) {
         return new Builder(remoteAddress);
+    }
+
+    /**
+     * Creates a new builder with the passed arguments.
+     *
+     * @param filePath the filePath the client should write to.
+     * @return the new builder.
+     */
+    @AssumeNotNull
+    static Builder builder(String filePath) {
+        return new Builder(filePath);
     }
 
     final class Builder extends Application.Builder<Client, Builder> {
 
         private final ClientImpl.Builder impl;
 
+        /**
+         * Constructs a builder for a default multi-use socket.
+         *
+         * @param host the host the socket should connect to.
+         * @param remotePort the port the socket should connect to.
+         */
         public Builder(@NotNull String host, int remotePort) {
             this(new InetSocketAddress(host, checkPositive(remotePort, "remotePort")));
         }
 
+        /**
+         * Constructs a builder for a default multi-use socket.
+         *
+         * @param remoteAddress the host the socket should connect to.
+         */
         public Builder(@NotNull SocketAddress remoteAddress) {
             impl = new ClientImpl.Builder(remoteAddress);
+        }
+
+        /**
+         * Constructs a builder for an UDS (UnixDomainSocket), works only locally.
+         *
+         * @param filePath the filePath the Server should write to.
+         */
+        public Builder(@NotNull String filePath) {
+            impl = new ClientImpl.Builder(filePath);
         }
 
         /**

@@ -17,16 +17,13 @@ import de.terrarier.netlistening.internals.CheckNotNull;
 import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.network.PacketDataEncoder;
 import de.terrarier.netlistening.network.TimeOutHandler;
+import de.terrarier.netlistening.utils.UDS;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
-import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -51,8 +48,8 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     private HashingAlgorithm serverKeyHashing = HashingAlgorithm.SHA_256;
     private ServerKey serverKey;
 
-    private void start(long timeout, int localPort, @AssumeNotNull Map<ChannelOption<?>, Object> options,
-                       @AssumeNotNull SocketAddress remoteAddress, Proxy proxy) {
+    private Bootstrap start(long timeout, @AssumeNotNull Map<ChannelOption<?>, Object> options,
+                            @Nullable Proxy proxy, boolean uds) {
         if (group != null) {
             throw new IllegalStateException("The client is already running!");
         }
@@ -63,42 +60,46 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         compressionSetting = new CompressionSetting();
         serializationProvider.setEventManager(eventManager);
 
-        final boolean epoll = Epoll.isAvailable();
-        group = epoll ? new EpollEventLoopGroup() : new NioEventLoopGroup();
+        group = UDS.eventLoopGroup();
+        return new Bootstrap().group(group)
+                .channel(UDS.channel(uds))
+                .handler(new ChannelInitializer<Channel>() {
+                    @Override
+                    protected void initChannel(Channel channel) {
+                        if (eventManager.callEvent(ListenerType.PRE_INIT, EventManager.CancelAction.INTERRUPT,
+                                new ConnectionPreInitEvent(channel))) {
+                            channel.close();
+                            return;
+                        }
+                        channel.config().setOptions(options);
+
+                        final ConnectionImpl connection = new ConnectionImpl(ClientImpl.this, channel);
+                        final ChannelPipeline pipeline = channel.pipeline();
+
+                        if (timeout > 0) {
+                            pipeline.addLast(TIMEOUT_HANDLER,
+                                    new TimeOutHandler(ClientImpl.this, connection, timeout));
+                        }
+
+                        pipeline.addLast(DECODER, new PacketDataDecoder(ClientImpl.this, handler, connection))
+                                .addAfter(DECODER, ENCODER, new PacketDataEncoder(ClientImpl.this, null,
+                                        connection));
+
+                        if (proxy != null) {
+                            pipeline.addFirst(PROXY_HANDLER, proxy.newHandler());
+                        }
+
+                        ClientImpl.this.connection = connection;
+                        eventManager.callEvent(ListenerType.POST_INIT, new ConnectionPostInitEvent(connection));
+                    }
+                });
+    }
+
+    private void start(long timeout, @AssumeNotNull Map<ChannelOption<?>, Object> options,
+                       @AssumeNotNull SocketAddress remoteAddress, @Nullable Proxy proxy, int localPort) {
         worker = new Thread(() -> {
             try {
-                final Bootstrap bootstrap = new Bootstrap().group(group)
-                        .channel(epoll ? EpollSocketChannel.class : NioSocketChannel.class)
-                        .handler(new ChannelInitializer<Channel>() {
-                            @Override
-                            protected void initChannel(Channel channel) {
-                                if (eventManager.callEvent(ListenerType.PRE_INIT, EventManager.CancelAction.INTERRUPT,
-                                        new ConnectionPreInitEvent(channel))) {
-                                    channel.close();
-                                    return;
-                                }
-                                channel.config().setOptions(options);
-
-                                final ConnectionImpl connection = new ConnectionImpl(ClientImpl.this, channel);
-                                final ChannelPipeline pipeline = channel.pipeline();
-
-                                if (timeout > 0) {
-                                    pipeline.addLast(TIMEOUT_HANDLER,
-                                            new TimeOutHandler(ClientImpl.this, connection, timeout));
-                                }
-
-                                pipeline.addLast(DECODER, new PacketDataDecoder(ClientImpl.this, handler, connection))
-                                        .addAfter(DECODER, ENCODER, new PacketDataEncoder(ClientImpl.this, null,
-                                                connection));
-
-                                if (proxy != null) {
-                                    pipeline.addFirst(PROXY_HANDLER, proxy.newHandler());
-                                }
-
-                                ClientImpl.this.connection = connection;
-                                eventManager.callEvent(ListenerType.POST_INIT, new ConnectionPostInitEvent(connection));
-                            }
-                        });
+                final Bootstrap bootstrap = start(timeout, options, proxy, false);
                 final ChannelFuture channelFuture;
                 if (localPort > 0) {
                     final SocketAddress localAddress = new InetSocketAddress("localhost", localPort);
@@ -111,7 +112,18 @@ public final class ClientImpl extends ApplicationImpl implements Client {
                 e.printStackTrace();
             }
         });
-        worker.start();
+    }
+
+    private void start(long timeout, @AssumeNotNull Map<ChannelOption<?>, Object> options, @AssumeNotNull String filePath) {
+        worker = new Thread(() -> {
+            try {
+                final Bootstrap bootstrap = start(timeout, options, null, true);
+                final ChannelFuture channelFuture = bootstrap.connect(UDS.domainSocketAddress(filePath));
+                channel = channelFuture.sync().syncUninterruptibly().channel();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @ApiStatus.Internal
@@ -292,6 +304,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     public static final class Builder extends ApplicationImpl.Builder<ClientImpl, Builder> {
 
         private final SocketAddress remoteAddress;
+        private final String filePath;
         private int localPort;
         private boolean changedHashingAlgorithm;
         private Proxy proxy;
@@ -299,6 +312,16 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         public Builder(@AssumeNotNull SocketAddress remoteAddress) {
             super(new ClientImpl());
             this.remoteAddress = remoteAddress;
+            filePath = null;
+        }
+
+        public Builder(@AssumeNotNull String filePath) {
+            super(new ClientImpl());
+            if(!UDS.isAvailable(false)) {
+                throw new UnsupportedOperationException("UDS are not supported in this environment.");
+            }
+            this.filePath = filePath;
+            remoteAddress = null;
         }
 
         /**
@@ -306,6 +329,9 @@ public final class ClientImpl extends ApplicationImpl implements Client {
          */
         public void localPort(int localPort) {
             validate();
+            if(filePath != null) {
+                throw new UnsupportedOperationException("You may not specify a port when using UDS.");
+            }
             this.localPort = localPort;
         }
 
@@ -342,7 +368,12 @@ public final class ClientImpl extends ApplicationImpl implements Client {
          */
         @Override
         void build0() {
-            application.start(timeout, localPort, options, remoteAddress, proxy);
+            if(filePath != null) {
+                application.start(timeout, options, filePath);
+            }else {
+                application.start(timeout, options, remoteAddress, proxy, localPort);
+            }
+            application.worker.start();
         }
 
     }
