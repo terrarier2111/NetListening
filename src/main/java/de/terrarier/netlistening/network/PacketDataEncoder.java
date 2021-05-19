@@ -96,7 +96,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
             });
             return;
         }
-        final ByteBuf dstBuffer = serialize ? Unpooled.buffer() : buffer;
+        final ByteBuf dstBuffer = serialize ? ctx.alloc().buffer() : buffer;
         final EncryptionSetting encryptionSetting = application.getEncryptionSetting();
         final boolean encrypted = data.isEncrypted();
         final HmacSetting hmacSetting;
@@ -115,8 +115,8 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 
             final boolean hmac = (encrypted || hmacSetting.getApplicationPolicy() == HmacApplicationPolicy.ALL) &&
                     hmacSetting != null;
-            final ByteBuf hmacBuffer = hmac ? Unpooled.buffer() : dstBuffer;
-            final ByteBuf encryptionBuffer = encrypted ? Unpooled.buffer() : hmacBuffer;
+            final ByteBuf hmacBuffer = hmac ? ctx.alloc().buffer() : dstBuffer;
+            final ByteBuf encryptionBuffer = encrypted ? ctx.alloc().buffer() : hmacBuffer;
             writeToBuffer(encryptionBuffer, data, packet.getId());
             if (encrypted) {
                 InternalUtil.writeInt(application, hmacBuffer, 0x3);
