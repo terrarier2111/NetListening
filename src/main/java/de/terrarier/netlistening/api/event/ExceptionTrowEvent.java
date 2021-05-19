@@ -11,19 +11,12 @@ import org.jetbrains.annotations.ApiStatus;
  */
 public final class ExceptionTrowEvent implements Event {
 
-    private boolean print = true;
     private final Throwable exception;
+    private boolean print = true;
 
     @ApiStatus.Internal
     public ExceptionTrowEvent(@AssumeNotNull Throwable exception) {
         this.exception = exception;
-    }
-
-    /**
-     * @return whether the stacktrace should be printed or not.
-     */
-    public boolean isPrint() {
-        return print;
     }
 
     /**
@@ -41,6 +34,13 @@ public final class ExceptionTrowEvent implements Event {
      */
     public void setPrint(boolean print) {
         this.print = print;
+    }
+
+    /**
+     * @return whether the stacktrace should be printed or not.
+     */
+    public boolean isPrint() {
+        return print;
     }
 
 }

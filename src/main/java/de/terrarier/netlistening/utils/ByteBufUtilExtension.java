@@ -3,6 +3,7 @@ package de.terrarier.netlistening.utils;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.netty.util.internal.SystemPropertyUtil;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Arrays;
@@ -17,6 +18,8 @@ import static io.netty.util.internal.EmptyArrays.EMPTY_BYTES;
 public final class ByteBufUtilExtension {
 
     private static final boolean NEW_NETTY_VERSION;
+    private static final boolean CHECK_BOUNDS = SystemPropertyUtil.getBoolean("de.terrarier.netlistening.CheckBounds",
+            false);
 
     static {
         boolean newNettyVersion;
@@ -88,7 +91,7 @@ public final class ByteBufUtilExtension {
         final int start = buffer.readerIndex();
         final int capacity = buffer.capacity();
 
-        if (isOutOfBounds(start, length, capacity))
+        if (CHECK_BOUNDS && isOutOfBounds(start, length, capacity))
             throw new IndexOutOfBoundsException("expected: 0 <= start(" + start + ") <= start + length(" + length
                     + ") <= buf.capacity(" + capacity + ')');
 

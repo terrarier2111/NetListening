@@ -22,7 +22,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  */
 public final class ServerKey {
 
-    private byte[] key;
+    private final byte[] key;
     private final byte[] keyHash;
     private final HashingAlgorithm hashingAlgorithm;
 
@@ -30,8 +30,9 @@ public final class ServerKey {
         final ByteBuf buffer = Unpooled.wrappedBuffer(checkNotNull(bytes, "bytes"));
         final byte hashingAlgorithmLength = buffer.readByte();
         final byte[] hashData = ByteBufUtilExtension.readBytes(buffer, hashingAlgorithmLength);
-        this.hashingAlgorithm = HashingAlgorithm.valueOf(new String(hashData, UTF_8));
-        this.keyHash = ByteBufUtilExtension.getBytes(buffer);
+        key = null;
+        hashingAlgorithm = HashingAlgorithm.valueOf(new String(hashData, UTF_8));
+        keyHash = ByteBufUtilExtension.getBytes(buffer);
         buffer.release();
     }
 
@@ -48,7 +49,6 @@ public final class ServerKey {
     /**
      * @return the public key provided by the server.
      */
-    @AssumeNotNull
     public byte[] getKey() {
         return key;
     }
