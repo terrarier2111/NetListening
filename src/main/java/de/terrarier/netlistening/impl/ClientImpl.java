@@ -63,6 +63,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     private HashingAlgorithm serverKeyHashing = HashingAlgorithm.SHA_256;
     private ServerKey serverKey;
 
+    @AssumeNotNull
     private Bootstrap start(long timeout, @AssumeNotNull Map<ChannelOption<?>, Object> options,
                             @Nullable Proxy proxy, boolean uds) {
         if (group != null) {

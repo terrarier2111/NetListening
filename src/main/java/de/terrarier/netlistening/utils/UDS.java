@@ -22,7 +22,6 @@ import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.epoll.EpollSocketChannel;
-import io.netty.channel.kqueue.KQueueEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -36,8 +35,8 @@ import java.nio.channels.Channel;
 import java.util.Locale;
 
 /**
- * This class' sole purpose is the enable NetListening to support
- * older versions of netty and UDS at the same time.
+ * This class' sole purpose is to enable NetListening to support
+ * older versions of Netty and UDS at the same time.
  *
  * @author Terrarier2111
  * @since 1.10
@@ -45,64 +44,64 @@ import java.util.Locale;
 @SuppressWarnings("unchecked")
 public final class UDS {
 
-    private static Class<? extends ServerChannel> KQUEUE_SSC;
-    private static Class<? extends ServerChannel> KQUEUE_SDSC;
-    private static Class<? extends ServerChannel> EPOLL_SDSC;
-    private static Class<? extends Channel> KQUEUE_SC;
-    private static Class<? extends Channel> KQUEUE_DSC;
-    private static Class<? extends Channel> EPOLL_DSC;
-    private static Class<? extends Channel> DSC;
-    private static Constructor<?> DOMAIN_SOCKET_ADDRESS_CONSTRUCTOR;
+    private static Class<? extends ServerChannel> KQUEUE_SERVER_SOCKET_CHANNEL;
+    private static Class<? extends ServerChannel> KQUEUE_SERVER_DOMAIN_SOCKET_CHANNEL;
+    private static Class<? extends ServerChannel> EPOLL_SERVER_DOMAIN_SOCKET_CHANNEL;
+    private static Class<? extends Channel> KQUEUE_SOCKET_CHANNEL;
+    private static Class<? extends Channel> KQUEUE_DOMAIN_SOCKET_CHANNEL;
+    private static Class<? extends Channel> EPOLL_DOMAIN_SOCKET_CHANNEL;
+    private static Class<? extends Channel> DOMAIN_SOCKET_CHANNEL;
+    private static Class<? extends EventLoopGroup> KQUEUE_EVENT_LOOP_GROUP;
+    private static Constructor<? extends SocketAddress> DOMAIN_SOCKET_ADDRESS_CONSTRUCTOR;
 
     private static final boolean AVAILABLE;
     private static final boolean OSX = isOsx0();
 
     static {
         final boolean epoll = Epoll.isAvailable();
-        if(OSX) {
+        if (OSX) {
             try {
-                KQUEUE_SSC = (Class<? extends ServerChannel>) Class.forName(
+                KQUEUE_SERVER_SOCKET_CHANNEL = (Class<? extends ServerChannel>) Class.forName(
                         "io.netty.channel.kqueue.KQueueServerSocketChannel");
+                KQUEUE_SOCKET_CHANNEL = (Class<? extends Channel>) Class.forName(
+                        "io.netty.channel.kqueue.KQueueSocketChannel");
+                KQUEUE_EVENT_LOOP_GROUP =
+                        (Class<? extends EventLoopGroup>) Class.forName("io.netty.channel.kqueue.KQueueEventLoopGroup");
             } catch (ClassNotFoundException e) {
-                // KQueueServerSocketChannel is not available.
+                // KQueueServerSocketChannel, KQueueSocketChannel or KQueueEventLoopGroup is not available.
             }
             try {
-                KQUEUE_SDSC = (Class<? extends ServerChannel>) Class.forName(
+                KQUEUE_SERVER_DOMAIN_SOCKET_CHANNEL = (Class<? extends ServerChannel>) Class.forName(
                         "io.netty.channel.kqueue.KQueueServerDomainSocketChannel");
             } catch (ClassNotFoundException e) {
                 // KQueueServerDomainSocketChannel is not available.
             }
             try {
-                KQUEUE_SC = (Class<? extends Channel>) Class.forName(
-                        "io.netty.channel.kqueue.KQueueSocketChannel");
-            } catch (ClassNotFoundException e) {
-                // KQueueSocketChannel is not available.
-            }
-            try {
-                KQUEUE_DSC = (Class<? extends Channel>) Class.forName(
+                KQUEUE_DOMAIN_SOCKET_CHANNEL = (Class<? extends Channel>) Class.forName(
                         "io.netty.channel.kqueue.KQueueDomainSocketChannel");
             } catch (ClassNotFoundException e) {
                 // KQueueDomainSocketChannel is not available.
                 try {
-                    DSC = (Class<? extends Channel>) Class.forName("io.netty.channel.unix.DomainSocketChannel");
+                    DOMAIN_SOCKET_CHANNEL = (Class<? extends Channel>) Class.forName(
+                            "io.netty.channel.unix.DomainSocketChannel");
                 } catch (ClassNotFoundException ex) {
                     // DomainSocketChannel is not available.
                 }
             }
-        }else if(epoll) {
+        } else if (epoll) {
             try {
-                EPOLL_DSC = (Class<? extends Channel>) Class.forName("io.netty.channel.epoll.EpollDomainSocketChannel");
+                EPOLL_DOMAIN_SOCKET_CHANNEL = (Class<? extends Channel>) Class.forName("io.netty.channel.epoll.EpollDomainSocketChannel");
             } catch (ClassNotFoundException e) {
                 // EpollDomainSocketChannel is not available.
             }
             try {
-                EPOLL_SDSC = (Class<? extends ServerChannel>) Class.forName(
+                EPOLL_SERVER_DOMAIN_SOCKET_CHANNEL = (Class<? extends ServerChannel>) Class.forName(
                         "io.netty.channel.epoll.EpollServerDomainSocketChannel");
             } catch (ClassNotFoundException e) {
                 // EpollServerDomainSocketChannel is not available.
             }
         }
-        if(OSX || epoll) {
+        if (OSX || epoll) {
             try {
                 final Class<? extends SocketAddress> DOMAIN_SOCKET_ADDRESS =
                         (Class<? extends SocketAddress>) Class.forName("io.netty.channel.unix.DomainSocketAddress");
@@ -115,7 +114,7 @@ public final class UDS {
                 // DomainSocketAddress is not available.
             }
             AVAILABLE = DOMAIN_SOCKET_ADDRESS_CONSTRUCTOR != null;
-        }else {
+        } else {
             AVAILABLE = false;
         }
     }
@@ -124,12 +123,12 @@ public final class UDS {
         throw new UnsupportedOperationException("This class may not be instantiated!");
     }
 
-    @AssumeNotNull
     @ApiStatus.Internal
+    @AssumeNotNull
     public static SocketAddress domainSocketAddress(@AssumeNotNull String filePath) {
-        if(AVAILABLE) {
+        if (AVAILABLE) {
             try {
-                return (SocketAddress) DOMAIN_SOCKET_ADDRESS_CONSTRUCTOR.newInstance(filePath);
+                return DOMAIN_SOCKET_ADDRESS_CONSTRUCTOR.newInstance(filePath);
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 // UDS is unsupported.
             }
@@ -138,61 +137,75 @@ public final class UDS {
     }
 
     @ApiStatus.Internal
+    @AssumeNotNull
     public static <T> Class<? extends T> channel(boolean uds) {
         final boolean epoll = Epoll.isAvailable();
-        if(uds) {
-            if(epoll) {
-                return (Class<? extends T>) EPOLL_DSC;
+        if (uds) {
+            if (epoll) {
+                return (Class<? extends T>) EPOLL_DOMAIN_SOCKET_CHANNEL;
             }
-            if(OSX) {
-                if(KQUEUE_DSC != null) {
-                    return (Class<? extends T>) KQUEUE_DSC;
+            if (OSX) {
+                if (KQUEUE_DOMAIN_SOCKET_CHANNEL != null) {
+                    return (Class<? extends T>) KQUEUE_DOMAIN_SOCKET_CHANNEL;
                 }
-                return (Class<? extends T>) DSC;
+                return (Class<? extends T>) DOMAIN_SOCKET_CHANNEL;
             }
             throw new UnsupportedOperationException();
         }
-        if(epoll) {
+        if (epoll) {
             return (Class<? extends T>) EpollSocketChannel.class;
         }
-        if(OSX && KQUEUE_SC != null) {
-            return (Class<? extends T>) KQUEUE_SC;
+        if (OSX && KQUEUE_SOCKET_CHANNEL != null) {
+            return (Class<? extends T>) KQUEUE_SOCKET_CHANNEL;
         }
         return (Class<? extends T>) NioSocketChannel.class;
     }
 
     @ApiStatus.Internal
+    @AssumeNotNull
     public static <T> Class<? extends T> serverChannel(boolean uds) {
         final boolean epoll = Epoll.isAvailable();
-        if(uds) {
-            if(epoll) {
-                return (Class<? extends T>) EPOLL_SDSC;
+        if (uds) {
+            if (epoll) {
+                return (Class<? extends T>) EPOLL_SERVER_DOMAIN_SOCKET_CHANNEL;
             }
-            if(OSX) {
-                if(KQUEUE_SDSC != null) {
-                    return (Class<? extends T>) KQUEUE_SDSC;
+            if (OSX) {
+                if (KQUEUE_SERVER_DOMAIN_SOCKET_CHANNEL != null) {
+                    return (Class<? extends T>) KQUEUE_SERVER_DOMAIN_SOCKET_CHANNEL;
                 }
-                throw new UnsupportedOperationException("Kqueue is not present in the classpath hence UDS is not supported on the server side.");
+                throw new UnsupportedOperationException(
+                        "Kqueue is not present in the classpath hence UDS is not supported on the server side.");
             }
             throw new UnsupportedOperationException();
         }
-        if(epoll) {
+        if (epoll) {
             return (Class<? extends T>) EpollServerSocketChannel.class;
         }
-        if(OSX && KQUEUE_SSC != null) {
-            return (Class<? extends T>) KQUEUE_SSC;
+        if (OSX && KQUEUE_SERVER_SOCKET_CHANNEL != null) {
+            return (Class<? extends T>) KQUEUE_SERVER_SOCKET_CHANNEL;
         }
         return (Class<? extends T>) NioServerSocketChannel.class;
     }
 
     @ApiStatus.Internal
+    @AssumeNotNull
     public static EventLoopGroup eventLoopGroup() {
-        return OSX ? new KQueueEventLoopGroup() : Epoll.isAvailable() ? new EpollEventLoopGroup() :
-                new NioEventLoopGroup();
+        try {
+            return OSX && KQUEUE_EVENT_LOOP_GROUP != null ? KQUEUE_EVENT_LOOP_GROUP.newInstance() :
+                    Epoll.isAvailable() ? new EpollEventLoopGroup() : new NioEventLoopGroup();
+        } catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+            // This should never occur.
+        }
+        throw new UnsupportedOperationException();
     }
 
+    /**
+     * @param server whether availability should be checked for the server side or the client side.
+     * @return whether UDS is available or not based on OS and classes on classpath.
+     */
     public static boolean isAvailable(boolean server) {
-        return (!server || (EPOLL_SDSC != null || KQUEUE_SDSC != null)) && AVAILABLE;
+        return (!server || (EPOLL_SERVER_DOMAIN_SOCKET_CHANNEL != null || KQUEUE_SERVER_DOMAIN_SOCKET_CHANNEL != null)) && AVAILABLE;
     }
 
     // Copied from PlatformDependent (and modified) from netty in order to allow for correct backwards compatible osx checks.

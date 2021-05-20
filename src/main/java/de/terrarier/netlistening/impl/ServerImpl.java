@@ -69,6 +69,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         }
     });
 
+    @AssumeNotNull
     private ServerBootstrap start(long timeout, @AssumeNotNull Map<ChannelOption<?>, Object> options,
                                   boolean uds) {
         if (group != null) {
