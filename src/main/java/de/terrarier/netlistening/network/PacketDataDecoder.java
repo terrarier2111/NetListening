@@ -79,10 +79,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         final int readable = buffer.readableBytes();
         // This prevents empty packets from being decoded after the connection was closed.
         if (readable < 1) {
-            if (IGNORE_EMPTY_PACKETS || !ctx.channel().isActive()) {
-                return;
-            }
-            if (callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.EMPTY_PACKET, EmptyArrays.EMPTY_BYTES)) {
+            if (IGNORE_EMPTY_PACKETS || !ctx.channel().isActive() ||
+                    callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.EMPTY_PACKET, EmptyArrays.EMPTY_BYTES)) {
                 return;
             }
             throw new IllegalStateException("Received an empty packet!");
@@ -158,7 +156,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
         if (id == 0x2) {
             if (application instanceof Server) {
-                // TODO: Probably we should cache this byte array.
+                // TODO: We should probably cache this byte array.
                 final byte[] data = ConversionUtil.intToBytes(0x2);
 
                 if (callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.MALICIOUS_ACTION, data)) {
@@ -220,8 +218,16 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             if (!dataType.isPublished()) {
                 ignore = true;
             }
-            final boolean useFramingBuffer = framingBuffer != null;
-            final ByteBuf decodeBuffer = useFramingBuffer ? framingBuffer : buffer;
+            final boolean useFramingBuffer;
+            final ByteBuf decodeBuffer;
+            if(framingBuffer != null) {
+                useFramingBuffer = true;
+                decodeBuffer = framingBuffer;
+                framingBuffer = null;
+            }else {
+                useFramingBuffer = false;
+                decodeBuffer = buffer;
+            }
             final int start = decodeBuffer.readerIndex();
             try {
                 data.add(new DataComponent(dataType, dataType.read0(context, out, decodeBuffer)));
@@ -240,14 +246,13 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 hasId = true;
                 return;
             } catch (CancelSignal signal) {
-                // Handling cases in which objects couldn't get deserialized.
+                // Handling cases in which objects can't get deserialized.
                 if (i + 1 == length) {
                     tryRelease(buffer);
                     return;
                 }
                 invalidData = true;
-                final int readable = buffer.readableBytes();
-                if (readable == 0) {
+                if (!buffer.isReadable()) {
                     // prepare framing for data which can be discarded
                     this.packet = packet;
                     this.index = i;
@@ -258,12 +263,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                     tryRelease(buffer);
                     return;
                 }
-                ignore = true;
             }
 
-            if (useFramingBuffer) {
-                framingBuffer = null;
-            }
         }
 
         tryRelease(buffer);
@@ -284,7 +285,10 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         } catch (CancelReadSignal signal) {
             // prepare framing of payload
             final int frameSize = signal.size + buffer.readerIndex() - start;
-            if (!callFrameEvent(signal.size, frameSize - signal.size)) {
+            final ConnectionDataFrameEvent event = new ConnectionDataFrameEvent(connection, signal.size,
+                    frameSize - signal.size);
+            if (!application.getEventManager().callEvent(ListenerType.FRAME, EventManager.CancelAction.INTERRUPT,
+                    event)) {
                 holdingBuffer = Unpooled.buffer(frameSize);
                 buffer.readerIndex(start);
                 transferRemaining(buffer);
@@ -303,16 +307,9 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
     }
 
-    private boolean callFrameEvent(int frameBytes, int readBytes) {
-        final ConnectionDataFrameEvent frameEvent = new ConnectionDataFrameEvent(connection, frameBytes, readBytes);
-        return application.getEventManager().callEvent(ListenerType.FRAME, EventManager.CancelAction.INTERRUPT,
-                frameEvent);
-    }
-
     private boolean callInvalidDataEvent(@AssumeNotNull InvalidDataEvent.DataInvalidReason reason,
                                          @AssumeNotNull byte[] data) {
         final InvalidDataEvent event = new InvalidDataEvent(connection, reason, data);
-
         return application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                 event);
     }
@@ -328,7 +325,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 return;
             }
 
-            throw new IllegalStateException("Received a keep alive packet with an invalid id! (expected: " + nextId + " received: " + keepAliveId + ")");
+            throw new IllegalStateException("Received a keep alive packet with an invalid id! (expected: " + nextId +
+                    " received: " + keepAliveId + ')');
         }
         lastKeepAliveId = keepAliveId;
     }
@@ -355,12 +353,12 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
     @Override
     public void channelActive(@AssumeNotNull ChannelHandlerContext ctx) throws Exception {
-        super.channelActive(ctx);
         context = new DecoderContext(application, connection, this, ctx);
         if (application instanceof Server) {
             // Check if we have to initialize stuff in the connection.
             connection.check();
         }
+        super.channelActive(ctx);
     }
 
     @Override
@@ -385,7 +383,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         private final PacketDataDecoder decoder;
         private final ChannelHandlerContext handlerContext;
 
-        private DecoderContext(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+        private DecoderContext(@AssumeNotNull ApplicationImpl application,
+                               @AssumeNotNull ConnectionImpl connection,
                                @AssumeNotNull PacketDataDecoder decoder,
                                @AssumeNotNull ChannelHandlerContext handlerContext) {
             this.application = application;

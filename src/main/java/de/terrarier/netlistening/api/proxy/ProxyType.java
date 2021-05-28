@@ -15,7 +15,8 @@ limitations under the License.
  */
 package de.terrarier.netlistening.api.proxy;
 
-import org.jetbrains.annotations.NotNull;
+import de.terrarier.netlistening.internals.AssumeNotNull;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.net.SocketAddress;
 
@@ -27,8 +28,9 @@ public enum ProxyType {
 
     SOCKS4, SOCKS5;
 
-    // TODO: Add doc!
-    public Proxy getInstance(@NotNull SocketAddress address) {
+    @ApiStatus.Internal
+    @AssumeNotNull
+    public Proxy getInstance(@AssumeNotNull SocketAddress address) {
         switch (this) {
             case SOCKS4:
                 return new Socks4Proxy(address);
