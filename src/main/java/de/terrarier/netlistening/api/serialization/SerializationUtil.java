@@ -18,8 +18,7 @@ package de.terrarier.netlistening.api.serialization;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.internals.CancelSignal;
-import de.terrarier.netlistening.utils.TwoArgsBooleanFunction;
-import de.terrarier.netlistening.utils.TwoArgsFunction;
+import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
@@ -33,39 +32,50 @@ public final class SerializationUtil {
         throw new UnsupportedOperationException("This class may not be instantiated!");
     }
 
-    public static byte[] serialize(@AssumeNotNull ApplicationImpl application, @AssumeNotNull Object obj)
-            throws CancelSignal {
-        return performOperation(application, SerializationProvider::isSerializable, SerializationProvider::serialize,
-                obj);
-    }
-
-    public static Object deserialize(@AssumeNotNull ApplicationImpl application, byte[] data) throws CancelSignal {
-        return performOperation(application, SerializationProvider::isDeserializable,
-                SerializationProvider::deserialize, data);
-    }
-
-    private static <A, R> R performOperation(@AssumeNotNull ApplicationImpl application,
-                                             @AssumeNotNull TwoArgsBooleanFunction<SerializationProvider, A> check,
-                                             @AssumeNotNull TwoArgsFunction<SerializationProvider, A, R> op, A param)
-            throws CancelSignal {
-
+    public static void serialize(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer,
+                                 @AssumeNotNull Object obj) throws CancelSignal {
         final SerializationProvider mainProvider = application.getSerializationProvider();
         SerializationProvider provider = mainProvider;
         while (provider != null) {
-            if (check.apply(provider, param)) {
+            if (provider.isSerializable(obj)) {
+                final WritableByteAccumulation ba = new WritableByteAccumulation(application, buffer);
                 try {
-                    return op.apply(provider, param);
+                    provider.serialize(ba, obj);
+                    ba.updateLength();
+                } catch (Exception exception) {
+                    ba.rollback();
+                    mainProvider.handleException(exception);
+                }
+                return;
+            }
+            provider = provider.getFallback();
+        }
+        // Sending an empty object in order to be able to proceed encoding.
+        buffer.writeInt(0);
+        mainProvider.handleException(new UnsupportedOperationException(
+                "There is no serialization provider available which can serialize this Object. (" +
+                        obj.getClass().getName() + ')'));
+        throw CancelSignal.INSTANCE;
+    }
+
+    public static Object deserialize(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer,
+                                     int length) throws CancelSignal {
+        final SerializationProvider mainProvider = application.getSerializationProvider();
+        SerializationProvider provider = mainProvider;
+        final ReadableByteAccumulation ba = new ReadableByteAccumulation(buffer, length);
+        while (provider != null) {
+            if (provider.isDeserializable(ba)) {
+                try {
+                    return provider.deserialize(ba);
                 } catch (Exception exception) {
                     mainProvider.handleException(exception);
-                    return null;
                 }
-            } else {
-                provider = provider.getFallback();
+                return null;
             }
+            provider = provider.getFallback();
         }
         mainProvider.handleException(new UnsupportedOperationException(
-                "There is no serialization provider available which can perform this operation on this Object. (" +
-                        param.getClass().getName() + ')'));
+                "There is no serialization provider available which can deserialize this Object."));
         throw CancelSignal.INSTANCE;
     }
 

@@ -23,7 +23,6 @@ import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.internals.CancelSignal;
-import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import de.terrarier.netlistening.utils.ConversionUtil;
 import io.netty.buffer.ByteBuf;
 
@@ -62,8 +61,7 @@ public final class DataTypeObject extends DataType<Object> {
         }
         checkReadable(buffer, length);
 
-        final byte[] bytes = ByteBufUtilExtension.readBytes(buffer, length);
-        final Object deserialized = SerializationUtil.deserialize(application, bytes);
+        final Object deserialized = SerializationUtil.deserialize(application, buffer, length);
 
         if (deserialized == null) {
             return SERIALIZATION_ERROR;
@@ -75,13 +73,7 @@ public final class DataTypeObject extends DataType<Object> {
     @Override
     protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer,
                          @AssumeNotNull Object data) throws CancelSignal {
-        final byte[] serialized = SerializationUtil.serialize(application, data);
-        if (serialized == null) {
-            // Sending an empty object in order to be able to proceed encoding!
-            buffer.writeInt(0);
-            return;
-        }
-        ByteBufUtilExtension.writeBytes(buffer, serialized, application.getBuffer());
+        SerializationUtil.serialize(application, buffer, data);
     }
 
 }

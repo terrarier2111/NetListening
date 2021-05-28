@@ -19,8 +19,8 @@ import de.terrarier.netlistening.Client;
 import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.api.event.DecodeEvent;
 import de.terrarier.netlistening.api.event.DecodeListener;
-import de.terrarier.netlistening.api.serialization.SerializationProvider;
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.api.serialization.RegisterSerializationProvider;
+import io.netty.buffer.ByteBuf;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -31,29 +31,54 @@ public final class SerializationTest {
 
     @Test(timeout = 15000L)
     public void testServerDeserialization() {
-        final Server server = Server.builder(55843).compression().varIntCompression(false).nibbleCompression(true).build().build();
-        final Client client = Client.builder("localhost", 55843).serialization(new SerializationProvider() {
+        final RegisterSerializationProvider serverSerializationProvider = new RegisterSerializationProvider();
+        serverSerializationProvider.registerTransformer(new RegisterSerializationProvider.ByteBufTransformer<Object>() {
             @Override
-            protected boolean isSerializable(Object obj) {
+            protected Object fromBytes(ByteBuf data, int length) {
+                return new String(readBytes(data, length));
+            }
+
+            @Override
+            protected void toBytes(ByteBuf buffer, Object input) {
+                writeBytes(buffer, input.toString().getBytes(StandardCharsets.UTF_8));
+            }
+
+            @Override
+            protected boolean isTransformableFromBytes(ByteBuf input, int length) {
                 return true;
             }
 
             @Override
-            protected boolean isDeserializable(@AssumeNotNull byte[] data) {
+            protected boolean isTransformableToBytes(Object obj) {
+                return true;
+            }
+        });
+        final Server server = Server.builder(55843).
+                serialization(serverSerializationProvider).compression().varIntCompression(false).nibbleCompression(true).build().build();
+        final RegisterSerializationProvider clientSerializationProvider = new RegisterSerializationProvider();
+        clientSerializationProvider.registerTransformer(new RegisterSerializationProvider.ByteBufTransformer<Object>() {
+            @Override
+            protected Object fromBytes(ByteBuf data, int length) {
+                return new String(readBytes(data, length));
+            }
+
+            @Override
+            protected void toBytes(ByteBuf buffer, Object input) {
+                writeBytes(buffer, input.toString().getBytes(StandardCharsets.UTF_8));
+            }
+
+            @Override
+            protected boolean isTransformableFromBytes(ByteBuf input, int length) {
                 return true;
             }
 
             @Override
-            protected byte[] serialize(Object obj) {
-                return obj.toString().getBytes(StandardCharsets.UTF_8);
+            protected boolean isTransformableToBytes(Object obj) {
+                return true;
             }
-
-            @Override
-            protected Object deserialize(@AssumeNotNull byte[] data) {
-                return new String(data, StandardCharsets.UTF_8);
-            }
-
-        }).build();
+        });
+        final Client client = Client.builder("localhost", 55843).
+                serialization(clientSerializationProvider).build();
         server.registerListener(new DecodeListener() {
             @Override
             public void trigger(DecodeEvent value) {
@@ -89,7 +114,7 @@ public final class SerializationTest {
             }
         });
         client.sendData("test");
-        client.sendData("test00", new Object(), "test11", 46);
+        // client.sendData("-3test00", new Object(), "test11", 46); // - this should lead to an error!
         client.sendData("test123");
         try {
             Thread.sleep(10000L);

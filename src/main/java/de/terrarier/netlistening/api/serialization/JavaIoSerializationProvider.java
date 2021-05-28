@@ -16,7 +16,8 @@ limitations under the License.
 package de.terrarier.netlistening.api.serialization;
 
 import de.terrarier.netlistening.internals.AssumeNotNull;
-import de.terrarier.netlistening.utils.ConversionUtil;
+import de.terrarier.netlistening.utils.ByteBufUtilExtension;
+import io.netty.buffer.ByteBuf;
 
 import java.io.*;
 
@@ -45,35 +46,41 @@ public final class JavaIoSerializationProvider extends SerializationProvider {
     }
 
     /**
-     * @see SerializationProvider#isDeserializable(byte[])
+     * @see SerializationProvider#isDeserializable(ReadableByteAccumulation)
      */
     @Override
-    protected boolean isDeserializable(@AssumeNotNull byte[] data) {
+    protected boolean isDeserializable(@AssumeNotNull ReadableByteAccumulation ba) {
         // Common stream header hex: ACED0005
-        final int dataLength = data.length;
-        return (dataLength > 5 || (dataLength == 5 && data[4] != TC_NULL))
-                && ConversionUtil.getShortFromByteArray(data, 0) == STREAM_MAGIC
-                && ConversionUtil.getShortFromByteArray(data, 2) == STREAM_VERSION;
+        final ByteBuf buffer = ba.getBuffer();
+        final int dataLength = buffer.readableBytes();
+        return (dataLength > 5 || (dataLength == 5 && buffer.getByte(buffer.readerIndex() + 4) != TC_NULL))
+                && buffer.getShort(buffer.readerIndex()) == STREAM_MAGIC
+                && buffer.getShort(buffer.readerIndex() + 2) == STREAM_VERSION;
     }
 
     /**
-     * @see SerializationProvider#serialize(Object)
+     * @see SerializationProvider#serialize(WritableByteAccumulation, Object)
      */
     @Override
-    protected byte[] serialize(@AssumeNotNull Object obj) throws Exception {
+    protected void serialize(@AssumeNotNull WritableByteAccumulation ba, @AssumeNotNull Object obj) throws Exception {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             final ObjectOutputStream os = new ObjectOutputStream(out);
             os.writeObject(obj);
-            return out.toByteArray();
+            final byte[] bytes = out.toByteArray();
+            final ByteBuf buffer = ba.getBuffer();
+            ByteBufUtilExtension.correctSize(buffer, bytes.length, 0);
+            buffer.writeBytes(bytes);
         }
     }
 
     /**
-     * @see SerializationProvider#deserialize(byte[])
+     * @see SerializationProvider#deserialize(ReadableByteAccumulation)
      */
     @Override
-    protected Object deserialize(@AssumeNotNull byte[] data) throws Exception {
-        try (ByteArrayInputStream in = new ByteArrayInputStream(data)) {
+    protected Object deserialize(@AssumeNotNull ReadableByteAccumulation ba) throws Exception {
+        final ByteBuf buffer = ba.getBuffer();
+        try (ByteArrayInputStream in = new ByteArrayInputStream(ByteBufUtilExtension.readBytes(buffer,
+                buffer.readableBytes()))) {
             final ObjectInputStream is = new ObjectInputStream(in);
             return is.readObject();
         }

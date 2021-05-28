@@ -21,7 +21,7 @@ import de.terrarier.netlistening.internals.AssumeNotNull;
  * @author Terrarier2111
  * @since 1.10
  */
-public final class NOOPSerializationProvider extends SerializationProvider {
+public class NOOPSerializationProvider extends SerializationProvider {
 
     /**
      * @see SerializationProvider#getFallback()
@@ -35,31 +35,31 @@ public final class NOOPSerializationProvider extends SerializationProvider {
      * @see SerializationProvider#isSerializable(Object)
      */
     @Override
-    protected boolean isSerializable(Object obj) {
+    protected final boolean isSerializable(@AssumeNotNull Object obj) {
         return false;
     }
 
     /**
-     * @see SerializationProvider#isDeserializable(byte[])
+     * @see SerializationProvider#isDeserializable(ReadableByteAccumulation)
      */
     @Override
-    protected boolean isDeserializable(@AssumeNotNull byte[] data) {
+    protected final boolean isDeserializable(@AssumeNotNull ReadableByteAccumulation data) {
         return false;
     }
 
     /**
-     * @see SerializationProvider#serialize(Object)
+     * @see SerializationProvider#serialize(WritableByteAccumulation, Object)
      */
     @Override
-    protected byte[] serialize(Object obj) {
+    protected final void serialize(WritableByteAccumulation data, Object obj) {
         throw new UnsupportedOperationException();
     }
 
     /**
-     * @see SerializationProvider#deserialize(byte[])
+     * @see SerializationProvider#deserialize(ReadableByteAccumulation)
      */
     @Override
-    protected Object deserialize(@AssumeNotNull byte[] data) {
+    protected final Object deserialize(ReadableByteAccumulation data) {
         throw new UnsupportedOperationException();
     }
 
