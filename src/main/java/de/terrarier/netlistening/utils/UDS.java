@@ -65,8 +65,8 @@ public final class UDS {
                         "io.netty.channel.kqueue.KQueueServerSocketChannel");
                 KQUEUE_SOCKET_CHANNEL = (Class<? extends Channel>) Class.forName(
                         "io.netty.channel.kqueue.KQueueSocketChannel");
-                KQUEUE_EVENT_LOOP_GROUP =
-                        (Class<? extends EventLoopGroup>) Class.forName("io.netty.channel.kqueue.KQueueEventLoopGroup");
+                KQUEUE_EVENT_LOOP_GROUP = (Class<? extends EventLoopGroup>) Class.forName(
+                        "io.netty.channel.kqueue.KQueueEventLoopGroup");
             } catch (ClassNotFoundException e) {
                 // KQueueServerSocketChannel, KQueueSocketChannel or KQueueEventLoopGroup is not available.
             }
@@ -90,7 +90,8 @@ public final class UDS {
             }
         } else if (epoll) {
             try {
-                EPOLL_DOMAIN_SOCKET_CHANNEL = (Class<? extends Channel>) Class.forName("io.netty.channel.epoll.EpollDomainSocketChannel");
+                EPOLL_DOMAIN_SOCKET_CHANNEL = (Class<? extends Channel>) Class.forName(
+                        "io.netty.channel.epoll.EpollDomainSocketChannel");
             } catch (ClassNotFoundException e) {
                 // EpollDomainSocketChannel is not available.
             }
@@ -194,10 +195,9 @@ public final class UDS {
             return OSX && KQUEUE_EVENT_LOOP_GROUP != null ? KQUEUE_EVENT_LOOP_GROUP.newInstance() :
                     Epoll.isAvailable() ? new EpollEventLoopGroup() : new NioEventLoopGroup();
         } catch (InstantiationException | IllegalAccessException e) {
-            e.printStackTrace();
-            // This should never occur.
+            // KQueueEventLoopGroup is unsupported.
         }
-        throw new UnsupportedOperationException();
+        return new NioEventLoopGroup();
     }
 
     /**
@@ -205,7 +205,8 @@ public final class UDS {
      * @return whether UDS is available or not based on OS and classes on classpath.
      */
     public static boolean isAvailable(boolean server) {
-        return (!server || (EPOLL_SERVER_DOMAIN_SOCKET_CHANNEL != null || KQUEUE_SERVER_DOMAIN_SOCKET_CHANNEL != null)) && AVAILABLE;
+        return (!server || (EPOLL_SERVER_DOMAIN_SOCKET_CHANNEL != null || KQUEUE_SERVER_DOMAIN_SOCKET_CHANNEL != null)) &&
+                AVAILABLE;
     }
 
     // Copied from PlatformDependent (and modified) from netty in order to allow for correct backwards compatible osx checks.
