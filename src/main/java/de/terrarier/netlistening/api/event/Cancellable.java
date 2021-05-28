@@ -23,7 +23,8 @@ public abstract class Cancellable {
 
     private boolean cancelled;
 
-    Cancellable() {}
+    Cancellable() {
+    }
 
     /**
      * Sets if the event is to be cancelled or not.

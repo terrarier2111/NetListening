@@ -26,7 +26,8 @@ public class CancelSignal extends Exception {
 
     public static final CancelSignal INSTANCE = new CancelSignal();
 
-    CancelSignal() {}
+    CancelSignal() {
+    }
 
     @AssumeNotNull
     @Override

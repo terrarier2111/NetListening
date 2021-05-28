@@ -54,7 +54,7 @@ public final class WritableByteAccumulation {
     public void setArray(@AssumeNotNull byte[] bytes) {
         final int additionalSize = bytes.length - (buffer.writerIndex() - initialWriterIdx);
         buffer.writerIndex(initialWriterIdx);
-        if(additionalSize > 0) {
+        if (additionalSize > 0) {
             ensureWritable(additionalSize);
         }
         buffer.writeBytes(bytes);

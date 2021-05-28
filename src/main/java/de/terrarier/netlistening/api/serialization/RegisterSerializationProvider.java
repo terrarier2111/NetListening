@@ -63,7 +63,7 @@ public class RegisterSerializationProvider extends SerializationProvider {
     protected final void serialize(@AssumeNotNull WritableByteAccumulation ba, @AssumeNotNull Object obj)
             throws Exception {
         final Transformer<?> transformer = classTransformerMapping.get(obj.getClass());
-        if(transformer == null) {
+        if (transformer == null) {
             throw new NullPointerException("You tried to use a transformer which was removed which caused a race condition.");
         }
         ensureWritable(ba.getBuffer(), 8);
@@ -81,7 +81,7 @@ public class RegisterSerializationProvider extends SerializationProvider {
     protected final Object deserialize(@AssumeNotNull ReadableByteAccumulation ba) throws Exception {
         ba.getBuffer().skipBytes(4);
         final Transformer<?> transformer = idTransformerMapping.get(ba.getBuffer().readInt());
-        if(transformer == null) {
+        if (transformer == null) {
             throw new NullPointerException("You tried to use a transformer which was removed which caused a race condition.");
         }
         return transformer.fromBytes0(ba);
@@ -99,7 +99,7 @@ public class RegisterSerializationProvider extends SerializationProvider {
 
     public final void unregisterTransformer(int id) {
         final Transformer<?> transformer = idTransformerMapping.remove(id);
-        if(transformer == null) {
+        if (transformer == null) {
             throw new IllegalStateException("This transformer is not registered!");
         }
         classTransformerMapping.remove(transformer.target);

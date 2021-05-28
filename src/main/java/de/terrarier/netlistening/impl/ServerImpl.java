@@ -232,7 +232,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
 
         public Builder(@AssumeNotNull String filePath) {
             super(new ServerImpl());
-            if(!UDS.isAvailable(true)) {
+            if (!UDS.isAvailable(true)) {
                 throw new UnsupportedOperationException("UDS are not supported in this environment.");
             }
             this.filePath = filePath;
@@ -295,10 +295,10 @@ public final class ServerImpl extends ApplicationImpl implements Server {
             application.worker = new Thread(() -> {
                 try {
                     final Channel channel;
-                    if(filePath != null) {
+                    if (filePath != null) {
                         channel = application.start(timeout, options, true).bind(
                                 UDS.domainSocketAddress(filePath)).sync().channel();
-                    }else {
+                    } else {
                         channel = application.start(timeout, options, false).bind(port).sync().channel();
                     }
                     channel.config().setOptions(options);

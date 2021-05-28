@@ -98,7 +98,7 @@ public final class ByteBufUtilExtension {
 
     /**
      * Copied from netty to allow the usage of older netty versions:
-     *
+     * <p>
      * https://github.com/netty/netty/blob/4.1/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java
      */
     @AssumeNotNull
@@ -126,7 +126,7 @@ public final class ByteBufUtilExtension {
 
     /**
      * Copied from netty to allow the usage of older netty versions:
-     *
+     * <p>
      * https://github.com/netty/netty/blob/4.1/common/src/main/java/io/netty/util/internal/MathUtil.java
      */
     private static boolean isOutOfBounds(int index, int length, int capacity) {

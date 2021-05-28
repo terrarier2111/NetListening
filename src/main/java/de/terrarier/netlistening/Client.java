@@ -100,7 +100,7 @@ public interface Client extends Application {
         /**
          * Constructs a builder for a default multi-use socket.
          *
-         * @param host the host the socket should connect to.
+         * @param host       the host the socket should connect to.
          * @param remotePort the port the socket should connect to.
          */
         public Builder(@NotNull String host, int remotePort) {

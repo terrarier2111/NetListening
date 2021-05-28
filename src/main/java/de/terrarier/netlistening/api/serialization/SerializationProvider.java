@@ -94,7 +94,7 @@ public abstract class SerializationProvider {
      * Writes {@code data} to {@code buffer}.
      *
      * @param buffer the buffer to which {@code data} gets written to.
-     * @param data the data which gets written to {@code buffer}.
+     * @param data   the data which gets written to {@code buffer}.
      */
     protected static void writeBytes(@AssumeNotNull ByteBuf buffer, @AssumeNotNull byte[] data) {
         ensureWritable(buffer, data.length);

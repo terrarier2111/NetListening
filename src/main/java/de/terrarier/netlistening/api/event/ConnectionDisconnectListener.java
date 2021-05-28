@@ -19,4 +19,5 @@ package de.terrarier.netlistening.api.event;
  * @author Terrarier2111
  * @since 1.0
  */
-public interface ConnectionDisconnectListener extends Listener<ConnectionDisconnectEvent> {}
+public interface ConnectionDisconnectListener extends Listener<ConnectionDisconnectEvent> {
+}

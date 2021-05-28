@@ -220,11 +220,11 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             }
             final boolean useFramingBuffer;
             final ByteBuf decodeBuffer;
-            if(framingBuffer != null) {
+            if (framingBuffer != null) {
                 useFramingBuffer = true;
                 decodeBuffer = framingBuffer;
                 framingBuffer = null;
-            }else {
+            } else {
                 useFramingBuffer = false;
                 decodeBuffer = buffer;
             }

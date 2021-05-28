@@ -333,7 +333,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
 
         public Builder(@AssumeNotNull String filePath) {
             super(new ClientImpl());
-            if(!UDS.isAvailable(false)) {
+            if (!UDS.isAvailable(false)) {
                 throw new UnsupportedOperationException("UDS are not supported in this environment.");
             }
             this.filePath = filePath;
@@ -345,7 +345,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
          */
         public void localPort(int localPort) {
             validate();
-            if(filePath != null) {
+            if (filePath != null) {
                 throw new UnsupportedOperationException("You may not specify a port when using UDS.");
             }
             this.localPort = localPort;
@@ -384,9 +384,9 @@ public final class ClientImpl extends ApplicationImpl implements Client {
          */
         @Override
         void build0() {
-            if(filePath != null) {
+            if (filePath != null) {
                 application.start(timeout, options, filePath);
-            }else {
+            } else {
                 application.start(timeout, options, remoteAddress, proxy, localPort);
             }
             application.worker.start();

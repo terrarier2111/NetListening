@@ -33,15 +33,15 @@ public final class TypeParameterResolver {
 
     @AssumeNotNull
     public static Class<?> find(@AssumeNotNull Object object, @AssumeNotNull Class<?> parametrizedSuperclass,
-            @AssumeNotNull String typeParamName) {
+                                @AssumeNotNull String typeParamName) {
 
         final Class<?> thisClass = object.getClass();
         Class<?> currentClass = thisClass;
-        while(true) {
+        while (true) {
             if (currentClass.getSuperclass() == parametrizedSuperclass) {
                 int typeParamIndex = -1;
                 final TypeVariable<?>[] typeParams = currentClass.getSuperclass().getTypeParameters();
-                for (int i = 0; i < typeParams.length; i ++) {
+                for (int i = 0; i < typeParams.length; i++) {
                     if (typeParamName.equals(typeParams[i].getName())) {
                         typeParamIndex = i;
                         break;

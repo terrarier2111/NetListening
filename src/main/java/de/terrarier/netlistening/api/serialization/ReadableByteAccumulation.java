@@ -55,10 +55,10 @@ public final class ReadableByteAccumulation {
      */
     @AssumeNotNull
     public byte[] getArray() {
-        if(bytes == null) {
-            if(length == 0) {
+        if (bytes == null) {
+            if (length == 0) {
                 bytes = EmptyArrays.EMPTY_BYTES;
-            }else {
+            } else {
                 bytes = ByteBufUtilExtension.readBytes(buffer, length);
             }
         }
