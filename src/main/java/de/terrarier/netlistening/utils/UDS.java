@@ -67,24 +67,24 @@ public final class UDS {
                         "io.netty.channel.kqueue.KQueueSocketChannel");
                 KQUEUE_EVENT_LOOP_GROUP = (Class<? extends EventLoopGroup>) Class.forName(
                         "io.netty.channel.kqueue.KQueueEventLoopGroup");
-            } catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException | IllegalAccessError e) {
                 // KQueueServerSocketChannel, KQueueSocketChannel or KQueueEventLoopGroup is not available.
             }
             try {
                 KQUEUE_SERVER_DOMAIN_SOCKET_CHANNEL = (Class<? extends ServerChannel>) Class.forName(
                         "io.netty.channel.kqueue.KQueueServerDomainSocketChannel");
-            } catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException | IllegalAccessError e) {
                 // KQueueServerDomainSocketChannel is not available.
             }
             try {
                 KQUEUE_DOMAIN_SOCKET_CHANNEL = (Class<? extends Channel>) Class.forName(
                         "io.netty.channel.kqueue.KQueueDomainSocketChannel");
-            } catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException | IllegalAccessError e) {
                 // KQueueDomainSocketChannel is not available.
                 try {
                     DOMAIN_SOCKET_CHANNEL = (Class<? extends Channel>) Class.forName(
                             "io.netty.channel.unix.DomainSocketChannel");
-                } catch (ClassNotFoundException ex) {
+                } catch (ClassNotFoundException | IllegalAccessError e1) {
                     // DomainSocketChannel is not available.
                 }
             }
@@ -92,13 +92,16 @@ public final class UDS {
             try {
                 EPOLL_DOMAIN_SOCKET_CHANNEL = (Class<? extends Channel>) Class.forName(
                         "io.netty.channel.epoll.EpollDomainSocketChannel");
-            } catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException | IllegalAccessError e) {
                 // EpollDomainSocketChannel is not available.
+                // TODO: Fix the error below properly!
+                // java.lang.IllegalAccessError: class io.netty.channel.epoll.AbstractEpollStreamChannel
+                // cannot access its superclass io.netty.channel.epoll.AbstractEpollChannel
             }
             try {
                 EPOLL_SERVER_DOMAIN_SOCKET_CHANNEL = (Class<? extends ServerChannel>) Class.forName(
                         "io.netty.channel.epoll.EpollServerDomainSocketChannel");
-            } catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException | IllegalAccessError e) {
                 // EpollServerDomainSocketChannel is not available.
             }
         }
@@ -111,7 +114,7 @@ public final class UDS {
                 } catch (NoSuchMethodException e) {
                     // Constructor is not available.
                 }
-            } catch (ClassNotFoundException e) {
+            } catch (ClassNotFoundException | IllegalAccessError e) {
                 // DomainSocketAddress is not available.
             }
             AVAILABLE = DOMAIN_SOCKET_ADDRESS_CONSTRUCTOR != null;
