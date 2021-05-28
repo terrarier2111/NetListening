@@ -1,5 +1,5 @@
 /*
-Copyright 2021 Terrarier2111
+Copyright 2021 The Netty Project/Terrarier2111
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package de.terrarier.netlistening.utils;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
- * @author Terrarier2111
+ * @author The Netty Project/Terrarier2111
  * @since 1.08
  */
 @ApiStatus.Internal

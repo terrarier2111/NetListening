@@ -1,5 +1,5 @@
 /*
-Copyright 2021 Terrarier2111
+Copyright 2021 The Netty Project/Terrarier2111
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import java.util.Arrays;
 import static io.netty.util.internal.EmptyArrays.EMPTY_BYTES;
 
 /**
- * @author Terrarier2111
+ * @author The Netty Project/Terrarier2111
  * @since 1.0
  */
 @ApiStatus.Internal
@@ -99,7 +99,7 @@ public final class ByteBufUtilExtension {
     /**
      * Copied from netty to allow the usage of older netty versions:
      *
-     * @see <a href="https://github.com/netty/netty/blob/4.1/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java">https://github.com/netty/netty/blob/4.1/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java</a>
+     * https://github.com/netty/netty/blob/4.1/buffer/src/main/java/io/netty/buffer/ByteBufUtil.java
      */
     @AssumeNotNull
     private static byte[] getBytes0(@AssumeNotNull ByteBuf buffer, int length) {
@@ -115,9 +115,8 @@ public final class ByteBufUtilExtension {
             final byte[] bytes = buffer.array();
             if (/*copy || */baseOffset != 0 || length != bytes.length) {
                 return Arrays.copyOfRange(bytes, baseOffset, baseOffset + length);
-            } else {
-                return bytes;
             }
+            return bytes;
         }
 
         final byte[] bytes = new byte[length];
@@ -127,11 +126,11 @@ public final class ByteBufUtilExtension {
 
     /**
      * Copied from netty to allow the usage of older netty versions:
-     * <p>
+     *
      * https://github.com/netty/netty/blob/4.1/common/src/main/java/io/netty/util/internal/MathUtil.java
      */
     private static boolean isOutOfBounds(int index, int length, int capacity) {
-        return (index | length | (index + length) | (capacity - (index + length))) < 0;
+        return (index | length | capacity | (index + length) | (capacity - (index + length))) < 0;
     }
 
 }
