@@ -316,10 +316,11 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
     private void readKeepAlive(@AssumeNotNull ByteBuf buffer) {
         final byte keepAliveId = buffer.readByte();
+        final byte lastKeepAliveId = this.lastKeepAliveId;
         final byte nextId = (byte) ((lastKeepAliveId == Byte.MAX_VALUE ? Byte.MIN_VALUE : lastKeepAliveId) + 1);
-        if (keepAliveId != nextId && false) { // Disable buggy check temporarily until it's fixed.
+        this.lastKeepAliveId = nextId;
+        if (keepAliveId != nextId && application instanceof Server && false) { // Disable buggy check temporarily until it's fixed.
             final byte[] data = new byte[]{lastKeepAliveId, nextId, keepAliveId};
-            lastKeepAliveId = nextId;
 
             if (callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.INVALID_KEEP_ALIVE_ID, data)) {
                 return;
@@ -328,7 +329,6 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             throw new IllegalStateException("Received a keep alive packet with an invalid id! (expected: " + nextId +
                     " received: " + keepAliveId + ')');
         }
-        lastKeepAliveId = keepAliveId;
     }
 
     private void transferRemaining(@AssumeNotNull ByteBuf buffer) {
