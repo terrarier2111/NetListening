@@ -144,7 +144,7 @@ public interface Server extends Application {
         @ApiStatus.Experimental
         @AssumeNotNull
         public Builder maxFrameSize(int maxSize) {
-            impl.buffer(checkPositive(maxSize, "maxSize"));
+            impl.maxFrameSize(checkPositive(maxSize, "maxSize"));
             return this;
         }
 
