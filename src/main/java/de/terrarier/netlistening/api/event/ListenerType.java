@@ -29,13 +29,12 @@ public enum ListenerType {
     DECODE(DecodeListener.class), TIMEOUT(ConnectionTimeoutListener.class),
     DISCONNECT(ConnectionDisconnectListener.class), INVALID_DATA(InvalidDataListener.class),
     KEY_CHANGE(KeyChangeListener.class), EXCEPTION_THROW(ExceptionThrowListener.class),
-    LENGTH_EXTENSION_DETECTION(LengthExtensionDetectionListener.class), FRAME(ConnectionDataFrameEvent.class),
-    NONE(null);
+    LENGTH_EXTENSION_DETECTION(LengthExtensionDetectionListener.class), NONE(null);
 
     static final ListenerType[] VALUES = values();
     private final Class<?> type;
 
-    ListenerType(Class<?> type) {
+    ListenerType(Class<? extends Listener<?>> type) {
         this.type = type;
     }
 

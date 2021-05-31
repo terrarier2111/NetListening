@@ -25,6 +25,7 @@ import de.terrarier.netlistening.impl.ServerImpl;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.Charset;
@@ -129,6 +130,21 @@ public interface Server extends Application {
         @Override
         public Builder buffer(int buffer) {
             impl.buffer(checkPositiveOrZero(buffer, "buffer"));
+            return this;
+        }
+
+        /**
+         * Sets the max size for packets to be framed in order to prevent
+         * malicious clients from sending too large sizes which would result
+         * in a OOM error.
+         *
+         * @param maxSize the max allowed size of incoming frames.
+         * @return the local reference.
+         */
+        @ApiStatus.Experimental
+        @AssumeNotNull
+        public Builder maxFrameSize(int maxSize) {
+            impl.buffer(checkPositive(maxSize, "maxSize"));
             return this;
         }
 

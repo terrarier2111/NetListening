@@ -54,6 +54,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     private final ApplicationImpl application;
     private final DataHandler handler;
     private final ConnectionImpl connection;
+    private final int maxFrameSize;
     private DecoderContext context;
     private boolean framing;
     private ByteBuf holdingBuffer;
@@ -67,10 +68,11 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     private boolean readKeepAliveId;
 
     public PacketDataDecoder(@AssumeNotNull ApplicationImpl application, @AssumeNotNull DataHandler handler,
-                             @AssumeNotNull ConnectionImpl connection) {
+                             @AssumeNotNull ConnectionImpl connection, int maxFrameSize) {
         this.application = application;
         this.handler = handler;
         this.connection = connection;
+        this.maxFrameSize = maxFrameSize;
     }
 
     @Override
@@ -107,7 +109,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 if (packet != null) {
                     read(out, storedData, buffer, packet, index, tmp);
                 } else {
-                    readPayLoad(tmp);
+                    readPayload(tmp);
                 }
             }
             if (release || !framing || !tmp.equals(holdingBuffer)) {
@@ -185,7 +187,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
 
         if (id == 0x0) {
-            readPayLoad(buffer);
+            readPayload(buffer);
             return true;
         }
 
@@ -218,14 +220,12 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             if (!dataType.isPublished()) {
                 ignore = true;
             }
-            final boolean useFramingBuffer;
+            final boolean useFramingBuffer = framingBuffer != null;
             final ByteBuf decodeBuffer;
-            if (framingBuffer != null) {
-                useFramingBuffer = true;
+            if (useFramingBuffer) {
                 decodeBuffer = framingBuffer;
                 framingBuffer = null;
             } else {
-                useFramingBuffer = false;
                 decodeBuffer = buffer;
             }
             final int start = decodeBuffer.readerIndex();
@@ -233,8 +233,18 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 data.add(new DataComponent(dataType, dataType.read0(context, out, decodeBuffer)));
             } catch (CancelReadSignal signal) {
                 // prepare framing of data
-                holdingBuffer = Unpooled.buffer(signal.size + decodeBuffer.readerIndex() - start +
-                        (useFramingBuffer ? buffer.readableBytes() : 0));
+                final int frameSize = signal.size + buffer.readerIndex() - start +
+                        (useFramingBuffer ? buffer.readableBytes() : 0);
+                if(frameSize > maxFrameSize) {
+                    final byte[] invalidData = new byte[8];
+                    ConversionUtil.intToBytes(invalidData, 0, packet.getId());
+                    ConversionUtil.intToBytes(invalidData, 4, frameSize);
+                    if(!callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.TOO_LARGE_FRAME, invalidData)) {
+                        tryRelease(buffer);
+                        throw new IllegalStateException("Received a frame which is too large (size: " + frameSize + " | max: " + maxFrameSize + ')');
+                    }
+                }
+                holdingBuffer = Unpooled.buffer(frameSize);
                 decodeBuffer.readerIndex(start);
                 transferRemaining(decodeBuffer);
                 if (useFramingBuffer) {
@@ -278,17 +288,16 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
     }
 
-    private void readPayLoad(@AssumeNotNull ByteBuf buffer) {
+    private void readPayload(@AssumeNotNull ByteBuf buffer) {
         final int start = buffer.readerIndex();
         try {
             DataType.getDTIP().read(application, connection, buffer);
         } catch (CancelReadSignal signal) {
             // prepare framing of payload
             final int frameSize = signal.size + buffer.readerIndex() - start;
-            final ConnectionDataFrameEvent event = new ConnectionDataFrameEvent(connection, signal.size,
-                    frameSize - signal.size);
-            if (!application.getEventManager().callEvent(ListenerType.FRAME, EventManager.CancelAction.INTERRUPT,
-                    event)) {
+            /*final ConnectionDataFrameEvent event = new ConnectionDataFrameEvent(connection, signal.size,
+                    frameSize - signal.size);*/
+            if (frameSize <= maxFrameSize) {
                 holdingBuffer = Unpooled.buffer(frameSize);
                 buffer.readerIndex(start);
                 transferRemaining(buffer);
@@ -296,6 +305,12 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 hasId = true;
             } else {
                 tryRelease(buffer);
+                final byte[] data = new byte[8];
+                ConversionUtil.intToBytes(data, 0, 0x0);
+                ConversionUtil.intToBytes(data, 4, frameSize);
+                if(!callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.TOO_LARGE_FRAME, data)) {
+                    throw new IllegalStateException("Received a frame which is too large (size: " + frameSize + " | max: " + maxFrameSize + ')');
+                }
             }
         }
     }
@@ -319,7 +334,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         final byte lastKeepAliveId = this.lastKeepAliveId;
         final byte nextId = (byte) ((lastKeepAliveId == Byte.MAX_VALUE ? Byte.MIN_VALUE : lastKeepAliveId) + 1);
         this.lastKeepAliveId = nextId;
-        if (keepAliveId != nextId && application instanceof Server && false) { // Disable buggy check temporarily until it's fixed.
+        if (keepAliveId != nextId && application instanceof Server/* && false*/) { // Disable buggy check temporarily until it's fixed.
             final byte[] data = new byte[]{lastKeepAliveId, nextId, keepAliveId};
 
             if (callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.INVALID_KEEP_ALIVE_ID, data)) {

@@ -48,9 +48,9 @@ public class RegisterTest {
             channel.writeAndFlush(buffer);
             // client.sendData("hey!");
             final ByteBuf fakePacket = Unpooled.buffer();
-            fakePacket.writeInt(0x6);
-            fakePacket.writeInt(1);
-            fakePacket.writeByte(0xF); // Just a random number
+            fakePacket.writeInt(0x6); // Registered packet
+            fakePacket.writeInt(0x1); // Byte array length
+            fakePacket.writeByte(0xF); // Just a random number (Byte array content)
             channel.writeAndFlush(fakePacket);
             Thread.sleep(9000L);
         } catch (NoSuchFieldException | IllegalAccessException | InterruptedException e) {

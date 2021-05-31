@@ -38,6 +38,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
+import io.netty.util.internal.SystemPropertyUtil;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -55,12 +56,16 @@ import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositiveOr
  */
 public final class ServerImpl extends ApplicationImpl implements Server {
 
+    private static final int MAX_FRAME_SIZE = SystemPropertyUtil.getInt("de.terrarier.netlistening.MaxFrameSize",
+            1024 * 1024 * 16); // 16 MB
+
     private final Map<Channel, ConnectionImpl> connections = new ConcurrentHashMap<>();
     private PacketCaching caching = PacketCaching.NONE;
     private ScheduledExecutorService delayedExecutor = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
 
         final ThreadFactory factory = Executors.defaultThreadFactory();
 
+        @AssumeNotNull
         @Override
         public Thread newThread(@NotNull Runnable runnable) {
             final Thread thread = factory.newThread(runnable);
@@ -70,7 +75,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
     });
 
     @AssumeNotNull
-    private ServerBootstrap start(long timeout, @AssumeNotNull Map<ChannelOption<?>, Object> options,
+    private ServerBootstrap start(long timeout, int maxFrameSize, @AssumeNotNull Map<ChannelOption<?>, Object> options,
                                   boolean uds) {
         if (group != null) {
             throw new IllegalStateException("The server is already started!");
@@ -112,7 +117,8 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                             pipeline.addLast(TIMEOUT_HANDLER,
                                     new TimeOutHandler(ServerImpl.this, connection, timeout));
                         }
-                        pipeline.addLast(DECODER, new PacketDataDecoder(ServerImpl.this, handler, connection))
+                        pipeline.addLast(DECODER, new PacketDataDecoder(ServerImpl.this, handler, connection,
+                                maxFrameSize))
                                 .addAfter(DECODER, ENCODER, new PacketDataEncoder(ServerImpl.this, delayedExecutor,
                                         connection));
 
@@ -223,6 +229,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
 
         private final int port;
         private final String filePath;
+        private int maxFrameSize = MAX_FRAME_SIZE;
 
         public Builder(int port) {
             super(new ServerImpl());
@@ -237,6 +244,14 @@ public final class ServerImpl extends ApplicationImpl implements Server {
             }
             this.filePath = filePath;
             port = 0;
+        }
+
+        /**
+         * @see Server.Builder#maxFrameSize(int)
+         */
+        public void maxFrameSize(int maxSize) {
+            validate();
+            this.maxFrameSize = maxSize;
         }
 
         /**
@@ -296,10 +311,10 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                 try {
                     final Channel channel;
                     if (filePath != null) {
-                        channel = application.start(timeout, options, true).bind(
+                        channel = application.start(timeout, maxFrameSize, options, true).bind(
                                 UDS.domainSocketAddress(filePath)).sync().channel();
                     } else {
-                        channel = application.start(timeout, options, false).bind(port).sync().channel();
+                        channel = application.start(timeout, maxFrameSize, options, false).bind(port).sync().channel();
                     }
                     channel.config().setOptions(options);
                     channel.closeFuture().syncUninterruptibly();

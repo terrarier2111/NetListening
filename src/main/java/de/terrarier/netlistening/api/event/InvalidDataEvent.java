@@ -44,7 +44,7 @@ public final class InvalidDataEvent extends ConnectionEvent {
     public InvalidDataEvent(@AssumeNotNull Connection connection, @AssumeNotNull DataInvalidReason reason) {
         super(connection);
         this.reason = reason;
-        this.data = EMPTY_BYTES;
+        data = EMPTY_BYTES;
     }
 
     /**
@@ -66,7 +66,7 @@ public final class InvalidDataEvent extends ConnectionEvent {
     public enum DataInvalidReason {
 
         EMPTY_PACKET, INCOMPLETE_PACKET, MALICIOUS_ACTION, INVALID_ID, INVALID_LENGTH, INVALID_DATA_TYPE,
-        INVALID_KEEP_ALIVE_ID, INVALID_HANDSHAKE, UNSPECIFIED
+        INVALID_KEEP_ALIVE_ID, INVALID_HANDSHAKE, TOO_LARGE_FRAME, UNSPECIFIED
 
     }
 

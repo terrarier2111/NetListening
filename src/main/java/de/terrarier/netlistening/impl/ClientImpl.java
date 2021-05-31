@@ -97,9 +97,9 @@ public final class ClientImpl extends ApplicationImpl implements Client {
                                     new TimeOutHandler(ClientImpl.this, connection, timeout));
                         }
 
-                        pipeline.addLast(DECODER, new PacketDataDecoder(ClientImpl.this, handler, connection))
-                                .addAfter(DECODER, ENCODER, new PacketDataEncoder(ClientImpl.this, null,
-                                        connection));
+                        pipeline.addLast(DECODER, new PacketDataDecoder(ClientImpl.this, handler, connection,
+                                Integer.MAX_VALUE))
+                                .addAfter(DECODER, ENCODER, new PacketDataEncoder(ClientImpl.this, null, connection));
 
                         if (proxy != null) {
                             pipeline.addFirst(PROXY_HANDLER, proxy.newHandler());
