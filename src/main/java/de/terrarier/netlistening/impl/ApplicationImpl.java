@@ -19,15 +19,18 @@ import de.terrarier.netlistening.Application;
 import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.encryption.EncryptionSetting;
-import de.terrarier.netlistening.api.event.DataHandler;
-import de.terrarier.netlistening.api.event.EventManager;
-import de.terrarier.netlistening.api.event.Listener;
-import de.terrarier.netlistening.api.event.ListenerType;
+import de.terrarier.netlistening.api.event.*;
 import de.terrarier.netlistening.api.serialization.JavaIoSerializationProvider;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.network.PacketCache;
+import de.terrarier.netlistening.network.PacketDataDecoder;
+import de.terrarier.netlistening.network.PacketDataEncoder;
+import de.terrarier.netlistening.network.TimeOutHandler;
+import de.terrarier.netlistening.utils.UDS;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -37,6 +40,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositiveOrZero;
 
@@ -55,7 +59,7 @@ public abstract class ApplicationImpl implements Application {
     CompressionSetting compressionSetting;
     SerializationProvider serializationProvider = new JavaIoSerializationProvider();
     Thread worker;
-    EventLoopGroup group;
+    EventLoopGroup group = UDS.eventLoopGroup();
 
     /**
      * @see Application#getStringEncoding()
@@ -152,6 +156,30 @@ public abstract class ApplicationImpl implements Application {
     @ApiStatus.Internal
     @AssumeNotNull
     public abstract Collection<ConnectionImpl> getConnectionsRaw();
+
+    ConnectionImpl prepareConnectionInitially(@AssumeNotNull Channel channel, long timeout,
+                                              @AssumeNotNull Map<ChannelOption<?>, Object> options,
+                                              ExecutorService delayedExecutor, int maxFrameSize) {
+        if (eventManager.callEvent(ListenerType.PRE_INIT, EventManager.CancelAction.INTERRUPT,
+                new ConnectionPreInitEvent(channel))) {
+            channel.close();
+            return null;
+        }
+        channel.config().setOptions(options);
+
+        final ConnectionImpl connection = new ConnectionImpl(this, channel);
+        final ChannelPipeline pipeline = channel.pipeline();
+
+        if (timeout > 0) {
+            pipeline.addLast(TIMEOUT_HANDLER,
+                    new TimeOutHandler(this, connection, timeout));
+        }
+
+        pipeline.addLast(DECODER, new PacketDataDecoder(this, handler, connection,
+                maxFrameSize))
+                .addAfter(DECODER, ENCODER, new PacketDataEncoder(this, delayedExecutor, connection));
+        return connection;
+    }
 
     @ApiStatus.Internal
     static abstract class Builder<A extends ApplicationImpl, B extends Builder<A, B>> extends Application.Builder<A, B> {

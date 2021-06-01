@@ -35,7 +35,7 @@ public final class NibbleUtil {
      * @param pair a byte representing a pair of nibbles.
      * @return the high nibble contained in the passed byte.
      */
-    public static byte getHighNibble(byte pair) {
+    public static byte highNibble(byte pair) {
         return (byte) (pair & 0xF);
     }
 
@@ -43,7 +43,7 @@ public final class NibbleUtil {
      * @param pair a byte representing a pair of nibbles.
      * @return the low nibble contained in the passed byte.
      */
-    public static byte getLowNibble(byte pair) {
+    public static byte lowNibble(byte pair) {
         return (byte) ((pair >>> 4) & 0xF);
     }
 

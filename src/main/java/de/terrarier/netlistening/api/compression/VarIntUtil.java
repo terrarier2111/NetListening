@@ -56,12 +56,12 @@ public final class VarIntUtil {
         data[pos] = (byte) (value & 0x7F);
     }
 
-	@AssumeNotNull
-	public static byte[] toVarInt(int value) {
-		final byte[] bytes = new byte[varIntSize(value)];
-		writeVarInt(value, bytes);
-		return bytes;
-	}
+    @AssumeNotNull
+    public static byte[] toVarInt(int value) {
+        final byte[] bytes = new byte[varIntSize(value)];
+        writeVarInt(value, bytes);
+        return bytes;
+    }
 
 	public static void writeVarInt(int value, @AssumeNotNull ByteBuf out) {
 		if (value > 0x0FFFFFFF || value < 0) out.writeByte((byte) (0x80 | ((value >>> 28))));

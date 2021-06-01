@@ -235,25 +235,13 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 // prepare framing of data
                 final int frameSize = signal.size + buffer.readerIndex() - start +
                         (useFramingBuffer ? buffer.readableBytes() : 0);
-                if(frameSize > maxFrameSize) {
-                    final byte[] invalidData = new byte[8];
-                    ConversionUtil.intToBytes(invalidData, 0, packet.getId());
-                    ConversionUtil.intToBytes(invalidData, 4, frameSize);
-                    if(!callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.TOO_LARGE_FRAME, invalidData)) {
-                        tryRelease(buffer);
-                        throw new IllegalStateException("Received a frame which is too large (size: " + frameSize + " | max: " + maxFrameSize + ')');
-                    }
-                }
-                holdingBuffer = Unpooled.buffer(frameSize);
-                decodeBuffer.readerIndex(start);
-                transferRemaining(decodeBuffer);
+                handleFraming(frameSize, start, buffer, decodeBuffer);
                 if (useFramingBuffer) {
                     transferRemaining(buffer);
                 }
                 this.packet = packet;
                 this.index = i;
                 storedData = data;
-                hasId = true;
                 return;
             } catch (CancelSignal signal) {
                 // Handling cases in which objects can't get deserialized.
@@ -295,24 +283,27 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         } catch (CancelReadSignal signal) {
             // prepare framing of payload
             final int frameSize = signal.size + buffer.readerIndex() - start;
-            /*final ConnectionDataFrameEvent event = new ConnectionDataFrameEvent(connection, signal.size,
-                    frameSize - signal.size);*/
-            if (frameSize <= maxFrameSize) {
-                holdingBuffer = Unpooled.buffer(frameSize);
-                buffer.readerIndex(start);
-                transferRemaining(buffer);
-                packet = null;
-                hasId = true;
-            } else {
+            handleFraming(frameSize, start, buffer, buffer);
+            packet = null;
+        }
+    }
+
+    private void handleFraming(int frameSize, int start, @AssumeNotNull ByteBuf buffer,
+                               @AssumeNotNull ByteBuf decodeBuffer) {
+        if (frameSize > maxFrameSize) {
+            final byte[] data = new byte[8];
+            ConversionUtil.intToBytes(data, 0, 0x0);
+            ConversionUtil.intToBytes(data, 4, frameSize);
+            if (!callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.TOO_LARGE_FRAME, data)) {
                 tryRelease(buffer);
-                final byte[] data = new byte[8];
-                ConversionUtil.intToBytes(data, 0, 0x0);
-                ConversionUtil.intToBytes(data, 4, frameSize);
-                if(!callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.TOO_LARGE_FRAME, data)) {
-                    throw new IllegalStateException("Received a frame which is too large (size: " + frameSize + " | max: " + maxFrameSize + ')');
-                }
+                throw new IllegalStateException("Received a frame which is too large. (size: " + frameSize +
+                        " | max: " + maxFrameSize + ')');
             }
         }
+        holdingBuffer = Unpooled.buffer(frameSize);
+        decodeBuffer.readerIndex(start);
+        transferRemaining(decodeBuffer);
+        hasId = true;
     }
 
     private void tryRelease(@AssumeNotNull ByteBuf buffer) {
@@ -386,8 +377,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             // Don't handle ThreadDeath
             return;
         }
-        final ExceptionTrowEvent event = new ExceptionTrowEvent(cause);
-        application.getEventManager().handleExceptionThrown(event);
+        application.getEventManager().handleExceptionThrown(cause);
     }
 
     @ApiStatus.Internal

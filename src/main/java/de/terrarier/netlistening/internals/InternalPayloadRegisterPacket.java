@@ -52,7 +52,6 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
             throw new IllegalArgumentException("Tried to send an empty packet!");
         }
         checkWriteable(application, buffer, getSize(application));
-
         InternalUtil.writeIntUnchecked(application, buffer, packetId);
         buffer.writeShort(typesLength);
 
@@ -85,7 +84,6 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
         } catch (VarIntUtil.VarIntParseException e) {
             throw new CancelReadSignal(3 + e.requiredBytes);
         }
-
         checkReadable(buffer, 2 + 1);
 
         final short size = buffer.readShort();
@@ -99,11 +97,11 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
             final byte id;
             if (nibbleCompression) {
                 if (nibblePair != 0) {
-                    id = NibbleUtil.getLowNibble(nibblePair);
+                    id = NibbleUtil.lowNibble(nibblePair);
                     nibblePair = 0;
                 } else {
                     nibblePair = buffer.readByte();
-                    id = NibbleUtil.getHighNibble(nibblePair);
+                    id = NibbleUtil.highNibble(nibblePair);
                 }
             } else {
                 id = buffer.readByte();
@@ -127,37 +125,36 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
                 connection.getCache();
         if (application instanceof Client) {
             cache.forceRegisterPacket(packetId, types);
-        } else {
-            final PacketSkeleton packet = cache.tryRegisterPacket(packetId, types);
-            if (packet.getId() == packetId) {
-                if (application.getCaching() == PacketCaching.GLOBAL) {
-                    cache.broadcastRegister(application, new InternalPayloadRegisterPacket(packetId, types), connection,
-                            null);
-                }
-            } else {
-                // TODO: Check if we have to "fix" this (we probably have to).
-                final InternalPayloadRegisterPacket register = new InternalPayloadRegisterPacket(packet.getId(), types);
-                if (application.getCaching() == PacketCaching.GLOBAL) {
-                    cache.broadcastRegister(application, register, null, null);
-                } else {
-                    final ByteBuf registerBuffer = Unpooled.buffer(
-                            (application.getCompressionSetting().isVarIntCompression() ? 2 : 5) + getSize(application));
-                    DataType.getDTIP().write0(application, registerBuffer, register);
-                }
-            }
-            packet.register();
+            return;
         }
+
+        final PacketSkeleton packet = cache.tryRegisterPacket(packetId, types);
+        if (packet.getId() == packetId) {
+            if (application.getCaching() == PacketCaching.GLOBAL) {
+                cache.broadcastRegister(application, new InternalPayloadRegisterPacket(packetId, types), connection,
+                        null);
+            }
+        } else {
+            // TODO: Check if we have to "fix" this (we probably have to).
+            final InternalPayloadRegisterPacket register = new InternalPayloadRegisterPacket(packet.getId(), types);
+            if (application.getCaching() == PacketCaching.GLOBAL) {
+                cache.broadcastRegister(application, register, null, null);
+            } else {
+                final ByteBuf registerBuffer = Unpooled.buffer(
+                        (application.getCompressionSetting().isVarIntCompression() ? 2 : 5) + getSize(application));
+                DataType.getDTIP().write0(application, registerBuffer, register);
+            }
+        }
+        packet.register();
     }
 
     public int getSize(@AssumeNotNull ApplicationImpl application) {
-        int size = 2 + InternalUtil.getSize(application, packetId);
+        final int size = 2 + InternalUtil.getSize(application, packetId);
 
         if (application.getCompressionSetting().isNibbleCompression()) {
-            size += NibbleUtil.nibbleToByteCount(types.length);
-        } else {
-            size += types.length;
+            return size + NibbleUtil.nibbleToByteCount(types.length);
         }
-        return size;
+        return size + types.length;
     }
 
 }

@@ -25,19 +25,13 @@ import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.SymmetricEncryptionUtil;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
 import de.terrarier.netlistening.api.event.ConnectionPostInitEvent;
-import de.terrarier.netlistening.api.event.ConnectionPreInitEvent;
-import de.terrarier.netlistening.api.event.EventManager;
 import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.internals.AssumeNotNull;
-import de.terrarier.netlistening.network.PacketDataDecoder;
-import de.terrarier.netlistening.network.PacketDataEncoder;
-import de.terrarier.netlistening.network.TimeOutHandler;
 import de.terrarier.netlistening.utils.UDS;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.ChannelPipeline;
 import io.netty.util.internal.SystemPropertyUtil;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -77,25 +71,19 @@ public final class ServerImpl extends ApplicationImpl implements Server {
     @AssumeNotNull
     private ServerBootstrap start(long timeout, int maxFrameSize, @AssumeNotNull Map<ChannelOption<?>, Object> options,
                                   boolean uds) {
-        if (group != null) {
-            throw new IllegalStateException("The server is already started!");
+        if (group == null) {
+            throw new IllegalStateException("The server was already stopped!");
         }
         serializationProvider.setEventManager(eventManager);
 
-        group = UDS.eventLoopGroup();
         return new ServerBootstrap().group(group)
                 .channel(UDS.serverChannel(uds))
                 .childHandler(new ChannelInitializer<Channel>() {
                     @Override
-                    protected void initChannel(Channel channel) {
-                        if (eventManager.callEvent(ListenerType.PRE_INIT, EventManager.CancelAction.INTERRUPT,
-                                new ConnectionPreInitEvent(channel))) {
-                            channel.close();
-                            return;
-                        }
-                        channel.config().setOptions(options);
+                    protected final void initChannel(@AssumeNotNull Channel channel) {
+                        final ConnectionImpl connection = prepareConnectionInitially(channel, timeout, options,
+                                delayedExecutor, maxFrameSize);
 
-                        final ConnectionImpl connection = new ConnectionImpl(ServerImpl.this, channel);
                         if (encryptionSetting != null) {
                             try {
                                 connection.setSymmetricKey(ServerImpl.this,
@@ -111,16 +99,6 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                                 e.printStackTrace();
                             }
                         }
-                        final ChannelPipeline pipeline = channel.pipeline();
-
-                        if (timeout > 0) {
-                            pipeline.addLast(TIMEOUT_HANDLER,
-                                    new TimeOutHandler(ServerImpl.this, connection, timeout));
-                        }
-                        pipeline.addLast(DECODER, new PacketDataDecoder(ServerImpl.this, handler, connection,
-                                maxFrameSize))
-                                .addAfter(DECODER, ENCODER, new PacketDataEncoder(ServerImpl.this, delayedExecutor,
-                                        connection));
 
                         connections.put(channel, connection);
                         eventManager.callEvent(ListenerType.POST_INIT, new ConnectionPostInitEvent(connection));

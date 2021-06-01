@@ -107,14 +107,14 @@ public final class EventManager {
         for (int i = 0; i < 5; i++) {
             final List<Listener<?>> priorityListeners = listeners[i];
             if (priorityListeners != null) {
-                for (int j = 0; j < priorityListeners.size(); j++) {
+                final int priorityListenersSize = priorityListeners.size();
+                for (int j = 0; j < priorityListenersSize; j++) {
                     final Listener listener = priorityListeners.get(j);
                     try {
                         listener.trigger(event);
                     } catch (Throwable throwable) {
                         if (event.getClass() != ExceptionTrowEvent.class && !(throwable instanceof OutOfMemoryError)) {
-                            final ExceptionTrowEvent exceptionTrowEvent = new ExceptionTrowEvent(throwable);
-                            handleExceptionThrown(exceptionTrowEvent);
+                            handleExceptionThrown(throwable);
                         }
                     }
                     if (cancellable && cancelAction == CancelAction.INTERRUPT && ((Cancellable) event).isCancelled()) {
@@ -141,7 +141,8 @@ public final class EventManager {
         return EventListener.Priority.MEDIUM;
     }
 
-    public void handleExceptionThrown(@AssumeNotNull ExceptionTrowEvent exceptionTrowEvent) {
+    public void handleExceptionThrown(@AssumeNotNull Throwable thr) {
+        final ExceptionTrowEvent exceptionTrowEvent = new ExceptionTrowEvent(thr);
         callEvent(ListenerType.EXCEPTION_THROW, exceptionTrowEvent);
         if (exceptionTrowEvent.isPrint()) {
             exceptionTrowEvent.getException().printStackTrace();

@@ -16,7 +16,6 @@ limitations under the License.
 package de.terrarier.netlistening.api.serialization;
 
 import de.terrarier.netlistening.api.event.EventManager;
-import de.terrarier.netlistening.api.event.ExceptionTrowEvent;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
@@ -120,8 +119,7 @@ public abstract class SerializationProvider {
 
     @ApiStatus.Internal
     protected final void handleException(@AssumeNotNull Exception exception) {
-        final ExceptionTrowEvent event = new ExceptionTrowEvent(new SerializationException(exception));
-        eventManager.handleExceptionThrown(event);
+        eventManager.handleExceptionThrown(new SerializationException(exception));
     }
 
     @ApiStatus.Internal

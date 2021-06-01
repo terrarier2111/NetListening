@@ -24,18 +24,21 @@ import de.terrarier.netlistening.api.compression.CompressionSetting;
 import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.ServerKey;
 import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
-import de.terrarier.netlistening.api.event.*;
+import de.terrarier.netlistening.api.event.ConnectionPostInitEvent;
+import de.terrarier.netlistening.api.event.EventManager;
+import de.terrarier.netlistening.api.event.KeyChangeEvent;
+import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.api.proxy.Proxy;
 import de.terrarier.netlistening.api.proxy.ProxyType;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.internals.CheckNotNull;
-import de.terrarier.netlistening.network.PacketDataDecoder;
-import de.terrarier.netlistening.network.PacketDataEncoder;
-import de.terrarier.netlistening.network.TimeOutHandler;
 import de.terrarier.netlistening.utils.UDS;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -65,44 +68,22 @@ public final class ClientImpl extends ApplicationImpl implements Client {
 
     @AssumeNotNull
     private Bootstrap start(long timeout, @AssumeNotNull Map<ChannelOption<?>, Object> options,
-                            @Nullable Proxy proxy, boolean uds) {
-        if (group != null) {
-            throw new IllegalStateException("The client is already running!");
-        }
-
-        if (receivedHandshake) {
+                            boolean uds, @Nullable Proxy proxy) {
+        if (receivedHandshake || group == null) {
             throw new IllegalStateException("The client is already stopped!");
         }
-        compressionSetting = new CompressionSetting();
         serializationProvider.setEventManager(eventManager);
+        compressionSetting = new CompressionSetting();
 
-        group = UDS.eventLoopGroup();
         return new Bootstrap().group(group)
                 .channel(UDS.channel(uds))
                 .handler(new ChannelInitializer<Channel>() {
                     @Override
-                    protected void initChannel(Channel channel) {
-                        if (eventManager.callEvent(ListenerType.PRE_INIT, EventManager.CancelAction.INTERRUPT,
-                                new ConnectionPreInitEvent(channel))) {
-                            channel.close();
-                            return;
-                        }
-                        channel.config().setOptions(options);
-
-                        final ConnectionImpl connection = new ConnectionImpl(ClientImpl.this, channel);
-                        final ChannelPipeline pipeline = channel.pipeline();
-
-                        if (timeout > 0) {
-                            pipeline.addLast(TIMEOUT_HANDLER,
-                                    new TimeOutHandler(ClientImpl.this, connection, timeout));
-                        }
-
-                        pipeline.addLast(DECODER, new PacketDataDecoder(ClientImpl.this, handler, connection,
-                                Integer.MAX_VALUE))
-                                .addAfter(DECODER, ENCODER, new PacketDataEncoder(ClientImpl.this, null, connection));
-
+                    protected final void initChannel(@AssumeNotNull Channel channel) {
+                        final ConnectionImpl connection = prepareConnectionInitially(channel, timeout, options, null,
+                                Integer.MAX_VALUE);
                         if (proxy != null) {
-                            pipeline.addFirst(PROXY_HANDLER, proxy.newHandler());
+                            channel.pipeline().addFirst(PROXY_HANDLER, proxy.newHandler());
                         }
 
                         ClientImpl.this.connection = connection;
@@ -115,7 +96,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
                        @AssumeNotNull SocketAddress remoteAddress, @Nullable Proxy proxy, int localPort) {
         worker = new Thread(() -> {
             try {
-                final Bootstrap bootstrap = start(timeout, options, proxy, false);
+                final Bootstrap bootstrap = start(timeout, options, false, proxy);
                 final ChannelFuture channelFuture;
                 if (localPort > 0) {
                     final SocketAddress localAddress = new InetSocketAddress("localhost", localPort);
@@ -133,7 +114,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     private void start(long timeout, @AssumeNotNull Map<ChannelOption<?>, Object> options, @AssumeNotNull String filePath) {
         worker = new Thread(() -> {
             try {
-                final Bootstrap bootstrap = start(timeout, options, null, true);
+                final Bootstrap bootstrap = start(timeout, options, true, null);
                 final ChannelFuture channelFuture = bootstrap.connect(UDS.domainSocketAddress(filePath));
                 channel = channelFuture.sync().syncUninterruptibly().channel();
             } catch (InterruptedException e) {

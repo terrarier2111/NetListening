@@ -26,24 +26,33 @@ import org.jetbrains.annotations.ApiStatus;
  */
 public final class ExceptionTrowEvent implements Event {
 
-    private final Throwable exception;
+    private final Throwable thrown;
     private boolean print = true;
 
     @ApiStatus.Internal
-    public ExceptionTrowEvent(@AssumeNotNull Throwable exception) {
-        this.exception = exception;
+    public ExceptionTrowEvent(@AssumeNotNull Throwable thrown) {
+        this.thrown = thrown;
     }
 
     /**
-     * @return the exception which got thrown.
+     * @deprecated use {@link ExceptionTrowEvent#getThrown()} instead!
      */
+    @Deprecated
     @AssumeNotNull
     public Throwable getException() {
-        return exception;
+        return thrown;
     }
 
     /**
-     * Sets whether the stacktrace should be print or not.
+     * @return the throwable which got thrown.
+     */
+    @AssumeNotNull
+    public Throwable getThrown() {
+        return thrown;
+    }
+
+    /**
+     * Sets whether the stacktrace should be printed or not.
      *
      * @param print whether the stacktrace should be print or not.
      */

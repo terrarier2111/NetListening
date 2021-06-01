@@ -23,7 +23,6 @@ import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.hash.HashUtil;
 import de.terrarier.netlistening.api.encryption.hash.HmacApplicationPolicy;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
-import de.terrarier.netlistening.api.event.ExceptionTrowEvent;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
@@ -186,7 +185,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
             dst.writeBytes(data);
             dst.writeBytes(hash);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            application.getEventManager().handleExceptionThrown(new ExceptionTrowEvent(e));
+            application.getEventManager().handleExceptionThrown(e);
         }
     }
 
