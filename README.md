@@ -8,8 +8,9 @@ If you want to learn how to use the NetListening library, just look at the examp
 
 If you have any questions or just want to get in touch with the community, here is the link to our official discord: https://discord.gg/BGtZ5fpQKS
 
-System custom properties:
+System properties:
 de.terrarier.netlistening.IgnoreEmptyPackets - bool: Whether empty packets should be dropped or not.           (def: true)
 de.terrarier.netlistening.CheckBounds        - bool: Whether buffers should be checked for OOB, when accessed. (def: false)
+
 NOTE: The following System properties are experimental exclusively, default values may be changed or the property may be removed entirely in the future.
 de.terrarier.netlistening.MaxFrameSize       -  int: The max size a frame may have until its dropped in bytes. (def: 1024 * 1024 * 16 | aka 16 MB)
