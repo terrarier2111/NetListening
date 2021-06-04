@@ -31,14 +31,10 @@ import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.api.proxy.Proxy;
 import de.terrarier.netlistening.api.proxy.ProxyType;
 import de.terrarier.netlistening.internals.AssumeNotNull;
-import de.terrarier.netlistening.internals.CheckNotNull;
 import de.terrarier.netlistening.utils.UDS;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
+import io.netty.channel.*;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,8 +45,6 @@ import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.*;
-
-import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkNotNull;
 
 /**
  * @author Terrarier2111
@@ -66,14 +60,17 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     private HashingAlgorithm serverKeyHashing = HashingAlgorithm.SHA_256;
     private ServerKey serverKey;
 
+    private ClientImpl() {
+        compressionSetting = new CompressionSetting();
+    }
+
     @AssumeNotNull
     private Bootstrap start(long timeout, @AssumeNotNull Map<ChannelOption<?>, Object> options,
                             boolean uds, @Nullable Proxy proxy) {
-        if (receivedHandshake || group == null) {
+        if (group == null) {
             throw new IllegalStateException("The client is already stopped!");
         }
         serializationProvider.setEventManager(eventManager);
-        compressionSetting = new CompressionSetting();
 
         return new Bootstrap().group(group)
                 .channel(UDS.channel(uds))
@@ -90,37 +87,6 @@ public final class ClientImpl extends ApplicationImpl implements Client {
                         eventManager.callEvent(ListenerType.POST_INIT, new ConnectionPostInitEvent(connection));
                     }
                 });
-    }
-
-    private void start(long timeout, @AssumeNotNull Map<ChannelOption<?>, Object> options,
-                       @AssumeNotNull SocketAddress remoteAddress, @Nullable Proxy proxy, int localPort) {
-        worker = new Thread(() -> {
-            try {
-                final Bootstrap bootstrap = start(timeout, options, false, proxy);
-                final ChannelFuture channelFuture;
-                if (localPort > 0) {
-                    final SocketAddress localAddress = new InetSocketAddress("localhost", localPort);
-                    channelFuture = bootstrap.connect(remoteAddress, localAddress);
-                } else {
-                    channelFuture = bootstrap.connect(remoteAddress);
-                }
-                channel = channelFuture.sync().syncUninterruptibly().channel();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-    }
-
-    private void start(long timeout, @AssumeNotNull Map<ChannelOption<?>, Object> options, @AssumeNotNull String filePath) {
-        worker = new Thread(() -> {
-            try {
-                final Bootstrap bootstrap = start(timeout, options, true, null);
-                final ChannelFuture channelFuture = bootstrap.connect(UDS.domainSocketAddress(filePath));
-                channel = channelFuture.sync().syncUninterruptibly().channel();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
     }
 
     @ApiStatus.Internal
@@ -151,8 +117,9 @@ public final class ClientImpl extends ApplicationImpl implements Client {
 
         synchronized (this) {
             if (preConnectData != null) {
+                final ChannelPromise voidPromise = channel.voidPromise();
                 for (Iterator<DataContainer> iterator = preConnectData.iterator(); iterator.hasNext(); ) {
-                    channel.writeAndFlush(iterator.next());
+                    channel.writeAndFlush(iterator.next(), voidPromise);
                     iterator.remove();
                 }
                 preConnectData = null;
@@ -163,7 +130,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
 
     @ApiStatus.Internal
     public void sendRawData(@AssumeNotNull ByteBuf data) {
-        channel.writeAndFlush(data);
+        channel.writeAndFlush(data, channel.voidPromise());
     }
 
     /**
@@ -181,7 +148,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
             return;
         }
 
-        channel.writeAndFlush(data);
+        channel.writeAndFlush(data, channel.voidPromise());
     }
 
     /**
@@ -227,7 +194,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         group = null;
         worker.interrupt();
         worker = null;
-        cache.getPackets().clear();
+        cache.clear();
     }
 
     /**
@@ -250,8 +217,8 @@ public final class ClientImpl extends ApplicationImpl implements Client {
      * @see Client#setServerKey(byte[])
      */
     @Override
-    public boolean setServerKey(@CheckNotNull byte[] data) {
-        return setServerKey(new ServerKey(checkNotNull(data, "data")));
+    public boolean setServerKey(byte @NotNull[] data) {
+        return setServerKey(new ServerKey(data));
     }
 
     private void setServerKey(@AssumeNotNull byte[] serverKeyData, @AssumeNotNull HashingAlgorithm hashingAlgorithm) {
@@ -357,6 +324,9 @@ public final class ClientImpl extends ApplicationImpl implements Client {
          */
         public void proxy(@AssumeNotNull SocketAddress address, @AssumeNotNull ProxyType proxyType) {
             validate();
+            if (filePath != null) {
+                throw new UnsupportedOperationException("You may not specify a port when using UDS.");
+            }
             proxy = proxyType.getInstance(address);
         }
 
@@ -365,11 +335,26 @@ public final class ClientImpl extends ApplicationImpl implements Client {
          */
         @Override
         void build0() {
-            if (filePath != null) {
-                application.start(timeout, options, filePath);
-            } else {
-                application.start(timeout, options, remoteAddress, proxy, localPort);
-            }
+            final boolean uds = filePath != null;
+            application.worker = new Thread(() -> {
+                final Bootstrap bootstrap = application.start(timeout, options, uds, uds ? null : proxy);
+                final ChannelFuture channelFuture;
+                if (uds) {
+                    channelFuture = bootstrap.connect(UDS.domainSocketAddress(filePath));
+                } else {
+                    if (localPort > 0) {
+                        final SocketAddress localAddress = new InetSocketAddress("localhost", localPort);
+                        channelFuture = bootstrap.connect(remoteAddress, localAddress);
+                    } else {
+                        channelFuture = bootstrap.connect(remoteAddress);
+                    }
+                }
+                try {
+                    application.channel = channelFuture.sync().syncUninterruptibly().channel();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
             application.worker.start();
         }
 

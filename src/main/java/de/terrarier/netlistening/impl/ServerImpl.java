@@ -30,6 +30,7 @@ import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.utils.UDS;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.util.internal.SystemPropertyUtil;
@@ -69,8 +70,8 @@ public final class ServerImpl extends ApplicationImpl implements Server {
     });
 
     @AssumeNotNull
-    private ServerBootstrap start(long timeout, int maxFrameSize, @AssumeNotNull Map<ChannelOption<?>, Object> options,
-                                  boolean uds) {
+    private ServerBootstrap start(long timeout, @AssumeNotNull Map<ChannelOption<?>, Object> options,
+                                  boolean uds, int maxFrameSize) {
         if (group == null) {
             throw new IllegalStateException("The server was already stopped!");
         }
@@ -159,7 +160,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         group = null;
         worker.interrupt();
         worker = null;
-        cache.getPackets().clear();
+        cache.clear();
         if (!delayedExecutor.isShutdown()) {
             delayedExecutor.shutdown();
             try {
@@ -218,7 +219,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         public Builder(@AssumeNotNull String filePath) {
             super(new ServerImpl());
             if (!UDS.isAvailable(true)) {
-                throw new UnsupportedOperationException("UDS are not supported in this environment.");
+                throw new UnsupportedOperationException("UDS are unsupported in this environment.");
             }
             this.filePath = filePath;
             port = 0;
@@ -269,14 +270,6 @@ public final class ServerImpl extends ApplicationImpl implements Server {
          */
         @Override
         void build0() {
-            if (application.caching == PacketCaching.NONE) {
-                application.caching = PacketCaching.GLOBAL;
-            }
-
-            if (application.compressionSetting == null) {
-                application.compressionSetting = new CompressionSetting();
-            }
-
             if (application.encryptionSetting != null && !application.encryptionSetting.isInitialized()) {
                 try {
                     application.encryptionSetting.init(null);
@@ -285,15 +278,24 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                     return;
                 }
             }
+            if (application.caching == PacketCaching.NONE) {
+                application.caching = PacketCaching.GLOBAL;
+            }
+
+            if (application.compressionSetting == null) {
+                application.compressionSetting = new CompressionSetting();
+            }
             application.worker = new Thread(() -> {
+                final boolean uds = filePath != null;
+                final ServerBootstrap bootstrap = application.start(timeout, options, uds, maxFrameSize);
+                final ChannelFuture channelFuture;
+                if (uds) {
+                    channelFuture = bootstrap.bind(UDS.domainSocketAddress(filePath));
+                } else {
+                    channelFuture = bootstrap.bind(port);
+                }
                 try {
-                    final Channel channel;
-                    if (filePath != null) {
-                        channel = application.start(timeout, maxFrameSize, options, true).bind(
-                                UDS.domainSocketAddress(filePath)).sync().channel();
-                    } else {
-                        channel = application.start(timeout, maxFrameSize, options, false).bind(port).sync().channel();
-                    }
+                    final Channel channel = channelFuture.sync().channel();
                     channel.config().setOptions(options);
                     channel.closeFuture().syncUninterruptibly();
                 } catch (InterruptedException e) {

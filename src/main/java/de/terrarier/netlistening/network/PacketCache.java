@@ -23,9 +23,9 @@ import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.internals.InternalPayloadRegisterPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -44,30 +44,20 @@ public final class PacketCache {
     private static final PacketSkeleton INTERNAL_PAYLOAD_PACKET_SKELETON = new PacketSkeleton(0x0, DataType.getDTIP());
     private static final PacketSkeleton ENCRYPTION_PACKET_SKELETON = new PacketSkeleton(0x3, DataType.getDTE());
     private static final PacketSkeleton HMAC_PACKET_SKELETON = new PacketSkeleton(0x4, DataType.getDTHMAC());
-    private final Map<Integer, PacketSkeleton> packets = new ConcurrentHashMap<>();
+    private final Map<Integer, PacketSkeleton> idPacketMapping = new ConcurrentHashMap<>();
+    private final Map<DataType<?>[], PacketSkeleton> dataTypePacketMapping = new ConcurrentHashMap<>();
     private final AtomicInteger id = new AtomicInteger(5);
     private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     public PacketCache() {
-        packets.put(0x0, INTERNAL_PAYLOAD_PACKET_SKELETON);
-        packets.put(0x3, ENCRYPTION_PACKET_SKELETON);
-        packets.put(0x4, HMAC_PACKET_SKELETON);
+        idPacketMapping.put(0x0, INTERNAL_PAYLOAD_PACKET_SKELETON);
+        idPacketMapping.put(0x3, ENCRYPTION_PACKET_SKELETON);
+        idPacketMapping.put(0x4, HMAC_PACKET_SKELETON);
     }
 
     @AssumeNotNull
     public Map<Integer, PacketSkeleton> getPackets() {
-        return packets;
-    }
-
-    @AssumeNotNull
-    PacketSkeleton registerPacket(@AssumeNotNull DataType<?>... data) {
-        final Lock writeLock = lock.writeLock();
-        writeLock.lock();
-        try {
-            return registerPacket0(id.getAndIncrement(), data);
-        } finally {
-            writeLock.unlock();
-        }
+        return idPacketMapping;
     }
 
     @AssumeNotNull
@@ -84,7 +74,7 @@ public final class PacketCache {
                 }
                 // TODO: Check if we have to add a "proper fix" at this place.
             }
-            return registerPacket0(this.id.getAndIncrement(), data);
+            return registerPacket(this.id.getAndIncrement(), data);
         } finally {
             writeLock.unlock();
         }
@@ -101,39 +91,42 @@ public final class PacketCache {
                 this.id.getAndIncrement();
             }
 
-            registerPacket0(id, data);
+            registerPacket(id, data);
         } finally {
             writeLock.unlock();
         }
     }
 
     @AssumeNotNull
-    private PacketSkeleton registerPacket0(int id, @AssumeNotNull DataType<?>... data) {
+    private PacketSkeleton registerPacket(int id, @AssumeNotNull DataType<?>... data) {
         final PacketSkeleton packet = new PacketSkeleton(id, data);
-        packets.put(id, packet);
+        idPacketMapping.put(id, packet);
+        dataTypePacketMapping.put(data, packet);
         return packet;
     }
 
     PacketSkeleton getPacket(@AssumeNotNull DataType<?>... data) {
-        final int dataLength = data.length;
-        final int dataHash = Arrays.hashCode(data);
+        return dataTypePacketMapping.get(data);
+    }
 
-        final Lock readLock = lock.readLock();
-        readLock.lock();
+    @AssumeNotNull
+    PacketSkeleton getOrRegisterPacket(@AssumeNotNull boolean[] notifier, @AssumeNotNull DataType<?>... data) {
+        final Lock writeLock = lock.writeLock();
+        writeLock.lock();
         try {
-            for (PacketSkeleton packet : packets.values()) {
-                if (packet.getData().length == dataLength && dataHash == packet.hashCode()) {
-                    return packet;
-                }
+            final PacketSkeleton packetSkeleton = getPacket(data);
+            if(packetSkeleton != null) {
+                return packetSkeleton;
             }
+            notifier[0] = true;
+            return registerPacket(id.getAndIncrement(), data);
         } finally {
-            readLock.unlock();
+            writeLock.unlock();
         }
-        return null;
     }
 
     PacketSkeleton getPacket(int id) {
-        return packets.get(id);
+        return idPacketMapping.get(id);
     }
 
     public void broadcastRegister(@AssumeNotNull ApplicationImpl application,
@@ -152,7 +145,8 @@ public final class PacketCache {
                 if (ignored == null || connection.getId() != ignored.getId()) {
                     registerBuffer.retain();
                     if (connection.isConnected()) {
-                        connection.getChannel().writeAndFlush(registerBuffer);
+                        final Channel channel = connection.getChannel();
+                        channel.writeAndFlush(registerBuffer, channel.voidPromise());
                     } else {
                         connection.writeToInitialBuffer(registerBuffer);
                     }
@@ -160,6 +154,11 @@ public final class PacketCache {
             }
             registerBuffer.release();
         }
+    }
+
+    public void clear() {
+        idPacketMapping.clear();
+        dataTypePacketMapping.clear();
     }
 
 }

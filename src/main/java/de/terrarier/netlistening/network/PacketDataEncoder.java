@@ -35,6 +35,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -81,10 +82,10 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
             }
         }
         final PacketCache cache = application.getCache();
-        PacketSkeleton packet = cache.getPacket(types);
+        final boolean[] notifier = new boolean[1];
+        final PacketSkeleton packet = cache.getOrRegisterPacket(notifier, types);
 
-        if (packet == null) {
-            packet = cache.registerPacket(types);
+        if (notifier[0]) {
             final InternalPayloadRegisterPacket register = new InternalPayloadRegisterPacket(packet.getId(), types);
             final ByteBuf registerBuffer = Unpooled.buffer(5 + dataSize);
             DataType.getDTIP().write0(application, registerBuffer, register);
@@ -95,18 +96,16 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
                 registerBuffer.release();
             }
             packet.register();
-        }
-
-        if (application instanceof Server && !packet.isRegistered()) {
+        }else if (application instanceof Server && !packet.isRegistered()) {
             if (delayedExecutor.isShutdown()) {
                 return;
             }
-            final PacketSkeleton finalPacket = packet;
             // Sending data delayed, awaiting the packet's registration to finish.
             delayedExecutor.execute(() -> {
                 final Channel channel = ctx.channel();
-                while (!finalPacket.isRegistered());
-                channel.writeAndFlush(data);
+                final ChannelPromise voidPromise = channel.voidPromise();
+                while (!packet.isRegistered());
+                channel.writeAndFlush(data, voidPromise);
             });
             return;
         }

@@ -60,6 +60,7 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
         final long delay = timeout / 2;
         final boolean client = application instanceof Client;
         final Channel channel = connection.getChannel();
+        final ChannelPromise voidPromise = channel.voidPromise();
 
         timer.schedule(new TimerTask() {
 
@@ -80,7 +81,7 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
                 buffer.resetWriterIndex();
                 buffer.writeByte(++counter);
                 buffer.retain();
-                channel.writeAndFlush(buffer);
+                channel.writeAndFlush(buffer, voidPromise);
             }
         }, delay, delay);
     }

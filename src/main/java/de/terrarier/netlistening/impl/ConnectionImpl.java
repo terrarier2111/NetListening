@@ -32,6 +32,7 @@ import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelPromise;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,8 +42,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkNotNull;
 
 /**
  * @author Terrarier2111
@@ -86,7 +85,7 @@ public final class ConnectionImpl implements Connection {
         checkReceived();
         if (connected && dataSendState.isAtLeast(DataSendState.SENDING)) {
             if (dataSendState == DataSendState.FINISHED) {
-                channel.writeAndFlush(data);
+                channel.writeAndFlush(data, channel.voidPromise());
             } else {
                 // TODO: Handle stuff incoming before!
             }
@@ -104,6 +103,7 @@ public final class ConnectionImpl implements Connection {
     /**
      * @see Connection#sendData(boolean, Object...)
      */
+    @Deprecated
     @Override
     public void sendData(boolean encrypted, @NotNull Object... data) {
         final DataContainer dataContainer = new DataContainer();
@@ -129,7 +129,7 @@ public final class ConnectionImpl implements Connection {
 
     void disconnect0() {
         if (application.getCaching() != PacketCaching.GLOBAL) {
-            cache.getPackets().clear();
+            cache.clear();
         }
         channel.close();
     }
@@ -178,8 +178,8 @@ public final class ConnectionImpl implements Connection {
      * @param options      the options which should be used to interpret the key data.
      * @param symmetricKey the data which should be used to generate the key.
      */
-    public void setSymmetricKey(@NotNull EncryptionOptions options, @CheckNotNull byte[] symmetricKey) {
-        final SecretKey secretKey = SymmetricEncryptionUtil.readSecretKey(checkNotNull(symmetricKey, "symmetricKey"),
+    public void setSymmetricKey(@NotNull EncryptionOptions options, byte @NotNull[] symmetricKey) {
+        final SecretKey secretKey = SymmetricEncryptionUtil.readSecretKey(symmetricKey,
                 options);
         encryptionContext = new SymmetricEncryptionContext(secretKey, options);
     }
@@ -209,8 +209,8 @@ public final class ConnectionImpl implements Connection {
      *
      * @param key the key which should be used to hash data.
      */
-    public void setHmacKey(@CheckNotNull byte[] key) {
-        hmacKey = checkNotNull(key, "key");
+    public void setHmacKey(byte @NotNull[] key) {
+        hmacKey = key;
     }
 
     /**
@@ -246,17 +246,21 @@ public final class ConnectionImpl implements Connection {
             receivedPacket = true;
             final boolean connected = isConnected();
 
+            final DataTypeInternalPayload dtip = DataType.getDTIP();
+            final PacketCaching caching = application.getCaching();
+            final ByteBuf buffer;
             synchronized (this) {
-                if (!connected && preConnectBuffer == null) {
-                    preConnectBuffer = Unpooled.buffer();
+                if (connected) {
+                    buffer = Unpooled.buffer();
+                }else {
+                    if(preConnectBuffer == null) {
+                        preConnectBuffer = Unpooled.buffer();
+                    }
+                    buffer = preConnectBuffer;
                 }
-
-                final ByteBuf buffer = connected ? Unpooled.buffer() : preConnectBuffer;
                 buffer.writeInt(0x0);
-                final DataTypeInternalPayload dtip = DataType.getDTIP();
                 dtip.write(application, buffer, InternalPayload.HANDSHAKE);
-                if (application.getCaching() == PacketCaching.GLOBAL) {
-
+                if (caching == PacketCaching.GLOBAL) {
                     final Map<Integer, PacketSkeleton> packets = cache.getPackets();
                     final int packetsSize = packets.size();
                     if (packetsSize > 3) {
@@ -268,7 +272,7 @@ public final class ConnectionImpl implements Connection {
                     }
                 }
                 if (connected) {
-                    channel.writeAndFlush(buffer);
+                    channel.writeAndFlush(buffer, channel.voidPromise());
                 }
             }
         }
@@ -280,8 +284,8 @@ public final class ConnectionImpl implements Connection {
             dataSendState = DataSendState.SENDING;
 
             synchronized (this) {
-                if (preConnectBuffer != null && preConnectBuffer.writerIndex() > 0) {
-                    channel.writeAndFlush(preConnectBuffer);
+                if (preConnectBuffer != null && preConnectBuffer.isReadable()) {
+                    channel.writeAndFlush(preConnectBuffer, channel.voidPromise());
                     preConnectBuffer = null;
                 } else {
                     // Writing the init data to the channel (without hitting the pre connect buffer).
@@ -331,9 +335,9 @@ public final class ConnectionImpl implements Connection {
         if (dataSendState.isAtLeast(DataSendState.FINISHING)) {
             if (dataSendState == DataSendState.FINISHING) {
                 // We are waiting until the execution of the prepare method has finished.
-                while (this.dataSendState != DataSendState.FINISHED) ;
+                while (this.dataSendState != DataSendState.FINISHED);
             }
-            channel.writeAndFlush(buffer);
+            channel.writeAndFlush(buffer, channel.voidPromise());
             return true;
         }
         return false;
@@ -341,9 +345,11 @@ public final class ConnectionImpl implements Connection {
 
     private void transferData(@AssumeNotNull ByteBuf buffer) {
         final int readable = buffer.readableBytes();
+        final byte[] bytes = ByteBufUtilExtension.getBytes(buffer, readable);
+        final int applicationBuffer = application.getBuffer();
         synchronized (this) {
-            ByteBufUtilExtension.correctSize(preConnectBuffer, readable, application.getBuffer());
-            preConnectBuffer.writeBytes(ByteBufUtilExtension.getBytes(buffer, readable));
+            ByteBufUtilExtension.correctSize(preConnectBuffer, readable, applicationBuffer);
+            preConnectBuffer.writeBytes(bytes);
         }
         buffer.release();
     }
@@ -351,12 +357,15 @@ public final class ConnectionImpl implements Connection {
     @ApiStatus.Internal
     public void prepare() {
         dataSendState = DataSendState.FINISHING;
+        final ChannelPromise voidPromise = channel.voidPromise();
         synchronized (this) {
             if (preConnectSendQueue != null) {
                 final List<DataContainer> sendQueue = preConnectSendQueue;
                 preConnectSendQueue = null;
-                for (DataContainer data : sendQueue) {
-                    channel.writeAndFlush(data);
+                final int sendQueueSize = sendQueue.size();
+                for (int i = 0; i < sendQueueSize; i++) {
+                    final DataContainer data = sendQueue.get(i);
+                    channel.writeAndFlush(data, voidPromise);
                 }
                 sendQueue.clear();
             }
@@ -364,10 +373,10 @@ public final class ConnectionImpl implements Connection {
 
         final ByteBuf buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 1 : 4);
         InternalUtil.writeIntUnchecked(application, buffer, 0x2);
-        channel.writeAndFlush(buffer);
+        channel.writeAndFlush(buffer, voidPromise);
         synchronized (this) {
             if (preConnectBuffer != null) {
-                channel.writeAndFlush(preConnectBuffer);
+                channel.writeAndFlush(preConnectBuffer, voidPromise);
                 preConnectBuffer = null;
             }
         }

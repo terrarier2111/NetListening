@@ -28,6 +28,7 @@ import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.security.NoSuchAlgorithmException;
@@ -123,7 +124,8 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
                                 new SymmetricEncryptionData(encryptionSetting.getSymmetricSetting(),
                                         connection.getEncryptionContext().getSecretKey()), publicKey,
                                 connection.getHmacKey()));
-                connection.getChannel().writeAndFlush(initBuffer);
+                final Channel channel = connection.getChannel();
+                channel.writeAndFlush(initBuffer, channel.voidPromise());
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 e.printStackTrace();
             }
