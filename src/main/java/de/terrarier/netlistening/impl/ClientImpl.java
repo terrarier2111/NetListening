@@ -325,7 +325,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         public void proxy(@AssumeNotNull SocketAddress address, @AssumeNotNull ProxyType proxyType) {
             validate();
             if (filePath != null) {
-                throw new UnsupportedOperationException("You may not specify a port when using UDS.");
+                throw new UnsupportedOperationException("You may not specify a proxy when using UDS.");
             }
             proxy = proxyType.getInstance(address);
         }
