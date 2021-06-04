@@ -39,27 +39,6 @@ public interface Client extends Application {
     String PROXY_HANDLER = "nl_proxy_handler";
 
     /**
-     * @return the connection of the Client and if not available, null.
-     */
-    Connection getConnection();
-
-    /**
-     * @return the key used by the server to encrypt the symmetric key.
-     */
-    ServerKey getServerKey();
-
-    /**
-     * Sets the expected key used by the server to encrypt the symmetric key.
-     * If the key set is different to the key received by the server,
-     * a KeyChangeEvent with a {@code HASH_CHANGED} action is getting called,
-     * which can be used to detect MITM attacks.
-     *
-     * @param data the data representing the expected key.
-     * @return whether or not setting the key was successful.
-     */
-    boolean setServerKey(byte @NotNull [] data);
-
-    /**
      * Creates a new builder with the passed arguments.
      *
      * @param host       the host the client should connect to.
@@ -92,6 +71,27 @@ public interface Client extends Application {
     static Builder builder(@AssumeNotNull String filePath) {
         return new Builder(filePath);
     }
+
+    /**
+     * @return the connection of the Client and if not available, null.
+     */
+    Connection getConnection();
+
+    /**
+     * @return the key used by the server to encrypt the symmetric key.
+     */
+    ServerKey getServerKey();
+
+    /**
+     * Sets the expected key used by the server to encrypt the symmetric key.
+     * If the key set is different to the key received by the server,
+     * a KeyChangeEvent with a {@code HASH_CHANGED} action is getting called,
+     * which can be used to detect MITM attacks.
+     *
+     * @param data the data representing the expected key.
+     * @return whether or not setting the key was successful.
+     */
+    boolean setServerKey(byte @NotNull [] data);
 
     final class Builder extends Application.Builder<Client, Builder> {
 

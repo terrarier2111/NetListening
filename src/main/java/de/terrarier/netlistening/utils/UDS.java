@@ -44,6 +44,8 @@ import java.util.Locale;
 @SuppressWarnings("unchecked")
 public final class UDS {
 
+    private static final boolean AVAILABLE;
+    private static final boolean OSX = isOsx0();
     private static Class<? extends ServerChannel> KQUEUE_SERVER_SOCKET_CHANNEL;
     private static Class<? extends ServerChannel> KQUEUE_SERVER_DOMAIN_SOCKET_CHANNEL;
     private static Class<? extends ServerChannel> EPOLL_SERVER_DOMAIN_SOCKET_CHANNEL;
@@ -53,9 +55,6 @@ public final class UDS {
     private static Class<? extends Channel> DOMAIN_SOCKET_CHANNEL;
     private static Class<? extends EventLoopGroup> KQUEUE_EVENT_LOOP_GROUP;
     private static Constructor<? extends SocketAddress> DOMAIN_SOCKET_ADDRESS_CONSTRUCTOR;
-
-    private static final boolean AVAILABLE;
-    private static final boolean OSX = isOsx0();
 
     static {
         final boolean epoll = Epoll.isAvailable();

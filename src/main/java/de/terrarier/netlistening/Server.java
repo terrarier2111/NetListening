@@ -40,24 +40,6 @@ import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositiveOr
 public interface Server extends Application {
 
     /**
-     * Maps a specific id to the connection being identified with this id.
-     *
-     * @param id the id of the requested connection.
-     * @return the connection which is identified with the passed id and
-     * if not available, null.
-     */
-    Connection getConnection(int id);
-
-    /**
-     * Maps a specific channel to the connection wrapping the specified channel.
-     *
-     * @param channel the channel which underlies the connection.
-     * @return the connection which wraps the passed channel and
-     * if not available, null.
-     */
-    Connection getConnection(@NotNull Channel channel);
-
-    /**
      * Creates a new builder with the passed arguments.
      *
      * @param port the port the server should bind/listen to.
@@ -78,6 +60,24 @@ public interface Server extends Application {
     static Builder builder(String filePath) {
         return new Builder(filePath);
     }
+
+    /**
+     * Maps a specific id to the connection being identified with this id.
+     *
+     * @param id the id of the requested connection.
+     * @return the connection which is identified with the passed id and
+     * if not available, null.
+     */
+    Connection getConnection(int id);
+
+    /**
+     * Maps a specific channel to the connection wrapping the specified channel.
+     *
+     * @param channel the channel which underlies the connection.
+     * @return the connection which wraps the passed channel and
+     * if not available, null.
+     */
+    Connection getConnection(@NotNull Channel channel);
 
     final class Builder extends Application.Builder<Server, Builder> {
 
