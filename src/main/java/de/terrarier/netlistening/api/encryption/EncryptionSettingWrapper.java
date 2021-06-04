@@ -113,8 +113,7 @@ public final class EncryptionSettingWrapper extends EncryptionOptionsSuperBuilde
     @AssumeNotNull
     @Override
     protected EncryptionSettingWrapper encryptionOptions(@NotNull EncryptionOptions encryption) {
-        asymmetricEncryptionOptions(encryption);
-        return this;
+        return asymmetricEncryptionOptions(encryption);
     }
 
 }

@@ -30,6 +30,7 @@ public final class DataTypeByte extends DataType<Byte> {
         super((byte) 0x2, (byte) 1, true);
     }
 
+    @AssumeNotNull
     @Override
     protected Byte read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                         @AssumeNotNull ByteBuf buffer) {

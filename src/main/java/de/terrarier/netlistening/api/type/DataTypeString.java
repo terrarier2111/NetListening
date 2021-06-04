@@ -38,6 +38,7 @@ public final class DataTypeString extends DataType<String> {
         super((byte) 0x7, (byte) 4, true);
     }
 
+    @AssumeNotNull
     @Override
     protected String read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                           @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
@@ -52,7 +53,8 @@ public final class DataTypeString extends DataType<String> {
             final InvalidDataEvent event = new InvalidDataEvent(connection,
                     InvalidDataEvent.DataInvalidReason.INVALID_LENGTH, data);
 
-            if (application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE, event)) {
+            if (application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+                    event)) {
                 return EMPTY_STRING;
             }
 
@@ -68,7 +70,8 @@ public final class DataTypeString extends DataType<String> {
     @Override
     protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer,
                          @AssumeNotNull String data) {
-        ByteBufUtilExtension.writeBytes(buffer, data.getBytes(application.getStringEncoding()), application.getBuffer());
+        ByteBufUtilExtension.writeBytes(buffer, data.getBytes(application.getStringEncoding()),
+                application.getBuffer());
     }
 
 }

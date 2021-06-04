@@ -21,14 +21,14 @@ import de.terrarier.netlistening.api.proxy.ProxyType;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.internals.AssumeNotNull;
-import de.terrarier.netlistening.internals.CheckNotNull;
 import io.netty.channel.ChannelOption;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
-import static de.terrarier.netlistening.utils.ObjectUtilFallback.*;
+import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositive;
+import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositiveOrZero;
 
 /**
  * @author Terrarier2111
@@ -57,7 +57,7 @@ public interface Client extends Application {
      * @param data the data representing the expected key.
      * @return whether or not setting the key was successful.
      */
-    boolean setServerKey(@CheckNotNull byte[] data);
+    boolean setServerKey(byte @NotNull[] data);
 
     /**
      * Creates a new builder with the passed arguments.
@@ -67,7 +67,7 @@ public interface Client extends Application {
      * @return the new builder.
      */
     @AssumeNotNull
-    static Builder builder(String host, int remotePort) {
+    static Builder builder(@AssumeNotNull String host, int remotePort) {
         return new Builder(host, remotePort);
     }
 
@@ -78,7 +78,7 @@ public interface Client extends Application {
      * @return the new builder.
      */
     @AssumeNotNull
-    static Builder builder(SocketAddress remoteAddress) {
+    static Builder builder(@AssumeNotNull SocketAddress remoteAddress) {
         return new Builder(remoteAddress);
     }
 
@@ -89,7 +89,7 @@ public interface Client extends Application {
      * @return the new builder.
      */
     @AssumeNotNull
-    static Builder builder(String filePath) {
+    static Builder builder(@AssumeNotNull String filePath) {
         return new Builder(filePath);
     }
 
@@ -178,8 +178,8 @@ public interface Client extends Application {
          * @return the local reference.
          */
         @AssumeNotNull
-        public Builder serverKeyHash(@CheckNotNull byte[] bytes) {
-            impl.serverKeyHash(checkNotNull(bytes, "bytes"));
+        public Builder serverKeyHash(byte @NotNull[] bytes) {
+            impl.serverKeyHash(bytes);
             return this;
         }
 

@@ -30,6 +30,7 @@ public final class DataTypeShort extends DataType<Short> {
         super((byte) 0x6, (byte) 2, true);
     }
 
+    @AssumeNotNull
     @Override
     protected Short read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                          @AssumeNotNull ByteBuf buffer) {

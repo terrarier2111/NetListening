@@ -30,6 +30,7 @@ public final class DataTypeInt extends DataType<Integer> {
         super((byte) 0x5, (byte) 4, true);
     }
 
+    @AssumeNotNull
     @Override
     protected Integer read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                            @AssumeNotNull ByteBuf buffer) {

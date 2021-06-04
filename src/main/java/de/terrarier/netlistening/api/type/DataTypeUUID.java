@@ -32,6 +32,7 @@ public final class DataTypeUUID extends DataType<UUID> {
         super((byte) 0xB, (byte) 16, true);
     }
 
+    @AssumeNotNull
     @Override
     protected UUID read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                         @AssumeNotNull ByteBuf buffer) {

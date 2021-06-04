@@ -30,6 +30,7 @@ public final class DataTypeLong extends DataType<Long> {
         super((byte) 0x9, (byte) 8, true);
     }
 
+    @AssumeNotNull
     @Override
     protected Long read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                         @AssumeNotNull ByteBuf buffer) {

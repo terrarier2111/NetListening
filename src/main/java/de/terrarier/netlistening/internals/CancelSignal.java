@@ -31,13 +31,13 @@ public class CancelSignal extends Exception {
 
     @AssumeNotNull
     @Override
-    public Throwable initCause(Throwable cause) {
+    public final Throwable initCause(Throwable cause) {
         return this;
     }
 
     @AssumeNotNull
     @Override
-    public Throwable fillInStackTrace() {
+    public final Throwable fillInStackTrace() {
         return this;
     }
 

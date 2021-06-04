@@ -65,7 +65,8 @@ public abstract class SerializationProvider {
      * @param obj the object to be serialized.
      * @throws Exception if something unexpected happens.
      */
-    protected abstract void serialize(@AssumeNotNull WritableByteAccumulation data, @AssumeNotNull Object obj) throws Exception;
+    protected abstract void serialize(@AssumeNotNull WritableByteAccumulation data, @AssumeNotNull Object obj)
+            throws Exception;
 
     /**
      * Deserializes an object from a byte array that represents

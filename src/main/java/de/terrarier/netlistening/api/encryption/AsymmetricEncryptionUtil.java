@@ -75,7 +75,8 @@ public final class AsymmetricEncryptionUtil {
     }
 
     @AssumeNotNull
-    public static PublicKey readPublicKey(@AssumeNotNull byte[] publicKey, @AssumeNotNull EncryptionOptions encryptionOptions)
+    public static PublicKey readPublicKey(@AssumeNotNull byte[] publicKey,
+                                          @AssumeNotNull EncryptionOptions encryptionOptions)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
         final X509EncodedKeySpec spec = new X509EncodedKeySpec(publicKey);
         final KeyFactory factory = KeyFactory.getInstance(encryptionOptions.getType().name());

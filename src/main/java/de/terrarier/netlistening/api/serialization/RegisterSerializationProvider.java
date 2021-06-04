@@ -142,7 +142,7 @@ public class RegisterSerializationProvider extends SerializationProvider {
         protected final T fromBytes0(@AssumeNotNull ReadableByteAccumulation ba) throws Exception {
             final int newBytes = ba.getArray().length - 8;
             final byte[] pass = new byte[newBytes];
-            System.arraycopy(ba.getArray(), 8, pass, 0, pass.length);
+            System.arraycopy(ba.getArray(), 8, pass, 0, newBytes);
             return fromBytes(pass);
         }
 

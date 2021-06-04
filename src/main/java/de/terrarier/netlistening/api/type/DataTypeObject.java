@@ -38,6 +38,7 @@ public final class DataTypeObject extends DataType<Object> {
         super((byte) 0x8, (byte) 4, true);
     }
 
+    @AssumeNotNull
     @Override
     protected Object read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                           @AssumeNotNull ByteBuf buffer) throws CancelSignal {

@@ -30,6 +30,7 @@ public final class DataTypeFloat extends DataType<Float> {
         super((byte) 0xC, (byte) 4, true);
     }
 
+    @AssumeNotNull
     @Override
     protected Float read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                          @AssumeNotNull ByteBuf buffer) {

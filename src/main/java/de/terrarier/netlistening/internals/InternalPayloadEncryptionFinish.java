@@ -38,6 +38,7 @@ public final class InternalPayloadEncryptionFinish extends InternalPayload {
         if (application instanceof Server) {
             throw new UnsupportedOperationException("This payload can only be sent by a client!");
         }
+        // NOOP
     }
 
     @Override

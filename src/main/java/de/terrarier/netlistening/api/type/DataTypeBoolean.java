@@ -30,6 +30,7 @@ public final class DataTypeBoolean extends DataType<Boolean> {
         super((byte) 0x1, (byte) 1, true);
     }
 
+    @AssumeNotNull
     @Override
     protected Boolean read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                            @AssumeNotNull ByteBuf buffer) {

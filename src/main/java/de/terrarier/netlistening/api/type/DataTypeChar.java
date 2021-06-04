@@ -30,6 +30,7 @@ public final class DataTypeChar extends DataType<Character> {
         super((byte) 0x4, (byte) 2, true);
     }
 
+    @AssumeNotNull
     @Override
     protected Character read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                              @AssumeNotNull ByteBuf buffer) {

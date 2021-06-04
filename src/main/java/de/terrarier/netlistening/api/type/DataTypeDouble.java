@@ -30,6 +30,7 @@ public final class DataTypeDouble extends DataType<Double> {
         super((byte) 0xA, (byte) 8, true);
     }
 
+    @AssumeNotNull
     @Override
     protected Double read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                           @AssumeNotNull ByteBuf buffer) {

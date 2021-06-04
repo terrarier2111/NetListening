@@ -38,6 +38,7 @@ public final class DataTypeByteArray extends DataType<byte[]> {
         super((byte) 0x3, (byte) 4, true);
     }
 
+    @AssumeNotNull
     @Override
     protected byte[] read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                           @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
@@ -52,7 +53,8 @@ public final class DataTypeByteArray extends DataType<byte[]> {
             final InvalidDataEvent event = new InvalidDataEvent(connection,
                     InvalidDataEvent.DataInvalidReason.INVALID_LENGTH, data);
 
-            if (application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE, event)) {
+            if (application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+                    event)) {
                 return EMPTY_BYTES;
             }
 

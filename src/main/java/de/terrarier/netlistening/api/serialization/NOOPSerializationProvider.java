@@ -51,7 +51,7 @@ public class NOOPSerializationProvider extends SerializationProvider {
      * @see SerializationProvider#serialize(WritableByteAccumulation, Object)
      */
     @Override
-    protected final void serialize(WritableByteAccumulation data, Object obj) {
+    protected final void serialize(@AssumeNotNull WritableByteAccumulation data, @AssumeNotNull Object obj) {
         throw new UnsupportedOperationException();
     }
 
@@ -59,7 +59,7 @@ public class NOOPSerializationProvider extends SerializationProvider {
      * @see SerializationProvider#deserialize(ReadableByteAccumulation)
      */
     @Override
-    protected final Object deserialize(ReadableByteAccumulation data) {
+    protected final Object deserialize(@AssumeNotNull ReadableByteAccumulation data) {
         throw new UnsupportedOperationException();
     }
 

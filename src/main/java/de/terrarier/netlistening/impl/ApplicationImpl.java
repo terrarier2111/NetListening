@@ -57,7 +57,7 @@ public abstract class ApplicationImpl implements Application {
     int buffer = 256;
     EncryptionSetting encryptionSetting;
     CompressionSetting compressionSetting;
-    SerializationProvider serializationProvider = new JavaIoSerializationProvider();
+    SerializationProvider serializationProvider;
     Thread worker;
     EventLoopGroup group = UDS.eventLoopGroup();
 
@@ -246,6 +246,9 @@ public abstract class ApplicationImpl implements Application {
         public final A build() {
             validate();
             built = true;
+            if(application.serializationProvider == null) {
+                application.serializationProvider = new JavaIoSerializationProvider();
+            }
             build0();
             return application;
         }

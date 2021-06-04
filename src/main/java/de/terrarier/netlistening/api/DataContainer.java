@@ -131,7 +131,7 @@ public final class DataContainer {
      * @param channel the channel the data should be written to.
      */
     public void write(@NotNull Channel channel) {
-        channel.writeAndFlush(this);
+        channel.writeAndFlush(this, channel.voidPromise());
     }
 
     /**
@@ -156,7 +156,7 @@ public final class DataContainer {
      * @param data the DataContainer containing the data which gets added.
      */
     public void passThrough(@NotNull DataContainer data) {
-        while (passThroughPart(data)) ;
+        while (passThroughPart(data));
     }
 
     /**
