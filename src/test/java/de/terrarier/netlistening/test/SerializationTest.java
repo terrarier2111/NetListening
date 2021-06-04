@@ -82,7 +82,7 @@ public final class SerializationTest {
         server.registerListener(new DecodeListener() {
             @Override
             public void trigger(DecodeEvent value) {
-                while(value.getData().isReadable()) {
+                while (value.getData().isReadable()) {
                     final Object data = value.getData().read();
                     System.out.println(data);
                 }
@@ -107,7 +107,7 @@ public final class SerializationTest {
         server.registerListener(new DecodeListener() {
             @Override
             public void trigger(DecodeEvent value) {
-                while(value.getData().isReadable()) {
+                while (value.getData().isReadable()) {
                     final Object data = value.getData().read();
                     System.out.println(data);
                 }

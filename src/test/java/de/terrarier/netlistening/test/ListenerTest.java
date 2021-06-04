@@ -27,7 +27,8 @@ public final class ListenerTest {
         final Server server = Server.builder(54732).build();
         final long listenerId = server.registerListener(new DecodeListener() {
             @Override
-            public void trigger(DecodeEvent value) {}
+            public void trigger(DecodeEvent value) {
+            }
         });
         server.unregisterListener(listenerId);
         server.stop();

@@ -45,7 +45,7 @@ public final class KeepAliveTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        if(error[0]) {
+        if (error[0]) {
             throw new Error("Connection timed out!");
         }
     }

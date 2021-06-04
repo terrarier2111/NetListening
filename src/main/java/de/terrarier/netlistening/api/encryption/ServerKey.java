@@ -39,7 +39,7 @@ public final class ServerKey {
     private final byte[] keyHash;
     private final HashingAlgorithm hashingAlgorithm;
 
-    public ServerKey(byte @NotNull[] bytes) {
+    public ServerKey(byte @NotNull [] bytes) {
         final ByteBuf buffer = Unpooled.wrappedBuffer(bytes);
         final byte hashingAlgorithmLength = buffer.readByte();
         final byte[] hashData = ByteBufUtilExtension.readBytes(buffer, hashingAlgorithmLength);
@@ -49,11 +49,11 @@ public final class ServerKey {
         buffer.release();
     }
 
-    public ServerKey(byte @NotNull[] key, @NotNull HashingAlgorithm hashingAlgorithm) throws NoSuchAlgorithmException {
+    public ServerKey(byte @NotNull [] key, @NotNull HashingAlgorithm hashingAlgorithm) throws NoSuchAlgorithmException {
         this(key, HashUtil.hash(hashingAlgorithm, key), hashingAlgorithm);
     }
 
-    public ServerKey(byte[] key, byte @NotNull[] keyHash, @NotNull HashingAlgorithm hashingAlgorithm) {
+    public ServerKey(byte[] key, byte @NotNull [] keyHash, @NotNull HashingAlgorithm hashingAlgorithm) {
         this.key = key;
         this.keyHash = keyHash;
         this.hashingAlgorithm = hashingAlgorithm;
@@ -119,7 +119,7 @@ public final class ServerKey {
      * @return the ServerKey generated from the hash.
      */
     @AssumeNotNull
-    public static ServerKey fromHash(byte @NotNull[] keyHash, @NotNull HashingAlgorithm hashingAlgorithm) {
+    public static ServerKey fromHash(byte @NotNull [] keyHash, @NotNull HashingAlgorithm hashingAlgorithm) {
         return new ServerKey(null, keyHash, hashingAlgorithm);
     }
 

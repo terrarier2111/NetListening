@@ -178,7 +178,7 @@ public final class ConnectionImpl implements Connection {
      * @param options      the options which should be used to interpret the key data.
      * @param symmetricKey the data which should be used to generate the key.
      */
-    public void setSymmetricKey(@NotNull EncryptionOptions options, byte @NotNull[] symmetricKey) {
+    public void setSymmetricKey(@NotNull EncryptionOptions options, byte @NotNull [] symmetricKey) {
         final SecretKey secretKey = SymmetricEncryptionUtil.readSecretKey(symmetricKey,
                 options);
         encryptionContext = new SymmetricEncryptionContext(secretKey, options);
@@ -209,7 +209,7 @@ public final class ConnectionImpl implements Connection {
      *
      * @param key the key which should be used to hash data.
      */
-    public void setHmacKey(byte @NotNull[] key) {
+    public void setHmacKey(byte @NotNull [] key) {
         hmacKey = key;
     }
 
@@ -252,8 +252,8 @@ public final class ConnectionImpl implements Connection {
             synchronized (this) {
                 if (connected) {
                     buffer = Unpooled.buffer();
-                }else {
-                    if(preConnectBuffer == null) {
+                } else {
+                    if (preConnectBuffer == null) {
                         preConnectBuffer = Unpooled.buffer();
                     }
                     buffer = preConnectBuffer;

@@ -96,7 +96,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
                 registerBuffer.release();
             }
             packet.register();
-        }else if (application instanceof Server && !packet.isRegistered()) {
+        } else if (application instanceof Server && !packet.isRegistered()) {
             if (delayedExecutor.isShutdown()) {
                 return;
             }

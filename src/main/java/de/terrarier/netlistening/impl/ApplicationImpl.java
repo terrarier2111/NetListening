@@ -246,7 +246,7 @@ public abstract class ApplicationImpl implements Application {
         public final A build() {
             validate();
             built = true;
-            if(application.serializationProvider == null) {
+            if (application.serializationProvider == null) {
                 application.serializationProvider = new JavaIoSerializationProvider();
             }
             build0();

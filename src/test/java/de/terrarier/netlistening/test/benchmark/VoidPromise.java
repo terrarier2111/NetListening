@@ -33,12 +33,7 @@ public class VoidPromise {
         }
         int counter = MIN_VALUE;
         Channel channel = client.getConnection().getChannel();
-        /*
-        ByteBuf buffer = Unpooled.buffer(client.getCompressionSetting().isVarIntCompression() ? 2 : 5);
-            InternalUtil.writeIntUnchecked(client, buffer, 0x1);
-            buffer.markWriterIndex();
-         */
-        for(int i = 0; i < WARMUP_ITERATIONS; i++) {
+        for (int i = 0; i < WARMUP_ITERATIONS; i++) {
             ByteBuf buffer = Unpooled.buffer(client.getCompressionSetting().isVarIntCompression() ? 2 : 5);
             InternalUtil.writeIntUnchecked(client, buffer, 0x1);
             buffer.markWriterIndex();
@@ -52,7 +47,7 @@ public class VoidPromise {
             channel.writeAndFlush(buffer);
             System.currentTimeMillis();
         }
-        for(int i = 0; i < WARMUP_ITERATIONS; i++) {
+        for (int i = 0; i < WARMUP_ITERATIONS; i++) {
             ByteBuf buffer = Unpooled.buffer(client.getCompressionSetting().isVarIntCompression() ? 2 : 5);
             InternalUtil.writeIntUnchecked(client, buffer, 0x1);
             buffer.markWriterIndex();
@@ -67,7 +62,7 @@ public class VoidPromise {
             System.currentTimeMillis();
         }
         long defStart = System.currentTimeMillis();
-        for(int i = 0; i < ITERATIONS; i++) {
+        for (int i = 0; i < ITERATIONS; i++) {
             ByteBuf buffer = Unpooled.buffer(client.getCompressionSetting().isVarIntCompression() ? 2 : 5);
             InternalUtil.writeIntUnchecked(client, buffer, 0x1);
             buffer.markWriterIndex();
@@ -82,7 +77,7 @@ public class VoidPromise {
         }
         long defEnd = System.currentTimeMillis();
         long voidStart = System.currentTimeMillis();
-        for(int i = 0; i < ITERATIONS; i++) {
+        for (int i = 0; i < ITERATIONS; i++) {
             ByteBuf buffer = Unpooled.buffer(client.getCompressionSetting().isVarIntCompression() ? 2 : 5);
             InternalUtil.writeIntUnchecked(client, buffer, 0x1);
             buffer.markWriterIndex();
@@ -103,6 +98,8 @@ public class VoidPromise {
         }
         System.out.println("Def time: " + (defEnd - defStart));
         System.out.println("Void time: " + (voidEnd - voidStart));
+        server.stop();
+        client.stop();
     }
 
 }

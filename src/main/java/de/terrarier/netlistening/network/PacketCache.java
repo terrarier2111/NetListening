@@ -115,7 +115,7 @@ public final class PacketCache {
         writeLock.lock();
         try {
             final PacketSkeleton packetSkeleton = getPacket(data);
-            if(packetSkeleton != null) {
+            if (packetSkeleton != null) {
                 return packetSkeleton;
             }
             notifier[0] = true;

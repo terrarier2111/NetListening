@@ -57,7 +57,7 @@ public interface Client extends Application {
      * @param data the data representing the expected key.
      * @return whether or not setting the key was successful.
      */
-    boolean setServerKey(byte @NotNull[] data);
+    boolean setServerKey(byte @NotNull [] data);
 
     /**
      * Creates a new builder with the passed arguments.
@@ -178,7 +178,7 @@ public interface Client extends Application {
          * @return the local reference.
          */
         @AssumeNotNull
-        public Builder serverKeyHash(byte @NotNull[] bytes) {
+        public Builder serverKeyHash(byte @NotNull [] bytes) {
             impl.serverKeyHash(bytes);
             return this;
         }

@@ -42,7 +42,7 @@ public final class AsymmetricEncryptionData extends EncryptionData {
         this.publicKey = publicKey;
     }
 
-    public AsymmetricEncryptionData(@NotNull EncryptionOptions encryptionOptions, byte @NotNull[] encryptionData)
+    public AsymmetricEncryptionData(@NotNull EncryptionOptions encryptionOptions, byte @NotNull [] encryptionData)
             throws InvalidKeySpecException, NoSuchAlgorithmException {
         super(encryptionOptions);
         final ByteBuf buffer = Unpooled.wrappedBuffer(encryptionData);
