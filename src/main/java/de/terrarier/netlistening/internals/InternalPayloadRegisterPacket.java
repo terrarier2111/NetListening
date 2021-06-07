@@ -121,7 +121,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
             final byte actualId = (byte) (id + 1);
             try {
                 types[i] = DataType.fromId(actualId);
-            }catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException e) {
                 final InvalidDataEvent event = new InvalidDataEvent(connection,
                         InvalidDataEvent.DataInvalidReason.INVALID_DATA_TYPE, new byte[] {actualId});
                 if (application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,

@@ -292,7 +292,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                                @AssumeNotNull ByteBuf decodeBuffer) {
         if (frameSize > maxFrameSize) {
             final byte[] data = new byte[8];
-            ConversionUtil.intToBytes(data, 0, 0x0);
+            // Note: The first 4 bytes represent 0x0 in it's int representation.
             ConversionUtil.intToBytes(data, 4, frameSize);
             if (!callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.TOO_LARGE_FRAME, data)) {
                 tryRelease(buffer);

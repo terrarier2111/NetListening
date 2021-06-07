@@ -112,7 +112,7 @@ public abstract class SerializationProvider {
     final SerializationProvider getFallback0() {
         final boolean setEventManager = fallback == null;
         final SerializationProvider fallback = getFallback();
-        if(setEventManager && fallback != null) {
+        if (setEventManager && fallback != null) {
             fallback.eventManager = eventManager;
         }
         return fallback;
