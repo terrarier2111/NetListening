@@ -87,7 +87,8 @@ public final class AsymmetricEncryptionUtil {
     static PrivateKey readPrivateKey(@AssumeNotNull byte[] bytes, @AssumeNotNull EncryptionOptions encryptionOptions)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
         final PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(bytes);
-        return KeyFactory.getInstance(encryptionOptions.getType().name()).generatePrivate(spec);
+        final KeyFactory factory = KeyFactory.getInstance(encryptionOptions.getType().name());
+        return factory.generatePrivate(spec);
     }
 
 }

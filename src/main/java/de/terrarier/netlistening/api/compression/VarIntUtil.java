@@ -135,7 +135,7 @@ public final class VarIntUtil {
                 case 5:
                     return FIVE_BYTES;
                 default:
-                    return null;
+                    throw new UnsupportedOperationException("Var ints may exclusively have the size of 1-5 bytes.");
             }
         }
 

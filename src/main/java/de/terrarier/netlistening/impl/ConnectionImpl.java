@@ -28,7 +28,6 @@ import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.internals.*;
 import de.terrarier.netlistening.network.PacketCache;
 import de.terrarier.netlistening.network.PacketSkeleton;
-import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -42,6 +41,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static de.terrarier.netlistening.utils.ByteBufUtilExtension.correctSize;
+import static de.terrarier.netlistening.utils.ByteBufUtilExtension.getBytes;
 
 /**
  * @author Terrarier2111
@@ -264,7 +266,6 @@ public final class ConnectionImpl implements Connection {
                     final Map<Integer, PacketSkeleton> packets = cache.getPackets();
                     final int packetsSize = packets.size();
                     if (packetsSize > 3) {
-
                         for (int id = 5; id < packetsSize + 2; id++) {
                             final DataType<?>[] data = packets.get(id).getData();
                             dtip.write0(application, buffer, new InternalPayloadRegisterPacket(id, data));
@@ -345,10 +346,10 @@ public final class ConnectionImpl implements Connection {
 
     private void transferData(@AssumeNotNull ByteBuf buffer) {
         final int readable = buffer.readableBytes();
-        final byte[] bytes = ByteBufUtilExtension.getBytes(buffer, readable);
+        final byte[] bytes = getBytes(buffer, readable);
         final int applicationBuffer = application.getBuffer();
         synchronized (this) {
-            ByteBufUtilExtension.correctSize(preConnectBuffer, readable, applicationBuffer);
+            correctSize(preConnectBuffer, readable, applicationBuffer);
             preConnectBuffer.writeBytes(bytes);
         }
         buffer.release();

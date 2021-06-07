@@ -20,13 +20,14 @@ import de.terrarier.netlistening.api.encryption.hash.HashUtil;
 import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
 import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.internals.AssumeNotNull;
-import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.NoSuchAlgorithmException;
 
+import static de.terrarier.netlistening.utils.ByteBufUtilExtension.getBytes;
+import static de.terrarier.netlistening.utils.ByteBufUtilExtension.readBytes;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
@@ -42,10 +43,10 @@ public final class ServerKey {
     public ServerKey(byte @NotNull [] bytes) {
         final ByteBuf buffer = Unpooled.wrappedBuffer(bytes);
         final byte hashingAlgorithmLength = buffer.readByte();
-        final byte[] hashData = ByteBufUtilExtension.readBytes(buffer, hashingAlgorithmLength);
+        final byte[] hashData = readBytes(buffer, hashingAlgorithmLength);
         key = null;
         hashingAlgorithm = HashingAlgorithm.valueOf(new String(hashData, UTF_8));
-        keyHash = ByteBufUtilExtension.getBytes(buffer);
+        keyHash = getBytes(buffer);
         buffer.release();
     }
 
@@ -98,7 +99,7 @@ public final class ServerKey {
         buffer.writeBytes(hashingAlgorithmBytes);
         buffer.writeBytes(keyHash);
 
-        final byte[] ret = ByteBufUtilExtension.getBytes(buffer);
+        final byte[] ret = getBytes(buffer);
         buffer.release();
         return ret;
     }

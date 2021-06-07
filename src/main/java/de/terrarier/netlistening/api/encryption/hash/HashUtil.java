@@ -44,13 +44,13 @@ public final class HashUtil {
         return hash(hashingAlgorithm, data, 0);
     }
 
-    private static byte[] hash(@AssumeNotNull HashingAlgorithm hashingAlgorithm, @AssumeNotNull byte[] data, int salt)
-            throws NoSuchAlgorithmException {
+    private static byte[] hash(@AssumeNotNull HashingAlgorithm hashingAlgorithm, @AssumeNotNull byte[] data,
+                               int saltLength) throws NoSuchAlgorithmException {
         final MessageDigest digest = MessageDigest.getInstance(hashingAlgorithm.getRawName());
-        if (salt > 0) {
-            final ByteBuf dataBuffer = Unpooled.buffer(data.length + salt);
+        if (saltLength > 0) {
+            final ByteBuf dataBuffer = Unpooled.buffer(data.length + saltLength);
             dataBuffer.writeBytes(data);
-            dataBuffer.writeBytes(generateSalt(salt));
+            dataBuffer.writeBytes(generateSalt(saltLength));
             data = ByteBufUtilExtension.getBytes(dataBuffer);
             dataBuffer.release();
         }

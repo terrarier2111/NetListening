@@ -48,7 +48,7 @@ public final class SerializationUtil {
                 }
                 return;
             }
-            provider = provider.getFallback();
+            provider = provider.getFallback0();
         }
         // Sending an empty object in order to be able to proceed encoding.
         buffer.writeInt(0);
@@ -72,11 +72,16 @@ public final class SerializationUtil {
                 }
                 return null;
             }
-            provider = provider.getFallback();
+            provider = provider.getFallback0();
         }
         mainProvider.handleException(new UnsupportedOperationException(
                 "There is no serialization provider available which can deserialize this Object."));
         throw CancelSignal.INSTANCE;
+    }
+
+    public static void init(@AssumeNotNull ApplicationImpl application,
+                            @AssumeNotNull SerializationProvider serializationProvider) {
+        serializationProvider.setEventManager(application.getEventManager());
     }
 
 }

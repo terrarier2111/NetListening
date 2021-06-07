@@ -39,7 +39,6 @@ public abstract class SerializationProvider {
     protected SerializationProvider getFallback() {
         if (fallback == null) {
             fallback = new JavaIoSerializationProvider();
-            fallback.setEventManager(eventManager);
         }
         return fallback;
     }
@@ -110,17 +109,21 @@ public abstract class SerializationProvider {
         ByteBufUtilExtension.correctSize(buffer, bytes, 0);
     }
 
-    @ApiStatus.Internal
-    public final void setEventManager(@AssumeNotNull EventManager eventManager) {
-        if (this.eventManager != null) {
-            throw new IllegalStateException("The event manager was already set!");
+    final SerializationProvider getFallback0() {
+        final boolean setEventManager = fallback == null;
+        final SerializationProvider fallback = getFallback();
+        if(setEventManager && fallback != null) {
+            fallback.eventManager = eventManager;
         }
-        this.eventManager = eventManager;
+        return fallback;
     }
 
-    @ApiStatus.Internal
-    protected final void handleException(@AssumeNotNull Exception exception) {
+    final void handleException(@AssumeNotNull Exception exception) {
         eventManager.handleExceptionThrown(new SerializationException(exception));
+    }
+
+    final void setEventManager(@AssumeNotNull EventManager eventManager) {
+        this.eventManager = eventManager;
     }
 
     @ApiStatus.Internal

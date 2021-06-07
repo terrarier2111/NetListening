@@ -25,13 +25,13 @@ import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
-import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.nio.charset.Charset;
 
+import static de.terrarier.netlistening.utils.ByteBufUtilExtension.readBytes;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
@@ -105,7 +105,7 @@ public final class InternalPayloadHandshake extends InternalPayload {
             checkReadable(buffer, 1 + 1);
             final byte length = buffer.readByte();
             checkReadable(buffer, length);
-            final byte[] bytes = ByteBufUtilExtension.readBytes(buffer, length);
+            final byte[] bytes = readBytes(buffer, length);
             charset = Charset.forName(new String(bytes, UTF_8));
         }
         EncryptionSetting encryptionSetting = null;
@@ -123,7 +123,7 @@ public final class InternalPayloadHandshake extends InternalPayload {
                     .padding(CipherAlgorithmPadding.fromId(padding));
             final int serverKeyLength = buffer.readInt();
             checkReadable(buffer, serverKeyLength);
-            serverKey = ByteBufUtilExtension.readBytes(buffer, serverKeyLength);
+            serverKey = readBytes(buffer, serverKeyLength);
             encryptionSetting = new EncryptionSetting();
             encryptionSetting.asymmetricEncryptionOptions(asymmetricEncryptionOptions);
         }

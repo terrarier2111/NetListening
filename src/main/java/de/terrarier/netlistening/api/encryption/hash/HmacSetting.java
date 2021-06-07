@@ -26,8 +26,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class HmacSetting {
 
-    private EncryptionOptions encryptionOptions = new EncryptionOptions().type(CipherEncryptionAlgorithm.AES);
     private HashingAlgorithm hashingAlgorithm = HashingAlgorithm.SHA_256;
+    private EncryptionOptions encryptionOptions = new EncryptionOptions().type(CipherEncryptionAlgorithm.AES);
     private HmacApplicationPolicy applicationPolicy = HmacApplicationPolicy.ENCRYPTED;
 
     /**

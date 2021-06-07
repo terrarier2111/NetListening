@@ -118,7 +118,18 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
 
                 throw new IllegalStateException("The connection tried to register a packet containing an internal payload!");
             }
-            types[i] = DataType.fromId((byte) (id + 1));
+            final byte actualId = (byte) (id + 1);
+            try {
+                types[i] = DataType.fromId(actualId);
+            }catch (IllegalArgumentException e) {
+                final InvalidDataEvent event = new InvalidDataEvent(connection,
+                        InvalidDataEvent.DataInvalidReason.INVALID_DATA_TYPE, new byte[] {actualId});
+                if (application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+                        event)) {
+                    return;
+                }
+                throw e;
+            }
         }
 
         final PacketCache cache = application.getCaching() != PacketCaching.INDIVIDUAL ? application.getCache() :

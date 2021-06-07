@@ -31,7 +31,12 @@ public final class ConversionUtil {
 
     @AssumeNotNull
     public static byte[] intToBytes(int value) {
-        return new byte[]{(byte) (value >> 24), (byte) (value >> 16), (byte) (value >> 8), (byte) value};
+        return new byte[]{
+                (byte) (value >> 24),
+                (byte) (value >> 16),
+                (byte) (value >> 8),
+                (byte) value
+        };
     }
 
     @AssumeNotNull
@@ -42,13 +47,11 @@ public final class ConversionUtil {
         bytes[offset] = (byte) value;
     }
 
-    public static short getShortFromByteArray(@AssumeNotNull byte[] bytes, int offset) {
-        return (short) ((bytes[offset] & 0xFF) << 8 | bytes[offset + 1] & 0xFF);
-    }
-
     public static int getIntFromByteArray(@AssumeNotNull byte[] bytes, int offset) {
-        return (bytes[offset] & 0xFF) << 24 | (bytes[offset + 1] & 0xFF) << 16 | (bytes[offset + 2] & 0xFF) << 8 |
-                (bytes[offset + 3] & 0xFF) & 0xFF;
+        return (bytes[offset++] & 0xFF) << 24 |
+                (bytes[offset++] & 0xFF) << 16 |
+                (bytes[offset++] & 0xFF) << 8 |
+                (bytes[offset] & 0xFF) & 0xFF;
     }
 
 }

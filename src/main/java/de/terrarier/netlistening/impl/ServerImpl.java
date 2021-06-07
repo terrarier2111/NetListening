@@ -26,6 +26,7 @@ import de.terrarier.netlistening.api.encryption.SymmetricEncryptionUtil;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
 import de.terrarier.netlistening.api.event.ConnectionPostInitEvent;
 import de.terrarier.netlistening.api.event.ListenerType;
+import de.terrarier.netlistening.api.serialization.SerializationUtil;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.utils.UDS;
 import io.netty.bootstrap.ServerBootstrap;
@@ -75,7 +76,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         if (group == null) {
             throw new IllegalStateException("The server was already stopped!");
         }
-        serializationProvider.setEventManager(eventManager);
+        SerializationUtil.init(this, serializationProvider);
 
         return new ServerBootstrap().group(group)
                 .channel(UDS.serverChannel(uds))

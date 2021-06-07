@@ -150,7 +150,7 @@ public abstract class DataType<T> {
             case 0xC:
                 return FLOAT;
             default:
-                // TODO: Call invalid data event here!
+                // Keep in mind that an invalid data event has to be called by the caller of this method.
                 throw new IllegalArgumentException("Tried to resolve a data type with an invalid id! ("
                         + Integer.toHexString(id) + ')');
         }

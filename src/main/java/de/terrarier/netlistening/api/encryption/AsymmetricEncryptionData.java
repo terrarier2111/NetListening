@@ -16,7 +16,6 @@ limitations under the License.
 package de.terrarier.netlistening.api.encryption;
 
 import de.terrarier.netlistening.internals.AssumeNotNull;
-import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +24,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
+
+import static de.terrarier.netlistening.api.encryption.AsymmetricEncryptionUtil.readPrivateKey;
+import static de.terrarier.netlistening.api.encryption.AsymmetricEncryptionUtil.readPublicKey;
+import static de.terrarier.netlistening.utils.ByteBufUtilExtension.getBytes;
+import static de.terrarier.netlistening.utils.ByteBufUtilExtension.readBytes;
 
 /**
  * @author Terrarier2111
@@ -46,10 +50,8 @@ public final class AsymmetricEncryptionData extends EncryptionData {
             throws InvalidKeySpecException, NoSuchAlgorithmException {
         super(encryptionOptions);
         final ByteBuf buffer = Unpooled.wrappedBuffer(encryptionData);
-        privateKey = AsymmetricEncryptionUtil.readPrivateKey(ByteBufUtilExtension.readBytes(buffer, buffer.readInt()),
-                encryptionOptions);
-        publicKey = AsymmetricEncryptionUtil.readPublicKey(ByteBufUtilExtension.getBytes(buffer, buffer.readInt()),
-                encryptionOptions);
+        privateKey = readPrivateKey(readBytes(buffer, buffer.readInt()), encryptionOptions);
+        publicKey = readPublicKey(getBytes(buffer, buffer.readInt()), encryptionOptions);
         buffer.release();
     }
 
@@ -88,7 +90,7 @@ public final class AsymmetricEncryptionData extends EncryptionData {
         buffer.writeBytes(privateKeyData);
         buffer.writeInt(publicKeyLength);
         buffer.writeBytes(publicKeyData);
-        final byte[] ret = ByteBufUtilExtension.getBytes(buffer);
+        final byte[] ret = getBytes(buffer);
         buffer.release();
         return ret;
     }

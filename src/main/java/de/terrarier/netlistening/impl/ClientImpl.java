@@ -30,6 +30,7 @@ import de.terrarier.netlistening.api.event.KeyChangeEvent;
 import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.api.proxy.Proxy;
 import de.terrarier.netlistening.api.proxy.ProxyType;
+import de.terrarier.netlistening.api.serialization.SerializationUtil;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.utils.UDS;
 import io.netty.bootstrap.Bootstrap;
@@ -70,7 +71,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         if (group == null) {
             throw new IllegalStateException("The client is already stopped!");
         }
-        serializationProvider.setEventManager(eventManager);
+        SerializationUtil.init(this, serializationProvider);
 
         return new Bootstrap().group(group)
                 .channel(UDS.channel(uds))
@@ -294,7 +295,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         public void localPort(int localPort) {
             validate();
             if (filePath != null) {
-                throw new UnsupportedOperationException("You may not specify a port when using UDS.");
+                throw new UnsupportedOperationException("You may not specify a local port when using UDS.");
             }
             this.localPort = localPort;
         }

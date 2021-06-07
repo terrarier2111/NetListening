@@ -89,7 +89,7 @@ public final class EncryptionSettingWrapper extends EncryptionOptionsSuperBuilde
     }
 
     /**
-     * @see EncryptionSetting
+     * @see EncryptionSetting#disableHmac()
      */
     @AssumeNotNull
     public EncryptionSettingWrapper disableHmac() {
