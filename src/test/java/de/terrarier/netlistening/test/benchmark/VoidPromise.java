@@ -57,7 +57,7 @@ public class VoidPromise {
         final ClientImpl client = state.client;
         Channel channel = client.getConnection().getChannel();
         for (int i = 0; i < ITERATIONS; i++) {
-            ByteBuf buffer = Unpooled.buffer(client.getCompressionSetting().isVarIntCompression() ? 2 : 5);
+            ByteBuf buffer = Unpooled.buffer(InternalUtil.getSingleByteSize(client) + 1);
             InternalUtil.writeIntUnchecked(client, buffer, 0x1);
             buffer.markWriterIndex();
             if (counter == MAX_VALUE) {
@@ -77,7 +77,7 @@ public class VoidPromise {
         final ClientImpl client = state.client;
         Channel channel = client.getConnection().getChannel();
         for (int i = 0; i < ITERATIONS; i++) {
-            ByteBuf buffer = Unpooled.buffer(client.getCompressionSetting().isVarIntCompression() ? 2 : 5);
+            ByteBuf buffer = Unpooled.buffer(InternalUtil.getSingleByteSize(client) + 1);
             InternalUtil.writeIntUnchecked(client, buffer, 0x1);
             buffer.markWriterIndex();
             if (counter == MAX_VALUE) {

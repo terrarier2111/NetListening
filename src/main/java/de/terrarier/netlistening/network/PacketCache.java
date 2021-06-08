@@ -21,6 +21,7 @@ import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.internals.InternalPayloadRegisterPacket;
+import de.terrarier.netlistening.internals.InternalUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -61,7 +62,8 @@ public final class PacketCache {
     }
 
     @AssumeNotNull
-    public PacketSkeleton tryRegisterPacket(int id, @AssumeNotNull DataType<?>... data) {
+    public PacketSkeleton tryRegisterPacket(int id, @AssumeNotNull ConnectionImpl connection,
+                                            @AssumeNotNull DataType<?>... data) {
         final Lock writeLock = lock.writeLock();
         writeLock.lock();
         try {
@@ -70,9 +72,10 @@ public final class PacketCache {
             if (!valid) {
                 final PacketSkeleton packet = getPacket(data);
                 if (packet != null) {
+                    connection.getPacketIdTranslationCache().insert(id, packet.getId());
                     return packet;
                 }
-                // TODO: Check if we have to add a "proper fix" at this place.
+                connection.getPacketIdTranslationCache().insert(id, currId);
             }
             return registerPacket(this.id.getAndIncrement(), data);
         } finally {
@@ -135,7 +138,7 @@ public final class PacketCache {
         final Collection<ConnectionImpl> connections = application.getConnectionsRaw();
         if (ignored == null || connections.size() > 1) {
             final ByteBuf registerBuffer = buffer != null ? buffer : Unpooled.buffer(
-                    (application.getCompressionSetting().isVarIntCompression() ? 2 : 5) + payload.getSize(application));
+                    1 + InternalUtil.getSingleByteSize(application) + payload.getSize(application));
 
             if (buffer == null) {
                 DataType.getDTIP().write0(application, registerBuffer, payload);
@@ -153,6 +156,19 @@ public final class PacketCache {
                 }
             }
             registerBuffer.release();
+        }
+    }
+
+    public void swapId(int former, int next) {
+        final Lock writeLock = lock.writeLock();
+        writeLock.lock();
+        try {
+            if(next > id.get()) {
+                id.set(next);
+            }
+            idPacketMapping.put(next, idPacketMapping.get(former));
+        }finally {
+            writeLock.unlock();
         }
     }
 

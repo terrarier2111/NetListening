@@ -74,7 +74,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
     }
 
     @Override
-    public void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+    void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                      @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
         checkReadable(buffer, 4);
 
@@ -139,7 +139,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
             return;
         }
 
-        final PacketSkeleton packet = cache.tryRegisterPacket(packetId, types);
+        final PacketSkeleton packet = cache.tryRegisterPacket(packetId, connection, types);
         if (packet.getId() == packetId) {
             if (application.getCaching() == PacketCaching.GLOBAL) {
                 cache.broadcastRegister(application, new InternalPayloadRegisterPacket(packetId, types), connection,
@@ -152,7 +152,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
                 cache.broadcastRegister(application, register, null, null);
             } else {
                 final ByteBuf registerBuffer = Unpooled.buffer(
-                        (application.getCompressionSetting().isVarIntCompression() ? 2 : 5) + getSize(application));
+                        InternalUtil.getSingleByteSize(application) + 1 + getSize(application));
                 DataType.getDTIP().write0(application, registerBuffer, register);
             }
         }

@@ -21,7 +21,6 @@ import de.terrarier.netlistening.api.compression.VarIntUtil;
 import de.terrarier.netlistening.api.event.*;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
-import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.internals.CancelReadSignal;
@@ -134,9 +133,12 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
     private boolean readPacket(@AssumeNotNull ByteBuf buffer, @AssumeNotNull List<Object> out,
                                @AssumeNotNull ByteBuf idBuffer) throws Exception {
-        final int id;
+       int id;
         try {
             id = InternalUtil.readInt(application, idBuffer);
+            if(application instanceof Server) {
+                id = connection.getPacketIdTranslationCache().tryTranslate(id);
+            }
         } catch (VarIntUtil.VarIntParseException varIntParseException) {
             // preparing framing of packet id
             holdingBuffer = Unpooled.buffer(varIntParseException.requiredBytes);
@@ -156,26 +158,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             return true;
         }
 
-        if (id == 0x2) {
-            if (application instanceof Server) {
-                // TODO: We should probably cache this byte array.
-                final byte[] data = ConversionUtil.intToBytes(0x2);
-
-                if (callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.MALICIOUS_ACTION, data)) {
-                    return true;
-                }
-
-                throw new IllegalStateException("Received malicious data! (0x2)");
-            }
-
-            ((ClientImpl) application).pushCachedData();
-            if (buffer.isReadable()) {
-                decode(context.getHandlerContext(), buffer, out);
-            }
-            return true;
-        }
-
-        if (!buffer.isReadable()) {
+        /*if (!buffer.isReadable()) {
             final byte[] data = ConversionUtil.intToBytes(id);
 
             if (callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.INCOMPLETE_PACKET, data)) {
@@ -184,7 +167,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
             throw new IllegalStateException("An error occurred while decoding - the packet to decode was empty! (skipping current packet with id: "
                     + Integer.toHexString(id) + ')');
-        }
+        }*/
 
         if (id == 0x0) {
             readPayload(buffer);

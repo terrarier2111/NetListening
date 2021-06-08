@@ -86,7 +86,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
     }
 
     @Override
-    public void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+    void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                      @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
         final byte[] key = readKey(buffer);
         if (application instanceof Client) {
@@ -109,7 +109,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
             }
             connection.setSymmetricKey(symmetricOptions,
                     AsymmetricEncryptionUtil.decrypt(key, encryptionSetting.getEncryptionData()));
-            final ByteBuf finishBuffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 2 : 5);
+            final ByteBuf finishBuffer = Unpooled.buffer(InternalUtil.getSingleByteSize(application) + 1);
             DataType.getDTIP().write0(application, finishBuffer, ENCRYPTION_FINISH);
             ((ClientImpl) application).sendRawData(finishBuffer);
         } else {

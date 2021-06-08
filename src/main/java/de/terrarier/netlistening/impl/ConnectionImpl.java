@@ -27,6 +27,7 @@ import de.terrarier.netlistening.api.encryption.SymmetricEncryptionUtil;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.internals.*;
 import de.terrarier.netlistening.network.PacketCache;
+import de.terrarier.netlistening.network.PacketIdTranslationCache;
 import de.terrarier.netlistening.network.PacketSkeleton;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -56,6 +57,7 @@ public final class ConnectionImpl implements Connection {
     private final Channel channel;
     private final int id = ID.getAndIncrement();
     private final PacketCache cache;
+    private PacketIdTranslationCache packetIdTranslationCache;
     private volatile boolean receivedPacket;
     private volatile DataSendState dataSendState = DataSendState.IDLE;
     private ByteBuf preConnectBuffer;
@@ -71,6 +73,9 @@ public final class ConnectionImpl implements Connection {
             cache = application.getCache();
         } else {
             cache = new PacketCache();
+        }
+        if(application instanceof Server) {
+            packetIdTranslationCache = new PacketIdTranslationCache(this, application);
         }
     }
 
@@ -243,6 +248,11 @@ public final class ConnectionImpl implements Connection {
         return cache;
     }
 
+    @ApiStatus.Internal
+    public PacketIdTranslationCache getPacketIdTranslationCache() {
+        return packetIdTranslationCache;
+    }
+
     private void checkReceived() {
         if (!receivedPacket) {
             receivedPacket = true;
@@ -372,9 +382,11 @@ public final class ConnectionImpl implements Connection {
             }
         }
 
-        final ByteBuf buffer = Unpooled.buffer(application.getCompressionSetting().isVarIntCompression() ? 1 : 4);
-        InternalUtil.writeIntUnchecked(application, buffer, 0x2);
+        final int lowSize = InternalUtil.getSingleByteSize(application);
+        final ByteBuf buffer = Unpooled.buffer(lowSize + 1 + lowSize);
+        DataType.getDTIP().write0(application, buffer, InternalPayload.PUSH_REQUEST);
         channel.writeAndFlush(buffer, voidPromise);
+        // TODO: IMPORTANT: Check if we should write the preConnectBuffer first.
         synchronized (this) {
             if (preConnectBuffer != null) {
                 channel.writeAndFlush(preConnectBuffer, voidPromise);

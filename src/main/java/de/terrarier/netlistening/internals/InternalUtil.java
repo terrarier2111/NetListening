@@ -62,4 +62,8 @@ public final class InternalUtil {
         return application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.varIntSize(value) : 4;
     }
 
+    public static int getSingleByteSize(@AssumeNotNull ApplicationImpl application) {
+        return application.getCompressionSetting().isVarIntCompression() ? 1 : 4;
+    }
+
 }

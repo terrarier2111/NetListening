@@ -32,6 +32,8 @@ public abstract class InternalPayload {
     public static final InternalPayloadHandshake HANDSHAKE = new InternalPayloadHandshake();
     static final InternalPayloadEncryptionInit ENCRYPTION_INIT = new InternalPayloadEncryptionInit();
     static final InternalPayloadEncryptionFinish ENCRYPTION_FINISH = new InternalPayloadEncryptionFinish();
+    private static final InternalPayloadUpdateTranslationEntry UPDATE_TRANSLATION_ENTRY = new InternalPayloadUpdateTranslationEntry(-1);
+    public static final InternalPayloadPushRequest PUSH_REQUEST = new InternalPayloadPushRequest();
 
     private final byte id;
 
@@ -47,7 +49,7 @@ public abstract class InternalPayload {
 
     abstract void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer);
 
-    public abstract void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+    abstract void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                               @AssumeNotNull ByteBuf buffer) throws CancelReadSignal;
 
     @AssumeNotNull
@@ -61,6 +63,10 @@ public abstract class InternalPayload {
                 return ENCRYPTION_INIT;
             case 0x4:
                 return ENCRYPTION_FINISH;
+            case 0x5:
+                return UPDATE_TRANSLATION_ENTRY;
+            case 0x6:
+                return PUSH_REQUEST;
             default:
                 // TODO: Call invalid data event here!
                 throw new IllegalStateException("Tried to process an internal payload with an invalid id! (" +
