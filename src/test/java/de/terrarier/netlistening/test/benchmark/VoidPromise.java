@@ -51,7 +51,9 @@ public class VoidPromise {
 
     }
 
-    @Benchmark @BenchmarkMode(Mode.AverageTime) @OutputTimeUnit(TimeUnit.MILLISECONDS)
+    @Benchmark
+    @BenchmarkMode(Mode.AverageTime)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
     public void benchmarkNonVoidPromise(ConnectionsState state) {
         int counter = MIN_VALUE;
         final ClientImpl client = state.client;
@@ -71,7 +73,9 @@ public class VoidPromise {
         }
     }
 
-    @Benchmark @BenchmarkMode(Mode.AverageTime) @OutputTimeUnit(TimeUnit.MILLISECONDS)
+    @Benchmark
+    @BenchmarkMode(Mode.AverageTime)
+    @OutputTimeUnit(TimeUnit.MILLISECONDS)
     public void benchmarkVoidPromise(ConnectionsState state) {
         int counter = MIN_VALUE;
         final ClientImpl client = state.client;

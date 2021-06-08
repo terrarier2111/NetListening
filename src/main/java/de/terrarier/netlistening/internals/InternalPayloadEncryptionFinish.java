@@ -43,7 +43,7 @@ public final class InternalPayloadEncryptionFinish extends InternalPayload {
 
     @Override
     void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
-                     @AssumeNotNull ByteBuf buffer) {
+              @AssumeNotNull ByteBuf buffer) {
         if (application instanceof Client) {
             throw new UnsupportedOperationException("The server sent an invalid payload!");
         }

@@ -87,7 +87,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
 
     @Override
     void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
-                     @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
+              @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
         final byte[] key = readKey(buffer);
         if (application instanceof Client) {
             checkReadable(buffer, 7 + 1);

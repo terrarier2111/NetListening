@@ -133,10 +133,10 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
     private boolean readPacket(@AssumeNotNull ByteBuf buffer, @AssumeNotNull List<Object> out,
                                @AssumeNotNull ByteBuf idBuffer) throws Exception {
-       int id;
+        int id;
         try {
             id = InternalUtil.readInt(application, idBuffer);
-            if(application instanceof Server) {
+            if (application instanceof Server) {
                 id = connection.getPacketIdTranslationCache().tryTranslate(id);
             }
         } catch (VarIntUtil.VarIntParseException varIntParseException) {

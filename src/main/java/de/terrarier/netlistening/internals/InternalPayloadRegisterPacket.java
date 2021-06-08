@@ -75,7 +75,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
 
     @Override
     void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
-                     @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
+              @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
         checkReadable(buffer, 4);
 
         final int packetId;
@@ -123,7 +123,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
                 types[i] = DataType.fromId(actualId);
             } catch (IllegalArgumentException e) {
                 final InvalidDataEvent event = new InvalidDataEvent(connection,
-                        InvalidDataEvent.DataInvalidReason.INVALID_DATA_TYPE, new byte[] {actualId});
+                        InvalidDataEvent.DataInvalidReason.INVALID_DATA_TYPE, new byte[]{actualId});
                 if (application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                         event)) {
                     return;

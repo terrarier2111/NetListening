@@ -163,11 +163,11 @@ public final class PacketCache {
         final Lock writeLock = lock.writeLock();
         writeLock.lock();
         try {
-            if(next > id.get()) {
+            if (next > id.get()) {
                 id.set(next);
             }
             idPacketMapping.put(next, idPacketMapping.get(former));
-        }finally {
+        } finally {
             writeLock.unlock();
         }
     }

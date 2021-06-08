@@ -34,7 +34,7 @@ public final class InternalPayloadUpdateTranslationEntry extends InternalPayload
     @Override
     void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
         InternalUtil.writeInt(application, buffer, id);
-        if(newId != -1) {
+        if (newId != -1) {
             InternalUtil.writeInt(application, buffer, newId);
         }
     }
@@ -48,9 +48,9 @@ public final class InternalPayloadUpdateTranslationEntry extends InternalPayload
         } catch (VarIntUtil.VarIntParseException e) {
             throw new CancelReadSignal(e.requiredBytes);
         }
-        if(application instanceof Server) {
+        if (application instanceof Server) {
             connection.getPacketIdTranslationCache().delete(id);
-        }else {
+        } else {
             final int newId;
             try {
                 newId = InternalUtil.readInt(application, buffer);

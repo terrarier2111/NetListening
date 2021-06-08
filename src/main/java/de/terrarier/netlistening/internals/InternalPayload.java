@@ -50,7 +50,7 @@ public abstract class InternalPayload {
     abstract void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer);
 
     abstract void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
-                              @AssumeNotNull ByteBuf buffer) throws CancelReadSignal;
+                       @AssumeNotNull ByteBuf buffer) throws CancelReadSignal;
 
     @AssumeNotNull
     static InternalPayload fromId(byte id) {

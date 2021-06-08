@@ -74,7 +74,7 @@ public final class ConnectionImpl implements Connection {
         } else {
             cache = new PacketCache();
         }
-        if(application instanceof Server) {
+        if (application instanceof Server) {
             packetIdTranslationCache = new PacketIdTranslationCache(this, application);
         }
     }

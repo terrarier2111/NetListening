@@ -85,7 +85,7 @@ public final class InternalPayloadHandshake extends InternalPayload {
 
     @Override
     void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
-                     @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
+              @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
         if (application instanceof Server) {
             final InvalidDataEvent event = new InvalidDataEvent(connection,
                     InvalidDataEvent.DataInvalidReason.INVALID_HANDSHAKE);
