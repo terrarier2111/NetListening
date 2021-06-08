@@ -32,10 +32,10 @@ public abstract class InternalPayload {
     public static final InternalPayloadHandshake HANDSHAKE = new InternalPayloadHandshake();
     static final InternalPayloadEncryptionInit ENCRYPTION_INIT = new InternalPayloadEncryptionInit();
     static final InternalPayloadEncryptionFinish ENCRYPTION_FINISH = new InternalPayloadEncryptionFinish();
-    private static final InternalPayloadUpdateTranslationEntry UPDATE_TRANSLATION_ENTRY = new InternalPayloadUpdateTranslationEntry(-1);
     public static final InternalPayloadPushRequest PUSH_REQUEST = new InternalPayloadPushRequest();
+    private static final InternalPayloadUpdateTranslationEntry UPDATE_TRANSLATION_ENTRY = new InternalPayloadUpdateTranslationEntry(-1);
 
-    private final byte id;
+    protected final byte id;
 
     InternalPayload(byte id) {
         this.id = id;
@@ -64,9 +64,9 @@ public abstract class InternalPayload {
             case 0x4:
                 return ENCRYPTION_FINISH;
             case 0x5:
-                return UPDATE_TRANSLATION_ENTRY;
-            case 0x6:
                 return PUSH_REQUEST;
+            case 0x6:
+                return UPDATE_TRANSLATION_ENTRY;
             default:
                 // TODO: Call invalid data event here!
                 throw new IllegalStateException("Tried to process an internal payload with an invalid id! (" +

@@ -13,7 +13,7 @@ import io.netty.buffer.ByteBuf;
 public final class InternalPayloadPushRequest extends InternalPayload {
 
     public InternalPayloadPushRequest() {
-        super((byte) 0x6);
+        super((byte) 0x5);
     }
 
     @Override
@@ -26,7 +26,7 @@ public final class InternalPayloadPushRequest extends InternalPayload {
               @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
         if (application instanceof Server) {
             // TODO: We should probably cache this byte array.
-            final byte[] data = ConversionUtil.intToBytes(0x6);
+            final byte[] data = ConversionUtil.intToBytes(id);
 
             final InvalidDataEvent event = new InvalidDataEvent(connection,
                     InvalidDataEvent.DataInvalidReason.MALICIOUS_ACTION, data);
@@ -35,7 +35,7 @@ public final class InternalPayloadPushRequest extends InternalPayload {
                 return;
             }
 
-            throw new IllegalStateException("Received malicious data! (0x6)");
+            throw new IllegalStateException("Received malicious data! (" + Integer.toHexString(id) + ")");
         }
 
         ((ClientImpl) application).pushCachedData();

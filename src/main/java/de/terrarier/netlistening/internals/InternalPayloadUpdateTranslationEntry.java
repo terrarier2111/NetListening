@@ -22,7 +22,7 @@ public final class InternalPayloadUpdateTranslationEntry extends InternalPayload
     private int newId = -1;
 
     InternalPayloadUpdateTranslationEntry(int id) {
-        super((byte) 0x5);
+        super((byte) 0x6);
         this.id = id;
     }
 
