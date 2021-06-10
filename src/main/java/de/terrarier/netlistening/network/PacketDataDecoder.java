@@ -88,7 +88,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
 
         if (framing || readKeepAliveId) {
-            if(readKeepAliveId) {
+            if (readKeepAliveId) {
                 readKeepAliveId = false;
                 readKeepAlive(buffer);
                 if (buffer.isReadable()) {
@@ -101,24 +101,23 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             final int writable = tmp.writableBytes();
             final boolean block = writable > readable;
             final byte[] remaining = ByteBufUtilExtension.readBytes(buffer, block ? readable : writable);
-            if (IGNORE_EMPTY_PACKETS || remaining.length != 0) { // check for empty packets, should never occur
-                tmp.writeBytes(remaining);
-            }
+            tmp.writeBytes(remaining);
             if (block) {
                 return;
             }
             framing = false;
             boolean release = false;
-            if (!hasId) {
-                release = readPacket(buffer, out, tmp);
-            } else {
+            if (hasId) {
                 hasId = false;
                 if (packet != null) {
                     read(out, storedData, buffer, packet, index, tmp);
                 } else {
                     readPayload(tmp);
                 }
+            } else {
+                release = readPacket(buffer, out, tmp);
             }
+
             if (release || !framing || !tmp.equals(holdingBuffer)) {
                 tmp.release();
                 if (!framing) {
@@ -140,7 +139,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 id = connection.getPacketIdTranslationCache().tryTranslate(id);
             }
         } catch (VarIntUtil.VarIntParseException varIntParseException) {
-            // preparing framing of packet id
+            // Preparing framing of packet id.
             holdingBuffer = Unpooled.buffer(varIntParseException.requiredBytes);
             transferRemaining(buffer);
             packet = null;
@@ -251,7 +250,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
     private void readPayload(@AssumeNotNull ByteBuf buffer) {
         final int start = buffer.readerIndex();
-        if(!buffer.isReadable()) {
+        if (!buffer.isReadable()) {
             handleFraming(1, start, buffer, buffer);
             packet = null;
             return;
