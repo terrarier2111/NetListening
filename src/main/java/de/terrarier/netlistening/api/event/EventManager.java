@@ -127,7 +127,7 @@ public final class EventManager {
     }
 
     @AssumeNotNull
-    private EventListener.Priority resolvePriority(@AssumeNotNull Listener<?> listener) {
+    private static EventListener.Priority resolvePriority(@AssumeNotNull Listener<?> listener) {
         try {
             final Method method = listener.getClass().getDeclaredMethod("trigger", Event.class);
             final EventListener eventListener = method.getAnnotation(EventListener.class);
@@ -145,7 +145,7 @@ public final class EventManager {
         final ExceptionTrowEvent exceptionTrowEvent = new ExceptionTrowEvent(thr);
         callEvent(ListenerType.EXCEPTION_THROW, exceptionTrowEvent);
         if (exceptionTrowEvent.isPrint()) {
-            exceptionTrowEvent.getException().printStackTrace();
+            exceptionTrowEvent.getThrown().printStackTrace();
         }
     }
 

@@ -101,7 +101,8 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
     }
 
     @Override
-    public void close(@AssumeNotNull ChannelHandlerContext ctx, @AssumeNotNull ChannelPromise promise) throws Exception {
+    public void close(@AssumeNotNull ChannelHandlerContext ctx, @AssumeNotNull ChannelPromise promise)
+            throws Exception {
         cancel();
         super.close(ctx, promise);
     }

@@ -29,8 +29,6 @@ import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import de.terrarier.netlistening.internals.CancelSignal;
 import de.terrarier.netlistening.internals.InternalPayloadRegisterPacket;
-import de.terrarier.netlistening.internals.InternalUtil;
-import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -44,6 +42,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import static de.terrarier.netlistening.internals.InternalUtil.writeInt;
+import static de.terrarier.netlistening.utils.ByteBufUtilExtension.correctSize;
+import static de.terrarier.netlistening.utils.ByteBufUtilExtension.getBytes;
+
 /**
  * @author Terrarier2111
  * @since 1.0
@@ -52,14 +54,14 @@ import java.util.concurrent.ExecutorService;
 public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer> {
 
     private final ApplicationImpl application;
-    private final ExecutorService delayedExecutor;
     private final ConnectionImpl connection;
+    private final ExecutorService delayedExecutor;
 
-    public PacketDataEncoder(@AssumeNotNull ApplicationImpl application, ExecutorService delayedExecutor,
-                             @AssumeNotNull ConnectionImpl connection) {
+    public PacketDataEncoder(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+                             ExecutorService delayedExecutor) {
         this.application = application;
-        this.delayedExecutor = delayedExecutor;
         this.connection = connection;
+        this.delayedExecutor = delayedExecutor;
     }
 
     @Override
@@ -132,12 +134,12 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
             final ByteBuf encryptionBuffer = encrypted ? ctx.alloc().buffer() : hmacBuffer;
             writeToBuffer(encryptionBuffer, data, packet.getId());
             if (encrypted) {
-                InternalUtil.writeInt(application, hmacBuffer, 0x3);
+                writeInt(application, hmacBuffer, 0x3);
                 final byte[] encryptedData = connection.getEncryptionContext().encrypt(
-                        ByteBufUtilExtension.getBytes(encryptionBuffer));
+                        getBytes(encryptionBuffer));
                 encryptionBuffer.release();
                 final int size = encryptedData.length;
-                ByteBufUtilExtension.correctSize(hmacBuffer, 4 + size, application.getBuffer());
+                correctSize(hmacBuffer, 4 + size, application.getBuffer());
                 hmacBuffer.writeInt(size);
                 hmacBuffer.writeBytes(encryptedData);
             }
@@ -159,7 +161,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 
     private void writeToBuffer(@AssumeNotNull ByteBuf buffer, @AssumeNotNull DataContainer data, int packetId)
             throws CancelSignal {
-        InternalUtil.writeInt(application, buffer, packetId);
+        writeInt(application, buffer, packetId);
         final List<DataComponent<?>> dataComponentList = data.getData();
         final int dataSize = dataComponentList.size();
         for (int i = 0; i < dataSize; i++) {
@@ -170,15 +172,15 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 
     private void appendHmac(@AssumeNotNull ByteBuf src, @AssumeNotNull ByteBuf dst,
                             @AssumeNotNull ConnectionImpl connection) {
-        final byte[] data = ByteBufUtilExtension.getBytes(src);
+        final byte[] data = getBytes(src);
         src.release();
         try {
             final byte[] hash = HashUtil.calculateHMAC(data, connection.getHmacKey(),
                     application.getEncryptionSetting().getHmacSetting().getHashingAlgorithm());
             final int dataLength = data.length;
             final short hashLength = (short) hash.length;
-            InternalUtil.writeInt(application, dst, 0x4);
-            ByteBufUtilExtension.correctSize(dst, 4 + 2 + dataLength + hashLength, application.getBuffer());
+            writeInt(application, dst, 0x4);
+            correctSize(dst, 4 + 2 + dataLength + hashLength, application.getBuffer());
             dst.writeInt(dataLength);
             dst.writeShort(hashLength);
             dst.writeBytes(data);

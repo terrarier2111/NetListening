@@ -177,7 +177,7 @@ public abstract class ApplicationImpl implements Application {
 
         pipeline.addLast(DECODER, new PacketDataDecoder(this, handler, connection,
                 maxFrameSize))
-                .addAfter(DECODER, ENCODER, new PacketDataEncoder(this, delayedExecutor, connection));
+                .addAfter(DECODER, ENCODER, new PacketDataEncoder(this, connection, delayedExecutor));
         return connection;
     }
 
