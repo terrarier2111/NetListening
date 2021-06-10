@@ -13,14 +13,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package de.terrarier.netlistening.network;
+package de.terrarier.netlistening.api.event;
 
 import de.terrarier.netlistening.api.Type;
-import de.terrarier.netlistening.api.event.DecodeListener;
-import de.terrarier.netlistening.api.event.Event;
-import de.terrarier.netlistening.api.event.PacketListener;
 import de.terrarier.netlistening.internals.AssumeNotNull;
-import org.jetbrains.annotations.ApiStatus;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -29,15 +25,14 @@ import java.util.Arrays;
  * @author Terrarier2111
  * @since 1.0
  */
-@ApiStatus.Internal
-public final class PreparedListener {
+final class PreparedListener {
 
     private static final Type[] EMPTY_TYPES = new Type[0];
     private final DecodeListener wrapped;
     private final Type[] types;
     private final int hash;
 
-    public PreparedListener(@AssumeNotNull DecodeListener listener) throws NoSuchMethodException, SecurityException {
+    PreparedListener(@AssumeNotNull DecodeListener listener) throws NoSuchMethodException, SecurityException {
         wrapped = listener;
         final Method method = listener.getClass().getDeclaredMethod("trigger", Event.class);
         final PacketListener packetListener = method.getAnnotation(PacketListener.class);
@@ -46,12 +41,12 @@ public final class PreparedListener {
     }
 
     @AssumeNotNull
-    public DecodeListener getWrapped() {
+    DecodeListener getWrapped() {
         return wrapped;
     }
 
     @AssumeNotNull
-    public Type[] getTypes() {
+    Type[] getTypes() {
         return types;
     }
 
