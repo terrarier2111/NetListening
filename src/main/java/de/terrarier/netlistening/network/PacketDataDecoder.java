@@ -87,7 +87,15 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             throw new IllegalStateException("Received an empty packet!");
         }
 
-        if (framing) {
+        if (framing || readKeepAliveId) {
+            if(readKeepAliveId) {
+                readKeepAliveId = false;
+                readKeepAlive(buffer);
+                if (buffer.isReadable()) {
+                    decode(ctx, buffer, out); // TODO: Check if this is necessary!
+                }
+                return;
+            }
             // Framing
             final ByteBuf tmp = holdingBuffer;
             final int writable = tmp.writableBytes();
@@ -120,14 +128,6 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             return;
         }
 
-        if (readKeepAliveId) {
-            readKeepAliveId = false;
-            readKeepAlive(buffer);
-            if (!buffer.isReadable()) {
-                return;
-            }
-        }
-
         readPacket(buffer, out, buffer);
     }
 
@@ -148,45 +148,35 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             return false;
         }
 
-        if (id == 0x1) {
-            // Handling keep alive packets.
-            if (buffer.isReadable()) {
-                readKeepAlive(buffer);
-            } else {
-                readKeepAliveId = true;
-            }
-            return true;
+        switch (id) {
+            case 0x1:
+                // Handling keep alive packets.
+                if (buffer.isReadable()) {
+                    readKeepAlive(buffer);
+                } else {
+                    readKeepAliveId = true;
+                }
+                break;
+            case 0x0:
+                readPayload(buffer);
+                break;
+            default:
+                final PacketSkeleton packet = connection.getCache().getPacket(id);
+                if (packet == null) {
+                    final byte[] data = ConversionUtil.intToBytes(id);
+
+                    if (callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.INVALID_ID, data)) {
+                        break;
+                    }
+
+                    throw new IllegalStateException("An error occurred while decoding - the packet to decode wasn't recognizable because it wasn't registered before! ("
+                            + Integer.toHexString(id) + ')');
+                }
+
+                read(out, new ArrayList<>(packet.getData().length), buffer, packet, 0, null);
+                break;
         }
 
-        /*if (!buffer.isReadable()) {
-            final byte[] data = ConversionUtil.intToBytes(id);
-
-            if (callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.INCOMPLETE_PACKET, data)) {
-                return true;
-            }
-
-            throw new IllegalStateException("An error occurred while decoding - the packet to decode was empty! (skipping current packet with id: "
-                    + Integer.toHexString(id) + ')');
-        }*/
-
-        if (id == 0x0) {
-            readPayload(buffer);
-            return true;
-        }
-
-        final PacketSkeleton packet = connection.getCache().getPacket(id);
-        if (packet == null) {
-            final byte[] data = ConversionUtil.intToBytes(id);
-
-            if (callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.INVALID_ID, data)) {
-                return true;
-            }
-
-            throw new IllegalStateException("An error occurred while decoding - the packet to decode wasn't recognizable because it wasn't registered before! ("
-                    + Integer.toHexString(id) + ')');
-        }
-
-        read(out, new ArrayList<>(packet.getData().length), buffer, packet, 0, null);
         return true;
     }
 
@@ -261,6 +251,11 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
     private void readPayload(@AssumeNotNull ByteBuf buffer) {
         final int start = buffer.readerIndex();
+        if(!buffer.isReadable()) {
+            handleFraming(1, start, buffer, buffer);
+            packet = null;
+            return;
+        }
         try {
             DataType.getDTIP().read(application, connection, buffer);
         } catch (CancelReadSignal signal) {
