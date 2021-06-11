@@ -16,6 +16,7 @@ limitations under the License.
 package de.terrarier.netlistening.api.compression;
 
 import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internals.CancelReadSignal;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -26,6 +27,11 @@ import org.jetbrains.annotations.ApiStatus;
 @ApiStatus.Internal
 public final class VarIntUtil {
 
+    private static final CancelReadSignal ONE_BYTE = new CancelReadSignal(1);
+    private static final CancelReadSignal TWO_BYTES = new CancelReadSignal(2);
+    private static final CancelReadSignal THREE_BYTES = new CancelReadSignal(3);
+    public static final CancelReadSignal FOUR_BYTES = new CancelReadSignal(4);
+    private static final CancelReadSignal FIVE_BYTES = new CancelReadSignal(5);
     // Original source: https://github.com/Netflix/hollow/blob/master/hollow/src/main/java/com/netflix/hollow/core/memory/encoding/VarInt.java
 
     private VarIntUtil() {
@@ -72,9 +78,9 @@ public final class VarIntUtil {
         out.writeByte((byte) (value & 0x7F));
     }
 
-    public static int getVarInt(@AssumeNotNull ByteBuf buffer) throws VarIntParseException {
+    public static int getVarInt(@AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
         if (!buffer.isReadable()) {
-            throw VarIntParseException.ONE_BYTE;
+            throw ONE_BYTE;
         }
         byte b = buffer.readByte();
 
@@ -86,7 +92,7 @@ public final class VarIntUtil {
         while ((b & 0x80) != 0) {
             required++;
             if (!buffer.isReadable()) {
-                throw VarIntParseException.valueOf(required);
+                throw valueOf(required);
             }
             b = buffer.readByte();
             value <<= 7;
@@ -96,49 +102,21 @@ public final class VarIntUtil {
         return value;
     }
 
-    @ApiStatus.Internal
-    public static final class VarIntParseException extends Exception {
-
-        public static final VarIntParseException ONE_BYTE = new VarIntParseException((byte) 1);
-        public static final VarIntParseException TWO_BYTES = new VarIntParseException((byte) 2);
-        public static final VarIntParseException THREE_BYTES = new VarIntParseException((byte) 3);
-        public static final VarIntParseException FOUR_BYTES = new VarIntParseException((byte) 4);
-        public static final VarIntParseException FIVE_BYTES = new VarIntParseException((byte) 5);
-        public final byte requiredBytes;
-
-        private VarIntParseException(byte requiredBytes) {
-            this.requiredBytes = requiredBytes;
+    private static CancelReadSignal valueOf(byte missing) {
+        switch (missing) {
+            case 1:
+                return ONE_BYTE;
+            case 2:
+                return TWO_BYTES;
+            case 3:
+                return THREE_BYTES;
+            case 4:
+                return FOUR_BYTES;
+            case 5:
+                return FIVE_BYTES;
+            default:
+                throw new UnsupportedOperationException("Var ints may exclusively have the size of 1-5 bytes.");
         }
-
-        @AssumeNotNull
-        @Override
-        public Throwable initCause(Throwable cause) {
-            return this;
-        }
-
-        @AssumeNotNull
-        @Override
-        public Throwable fillInStackTrace() {
-            return this;
-        }
-
-        public static VarIntParseException valueOf(byte missing) {
-            switch (missing) {
-                case 1:
-                    return ONE_BYTE;
-                case 2:
-                    return TWO_BYTES;
-                case 3:
-                    return THREE_BYTES;
-                case 4:
-                    return FOUR_BYTES;
-                case 5:
-                    return FIVE_BYTES;
-                default:
-                    throw new UnsupportedOperationException("Var ints may exclusively have the size of 1-5 bytes.");
-            }
-        }
-
     }
 
 }

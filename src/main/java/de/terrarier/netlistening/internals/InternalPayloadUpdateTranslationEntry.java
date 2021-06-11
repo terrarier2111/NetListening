@@ -16,7 +16,6 @@ limitations under the License.
 package de.terrarier.netlistening.internals;
 
 import de.terrarier.netlistening.Server;
-import de.terrarier.netlistening.api.compression.VarIntUtil;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
@@ -57,21 +56,11 @@ public final class InternalPayloadUpdateTranslationEntry extends InternalPayload
     @Override
     void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
             throws CancelReadSignal {
-        final int id;
-        try {
-            id = InternalUtil.readInt(application, buffer);
-        } catch (VarIntUtil.VarIntParseException e) {
-            throw new CancelReadSignal(e.requiredBytes);
-        }
+        final int id = InternalUtil.readInt(application, buffer);
         if (application instanceof Server) {
             connection.getPacketIdTranslationCache().delete(id);
         } else {
-            final int newId;
-            try {
-                newId = InternalUtil.readInt(application, buffer);
-            } catch (VarIntUtil.VarIntParseException e) {
-                throw new CancelReadSignal(e.requiredBytes);
-            }
+            final int newId = InternalUtil.readInt(application, buffer);
             application.getCache().swapId(id, newId);
             final ByteBuf translationUpdateBuffer = Unpooled.buffer(InternalUtil.getSingleByteSize(application) + 1 + 4); // TODO: Improve init size.
             DataType.getDTIP().write0(application, translationUpdateBuffer,

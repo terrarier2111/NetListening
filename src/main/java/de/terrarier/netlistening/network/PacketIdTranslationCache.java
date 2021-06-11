@@ -23,6 +23,7 @@ import de.terrarier.netlistening.internals.InternalPayloadUpdateTranslationEntry
 import de.terrarier.netlistening.internals.InternalUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Map;
@@ -38,18 +39,21 @@ public final class PacketIdTranslationCache {
     private final Map<Integer, Integer> translations = new ConcurrentHashMap<>();
     private final ConnectionImpl connection;
     private final ApplicationImpl application;
+    private final int initSize;
 
     public PacketIdTranslationCache(@AssumeNotNull ConnectionImpl connection,
                                     @AssumeNotNull ApplicationImpl application) {
         this.connection = connection;
         this.application = application;
+        initSize = InternalUtil.getSingleByteSize(application) + 1 + 4 + 4; // TODO: Improve init size.
     }
 
     public void insert(int foreign, int local) {
         translations.put(foreign, local);
-        final ByteBuf buffer = Unpooled.buffer(InternalUtil.getSingleByteSize(application) + 1 + 4 + 4); // TODO: Improve init size.
+        final ByteBuf buffer = Unpooled.buffer(initSize);
         DataType.getDTIP().write0(application, buffer, new InternalPayloadUpdateTranslationEntry(foreign, local));
-        connection.getChannel().writeAndFlush(buffer);
+        final Channel channel = connection.getChannel();
+        channel.writeAndFlush(buffer, channel.voidPromise());
     }
 
     public void delete(int foreign) {

@@ -17,7 +17,6 @@ package de.terrarier.netlistening.network;
 
 import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.api.DataComponent;
-import de.terrarier.netlistening.api.compression.VarIntUtil;
 import de.terrarier.netlistening.api.event.*;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
@@ -135,16 +134,16 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         int id;
         try {
             id = InternalUtil.readInt(application, idBuffer);
-            if (application instanceof Server) {
-                id = connection.getPacketIdTranslationCache().tryTranslate(id);
-            }
-        } catch (VarIntUtil.VarIntParseException varIntParseException) {
+        } catch (CancelReadSignal e) {
             // Preparing framing of packet id.
-            holdingBuffer = Unpooled.buffer(varIntParseException.requiredBytes);
+            holdingBuffer = Unpooled.buffer(e.size);
             transferRemaining(buffer);
             packet = null;
             hasId = false;
             return false;
+        }
+        if (application instanceof Server) {
+            id = connection.getPacketIdTranslationCache().tryTranslate(id);
         }
 
         switch (id) {
@@ -283,13 +282,6 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         hasId = true;
     }
 
-    private void tryRelease(@AssumeNotNull ByteBuf buffer) {
-        if (release && buffer instanceof UnpooledHeapByteBuf) {
-            release = false;
-            buffer.release();
-        }
-    }
-
     private boolean callInvalidDataEvent(@AssumeNotNull InvalidDataEvent.DataInvalidReason reason,
                                          @AssumeNotNull byte[] data) {
         final InvalidDataEvent event = new InvalidDataEvent(connection, reason, data);
@@ -311,6 +303,13 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
             throw new IllegalStateException("Received a keep alive packet with an invalid id! (expected: " + nextId +
                     " received: " + keepAliveId + ')');
+        }
+    }
+
+    private void tryRelease(@AssumeNotNull ByteBuf buffer) {
+        if (release && buffer instanceof UnpooledHeapByteBuf) {
+            release = false;
+            buffer.release();
         }
     }
 

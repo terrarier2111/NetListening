@@ -16,7 +16,6 @@ limitations under the License.
 package de.terrarier.netlistening.internals;
 
 import de.terrarier.netlistening.api.compression.VarIntUtil;
-import de.terrarier.netlistening.api.compression.VarIntUtil.VarIntParseException;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
@@ -40,20 +39,20 @@ public final class InternalUtil {
 
     public static void writeIntUnchecked(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer,
                                          int value) {
-        if (!application.getCompressionSetting().isVarIntCompression()) {
+        if (application.getCompressionSetting().isVarIntCompression()) {
+            VarIntUtil.writeVarInt(value, buffer);
+        }else {
             buffer.writeInt(value);
-            return;
         }
-        VarIntUtil.writeVarInt(value, buffer);
     }
 
     public static int readInt(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer)
-            throws VarIntParseException {
+            throws CancelReadSignal {
         if (application.getCompressionSetting().isVarIntCompression()) {
             return VarIntUtil.getVarInt(buffer);
         }
         if (buffer.readableBytes() < 4) {
-            throw VarIntParseException.FOUR_BYTES;
+            throw VarIntUtil.FOUR_BYTES;
         }
         return buffer.readInt();
     }

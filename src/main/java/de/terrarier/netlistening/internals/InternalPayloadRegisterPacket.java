@@ -18,7 +18,6 @@ package de.terrarier.netlistening.internals;
 import de.terrarier.netlistening.Client;
 import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.compression.NibbleUtil;
-import de.terrarier.netlistening.api.compression.VarIntUtil;
 import de.terrarier.netlistening.api.event.EventManager;
 import de.terrarier.netlistening.api.event.InvalidDataEvent;
 import de.terrarier.netlistening.api.event.ListenerType;
@@ -85,8 +84,8 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
         final int packetId;
         try {
             packetId = InternalUtil.readInt(application, buffer);
-        } catch (VarIntUtil.VarIntParseException e) {
-            throw new CancelReadSignal(3 + e.requiredBytes);
+        } catch (CancelReadSignal e) {
+            throw new CancelReadSignal(3 + e.size);
         }
         checkReadable(buffer, 2 + 1);
 
