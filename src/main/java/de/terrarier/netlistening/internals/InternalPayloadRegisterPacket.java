@@ -32,6 +32,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.ApiStatus;
 
+/**
+ * @author Terrarier2111
+ * @since 1.0
+ */
 @ApiStatus.Internal
 public final class InternalPayloadRegisterPacket extends InternalPayload {
 
