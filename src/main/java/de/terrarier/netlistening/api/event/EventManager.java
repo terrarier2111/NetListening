@@ -19,11 +19,11 @@ import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author Terrarier2111
@@ -31,8 +31,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @ApiStatus.Internal
 public final class EventManager {
-
-    // TODO: Make this multithreading safe!
 
     private final Map<ListenerType, List<Listener<?>>[]> listeners = new ConcurrentHashMap<>();
     private final DataHandler handler;
@@ -53,7 +51,7 @@ public final class EventManager {
         List<Listener<?>> demanded = listenerPriorities[priorityId];
 
         if (demanded == null) {
-            demanded = new ArrayList<>();
+            demanded = new CopyOnWriteArrayList<>();
             listenerPriorities[priorityId] = demanded;
         }
         long listenerId = demanded.size();

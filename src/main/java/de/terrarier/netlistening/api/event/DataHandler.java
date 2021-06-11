@@ -21,8 +21,8 @@ import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.internals.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author Terrarier2111
@@ -31,9 +31,7 @@ import java.util.List;
 @ApiStatus.Internal
 public final class DataHandler {
 
-    // TODO: Make this multithreading safe!
-
-    private final List<PreparedListener> listeners = new ArrayList<>();
+    private final List<PreparedListener> listeners = new CopyOnWriteArrayList<>();
 
     public void processData(@AssumeNotNull List<DataComponent<?>> data, @AssumeNotNull ConnectionImpl connection) {
         final int dataSize = data.size();
