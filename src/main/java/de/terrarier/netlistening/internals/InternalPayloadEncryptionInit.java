@@ -23,7 +23,6 @@ import de.terrarier.netlistening.api.encryption.hash.HmacApplicationPolicy;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
-import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.utils.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
@@ -109,26 +108,26 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
             }
             connection.setSymmetricKey(symmetricOptions,
                     AsymmetricEncryptionUtil.decrypt(key, encryptionSetting.getEncryptionData()));
-            final ByteBuf finishBuffer = Unpooled.buffer(InternalUtil.getSingleByteSize(application) + 1);
-            DataType.getDTIP().write0(application, finishBuffer, ENCRYPTION_FINISH);
-            ((ClientImpl) application).sendRawData(finishBuffer);
         } else {
             final EncryptionSetting encryptionSetting = application.getEncryptionSetting();
+            final PublicKey publicKey;
             try {
-                final PublicKey publicKey = AsymmetricEncryptionUtil.readPublicKey(key,
+                publicKey = AsymmetricEncryptionUtil.readPublicKey(key,
                         encryptionSetting.getAsymmetricSetting());
-                final ByteBuf initBuffer = Unpooled.buffer();
-
-                DataType.getDTIP().write0(application, initBuffer,
-                        new InternalPayloadEncryptionInit(
-                                new SymmetricEncryptionData(encryptionSetting.getSymmetricSetting(),
-                                        connection.getEncryptionContext().getSecretKey()), publicKey,
-                                connection.getHmacKey()));
-                final Channel channel = connection.getChannel();
-                channel.writeAndFlush(initBuffer, channel.voidPromise());
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 e.printStackTrace();
+                return;
             }
+            final ByteBuf initBuffer = Unpooled.buffer();
+
+            DataType.getDTIP().write0(application, initBuffer,
+                    new InternalPayloadEncryptionInit(
+                            new SymmetricEncryptionData(encryptionSetting.getSymmetricSetting(),
+                                    connection.getEncryptionContext().getSecretKey()), publicKey,
+                            connection.getHmacKey()));
+            final Channel channel = connection.getChannel();
+            channel.writeAndFlush(initBuffer, channel.voidPromise());
+            connection.prepare();
         }
     }
 

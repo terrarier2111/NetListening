@@ -32,7 +32,7 @@ import io.netty.buffer.ByteBuf;
 public final class InternalPayloadPushRequest extends InternalPayload {
 
     InternalPayloadPushRequest() {
-        super((byte) 0x5);
+        super((byte) 0x4);
     }
 
     @Override

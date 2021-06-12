@@ -36,7 +36,7 @@ public final class InternalPayloadUpdateTranslationEntry extends InternalPayload
     private int newId = -1;
 
     InternalPayloadUpdateTranslationEntry(int id) {
-        super((byte) 0x6);
+        super((byte) 0x5);
         this.id = id;
     }
 
@@ -62,7 +62,8 @@ public final class InternalPayloadUpdateTranslationEntry extends InternalPayload
         } else {
             final int newId = InternalUtil.readInt(application, buffer);
             application.getCache().swapId(id, newId);
-            final ByteBuf translationUpdateBuffer = Unpooled.buffer(InternalUtil.getSingleByteSize(application) + 1 + 4); // TODO: Improve init size.
+            final ByteBuf translationUpdateBuffer = Unpooled.buffer(InternalUtil.getSingleByteSize(application) + 1 +
+                    InternalUtil.getSize(application, id));
             DataType.getDTIP().write0(application, translationUpdateBuffer,
                     new InternalPayloadUpdateTranslationEntry(id));
             final Channel channel = connection.getChannel();
