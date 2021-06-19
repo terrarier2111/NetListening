@@ -20,15 +20,15 @@ import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
 import de.terrarier.netlistening.api.proxy.ProxyType;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.impl.ClientImpl;
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 import io.netty.channel.ChannelOption;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
-import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositive;
-import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositiveOrZero;
+import static de.terrarier.netlistening.util.ObjectUtilFallback.checkPositive;
+import static de.terrarier.netlistening.util.ObjectUtilFallback.checkPositiveOrZero;
 
 /**
  * @author Terrarier2111

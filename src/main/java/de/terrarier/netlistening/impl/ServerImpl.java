@@ -27,8 +27,8 @@ import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
 import de.terrarier.netlistening.api.event.ConnectionPostInitEvent;
 import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.api.serialization.SerializationUtil;
-import de.terrarier.netlistening.internals.AssumeNotNull;
-import de.terrarier.netlistening.utils.UDS;
+import de.terrarier.netlistening.internal.AssumeNotNull;
+import de.terrarier.netlistening.util.UDS;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -44,7 +44,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.*;
 import java.util.concurrent.*;
 
-import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositiveOrZero;
+import static de.terrarier.netlistening.util.ObjectUtilFallback.checkPositiveOrZero;
 
 /**
  * @author Terrarier2111

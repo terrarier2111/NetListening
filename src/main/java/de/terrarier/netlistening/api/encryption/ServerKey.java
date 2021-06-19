@@ -19,15 +19,15 @@ import de.terrarier.netlistening.Client;
 import de.terrarier.netlistening.api.encryption.hash.HashUtil;
 import de.terrarier.netlistening.api.encryption.hash.HashingAlgorithm;
 import de.terrarier.netlistening.impl.ClientImpl;
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.NoSuchAlgorithmException;
 
-import static de.terrarier.netlistening.utils.ByteBufUtilExtension.getBytesAndRelease;
-import static de.terrarier.netlistening.utils.ByteBufUtilExtension.readBytes;
+import static de.terrarier.netlistening.util.ByteBufUtilExtension.getBytesAndRelease;
+import static de.terrarier.netlistening.util.ByteBufUtilExtension.readBytes;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**

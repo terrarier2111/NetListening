@@ -15,7 +15,7 @@ limitations under the License.
  */
 package de.terrarier.netlistening.api.encryption;
 
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 
 /**
  * @author Terrarier2111

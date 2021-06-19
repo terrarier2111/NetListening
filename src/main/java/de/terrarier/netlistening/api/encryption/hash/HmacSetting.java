@@ -17,7 +17,7 @@ package de.terrarier.netlistening.api.encryption.hash;
 
 import de.terrarier.netlistening.api.encryption.CipherEncryptionAlgorithm;
 import de.terrarier.netlistening.api.encryption.EncryptionOptions;
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**

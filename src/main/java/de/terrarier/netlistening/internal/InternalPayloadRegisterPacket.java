@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package de.terrarier.netlistening.internals;
+package de.terrarier.netlistening.internal;
 
 import de.terrarier.netlistening.Client;
 import de.terrarier.netlistening.api.PacketCaching;
@@ -26,7 +26,7 @@ import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.network.PacketCache;
 import de.terrarier.netlistening.network.PacketSkeleton;
-import de.terrarier.netlistening.utils.ConversionUtil;
+import de.terrarier.netlistening.util.ConversionUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.ApiStatus;

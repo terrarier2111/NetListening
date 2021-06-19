@@ -15,7 +15,7 @@ limitations under the License.
  */
 package de.terrarier.netlistening.api.proxy;
 
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.net.SocketAddress;

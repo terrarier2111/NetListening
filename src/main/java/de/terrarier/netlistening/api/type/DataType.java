@@ -18,9 +18,9 @@ package de.terrarier.netlistening.api.type;
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
-import de.terrarier.netlistening.internals.*;
+import de.terrarier.netlistening.internal.*;
 import de.terrarier.netlistening.network.PacketDataDecoder;
-import de.terrarier.netlistening.utils.ByteBufUtilExtension;
+import de.terrarier.netlistening.util.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.ApiStatus;
 

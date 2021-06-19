@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package de.terrarier.netlistening.internals;
+package de.terrarier.netlistening.internal;
 
 import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.api.event.EventManager;
@@ -22,7 +22,7 @@ import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
-import de.terrarier.netlistening.utils.ConversionUtil;
+import de.terrarier.netlistening.util.ConversionUtil;
 import io.netty.buffer.ByteBuf;
 
 /**

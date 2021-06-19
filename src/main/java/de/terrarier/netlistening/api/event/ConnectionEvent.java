@@ -16,7 +16,7 @@ limitations under the License.
 package de.terrarier.netlistening.api.event;
 
 import de.terrarier.netlistening.Connection;
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 
 /**
  * @author Terrarier2111

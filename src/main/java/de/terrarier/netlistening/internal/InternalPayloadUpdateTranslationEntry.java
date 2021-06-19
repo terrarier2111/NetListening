@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package de.terrarier.netlistening.internals;
+package de.terrarier.netlistening.internal;
 
 import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.api.type.DataType;
@@ -25,7 +25,7 @@ import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
-import static de.terrarier.netlistening.internals.InternalUtil.*;
+import static de.terrarier.netlistening.internal.InternalUtil.*;
 
 /**
  * @author Terrarier2111

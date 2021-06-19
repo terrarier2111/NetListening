@@ -20,7 +20,7 @@ import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.api.event.Listener;
 import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 import io.netty.channel.ChannelOption;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;

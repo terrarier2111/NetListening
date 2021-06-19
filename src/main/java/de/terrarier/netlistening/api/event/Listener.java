@@ -15,7 +15,7 @@ limitations under the License.
  */
 package de.terrarier.netlistening.api.event;
 
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 
 /**
  * @param <T> the event which is handled by the listener.

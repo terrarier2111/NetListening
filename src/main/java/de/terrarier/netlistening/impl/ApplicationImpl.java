@@ -22,12 +22,12 @@ import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.event.*;
 import de.terrarier.netlistening.api.serialization.JavaIoSerializationProvider;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 import de.terrarier.netlistening.network.PacketCache;
 import de.terrarier.netlistening.network.PacketDataDecoder;
 import de.terrarier.netlistening.network.PacketDataEncoder;
 import de.terrarier.netlistening.network.TimeOutHandler;
-import de.terrarier.netlistening.utils.UDS;
+import de.terrarier.netlistening.util.UDS;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
@@ -42,7 +42,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
-import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositiveOrZero;
+import static de.terrarier.netlistening.util.ObjectUtilFallback.checkPositiveOrZero;
 
 /**
  * @author Terrarier2111

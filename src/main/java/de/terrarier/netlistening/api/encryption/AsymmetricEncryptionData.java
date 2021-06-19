@@ -15,7 +15,7 @@ limitations under the License.
  */
 package de.terrarier.netlistening.api.encryption;
 
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +27,7 @@ import java.security.spec.InvalidKeySpecException;
 
 import static de.terrarier.netlistening.api.encryption.AsymmetricEncryptionUtil.readPrivateKey;
 import static de.terrarier.netlistening.api.encryption.AsymmetricEncryptionUtil.readPublicKey;
-import static de.terrarier.netlistening.utils.ByteBufUtilExtension.*;
+import static de.terrarier.netlistening.util.ByteBufUtilExtension.*;
 
 /**
  * @author Terrarier2111

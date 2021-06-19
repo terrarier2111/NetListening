@@ -19,7 +19,7 @@ import de.terrarier.netlistening.api.encryption.EncryptionOptions;
 import de.terrarier.netlistening.api.encryption.EncryptionOptionsSuperBuilder;
 import de.terrarier.netlistening.api.encryption.EncryptionOptionsWrapper;
 import de.terrarier.netlistening.api.encryption.EncryptionSettingWrapper;
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**

@@ -16,7 +16,7 @@ limitations under the License.
 package de.terrarier.netlistening.network;
 
 import de.terrarier.netlistening.api.type.DataType;
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Arrays;

@@ -16,7 +16,7 @@ limitations under the License.
 package de.terrarier.netlistening.api.event;
 
 import de.terrarier.netlistening.api.Type;
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;

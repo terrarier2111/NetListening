@@ -21,9 +21,9 @@ import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.api.serialization.SerializationUtil;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
-import de.terrarier.netlistening.internals.AssumeNotNull;
-import de.terrarier.netlistening.internals.CancelSignal;
-import de.terrarier.netlistening.utils.ConversionUtil;
+import de.terrarier.netlistening.internal.AssumeNotNull;
+import de.terrarier.netlistening.internal.CancelSignal;
+import de.terrarier.netlistening.util.ConversionUtil;
 import io.netty.buffer.ByteBuf;
 
 import static de.terrarier.netlistening.api.serialization.SerializationProvider.SERIALIZATION_ERROR;

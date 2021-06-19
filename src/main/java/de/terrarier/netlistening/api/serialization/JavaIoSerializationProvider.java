@@ -15,8 +15,8 @@ limitations under the License.
  */
 package de.terrarier.netlistening.api.serialization;
 
-import de.terrarier.netlistening.internals.AssumeNotNull;
-import de.terrarier.netlistening.utils.ByteBufUtilExtension;
+import de.terrarier.netlistening.internal.AssumeNotNull;
+import de.terrarier.netlistening.util.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 
 import java.io.*;

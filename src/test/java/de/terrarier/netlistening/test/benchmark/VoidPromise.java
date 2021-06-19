@@ -3,7 +3,7 @@ package de.terrarier.netlistening.test.benchmark;
 import de.terrarier.netlistening.Client;
 import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.impl.ClientImpl;
-import de.terrarier.netlistening.internals.InternalUtil;
+import de.terrarier.netlistening.internal.InternalUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;

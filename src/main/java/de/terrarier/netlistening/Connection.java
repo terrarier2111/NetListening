@@ -17,7 +17,7 @@ package de.terrarier.netlistening;
 
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.NotNull;
 

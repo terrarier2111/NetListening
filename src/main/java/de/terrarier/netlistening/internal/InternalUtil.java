@@ -13,11 +13,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package de.terrarier.netlistening.internals;
+package de.terrarier.netlistening.internal;
 
 import de.terrarier.netlistening.api.compression.VarIntUtil;
 import de.terrarier.netlistening.impl.ApplicationImpl;
-import de.terrarier.netlistening.utils.ByteBufUtilExtension;
+import de.terrarier.netlistening.util.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.ApiStatus;
 

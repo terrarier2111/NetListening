@@ -20,10 +20,10 @@ import de.terrarier.netlistening.api.event.InvalidDataEvent;
 import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
-import de.terrarier.netlistening.internals.AssumeNotNull;
-import de.terrarier.netlistening.internals.CancelReadSignal;
-import de.terrarier.netlistening.utils.ByteBufUtilExtension;
-import de.terrarier.netlistening.utils.ConversionUtil;
+import de.terrarier.netlistening.internal.AssumeNotNull;
+import de.terrarier.netlistening.internal.CancelReadSignal;
+import de.terrarier.netlistening.util.ByteBufUtilExtension;
+import de.terrarier.netlistening.util.ConversionUtil;
 import io.netty.buffer.ByteBuf;
 
 import static io.netty.util.internal.EmptyArrays.EMPTY_BYTES;

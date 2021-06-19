@@ -16,7 +16,7 @@ limitations under the License.
 package de.terrarier.netlistening.api.compression;
 
 import de.terrarier.netlistening.Server;
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**

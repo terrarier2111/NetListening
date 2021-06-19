@@ -16,7 +16,7 @@ limitations under the License.
 package de.terrarier.netlistening.api;
 
 import de.terrarier.netlistening.api.type.DataType;
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static de.terrarier.netlistening.api.type.DataType.*;
-import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositiveOrZero;
+import static de.terrarier.netlistening.util.ObjectUtilFallback.checkPositiveOrZero;
 
 /**
  * @author Terrarier2111

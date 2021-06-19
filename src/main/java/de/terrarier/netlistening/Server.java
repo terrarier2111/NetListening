@@ -22,7 +22,7 @@ import de.terrarier.netlistening.api.encryption.EncryptionSetting;
 import de.terrarier.netlistening.api.encryption.EncryptionSettingWrapper;
 import de.terrarier.netlistening.api.serialization.SerializationProvider;
 import de.terrarier.netlistening.impl.ServerImpl;
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import org.jetbrains.annotations.ApiStatus;
@@ -30,8 +30,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.charset.Charset;
 
-import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositive;
-import static de.terrarier.netlistening.utils.ObjectUtilFallback.checkPositiveOrZero;
+import static de.terrarier.netlistening.util.ObjectUtilFallback.checkPositive;
+import static de.terrarier.netlistening.util.ObjectUtilFallback.checkPositiveOrZero;
 
 /**
  * @author Terrarier2111

@@ -26,9 +26,9 @@ import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
-import de.terrarier.netlistening.internals.AssumeNotNull;
-import de.terrarier.netlistening.internals.CancelSignal;
-import de.terrarier.netlistening.internals.InternalPayloadRegisterPacket;
+import de.terrarier.netlistening.internal.AssumeNotNull;
+import de.terrarier.netlistening.internal.CancelSignal;
+import de.terrarier.netlistening.internal.InternalPayloadRegisterPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
@@ -42,9 +42,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
-import static de.terrarier.netlistening.internals.InternalUtil.writeInt;
-import static de.terrarier.netlistening.utils.ByteBufUtilExtension.correctSize;
-import static de.terrarier.netlistening.utils.ByteBufUtilExtension.getBytesAndRelease;
+import static de.terrarier.netlistening.internal.InternalUtil.writeInt;
+import static de.terrarier.netlistening.util.ByteBufUtilExtension.correctSize;
+import static de.terrarier.netlistening.util.ByteBufUtilExtension.getBytesAndRelease;
 
 /**
  * @author Terrarier2111

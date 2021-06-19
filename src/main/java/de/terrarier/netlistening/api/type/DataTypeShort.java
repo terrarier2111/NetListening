@@ -17,7 +17,7 @@ package de.terrarier.netlistening.api.type;
 
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 import io.netty.buffer.ByteBuf;
 
 /**

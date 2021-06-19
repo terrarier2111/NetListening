@@ -13,32 +13,21 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
  */
-package de.terrarier.netlistening.internals;
+package de.terrarier.netlistening.internal;
 
-import org.jetbrains.annotations.ApiStatus;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
+ * An annotation which can be used to show that
+ * something is assumed not to be null.
+ *
  * @author Terrarier2111
- * @since 1.06
+ * @since 1.08
  */
-@ApiStatus.Internal
-public class CancelSignal extends Exception {
-
-    public static final CancelSignal INSTANCE = new CancelSignal();
-
-    CancelSignal() {
-    }
-
-    @AssumeNotNull
-    @Override
-    public final Throwable initCause(Throwable cause) {
-        return this;
-    }
-
-    @AssumeNotNull
-    @Override
-    public final Throwable fillInStackTrace() {
-        return this;
-    }
-
+@Retention(RetentionPolicy.CLASS)
+@Target({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE, ElementType.TYPE_USE})
+public @interface AssumeNotNull {
 }

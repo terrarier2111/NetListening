@@ -18,7 +18,7 @@ package de.terrarier.netlistening.api.event;
 import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.impl.ConnectionImpl;
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;

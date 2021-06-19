@@ -18,7 +18,7 @@ package de.terrarier.netlistening.api.encryption;
 import de.terrarier.netlistening.Server;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
 import de.terrarier.netlistening.api.encryption.hash.HmacSettingWrapper;
-import de.terrarier.netlistening.internals.AssumeNotNull;
+import de.terrarier.netlistening.internal.AssumeNotNull;
 import org.jetbrains.annotations.NotNull;
 
 /**

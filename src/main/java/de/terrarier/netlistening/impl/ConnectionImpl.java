@@ -25,7 +25,7 @@ import de.terrarier.netlistening.api.encryption.EncryptionOptions;
 import de.terrarier.netlistening.api.encryption.SymmetricEncryptionContext;
 import de.terrarier.netlistening.api.encryption.SymmetricEncryptionUtil;
 import de.terrarier.netlistening.api.type.DataType;
-import de.terrarier.netlistening.internals.*;
+import de.terrarier.netlistening.internal.*;
 import de.terrarier.netlistening.network.PacketCache;
 import de.terrarier.netlistening.network.PacketIdTranslationCache;
 import de.terrarier.netlistening.network.PacketSkeleton;
@@ -43,8 +43,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static de.terrarier.netlistening.utils.ByteBufUtilExtension.correctSize;
-import static de.terrarier.netlistening.utils.ByteBufUtilExtension.getBytes;
+import static de.terrarier.netlistening.util.ByteBufUtilExtension.correctSize;
+import static de.terrarier.netlistening.util.ByteBufUtilExtension.getBytes;
 
 /**
  * @author Terrarier2111
