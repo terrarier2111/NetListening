@@ -39,11 +39,13 @@ public final class HashUtil {
         throw new UnsupportedOperationException("This class may not be instantiated!");
     }
 
+    @AssumeNotNull
     public static byte[] hash(@AssumeNotNull HashingAlgorithm hashingAlgorithm, @AssumeNotNull byte[] data)
             throws NoSuchAlgorithmException {
         return hash(hashingAlgorithm, data, 0);
     }
 
+    @AssumeNotNull
     private static byte[] hash(@AssumeNotNull HashingAlgorithm hashingAlgorithm, @AssumeNotNull byte[] data,
                                int saltLength) throws NoSuchAlgorithmException {
         final MessageDigest digest = MessageDigest.getInstance(hashingAlgorithm.getRawName());
@@ -51,8 +53,7 @@ public final class HashUtil {
             final ByteBuf dataBuffer = Unpooled.buffer(data.length + saltLength);
             dataBuffer.writeBytes(data);
             dataBuffer.writeBytes(generateSalt(saltLength));
-            data = ByteBufUtilExtension.getBytes(dataBuffer);
-            dataBuffer.release();
+            data = ByteBufUtilExtension.getBytesAndRelease(dataBuffer);
         }
         return digest.digest(data);
     }

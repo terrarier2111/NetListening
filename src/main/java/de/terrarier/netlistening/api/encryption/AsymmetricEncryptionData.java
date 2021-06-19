@@ -27,8 +27,7 @@ import java.security.spec.InvalidKeySpecException;
 
 import static de.terrarier.netlistening.api.encryption.AsymmetricEncryptionUtil.readPrivateKey;
 import static de.terrarier.netlistening.api.encryption.AsymmetricEncryptionUtil.readPublicKey;
-import static de.terrarier.netlistening.utils.ByteBufUtilExtension.getBytes;
-import static de.terrarier.netlistening.utils.ByteBufUtilExtension.readBytes;
+import static de.terrarier.netlistening.utils.ByteBufUtilExtension.*;
 
 /**
  * @author Terrarier2111
@@ -90,9 +89,7 @@ public final class AsymmetricEncryptionData extends EncryptionData {
         buffer.writeBytes(privateKeyData);
         buffer.writeInt(publicKeyLength);
         buffer.writeBytes(publicKeyData);
-        final byte[] ret = getBytes(buffer);
-        buffer.release();
-        return ret;
+        return getBytesAndRelease(buffer);
     }
 
     /**

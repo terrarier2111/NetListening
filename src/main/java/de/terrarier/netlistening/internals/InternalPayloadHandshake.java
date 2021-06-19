@@ -124,8 +124,8 @@ public final class InternalPayloadHandshake extends InternalPayload {
             final int serverKeyLength = buffer.readInt();
             checkReadable(buffer, serverKeyLength);
             serverKey = readBytes(buffer, serverKeyLength);
-            encryptionSetting = new EncryptionSetting();
-            encryptionSetting.asymmetricEncryptionOptions(asymmetricEncryptionOptions);
+            encryptionSetting = new EncryptionSetting()
+                    .asymmetricEncryptionOptions(asymmetricEncryptionOptions);
         }
         final ClientImpl client = (ClientImpl) application;
         final CompressionSetting compressionSetting = new CompressionSetting()

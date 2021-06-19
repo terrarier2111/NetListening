@@ -104,6 +104,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
                 encryptionSetting.init(null);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                 e.printStackTrace();
+                return;
             }
             this.encryptionSetting = encryptionSetting;
             setServerKey(serverKey, serverKeyHashing);

@@ -42,7 +42,7 @@ public final class InternalPayloadPushRequest extends InternalPayload {
 
     @Override
     void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
-              @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
+              @AssumeNotNull ByteBuf buffer) {
         if (application instanceof Server) {
             // TODO: We should probably cache this byte array.
             final byte[] data = ConversionUtil.intToBytes(id);

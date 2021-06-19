@@ -92,8 +92,10 @@ public final class ByteBufUtilExtension {
     }
 
     @AssumeNotNull
-    public static byte[] getBytes(@AssumeNotNull ByteBuf buffer) {
-        return getBytes(buffer, buffer.readableBytes());
+    public static byte[] getBytesAndRelease(@AssumeNotNull ByteBuf buffer) {
+        final byte[] bytes = getBytes(buffer, buffer.readableBytes());
+        buffer.release();
+        return bytes;
     }
 
     /**

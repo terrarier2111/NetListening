@@ -67,11 +67,9 @@ public class RegisterSerializationProvider extends SerializationProvider {
             throw new NullPointerException("You tried to use a transformer which was removed which caused a race condition.");
         }
         ensureWritable(ba.getBuffer(), 8);
-        System.out.println("writing!");
         ba.getBuffer().writeInt(HEADER_ID);
         ba.getBuffer().writeInt(transformer.id);
         transformer.toBytesUnchecked(ba, obj);
-        System.out.println("wrote!");
     }
 
     /**
@@ -79,8 +77,9 @@ public class RegisterSerializationProvider extends SerializationProvider {
      */
     @Override
     protected final Object deserialize(@AssumeNotNull ReadableByteAccumulation ba) throws Exception {
-        ba.getBuffer().skipBytes(4);
-        final Transformer<?> transformer = idTransformerMapping.get(ba.getBuffer().readInt());
+        final ByteBuf buffer = ba.getBuffer();
+        buffer.skipBytes(4);
+        final Transformer<?> transformer = idTransformerMapping.get(buffer.readInt());
         if (transformer == null) {
             throw new NullPointerException("You tried to use a transformer which was removed which caused a race condition.");
         }
@@ -140,9 +139,10 @@ public class RegisterSerializationProvider extends SerializationProvider {
 
         @AssumeNotNull
         protected final T fromBytes0(@AssumeNotNull ReadableByteAccumulation ba) throws Exception {
-            final int newBytes = ba.getArray().length - 8;
+            final byte[] array = ba.getArray();
+            final int newBytes = array.length - 8;
             final byte[] pass = new byte[newBytes];
-            System.arraycopy(ba.getArray(), 8, pass, 0, newBytes);
+            System.arraycopy(array, 8, pass, 0, newBytes);
             return fromBytes(pass);
         }
 

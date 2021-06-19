@@ -34,7 +34,7 @@ public abstract class InternalPayload {
     public static final InternalPayloadPushRequest PUSH_REQUEST = new InternalPayloadPushRequest();
     private static final InternalPayloadUpdateTranslationEntry UPDATE_TRANSLATION_ENTRY = new InternalPayloadUpdateTranslationEntry(-1);
 
-    protected final byte id;
+    final byte id;
 
     InternalPayload(byte id) {
         this.id = id;

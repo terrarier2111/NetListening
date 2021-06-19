@@ -99,6 +99,8 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                                 }
                             } catch (NoSuchAlgorithmException e) {
                                 e.printStackTrace();
+                                channel.close();
+                                return;
                             }
                         }
 

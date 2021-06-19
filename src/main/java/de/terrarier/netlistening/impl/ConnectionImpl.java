@@ -173,7 +173,9 @@ public final class ConnectionImpl implements Connection {
         return (InetSocketAddress) channel.remoteAddress();
     }
 
-    // TODO: Add any sort of documentation to this method!
+    /**
+     * @return the encryption context which is used to encrypt data correctly.
+     */
     public SymmetricEncryptionContext getEncryptionContext() {
         return encryptionContext;
     }

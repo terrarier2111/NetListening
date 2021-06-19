@@ -58,6 +58,8 @@ public final class UDS {
 
     static {
         final boolean epoll = Epoll.isAvailable();
+        // We catch IllegalAccessError because if a totally different version of Netty is used at runtime,
+        // it will cause this error to get thrown.
         if (OSX) {
             try {
                 KQUEUE_SERVER_SOCKET_CHANNEL = (Class<? extends ServerChannel>) Class.forName(
@@ -93,9 +95,6 @@ public final class UDS {
                         "io.netty.channel.epoll.EpollDomainSocketChannel");
             } catch (ClassNotFoundException | IllegalAccessError e) {
                 // EpollDomainSocketChannel is not available.
-                // TODO: Fix the error below properly!
-                // java.lang.IllegalAccessError: class io.netty.channel.epoll.AbstractEpollStreamChannel
-                // cannot access its superclass io.netty.channel.epoll.AbstractEpollChannel
             }
             try {
                 EPOLL_SERVER_DOMAIN_SOCKET_CHANNEL = (Class<? extends ServerChannel>) Class.forName(
@@ -177,7 +176,7 @@ public final class UDS {
                     return (Class<? extends T>) KQUEUE_SERVER_DOMAIN_SOCKET_CHANNEL;
                 }
                 throw new UnsupportedOperationException(
-                        "Kqueue is not present in the classpath hence UDS is not supported on the server side.");
+                        "KQueue is not present in the classpath hence UDS is not supported on the server side.");
             }
             throw new UnsupportedOperationException();
         }
@@ -211,7 +210,7 @@ public final class UDS {
                 AVAILABLE;
     }
 
-    // Copied from PlatformDependent (and modified) from netty in order to allow for correct backwards compatible osx checks.
+    // Copied from PlatformDependent (and modified) from Netty in order to allow for correct backwards compatible osx checks.
     private static boolean isOsx0() {
         final String value = SystemPropertyUtil.get("os.name", "").toLowerCase(Locale.US).replaceAll("[^a-z0-9]+", "");
         return value.startsWith("macosx") || value.startsWith("osx") || value.startsWith("darwin");

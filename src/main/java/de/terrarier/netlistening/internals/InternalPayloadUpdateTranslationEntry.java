@@ -25,6 +25,8 @@ import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
+import static de.terrarier.netlistening.internals.InternalUtil.*;
+
 /**
  * @author Terrarier2111
  * @since 1.12
@@ -47,23 +49,23 @@ public final class InternalPayloadUpdateTranslationEntry extends InternalPayload
 
     @Override
     void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
-        InternalUtil.writeInt(application, buffer, id);
+        writeInt(application, buffer, id);
         if (newId != -1) {
-            InternalUtil.writeInt(application, buffer, newId);
+            writeInt(application, buffer, newId);
         }
     }
 
     @Override
     void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
             throws CancelReadSignal {
-        final int id = InternalUtil.readInt(application, buffer);
+        final int id = readInt(application, buffer);
         if (application instanceof Server) {
             connection.getPacketIdTranslationCache().delete(id);
         } else {
-            final int newId = InternalUtil.readInt(application, buffer);
+            final int newId = readInt(application, buffer);
             application.getCache().swapId(id, newId);
-            final ByteBuf translationUpdateBuffer = Unpooled.buffer(InternalUtil.getSingleByteSize(application) + 1 +
-                    InternalUtil.getSize(application, id));
+            final ByteBuf translationUpdateBuffer = Unpooled.buffer(getSingleByteSize(application) + 1 +
+                    getSize(application, id));
             DataType.getDTIP().write0(application, translationUpdateBuffer,
                     new InternalPayloadUpdateTranslationEntry(id));
             final Channel channel = connection.getChannel();

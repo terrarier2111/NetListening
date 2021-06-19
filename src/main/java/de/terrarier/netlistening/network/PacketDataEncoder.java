@@ -44,7 +44,7 @@ import java.util.concurrent.ExecutorService;
 
 import static de.terrarier.netlistening.internals.InternalUtil.writeInt;
 import static de.terrarier.netlistening.utils.ByteBufUtilExtension.correctSize;
-import static de.terrarier.netlistening.utils.ByteBufUtilExtension.getBytes;
+import static de.terrarier.netlistening.utils.ByteBufUtilExtension.getBytesAndRelease;
 
 /**
  * @author Terrarier2111
@@ -136,8 +136,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
             if (encrypted) {
                 writeInt(application, hmacBuffer, 0x3);
                 final byte[] encryptedData = connection.getEncryptionContext().encrypt(
-                        getBytes(encryptionBuffer));
-                encryptionBuffer.release();
+                        getBytesAndRelease(encryptionBuffer));
                 final int size = encryptedData.length;
                 correctSize(hmacBuffer, 4 + size, application.getBuffer());
                 hmacBuffer.writeInt(size);
@@ -172,22 +171,23 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
 
     private void appendHmac(@AssumeNotNull ByteBuf src, @AssumeNotNull ByteBuf dst,
                             @AssumeNotNull ConnectionImpl connection) {
-        final byte[] data = getBytes(src);
-        src.release();
+        final byte[] data = getBytesAndRelease(src);
+        final byte[] hash;
         try {
-            final byte[] hash = HashUtil.calculateHMAC(data, connection.getHmacKey(),
+            hash = HashUtil.calculateHMAC(data, connection.getHmacKey(),
                     application.getEncryptionSetting().getHmacSetting().getHashingAlgorithm());
-            final int dataLength = data.length;
-            final short hashLength = (short) hash.length;
-            writeInt(application, dst, 0x4);
-            correctSize(dst, 4 + 2 + dataLength + hashLength, application.getBuffer());
-            dst.writeInt(dataLength);
-            dst.writeShort(hashLength);
-            dst.writeBytes(data);
-            dst.writeBytes(hash);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             application.getEventManager().handleExceptionThrown(e);
+            return;
         }
+        final int dataLength = data.length;
+        final short hashLength = (short) hash.length;
+        writeInt(application, dst, 0x4);
+        correctSize(dst, 4 + 2 + dataLength + hashLength, application.getBuffer());
+        dst.writeInt(dataLength);
+        dst.writeShort(hashLength);
+        dst.writeBytes(data);
+        dst.writeBytes(hash);
     }
 
 }

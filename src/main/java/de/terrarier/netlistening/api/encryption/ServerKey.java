@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.security.NoSuchAlgorithmException;
 
-import static de.terrarier.netlistening.utils.ByteBufUtilExtension.getBytes;
+import static de.terrarier.netlistening.utils.ByteBufUtilExtension.getBytesAndRelease;
 import static de.terrarier.netlistening.utils.ByteBufUtilExtension.readBytes;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -46,8 +46,7 @@ public final class ServerKey {
         final byte[] hashData = readBytes(buffer, hashingAlgorithmLength);
         key = null;
         hashingAlgorithm = HashingAlgorithm.valueOf(new String(hashData, UTF_8));
-        keyHash = getBytes(buffer);
-        buffer.release();
+        keyHash = getBytesAndRelease(buffer);
     }
 
     public ServerKey(byte @NotNull [] key, @NotNull HashingAlgorithm hashingAlgorithm) throws NoSuchAlgorithmException {
@@ -99,9 +98,7 @@ public final class ServerKey {
         buffer.writeBytes(hashingAlgorithmBytes);
         buffer.writeBytes(keyHash);
 
-        final byte[] ret = getBytes(buffer);
-        buffer.release();
-        return ret;
+        return getBytesAndRelease(buffer);
     }
 
     /**
