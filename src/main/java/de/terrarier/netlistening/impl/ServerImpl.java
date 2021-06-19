@@ -297,13 +297,15 @@ public final class ServerImpl extends ApplicationImpl implements Server {
                 } else {
                     channelFuture = bootstrap.bind(port);
                 }
+                final Channel channel;
                 try {
-                    final Channel channel = channelFuture.sync().channel();
-                    channel.config().setOptions(options);
-                    channel.closeFuture().syncUninterruptibly();
+                    channel = channelFuture.sync().channel();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    return;
                 }
+                channel.config().setOptions(options);
+                channel.closeFuture().syncUninterruptibly();
             });
             application.worker.start();
         }

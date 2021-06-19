@@ -73,7 +73,7 @@ public final class TimeOutHandler extends ReadTimeoutHandler {
                 if (counter == MAX_VALUE) {
                     counter = MIN_VALUE;
                 } else if (buffer == null) {
-                    buffer = Unpooled.buffer(InternalUtil.getSingleByteSize(application) + 1);
+                    buffer = Unpooled.buffer(InternalUtil.singleOctetIntSize(application) + 1);
                     InternalUtil.writeIntUnchecked(application, buffer, 0x1);
                     buffer.markWriterIndex();
                 }

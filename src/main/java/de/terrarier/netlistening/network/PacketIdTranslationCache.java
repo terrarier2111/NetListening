@@ -45,7 +45,7 @@ public final class PacketIdTranslationCache {
                                     @AssumeNotNull ApplicationImpl application) {
         this.connection = connection;
         this.application = application;
-        initSize = InternalUtil.getSingleByteSize(application) + 1 + 4 + 4; // TODO: Improve init size.
+        initSize = InternalUtil.singleOctetIntSize(application) + 1 + 4 + 4; // TODO: Improve init size.
     }
 
     public void insert(int foreign, int local) {

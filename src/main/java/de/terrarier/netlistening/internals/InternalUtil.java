@@ -41,7 +41,7 @@ public final class InternalUtil {
                                          int value) {
         if (application.getCompressionSetting().isVarIntCompression()) {
             VarIntUtil.writeVarInt(value, buffer);
-        }else {
+        } else {
             buffer.writeInt(value);
         }
     }
@@ -61,7 +61,7 @@ public final class InternalUtil {
         return application.getCompressionSetting().isVarIntCompression() ? VarIntUtil.varIntSize(value) : 4;
     }
 
-    public static int getSingleByteSize(@AssumeNotNull ApplicationImpl application) {
+    public static int singleOctetIntSize(@AssumeNotNull ApplicationImpl application) {
         return application.getCompressionSetting().isVarIntCompression() ? 1 : 4;
     }
 

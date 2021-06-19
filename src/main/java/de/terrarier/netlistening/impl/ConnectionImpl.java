@@ -384,7 +384,7 @@ public final class ConnectionImpl implements Connection {
             }
         }
 
-        final int lowSize = InternalUtil.getSingleByteSize(application);
+        final int lowSize = InternalUtil.singleOctetIntSize(application);
         final ByteBuf buffer = Unpooled.buffer(lowSize + 1 + lowSize);
         DataType.getDTIP().write0(application, buffer, InternalPayload.PUSH_REQUEST);
         channel.writeAndFlush(buffer, voidPromise);

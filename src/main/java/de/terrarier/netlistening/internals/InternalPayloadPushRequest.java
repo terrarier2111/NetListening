@@ -54,7 +54,7 @@ public final class InternalPayloadPushRequest extends InternalPayload {
                 return;
             }
 
-            throw new IllegalStateException("Received malicious data! (" + Integer.toHexString(id) + ")");
+            throw new IllegalStateException("Received malicious data! (" + Integer.toHexString(id) + ')');
         }
 
         ((ClientImpl) application).pushCachedData();

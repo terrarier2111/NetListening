@@ -138,7 +138,7 @@ public final class PacketCache {
         final Collection<ConnectionImpl> connections = application.getConnectionsRaw();
         if (ignored == null || connections.size() > 1) {
             final ByteBuf registerBuffer = buffer != null ? buffer : Unpooled.buffer(
-                    1 + InternalUtil.getSingleByteSize(application) + payload.getSize(application));
+                    1 + InternalUtil.singleOctetIntSize(application) + payload.getSize(application));
 
             if (buffer == null) {
                 DataType.getDTIP().write0(application, registerBuffer, payload);

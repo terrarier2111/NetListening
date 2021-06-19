@@ -64,7 +64,7 @@ public final class InternalPayloadUpdateTranslationEntry extends InternalPayload
         } else {
             final int newId = readInt(application, buffer);
             application.getCache().swapId(id, newId);
-            final ByteBuf translationUpdateBuffer = Unpooled.buffer(getSingleByteSize(application) + 1 +
+            final ByteBuf translationUpdateBuffer = Unpooled.buffer(singleOctetIntSize(application) + 1 +
                     getSize(application, id));
             DataType.getDTIP().write0(application, translationUpdateBuffer,
                     new InternalPayloadUpdateTranslationEntry(id));

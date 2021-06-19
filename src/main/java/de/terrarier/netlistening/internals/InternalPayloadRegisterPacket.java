@@ -155,7 +155,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
                 cache.broadcastRegister(application, register, null, null);
             } else {
                 final ByteBuf registerBuffer = Unpooled.buffer(
-                        InternalUtil.getSingleByteSize(application) + 1 + getSize(application));
+                        InternalUtil.singleOctetIntSize(application) + 1 + getSize(application));
                 DataType.getDTIP().write0(application, registerBuffer, register);
             }
         }
