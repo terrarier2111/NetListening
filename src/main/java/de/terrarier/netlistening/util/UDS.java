@@ -16,6 +16,8 @@ limitations under the License.
 package de.terrarier.netlistening.util;
 
 import de.terrarier.netlistening.internal.AssumeNotNull;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.channel.epoll.Epoll;
@@ -31,7 +33,6 @@ import org.jetbrains.annotations.ApiStatus;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.SocketAddress;
-import java.nio.channels.Channel;
 import java.util.Locale;
 
 /**
@@ -55,6 +56,15 @@ public final class UDS {
     private static Class<? extends Channel> DOMAIN_SOCKET_CHANNEL;
     private static Class<? extends EventLoopGroup> KQUEUE_EVENT_LOOP_GROUP;
     private static Constructor<? extends SocketAddress> DOMAIN_SOCKET_ADDRESS_CONSTRUCTOR;
+
+    private static final ChannelFactory<? extends ServerChannel> SERVER_UDS_CHANNEL_FACTORY =
+            (ChannelFactory<ServerChannel>) () -> serverChannel(true);
+    private static final ChannelFactory<? extends ServerChannel> SERVER_CHANNEL_FACTORY =
+            (ChannelFactory<ServerChannel>) () -> serverChannel(false);
+    private static final ChannelFactory<? extends Channel> UDS_CHANNEL_FACTORY =
+            (ChannelFactory<Channel>) () -> channel(true);
+    private static final ChannelFactory<? extends Channel> CHANNEL_FACTORY =
+            (ChannelFactory<Channel>) () -> channel(false);
 
     static {
         final boolean epoll = Epoll.isAvailable();
@@ -127,6 +137,18 @@ public final class UDS {
 
     @ApiStatus.Internal
     @AssumeNotNull
+    public static ChannelFactory<? extends Channel> channelFactory(boolean uds) {
+        return uds ? UDS_CHANNEL_FACTORY : CHANNEL_FACTORY;
+    }
+
+    @ApiStatus.Internal
+    @AssumeNotNull
+    public static ChannelFactory<? extends ServerChannel> serverChannelFactory(boolean uds) {
+        return uds ? SERVER_UDS_CHANNEL_FACTORY : SERVER_CHANNEL_FACTORY;
+    }
+
+    @ApiStatus.Internal
+    @AssumeNotNull
     public static SocketAddress domainSocketAddress(@AssumeNotNull String filePath) {
         if (AVAILABLE) {
             try {
@@ -136,57 +158,6 @@ public final class UDS {
             }
         }
         throw new UnsupportedOperationException("UDS are not supported on this platform.");
-    }
-
-    @ApiStatus.Internal
-    @AssumeNotNull
-    public static <T> Class<? extends T> channel(boolean uds) {
-        final boolean epoll = Epoll.isAvailable();
-        if (uds) {
-            if (epoll) {
-                return (Class<? extends T>) EPOLL_DOMAIN_SOCKET_CHANNEL;
-            }
-            if (OSX) {
-                if (KQUEUE_DOMAIN_SOCKET_CHANNEL != null) {
-                    return (Class<? extends T>) KQUEUE_DOMAIN_SOCKET_CHANNEL;
-                }
-                return (Class<? extends T>) DOMAIN_SOCKET_CHANNEL;
-            }
-            throw new UnsupportedOperationException();
-        }
-        if (epoll) {
-            return (Class<? extends T>) EpollSocketChannel.class;
-        }
-        if (OSX && KQUEUE_SOCKET_CHANNEL != null) {
-            return (Class<? extends T>) KQUEUE_SOCKET_CHANNEL;
-        }
-        return (Class<? extends T>) NioSocketChannel.class;
-    }
-
-    @ApiStatus.Internal
-    @AssumeNotNull
-    public static <T> Class<? extends T> serverChannel(boolean uds) {
-        final boolean epoll = Epoll.isAvailable();
-        if (uds) {
-            if (epoll) {
-                return (Class<? extends T>) EPOLL_SERVER_DOMAIN_SOCKET_CHANNEL;
-            }
-            if (OSX) {
-                if (KQUEUE_SERVER_DOMAIN_SOCKET_CHANNEL != null) {
-                    return (Class<? extends T>) KQUEUE_SERVER_DOMAIN_SOCKET_CHANNEL;
-                }
-                throw new UnsupportedOperationException(
-                        "KQueue is not present in the classpath hence UDS is not supported on the server side.");
-            }
-            throw new UnsupportedOperationException();
-        }
-        if (epoll) {
-            return (Class<? extends T>) EpollServerSocketChannel.class;
-        }
-        if (OSX && KQUEUE_SERVER_SOCKET_CHANNEL != null) {
-            return (Class<? extends T>) KQUEUE_SERVER_SOCKET_CHANNEL;
-        }
-        return (Class<? extends T>) NioServerSocketChannel.class;
     }
 
     @ApiStatus.Internal
@@ -214,6 +185,63 @@ public final class UDS {
     private static boolean isOsx0() {
         final String value = SystemPropertyUtil.get("os.name", "").toLowerCase(Locale.US).replaceAll("[^a-z0-9]+", "");
         return value.startsWith("macosx") || value.startsWith("osx") || value.startsWith("darwin");
+    }
+
+    @AssumeNotNull
+    private static Channel channel(boolean uds) {
+        final boolean epoll = Epoll.isAvailable();
+        try {
+            if (uds) {
+                if (epoll) {
+                    return EPOLL_DOMAIN_SOCKET_CHANNEL.newInstance();
+                }
+                if (OSX) {
+                    if (KQUEUE_DOMAIN_SOCKET_CHANNEL != null) {
+                        return KQUEUE_DOMAIN_SOCKET_CHANNEL.newInstance();
+                    }
+                    return DOMAIN_SOCKET_CHANNEL.newInstance();
+                }
+                throw new UnsupportedOperationException();
+            }
+            if (epoll) {
+                return new EpollSocketChannel();
+            }
+            if (OSX && KQUEUE_SOCKET_CHANNEL != null) {
+                return KQUEUE_SOCKET_CHANNEL.newInstance();
+            }
+        }catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return new NioSocketChannel();
+    }
+
+    @AssumeNotNull
+    private static ServerChannel serverChannel(boolean uds) {
+        final boolean epoll = Epoll.isAvailable();
+        try {
+            if (uds) {
+                if (epoll) {
+                    return EPOLL_SERVER_DOMAIN_SOCKET_CHANNEL.newInstance();
+                }
+                if (OSX) {
+                    if (KQUEUE_SERVER_DOMAIN_SOCKET_CHANNEL != null) {
+                        return KQUEUE_SERVER_DOMAIN_SOCKET_CHANNEL.newInstance();
+                    }
+                    throw new UnsupportedOperationException(
+                            "KQueue is not present in the classpath hence UDS is not supported on the server side.");
+                }
+                throw new UnsupportedOperationException();
+            }
+            if (epoll) {
+                return new EpollServerSocketChannel();
+            }
+            if (OSX && KQUEUE_SERVER_SOCKET_CHANNEL != null) {
+                return KQUEUE_SERVER_SOCKET_CHANNEL.newInstance();
+            }
+        }catch (InstantiationException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return new NioServerSocketChannel();
     }
 
 }

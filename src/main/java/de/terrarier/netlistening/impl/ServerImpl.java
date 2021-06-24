@@ -79,7 +79,7 @@ public final class ServerImpl extends ApplicationImpl implements Server {
         SerializationUtil.init(this, serializationProvider);
 
         return new ServerBootstrap().group(group)
-                .channel(UDS.serverChannel(uds))
+                .channelFactory(UDS.serverChannelFactory(uds))
                 .childHandler(new ChannelInitializer<Channel>() {
                     @Override
                     protected final void initChannel(@AssumeNotNull Channel channel) {
