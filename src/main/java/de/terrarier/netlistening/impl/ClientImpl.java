@@ -74,7 +74,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         SerializationUtil.init(this, serializationProvider);
 
         return new Bootstrap().group(group)
-                .channel(UDS.channel(uds))
+                .channelFactory(UDS.channelFactory(uds))
                 .handler(new ChannelInitializer<Channel>() {
                     @Override
                     protected final void initChannel(@AssumeNotNull Channel channel) {
