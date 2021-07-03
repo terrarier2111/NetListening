@@ -47,8 +47,11 @@ public final class DataTypeEncrypt extends DataType<Void> {
                 ByteBufUtilExtension.readBytes(buffer, size));
         final PacketDataDecoder decoder = decoderContext.getDecoder();
         final ByteBuf dataBuffer = Unpooled.wrappedBuffer(decrypted);
-        decoder.releaseNext();
-        decoder.decode(decoderContext.getHandlerContext(), dataBuffer, out);
+        try {
+            decoder.decode(decoderContext.getHandlerContext(), dataBuffer, out);
+        } finally {
+            dataBuffer.release();
+        }
         return null;
     }
 

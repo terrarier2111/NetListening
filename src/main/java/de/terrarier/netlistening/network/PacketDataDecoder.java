@@ -29,7 +29,6 @@ import de.terrarier.netlistening.util.ByteBufUtilExtension;
 import de.terrarier.netlistening.util.ConversionUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.buffer.UnpooledHeapByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.util.internal.EmptyArrays;
@@ -61,7 +60,6 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     private PacketSkeleton packet;
     private boolean hasId;
     private boolean invalidData;
-    private boolean release;
     private byte lastKeepAliveId = Byte.MIN_VALUE;
     private boolean readKeepAliveId;
 
@@ -98,14 +96,13 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             // Framing
             final ByteBuf tmp = holdingBuffer;
             final int writable = tmp.writableBytes();
-            final boolean block = writable > readable;
-            final byte[] remaining = ByteBufUtilExtension.readBytes(buffer, block ? readable : writable);
+            final boolean waitForData = writable > readable;
+            final byte[] remaining = ByteBufUtilExtension.readBytes(buffer, waitForData ? readable : writable);
             tmp.writeBytes(remaining);
-            if (block) {
+            if (waitForData) {
                 return;
             }
             framing = false;
-            boolean release = false;
             if (hasId) {
                 hasId = false;
                 if (packet != null) {
@@ -114,10 +111,10 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                     readPayload(tmp);
                 }
             } else {
-                release = readPacket(buffer, out, tmp);
+                readPacket(buffer, out, tmp);
             }
 
-            if (release || !framing || !tmp.equals(holdingBuffer)) {
+            if (!framing || !tmp.equals(holdingBuffer)) {
                 tmp.release();
                 if (!framing) {
                     holdingBuffer = null;
@@ -129,8 +126,8 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         readPacket(buffer, out, buffer);
     }
 
-    private boolean readPacket(@AssumeNotNull ByteBuf buffer, @AssumeNotNull List<Object> out,
-                               @AssumeNotNull ByteBuf idBuffer) throws Exception {
+    private void readPacket(@AssumeNotNull ByteBuf buffer, @AssumeNotNull List<Object> out,
+                            @AssumeNotNull ByteBuf idBuffer) throws Exception {
         int id;
         try {
             id = InternalUtil.readInt(application, idBuffer);
@@ -140,7 +137,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             transferRemaining(buffer);
             packet = null;
             hasId = false;
-            return false;
+            return;
         }
         if (application instanceof Server) {
             id = connection.getPacketIdTranslationCache().tryTranslate(id);
@@ -174,8 +171,6 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 read(out, new ArrayList<>(packet.getData().length), buffer, packet, 0, null);
                 break;
         }
-
-        return true;
     }
 
     @SuppressWarnings("unchecked")
@@ -217,7 +212,6 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             } catch (CancelSignal signal) {
                 // Handling cases in which objects can't get deserialized.
                 if (i + 1 == length) {
-                    tryRelease(buffer);
                     return;
                 }
                 invalidData = true;
@@ -229,14 +223,12 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                     hasId = true;
                     holdingBuffer = Unpooled.buffer(dataTypes[i + 1].getMinSize());
                     framing = true;
-                    tryRelease(buffer);
                     return;
                 }
             }
 
         }
 
-        tryRelease(buffer);
         if (invalidData) {
             invalidData = false;
             return;
@@ -271,7 +263,6 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             // Note: The first 4 bytes represent 0x0 in it's int representation.
             ConversionUtil.intToBytes(data, 4, frameSize);
             if (!callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.TOO_LARGE_FRAME, data)) {
-                tryRelease(buffer);
                 throw new IllegalStateException("Received a frame which is too large. (size: " + frameSize +
                         " | max: " + maxFrameSize + ')');
             }
@@ -306,24 +297,12 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         }
     }
 
-    private void tryRelease(@AssumeNotNull ByteBuf buffer) {
-        if (release && buffer instanceof UnpooledHeapByteBuf) {
-            release = false;
-            buffer.release();
-        }
-    }
-
     private void transferRemaining(@AssumeNotNull ByteBuf buffer) {
         final byte[] remaining = ByteBufUtilExtension.readBytes(buffer, buffer.readableBytes());
-        tryRelease(buffer);
         if (remaining.length != 0) {
             holdingBuffer.writeBytes(remaining);
         }
         framing = true;
-    }
-
-    public void releaseNext() {
-        release = true;
     }
 
     @Override

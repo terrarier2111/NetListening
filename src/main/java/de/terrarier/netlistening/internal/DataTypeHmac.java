@@ -59,8 +59,11 @@ public final class DataTypeHmac extends DataType<Void> {
         }
         final PacketDataDecoder decoder = context.getDecoder();
         final ByteBuf dataBuffer = Unpooled.wrappedBuffer(traffic);
-        decoder.releaseNext();
-        decoder.decode(context.getHandlerContext(), dataBuffer, out);
+        try {
+            decoder.decode(context.getHandlerContext(), dataBuffer, out);
+        } finally {
+            dataBuffer.release();
+        }
         return null;
     }
 
