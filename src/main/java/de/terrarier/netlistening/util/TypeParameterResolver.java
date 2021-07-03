@@ -34,14 +34,14 @@ public final class TypeParameterResolver {
     @AssumeNotNull
     public static Class<?> find(@AssumeNotNull Object object, @AssumeNotNull Class<?> parametrizedSuperclass,
                                 @AssumeNotNull String typeParamName) {
-
-        final Class<?> thisClass = object.getClass();
-        Class<?> currentClass = thisClass;
+        final Class<?> objectClass = object.getClass();
+        Class<?> currentClass = objectClass;
         while (true) {
             if (currentClass.getSuperclass() == parametrizedSuperclass) {
                 int typeParamIndex = -1;
                 final TypeVariable<?>[] typeParams = currentClass.getSuperclass().getTypeParameters();
-                for (int i = 0; i < typeParams.length; i++) {
+                final int length = typeParams.length;
+                for (int i = 0; i < length; i++) {
                     if (typeParamName.equals(typeParams[i].getName())) {
                         typeParamIndex = i;
                         break;
@@ -83,22 +83,22 @@ public final class TypeParameterResolver {
                         return Object.class;
                     }
 
-                    currentClass = thisClass;
+                    currentClass = objectClass;
                     parametrizedSuperclass = (Class<?>) v.getGenericDeclaration();
                     typeParamName = v.getName();
-                    if (parametrizedSuperclass.isAssignableFrom(thisClass)) {
+                    if (parametrizedSuperclass.isAssignableFrom(objectClass)) {
                         continue;
                     }
                     return Object.class;
                 }
 
                 throw new IllegalStateException(
-                        "cannot determine the type of the type parameter '" + typeParamName + "': " + thisClass);
+                        "cannot determine the type of the type parameter '" + typeParamName + "': " + objectClass);
             }
             currentClass = currentClass.getSuperclass();
             if (currentClass == null) {
                 throw new IllegalStateException(
-                        "cannot determine the type of the type parameter '" + typeParamName + "': " + thisClass);
+                        "cannot determine the type of the type parameter '" + typeParamName + "': " + objectClass);
             }
         }
     }

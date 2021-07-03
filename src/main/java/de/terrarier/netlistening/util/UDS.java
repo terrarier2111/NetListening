@@ -209,7 +209,7 @@ public final class UDS {
             if (OSX && KQUEUE_SOCKET_CHANNEL != null) {
                 return KQUEUE_SOCKET_CHANNEL.newInstance();
             }
-        }catch (InstantiationException | IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
         return new NioSocketChannel();
@@ -238,7 +238,7 @@ public final class UDS {
             if (OSX && KQUEUE_SERVER_SOCKET_CHANNEL != null) {
                 return KQUEUE_SERVER_SOCKET_CHANNEL.newInstance();
             }
-        }catch (InstantiationException | IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             e.printStackTrace();
         }
         return new NioServerSocketChannel();

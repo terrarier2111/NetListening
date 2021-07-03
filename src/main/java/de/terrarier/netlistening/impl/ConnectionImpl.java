@@ -320,26 +320,22 @@ public final class ConnectionImpl implements Connection {
         if (!dataSendState.isAtLeast(DataSendState.SENDING)) {
             checkReceived();
             transferData(buffer);
-        } else {
-            if (!trySend(buffer)) {
-                // TODO: Test logic to send data delayed!
-                if (dataSendState != DataSendState.WAITING_FOR_FINISH) { // Check if the connection isn't in the waiting state and therefore
-                    // currently it isn't waiting for a response from the other end of the connection.
-                    while (true) {
-                        if (this.dataSendState == DataSendState.WAITING_FOR_FINISH) {
-                            break;
-                        } else if (trySend(buffer)) {
-                            return;
-                        }
+        } else if (!trySend(buffer)) {
+            // TODO: Test logic to send data delayed!
+            if (dataSendState != DataSendState.WAITING_FOR_FINISH) { // Check if the connection isn't in the waiting state and therefore
+                // currently it isn't waiting for a response from the other end of the connection.
+                while (this.dataSendState != DataSendState.WAITING_FOR_FINISH) {
+                    if (trySend(buffer)) {
+                        return;
                     }
                 }
-                synchronized (this) {
-                    if (preConnectBuffer == null) {
-                        preConnectBuffer = Unpooled.buffer();
-                    }
-                }
-                transferData(buffer);
             }
+            synchronized (this) {
+                if (preConnectBuffer == null) {
+                    preConnectBuffer = Unpooled.buffer();
+                }
+            }
+            transferData(buffer);
         }
     }
 
@@ -402,7 +398,7 @@ public final class ConnectionImpl implements Connection {
 
         IDLE, SENDING, WAITING_FOR_FINISH, FINISHING, FINISHED;
 
-        private boolean isAtLeast(@NotNull DataSendState state) {
+        private boolean isAtLeast(@AssumeNotNull DataSendState state) {
             return ordinal() >= state.ordinal();
         }
 

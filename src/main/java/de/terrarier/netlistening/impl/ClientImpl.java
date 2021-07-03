@@ -116,6 +116,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
         if (receivedHandshake) {
             throw new IllegalStateException("An internal error occurred - duplicate push request");
         }
+        receivedHandshake = true;
 
         synchronized (this) {
             if (preConnectData != null) {
@@ -127,7 +128,6 @@ public final class ClientImpl extends ApplicationImpl implements Client {
                 preConnectData = null;
             }
         }
-        receivedHandshake = true;
     }
 
     @ApiStatus.Internal
