@@ -31,7 +31,7 @@ public class RegisterTest {
     @Test(timeout = 15000L)
     public void test() {
         final Server server = Server.builder(55843).compression().varIntCompression(false).nibbleCompression(false)
-                .build().build();
+                .build().encryption().disableHmac().build().build();
         final Client client = Client.builder("localhost", 55843).build();
         try {
             // TODO: Fix this!
@@ -40,7 +40,7 @@ public class RegisterTest {
             buffer.writeByte(0x1);
             buffer.writeInt(0x6); // packet id - starting at 0x5 so we are using an higher id to start
             buffer.writeShort(0x1); // 1 data type
-            buffer.writeByte(DataType.BYTE_ARRAY.getId());
+            buffer.writeByte(DataType.BYTE_ARRAY.getId() - 1);
             final Field field = ClientImpl.class.getDeclaredField("channel");
             field.setAccessible(true);
             Thread.sleep(1000L);
