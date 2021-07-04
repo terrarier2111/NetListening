@@ -42,9 +42,7 @@ public final class InvalidDataEvent extends ConnectionEvent {
 
     @ApiStatus.Internal
     public InvalidDataEvent(@AssumeNotNull Connection connection, @AssumeNotNull DataInvalidReason reason) {
-        super(connection);
-        this.reason = reason;
-        data = EMPTY_BYTES;
+        this(connection, reason, EMPTY_BYTES);
     }
 
     /**
@@ -66,7 +64,7 @@ public final class InvalidDataEvent extends ConnectionEvent {
     public enum DataInvalidReason {
 
         EMPTY_PACKET, INCOMPLETE_PACKET, MALICIOUS_ACTION, INVALID_ID, INVALID_LENGTH, INVALID_DATA_TYPE,
-        INVALID_KEEP_ALIVE_ID, INVALID_HANDSHAKE, TOO_LARGE_FRAME, UNSPECIFIED
+        INVALID_KEEP_ALIVE_ID, INVALID_HANDSHAKE, TOO_LARGE_FRAME, UNSUPPORTED_KEEP_ALIVE, UNSPECIFIED
 
     }
 
