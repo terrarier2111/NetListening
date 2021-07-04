@@ -27,7 +27,6 @@ import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.impl.ServerImpl;
-import de.terrarier.netlistening.internal.AssumeNotNull;
 import de.terrarier.netlistening.util.ByteBufUtilExtension;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -40,9 +39,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
+import static de.terrarier.netlistening.util.ByteBufUtilExtension.getBytesAndRelease;
+
 public final class FramingTest {
 
-    private static final byte[] KEY = { 21, -18, 41, -103, 16, 42, -104, 30, -15, -113, 75, -122, 59, -13, -104, 109 }; // it is okay to leak this key as it is test-only!
+    private static final byte[] KEY = {21, -18, 41, -103, 16, 42, -104, 30, -15, -113, 75, -122, 59, -13, -104, 109}; // it is okay to leak this key as it is test-only!
 
     @Test
     public void testEncryptionFraming() {
@@ -116,7 +117,7 @@ public final class FramingTest {
             Method method = SymmetricEncryptionUtil.class.getDeclaredMethod("encrypt", byte[].class, SymmetricEncryptionData.class);
             method.setAccessible(true);
             byte[] encryptedData = (byte[]) method.invoke(null,
-                    getBytesAndRelease(fakePacket, fakePacket.readableBytes()), symmetricEncryptionData); // get all bytes from data except the last one
+                    getBytesAndRelease(fakePacket), symmetricEncryptionData); // get all bytes from data except the last one
             final int size = encryptedData.length;
             ByteBufUtilExtension.correctSize(data, 4 + size, 0);
             data.writeInt(size);
@@ -204,7 +205,7 @@ public final class FramingTest {
             Method method = SymmetricEncryptionUtil.class.getDeclaredMethod("encrypt", byte[].class, SymmetricEncryptionData.class);
             method.setAccessible(true);
             byte[] encryptedData = (byte[]) method.invoke(null,
-                    getBytesAndRelease(fakePacket, fakePacket.readableBytes()), symmetricEncryptionData); // get all bytes from data except the last one
+                    getBytesAndRelease(fakePacket), symmetricEncryptionData); // get all bytes from data except the last one
             final int size = encryptedData.length;
             ByteBufUtilExtension.correctSize(data, 4 + size, 0);
             data.writeInt(size);
@@ -222,11 +223,51 @@ public final class FramingTest {
         client.stop();
     }
 
-    @AssumeNotNull
-    private static byte[] getBytesAndRelease(@AssumeNotNull ByteBuf buffer, int numBytes) {
-        final byte[] bytes = ByteBufUtilExtension.getBytes(buffer, numBytes);
-        buffer.release();
-        return bytes;
+    @Test
+    public void testKeepAliveFraming() {
+        final ServerImpl server = (ServerImpl) Server.builder(55844).compression().varIntCompression(false).nibbleCompression(false)
+                .build().encryption().disableHmac().build().build();
+        server.registerListener(new DecodeListener() {
+            @Override
+            public void trigger(DecodeEvent value) {
+                final byte[] data = value.getData().read();
+                System.out.println("Received data: " + Arrays.toString(data));
+            }
+        });
+        final Client client = Client.builder("localhost", 55844).build();
+        try {
+            Thread.sleep(250L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        try {
+            ByteBuf registerBuffer = Unpooled.buffer();
+            registerBuffer.writeInt(0x0);
+            registerBuffer.writeByte(0x1);
+            registerBuffer.writeInt(0x5); // packet id - starting at 0x5
+            registerBuffer.writeShort(0x1); // 1 data type
+            registerBuffer.writeByte(DataType.BYTE_ARRAY.getId() - 1);
+            final Field field = ClientImpl.class.getDeclaredField("channel");
+            field.setAccessible(true);
+            Thread.sleep(200L);
+            final Channel channel = (Channel) field.get(client);
+            channel.writeAndFlush(registerBuffer);
+            Thread.sleep(200L);
+            ByteBuf payload = Unpooled.buffer();
+            payload.writeInt(0x1);
+            channel.writeAndFlush(payload);
+            Thread.sleep(200L);
+            payload = Unpooled.buffer();
+            payload.writeByte(Byte.MIN_VALUE + 1);
+            payload.writeInt(0x5); // Registered packet
+            payload.writeInt(0x2); // Byte array length
+            payload.writeByte(0xF); // Just a random number
+            payload.writeByte(0x3); // Just a random number
+            channel.writeAndFlush(payload);
+            Thread.sleep(200L);
+        } catch (InterruptedException | NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
 }
