@@ -26,7 +26,6 @@ import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
 import de.terrarier.netlistening.network.PacketCache;
 import de.terrarier.netlistening.network.PacketSkeleton;
-import de.terrarier.netlistening.util.ConversionUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.ApiStatus;
@@ -112,7 +111,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
             if (id < 0x0) {
                 final InvalidDataEvent event = new InvalidDataEvent(connection,
                         InvalidDataEvent.DataInvalidReason.INVALID_DATA_TYPE,
-                        ConversionUtil.intToBytes(id));
+                        new byte[]{id});
 
                 if (application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                         event)) {
