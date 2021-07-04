@@ -16,7 +16,6 @@ limitations under the License.
 package de.terrarier.netlistening.api.encryption;
 
 import de.terrarier.netlistening.internal.AssumeNotNull;
-import org.jetbrains.annotations.NotNull;
 
 import javax.crypto.SecretKey;
 
@@ -28,7 +27,7 @@ public final class SymmetricEncryptionData extends EncryptionData {
 
     private final SecretKey secretKey;
 
-    public SymmetricEncryptionData(@NotNull EncryptionOptions encryptionOptions, @NotNull SecretKey secretKey) {
+    SymmetricEncryptionData(@AssumeNotNull EncryptionOptions encryptionOptions, @AssumeNotNull SecretKey secretKey) {
         super(encryptionOptions);
         this.secretKey = secretKey;
     }

@@ -84,7 +84,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
             return;
         }
         writeBytes(buffer, encryptionSetting.getEncryptionData().getPublicKey().getEncoded(),
-                application.getBuffer());
+                application.getBuffer()); // TODO: Check if we should use 0 as buffer here!
     }
 
     @Override
@@ -125,8 +125,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
 
             DataType.getDTIP().write0(application, initBuffer,
                     new InternalPayloadEncryptionInit(
-                            new SymmetricEncryptionData(encryptionSetting.getSymmetricSetting(),
-                                    connection.getEncryptionContext().getSecretKey()), publicKey,
+                            connection.getEncryptionContext().getEncryptionData(), publicKey,
                             connection.getHmacKey()));
             final Channel channel = connection.getChannel();
             channel.writeAndFlush(initBuffer, channel.voidPromise());

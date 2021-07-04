@@ -27,27 +27,34 @@ import javax.crypto.SecretKey;
  */
 public final class SymmetricEncryptionContext {
 
-    private final SecretKey secretKey;
     private final SymmetricEncryptionData symmetricEncryptionData;
 
-    @Deprecated
     public SymmetricEncryptionContext(@NotNull EncryptionOptions symmetricEncryptionOptions,
                                       @NotNull SecretKey secretKey) {
-        this(secretKey, symmetricEncryptionOptions);
+        this.symmetricEncryptionData = new SymmetricEncryptionData(symmetricEncryptionOptions, secretKey);
     }
 
-    public SymmetricEncryptionContext(@NotNull SecretKey secretKey,
-                                      @NotNull EncryptionOptions symmetricEncryptionOptions) {
-        this.secretKey = secretKey;
-        this.symmetricEncryptionData = new SymmetricEncryptionData(symmetricEncryptionOptions, secretKey);
+    @Deprecated
+    public SymmetricEncryptionContext(@AssumeNotNull SecretKey secretKey,
+                                      @AssumeNotNull EncryptionOptions symmetricEncryptionOptions) {
+        this(symmetricEncryptionOptions, secretKey);
     }
 
     /**
      * @return the key which is used to en-/decrypt data.
      */
+    @Deprecated
     @AssumeNotNull
     public SecretKey getSecretKey() {
-        return secretKey;
+        return symmetricEncryptionData.getSecretKey();
+    }
+
+    /**
+     * @return the data contained in the context which is used to en-/decrypt data passed to the context.
+     */
+    @AssumeNotNull
+    public SymmetricEncryptionData getEncryptionData() {
+        return symmetricEncryptionData;
     }
 
     /**
