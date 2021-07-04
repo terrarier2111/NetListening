@@ -190,7 +190,7 @@ public final class ConnectionImpl implements Connection {
     public void setSymmetricKey(@NotNull EncryptionOptions options, byte @NotNull [] symmetricKey) {
         final SecretKey secretKey = SymmetricEncryptionUtil.readSecretKey(symmetricKey,
                 options);
-        encryptionContext = new SymmetricEncryptionContext(secretKey, options);
+        encryptionContext = new SymmetricEncryptionContext(options, secretKey);
     }
 
     /**
@@ -202,7 +202,7 @@ public final class ConnectionImpl implements Connection {
      */
     public void setSymmetricKey(@NotNull ApplicationImpl application, @NotNull SecretKey secretKey) {
         final EncryptionOptions options = application.getEncryptionSetting().getSymmetricSetting();
-        encryptionContext = new SymmetricEncryptionContext(secretKey, options);
+        encryptionContext = new SymmetricEncryptionContext(options, secretKey);
     }
 
     /**
@@ -277,8 +277,8 @@ public final class ConnectionImpl implements Connection {
                 if (caching == PacketCaching.GLOBAL) {
                     final Map<Integer, PacketSkeleton> packets = cache.getPackets();
                     final int packetsSize = packets.size();
-                    if (packetsSize > 3) {
-                        for (int id = 5; id < packetsSize + 2; id++) {
+                    if (packetsSize > 2) {
+                        for (int id = 5; id < packetsSize + 3; id++) { // the number added here is calculated via: 5 - number of default packets
                             final DataType<?>[] data = packets.get(id).getData();
                             dtip.write0(application, buffer, new InternalPayloadRegisterPacket(id, data));
                         }

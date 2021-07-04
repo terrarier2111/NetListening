@@ -42,7 +42,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @ApiStatus.Internal
 public final class PacketCache {
 
-    private static final PacketSkeleton INTERNAL_PAYLOAD_PACKET_SKELETON = new PacketSkeleton(0x0, DataType.getDTIP());
     private static final PacketSkeleton ENCRYPTION_PACKET_SKELETON = new PacketSkeleton(0x3, DataType.getDTE());
     private static final PacketSkeleton HMAC_PACKET_SKELETON = new PacketSkeleton(0x4, DataType.getDTHMAC());
     private final Map<Integer, PacketSkeleton> idPacketMapping = new ConcurrentHashMap<>();
@@ -51,7 +50,6 @@ public final class PacketCache {
     private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     public PacketCache() {
-        idPacketMapping.put(0x0, INTERNAL_PAYLOAD_PACKET_SKELETON);
         idPacketMapping.put(0x3, ENCRYPTION_PACKET_SKELETON);
         idPacketMapping.put(0x4, HMAC_PACKET_SKELETON);
     }
