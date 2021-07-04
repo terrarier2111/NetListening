@@ -87,13 +87,13 @@ public abstract class DataType<T> {
         return id;
     }
 
+    public final int getMinSize() {
+        return minSize;
+    }
+
     @ApiStatus.Internal
     public final boolean isPublished() {
         return published;
-    }
-
-    public final int getMinSize() {
-        return minSize;
     }
 
     @Deprecated
