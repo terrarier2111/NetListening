@@ -31,12 +31,13 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import io.netty.util.internal.EmptyArrays;
 import io.netty.util.internal.SystemPropertyUtil;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static io.netty.util.internal.EmptyArrays.EMPTY_BYTES;
 
 /**
  * @author Terrarier2111
@@ -47,11 +48,14 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
 
     private static final boolean IGNORE_EMPTY_PACKETS = SystemPropertyUtil.getBoolean(
             "de.terrarier.netlistening.IgnoreEmptyPackets", true);
+    private static final boolean IGNORE_UNSUPPORTED_KEEP_ALIVE_PACKETS = SystemPropertyUtil.getBoolean(
+            "de.terrarier.netlistening.IgnoreUnsupportedKeepAlivePackets", false);
 
     private final ApplicationImpl application;
     private final DataHandler handler;
     private final ConnectionImpl connection;
     private final int maxFrameSize;
+    private final boolean keepAlive;
     private DecoderContext context;
     private boolean framing;
     private ByteBuf holdingBuffer;
@@ -64,11 +68,12 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     private boolean readKeepAliveId;
 
     public PacketDataDecoder(@AssumeNotNull ApplicationImpl application, @AssumeNotNull DataHandler handler,
-                             @AssumeNotNull ConnectionImpl connection, int maxFrameSize) {
+                             @AssumeNotNull ConnectionImpl connection, int maxFrameSize, boolean keepAlive) {
         this.application = application;
         this.handler = handler;
         this.connection = connection;
         this.maxFrameSize = maxFrameSize;
+        this.keepAlive = keepAlive || IGNORE_UNSUPPORTED_KEEP_ALIVE_PACKETS;
     }
 
     @Override
@@ -78,7 +83,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         // This prevents empty packets from being decoded after the connection was closed.
         if (readable < 1) {
             if (IGNORE_EMPTY_PACKETS || !ctx.channel().isActive() ||
-                    callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.EMPTY_PACKET, EmptyArrays.EMPTY_BYTES)) {
+                    callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.EMPTY_PACKET, EMPTY_BYTES)) {
                 return;
             }
             throw new IllegalStateException("Received an empty packet!");
@@ -88,9 +93,6 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
             if (readKeepAliveId) {
                 readKeepAliveId = false;
                 readKeepAlive(buffer);
-                if (buffer.isReadable()) {
-                    decode(ctx, buffer, out); // TODO: Check if this is necessary!
-                }
                 return;
             }
             // Framing
@@ -201,7 +203,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
                 // prepare framing of data
                 final int frameSize = signal.size + buffer.readerIndex() - start +
                         (useFramingBuffer ? buffer.readableBytes() : 0);
-                handleFraming(frameSize, start, buffer, decodeBuffer);
+                handleFraming(frameSize, start, decodeBuffer);
                 if (useFramingBuffer) {
                     transferRemaining(buffer);
                 }
@@ -242,7 +244,7 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     private void readPayload(@AssumeNotNull ByteBuf buffer) {
         final int start = buffer.readerIndex();
         if (!buffer.isReadable()) {
-            handleFraming(1, start, buffer, buffer);
+            handleFraming(1, start, buffer);
             packet = null;
             return;
         }
@@ -251,13 +253,12 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
         } catch (CancelReadSignal signal) {
             // prepare framing of payload
             final int frameSize = signal.size + buffer.readerIndex() - start;
-            handleFraming(frameSize, start, buffer, buffer);
+            handleFraming(frameSize, start, buffer);
             packet = null;
         }
     }
 
-    private void handleFraming(int frameSize, int start, @AssumeNotNull ByteBuf buffer,
-                               @AssumeNotNull ByteBuf decodeBuffer) {
+    private void handleFraming(int frameSize, int start, @AssumeNotNull ByteBuf decodeBuffer) {
         if (frameSize > maxFrameSize) {
             final byte[] data = new byte[8];
             // Note: The first 4 bytes represent 0x0 in it's int representation.
@@ -281,11 +282,19 @@ public final class PacketDataDecoder extends ByteToMessageDecoder {
     }
 
     private void readKeepAlive(@AssumeNotNull ByteBuf buffer) {
+        if (!keepAlive) {
+            if (callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.UNSUPPORTED_KEEP_ALIVE,
+                    EMPTY_BYTES)) {
+                return;
+            }
+
+            throw new IllegalStateException("Received a keep alive packet although keep alive is unsupported!");
+        }
         final byte keepAliveId = buffer.readByte();
         final byte lastKeepAliveId = this.lastKeepAliveId;
         final byte nextId = (byte) ((lastKeepAliveId == Byte.MAX_VALUE ? Byte.MIN_VALUE : lastKeepAliveId) + 1);
         this.lastKeepAliveId = nextId;
-        if (keepAliveId != nextId && application instanceof Server/* && false*/) { // Disable buggy check temporarily until it's fixed.
+        if (keepAliveId != nextId && application instanceof Server) { // TODO: Check if this check is still buggy! (probably it isn't)
             final byte[] data = new byte[]{lastKeepAliveId, nextId, keepAliveId};
 
             if (callInvalidDataEvent(InvalidDataEvent.DataInvalidReason.INVALID_KEEP_ALIVE_ID, data)) {

@@ -169,14 +169,15 @@ public abstract class ApplicationImpl implements Application {
 
         final ConnectionImpl connection = new ConnectionImpl(this, channel);
         final ChannelPipeline pipeline = channel.pipeline();
+        final boolean keepAlive = timeout > 0;
 
-        if (timeout > 0) {
+        if (keepAlive) {
             pipeline.addLast(TIMEOUT_HANDLER,
                     new TimeOutHandler(this, connection, timeout));
         }
 
         pipeline.addLast(DECODER, new PacketDataDecoder(this, handler, connection,
-                maxFrameSize))
+                maxFrameSize, keepAlive))
                 .addAfter(DECODER, ENCODER, new PacketDataEncoder(this, connection, delayedExecutor));
         return connection;
     }
