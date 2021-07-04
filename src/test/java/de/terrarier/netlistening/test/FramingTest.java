@@ -17,6 +17,7 @@ package de.terrarier.netlistening.test;
 
 import de.terrarier.netlistening.Client;
 import de.terrarier.netlistening.Server;
+import de.terrarier.netlistening.api.encryption.EncryptionOptions;
 import de.terrarier.netlistening.api.encryption.SymmetricEncryptionData;
 import de.terrarier.netlistening.api.encryption.SymmetricEncryptionUtil;
 import de.terrarier.netlistening.api.event.ConnectionPostInitEvent;
@@ -34,6 +35,7 @@ import io.netty.channel.Channel;
 import org.junit.Test;
 
 import javax.crypto.SecretKey;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -110,7 +112,9 @@ public final class FramingTest {
             // send the payload
             final SecretKey secretKey = SymmetricEncryptionUtil.readSecretKey(KEY,
                     server.getEncryptionSetting().getSymmetricSetting());
-            final SymmetricEncryptionData symmetricEncryptionData = new SymmetricEncryptionData(server.getEncryptionSetting().getSymmetricSetting(), secretKey);
+            final Constructor<SymmetricEncryptionData> constructor = SymmetricEncryptionData.class.getDeclaredConstructor(EncryptionOptions.class, SecretKey.class);
+            constructor.setAccessible(true);
+            final SymmetricEncryptionData symmetricEncryptionData = constructor.newInstance(server.getEncryptionSetting().getSymmetricSetting(), secretKey);
 
             ByteBuf data = Unpooled.buffer();
             data.writeInt(0x3);
@@ -128,7 +132,7 @@ public final class FramingTest {
             data.writeByte(encryptedData[encryptedData.length - 1]);
             channel.writeAndFlush(data);
             Thread.sleep(200L);
-        } catch (NoSuchFieldException | IllegalAccessException | InterruptedException | NoSuchMethodException | InvocationTargetException e) {
+        } catch (NoSuchFieldException | IllegalAccessException | InterruptedException | NoSuchMethodException | InvocationTargetException | InstantiationException e) {
             e.printStackTrace();
         }
         server.stop();
@@ -198,7 +202,9 @@ public final class FramingTest {
             // send the payload
             final SecretKey secretKey = SymmetricEncryptionUtil.readSecretKey(KEY,
                     server.getEncryptionSetting().getSymmetricSetting());
-            final SymmetricEncryptionData symmetricEncryptionData = new SymmetricEncryptionData(server.getEncryptionSetting().getSymmetricSetting(), secretKey);
+            final Constructor<SymmetricEncryptionData> constructor = SymmetricEncryptionData.class.getDeclaredConstructor(EncryptionOptions.class, SecretKey.class);
+            constructor.setAccessible(true);
+            final SymmetricEncryptionData symmetricEncryptionData = constructor.newInstance(server.getEncryptionSetting().getSymmetricSetting(), secretKey);
 
             ByteBuf data = Unpooled.buffer();
             data.writeInt(0x3);
@@ -216,7 +222,7 @@ public final class FramingTest {
             data.writeByte(encryptedData[encryptedData.length - 1]);
             channel.writeAndFlush(data);
             Thread.sleep(200L);
-        } catch (NoSuchFieldException | IllegalAccessException | InterruptedException | NoSuchMethodException | InvocationTargetException e) {
+        } catch (NoSuchFieldException | IllegalAccessException | InterruptedException | NoSuchMethodException | InvocationTargetException | InstantiationException e) {
             e.printStackTrace();
         }
         server.stop();
