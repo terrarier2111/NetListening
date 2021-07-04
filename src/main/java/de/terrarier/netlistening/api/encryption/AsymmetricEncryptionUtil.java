@@ -62,7 +62,6 @@ public final class AsymmetricEncryptionUtil {
     @AssumeNotNull
     static byte[] performCipher(@AssumeNotNull byte[] input, @AssumeNotNull EncryptionOptions encryptionOptions,
                                 @AssumeNotNull Key key, int mode) {
-
         try {
             final Cipher cipher = Cipher.getInstance(encryptionOptions.build());
             cipher.init(mode, key);

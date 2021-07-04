@@ -88,7 +88,7 @@ public final class EncryptionOptions {
     @AssumeNotNull
     public String build() {
         checkBuilt();
-        return type.name() + "/" + mode.name() + "/" + padding.getPaddingName();
+        return type.name() + '/' + mode.name() + '/' + padding.getPaddingName();
     }
 
     private void checkModifiable() {

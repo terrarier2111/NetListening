@@ -34,6 +34,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 
+import static de.terrarier.netlistening.util.ByteBufUtilExtension.writeBytes;
+
 /**
  * @author Terrarier2111
  * @since 1.0
@@ -81,7 +83,8 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
             }
             return;
         }
-        writeKey(encryptionSetting.getEncryptionData().getPublicKey().getEncoded(), buffer, application);
+        writeBytes(buffer, encryptionSetting.getEncryptionData().getPublicKey().getEncoded(),
+                application.getBuffer());
     }
 
     @Override
@@ -146,20 +149,12 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
 
     private static void writeOptions(@AssumeNotNull EncryptionOptions options, @AssumeNotNull byte[] key,
                                      @AssumeNotNull ByteBuf buffer, @AssumeNotNull ApplicationImpl application) {
-        writeKey(key, buffer, application);
+        writeBytes(buffer, key, application.getBuffer());
         checkWriteable(application, buffer, 1 + 4 + 1 + 1);
         buffer.writeByte(options.getType().ordinal());
         buffer.writeInt(options.getKeySize());
         buffer.writeByte(options.getMode().ordinal());
         buffer.writeByte(options.getPadding().ordinal());
-    }
-
-    private static void writeKey(@AssumeNotNull byte[] key, @AssumeNotNull ByteBuf buffer,
-                                 @AssumeNotNull ApplicationImpl application) {
-        final int keyLength = key.length;
-        checkWriteable(application, buffer, 4 + keyLength);
-        buffer.writeInt(keyLength);
-        buffer.writeBytes(key);
     }
 
     @AssumeNotNull

@@ -44,7 +44,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static de.terrarier.netlistening.util.ByteBufUtilExtension.correctSize;
-import static de.terrarier.netlistening.util.ByteBufUtilExtension.getBytes;
+import static de.terrarier.netlistening.util.ByteBufUtilExtension.getBytesAndRelease;
 
 /**
  * @author Terrarier2111
@@ -354,13 +354,12 @@ public final class ConnectionImpl implements Connection {
 
     private void transferData(@AssumeNotNull ByteBuf buffer) {
         final int readable = buffer.readableBytes();
-        final byte[] bytes = getBytes(buffer, readable);
+        final byte[] bytes = getBytesAndRelease(buffer);
         final int applicationBuffer = application.getBuffer();
         synchronized (this) {
             correctSize(preConnectBuffer, readable, applicationBuffer);
             preConnectBuffer.writeBytes(bytes);
         }
-        buffer.release();
     }
 
     @ApiStatus.Internal

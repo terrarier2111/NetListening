@@ -35,6 +35,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.SocketAddress;
 import java.util.Locale;
 
+import static de.terrarier.netlistening.api.type.DataTypeString.EMPTY_STRING;
+
 /**
  * This class' sole purpose is to enable NetListening to support
  * older versions of Netty and UDS at the same time.
@@ -164,8 +166,9 @@ public final class UDS {
     @AssumeNotNull
     public static EventLoopGroup eventLoopGroup() {
         try {
-            return OSX && KQUEUE_EVENT_LOOP_GROUP != null ? KQUEUE_EVENT_LOOP_GROUP.newInstance() :
-                    Epoll.isAvailable() ? new EpollEventLoopGroup() : new NioEventLoopGroup();
+            return Epoll.isAvailable() ? new EpollEventLoopGroup() :
+                    OSX && KQUEUE_EVENT_LOOP_GROUP != null ? KQUEUE_EVENT_LOOP_GROUP.newInstance() :
+                            new NioEventLoopGroup();
         } catch (InstantiationException | IllegalAccessException e) {
             // KQueueEventLoopGroup is unsupported.
         }
@@ -183,7 +186,7 @@ public final class UDS {
 
     // Copied from PlatformDependent (and modified) from Netty in order to allow for correct backwards compatible osx checks.
     private static boolean isOsx0() {
-        final String value = SystemPropertyUtil.get("os.name", "").toLowerCase(Locale.US).replaceAll("[^a-z0-9]+", "");
+        final String value = SystemPropertyUtil.get("os.name", EMPTY_STRING).toLowerCase(Locale.US).replaceAll("[^a-z0-9]+", EMPTY_STRING);
         return value.startsWith("macosx") || value.startsWith("osx") || value.startsWith("darwin");
     }
 

@@ -32,7 +32,7 @@ import io.netty.buffer.ByteBuf;
  */
 public final class DataTypeString extends DataType<String> {
 
-    private static final String EMPTY_STRING = "";
+    public static final String EMPTY_STRING = "";
 
     DataTypeString() {
         super((byte) 0x7, (byte) 4, true);
