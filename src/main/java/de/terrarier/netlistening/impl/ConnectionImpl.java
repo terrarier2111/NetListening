@@ -188,8 +188,7 @@ public final class ConnectionImpl implements Connection {
      * @param symmetricKey the data which should be used to generate the key.
      */
     public void setSymmetricKey(@NotNull EncryptionOptions options, byte @NotNull [] symmetricKey) {
-        final SecretKey secretKey = SymmetricEncryptionUtil.readSecretKey(symmetricKey,
-                options);
+        final SecretKey secretKey = SymmetricEncryptionUtil.readSecretKey(symmetricKey, options);
         encryptionContext = new SymmetricEncryptionContext(options, secretKey);
     }
 

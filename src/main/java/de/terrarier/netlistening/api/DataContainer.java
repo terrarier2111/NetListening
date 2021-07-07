@@ -130,6 +130,7 @@ public final class DataContainer {
      *
      * @param channel the channel the data should be written to.
      */
+    @Deprecated
     public void write(@NotNull Channel channel) {
         channel.writeAndFlush(this, channel.voidPromise());
     }
@@ -227,7 +228,7 @@ public final class DataContainer {
         final int remainingReads = remainingReads();
         final Object[] ret = new Object[remainingReads];
         for (int i = 0; i < remainingReads; i++) {
-            ret[i] = read();
+            ret[i] = data.get(readerIndex++).getData();
         }
         return ret;
     }
