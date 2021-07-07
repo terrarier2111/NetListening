@@ -30,10 +30,8 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Terrarier2111
@@ -46,8 +44,8 @@ public final class PacketCache {
     private static final PacketSkeleton HMAC_PACKET_SKELETON = new PacketSkeleton(0x4, DataType.getDTHMAC());
     private final Map<Integer, PacketSkeleton> idPacketMapping = new ConcurrentHashMap<>();
     private final Map<DataType<?>[], PacketSkeleton> dataTypePacketMapping = new ConcurrentHashMap<>();
-    private final AtomicInteger id = new AtomicInteger(5);
-    private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
+    private final Lock lock = new ReentrantLock(true);
+    private volatile int id = 5;
 
     public PacketCache() {
         idPacketMapping.put(0x3, ENCRYPTION_PACKET_SKELETON);
@@ -62,10 +60,9 @@ public final class PacketCache {
     @AssumeNotNull
     public PacketSkeleton tryRegisterPacket(int id, @AssumeNotNull ConnectionImpl connection,
                                             @AssumeNotNull DataType<?>... data) {
-        final Lock writeLock = lock.writeLock();
-        writeLock.lock();
+        lock.lock();
         try {
-            final int currId = this.id.get();
+            final int currId = this.id;
             final boolean valid = id == currId;
             if (!valid) {
                 final PacketSkeleton packet = getPacket(data);
@@ -75,26 +72,25 @@ public final class PacketCache {
                 }
                 connection.getPacketIdTranslationCache().insert(id, currId);
             }
-            return registerPacket(this.id.getAndIncrement(), data);
+            return registerPacket(this.id++, data);
         } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
     }
 
     public void forceRegisterPacket(int id, @AssumeNotNull DataType<?>... data) {
-        final Lock writeLock = lock.writeLock();
-        writeLock.lock();
+        lock.lock();
         try {
-            final int curr = this.id.get();
+            final int curr = this.id;
             if (id > curr) {
-                this.id.set(id);
+                this.id = id;
             } else if (id == curr) {
-                this.id.getAndIncrement();
+                this.id++;
             }
 
             registerPacket(id, data);
         } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
     }
 
@@ -112,17 +108,16 @@ public final class PacketCache {
 
     @AssumeNotNull
     PacketSkeleton getOrRegisterPacket(@AssumeNotNull boolean[] notifier, @AssumeNotNull DataType<?>... data) {
-        final Lock writeLock = lock.writeLock();
-        writeLock.lock();
+        lock.lock();
         try {
             final PacketSkeleton packet = getPacket(data);
             if (packet != null) {
                 return packet;
             }
             notifier[0] = true;
-            return registerPacket(id.getAndIncrement(), data);
+            return registerPacket(id++, data);
         } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
     }
 
@@ -158,15 +153,14 @@ public final class PacketCache {
     }
 
     public void swapId(int former, int next) {
-        final Lock writeLock = lock.writeLock();
-        writeLock.lock();
+        lock.lock();
         try {
-            if (next > id.get()) {
-                id.set(next);
+            if (next > id) {
+                id = next;
             }
             idPacketMapping.put(next, idPacketMapping.get(former));
         } finally {
-            writeLock.unlock();
+            lock.unlock();
         }
     }
 
