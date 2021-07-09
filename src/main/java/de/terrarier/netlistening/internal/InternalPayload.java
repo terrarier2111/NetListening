@@ -65,7 +65,7 @@ public abstract class InternalPayload {
             case 0x5:
                 return UPDATE_TRANSLATION_ENTRY;
             default:
-                // TODO: Call invalid data event here!
+                // Keep in mind that an invalid data event has to be called by the caller of this method.
                 throw new IllegalStateException("Tried to process an internal payload with an invalid id! (" +
                         Integer.toHexString(id) + ')');
         }

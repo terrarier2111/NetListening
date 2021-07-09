@@ -15,6 +15,9 @@ limitations under the License.
  */
 package de.terrarier.netlistening.internal;
 
+import de.terrarier.netlistening.api.event.EventManager;
+import de.terrarier.netlistening.api.event.InvalidDataEvent;
+import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
@@ -36,7 +39,17 @@ public final class DataTypeInternalPayload extends DataType<InternalPayload> {
     public InternalPayload read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                                 @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
         final byte payloadId = buffer.readByte();
-        InternalPayload.fromId(payloadId).read(application, connection, buffer);
+        try {
+            InternalPayload.fromId(payloadId).read(application, connection, buffer);
+        } catch (IllegalStateException e) {
+            final InvalidDataEvent event = new InvalidDataEvent(connection,
+                    InvalidDataEvent.DataInvalidReason.INVALID_PAYLOAD_TYPE, new byte[]{payloadId});
+            if (application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
+                    event)) {
+                return null;
+            }
+            throw e;
+        }
         return null;
     }
 

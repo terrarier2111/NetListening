@@ -37,13 +37,13 @@ import java.util.List;
 public final class DataTypeHmac extends DataType<Void> {
 
     public DataTypeHmac() {
-        super((byte) 0xE, (byte) 6, false);
+        super((byte) 0xE, (byte) (4 + 2), false);
     }
 
     @Override
     public Void read0(@AssumeNotNull PacketDataDecoder.DecoderContext context, @AssumeNotNull List<Object> out,
                       @AssumeNotNull ByteBuf buffer) throws Exception {
-        checkReadable(buffer, 6);
+        checkReadable(buffer, 4 + 2);
         final int size = buffer.readInt();
         final short hashSize = buffer.readShort();
         checkReadable(buffer, size + hashSize);

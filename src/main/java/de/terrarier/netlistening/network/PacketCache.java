@@ -130,11 +130,14 @@ public final class PacketCache {
                                   Connection ignored, ByteBuf buffer) {
         final Collection<ConnectionImpl> connections = application.getConnectionsRaw();
         if (ignored == null || connections.size() > 1) {
-            final ByteBuf registerBuffer = buffer != null ? buffer : Unpooled.buffer(
-                    1 + InternalUtil.singleOctetIntSize(application) + payload.getSize(application));
+            final ByteBuf registerBuffer;
 
             if (buffer == null) {
+                registerBuffer = Unpooled.buffer(
+                        1 + InternalUtil.singleOctetIntSize(application) + payload.getSize(application));
                 DataType.getDTIP().write0(application, registerBuffer, payload);
+            } else {
+                registerBuffer = buffer;
             }
 
             for (ConnectionImpl connection : connections) {

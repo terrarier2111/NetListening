@@ -64,7 +64,7 @@ public final class InternalPayloadHandshake extends InternalPayload {
         if (!utf8) {
             final String charsetName = charset.name();
             final byte[] bytes = charsetName.getBytes(UTF_8);
-            final byte length = (byte) bytes.length;
+            final int length = bytes.length;
             checkWriteable(application, buffer, 1 + length);
             buffer.writeByte(length);
             buffer.writeBytes(bytes);

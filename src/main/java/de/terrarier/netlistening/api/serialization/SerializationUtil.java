@@ -79,6 +79,7 @@ public final class SerializationUtil {
         throw CancelSignal.INSTANCE;
     }
 
+    // Used to proxy to the setEventManager call which can only be accessed in the same package as SerializationProvider.
     public static void init(@AssumeNotNull ApplicationImpl application,
                             @AssumeNotNull SerializationProvider serializationProvider) {
         serializationProvider.setEventManager(application.getEventManager());

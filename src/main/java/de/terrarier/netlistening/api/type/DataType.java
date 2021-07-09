@@ -151,7 +151,7 @@ public abstract class DataType<T> {
                 return FLOAT;
             default:
                 // Keep in mind that an invalid data event has to be called by the caller of this method.
-                throw new IllegalArgumentException("Tried to resolve a data type with an invalid id! ("
+                throw new IllegalStateException("Tried to resolve a data type with an invalid id! ("
                         + Integer.toHexString(id) + ')');
         }
     }

@@ -117,15 +117,11 @@ public final class UDS {
         }
         if (OSX || epoll) {
             try {
-                final Class<? extends SocketAddress> DOMAIN_SOCKET_ADDRESS =
+                final Class<? extends SocketAddress> domainSocketAddress =
                         (Class<? extends SocketAddress>) Class.forName("io.netty.channel.unix.DomainSocketAddress");
-                try {
-                    DOMAIN_SOCKET_ADDRESS_CONSTRUCTOR = DOMAIN_SOCKET_ADDRESS.getDeclaredConstructor(String.class);
-                } catch (NoSuchMethodException e) {
-                    // Constructor is not available.
-                }
-            } catch (ClassNotFoundException | IllegalAccessError e) {
-                // DomainSocketAddress is not available.
+                DOMAIN_SOCKET_ADDRESS_CONSTRUCTOR = domainSocketAddress.getDeclaredConstructor(String.class);
+            } catch (ClassNotFoundException | IllegalAccessError | NoSuchMethodException e) {
+                // DomainSocketAddress or constructor is not available.
             }
             AVAILABLE = DOMAIN_SOCKET_ADDRESS_CONSTRUCTOR != null;
         } else {
@@ -186,7 +182,8 @@ public final class UDS {
 
     // Copied from PlatformDependent (and modified) from Netty in order to allow for correct backwards compatible osx checks.
     private static boolean isOsx0() {
-        final String value = SystemPropertyUtil.get("os.name", EMPTY_STRING).toLowerCase(Locale.US).replaceAll("[^a-z0-9]+", EMPTY_STRING);
+        final String value = SystemPropertyUtil.get("os.name", EMPTY_STRING).toLowerCase(Locale.US)
+                .replaceAll("[^a-z0-9]+", EMPTY_STRING);
         return value.startsWith("macosx") || value.startsWith("osx") || value.startsWith("darwin");
     }
 

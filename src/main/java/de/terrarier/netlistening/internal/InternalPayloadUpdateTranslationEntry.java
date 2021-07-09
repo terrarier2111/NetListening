@@ -23,7 +23,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
-import org.jetbrains.annotations.NotNull;
 
 import static de.terrarier.netlistening.internal.InternalUtil.*;
 
@@ -35,20 +34,20 @@ import static de.terrarier.netlistening.internal.InternalUtil.*;
 public final class InternalPayloadUpdateTranslationEntry extends InternalPayload {
 
     private final int id;
-    private int newId = -1;
+    private final int newId;
 
     InternalPayloadUpdateTranslationEntry(int id) {
-        super((byte) 0x5);
-        this.id = id;
+        this(id, -1);
     }
 
     public InternalPayloadUpdateTranslationEntry(int id, int newId) {
-        this(id);
+        super((byte) 0x5);
+        this.id = id;
         this.newId = newId;
     }
 
     @Override
-    void write(@NotNull ApplicationImpl application, @NotNull ByteBuf buffer) {
+    void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer) {
         writeInt(application, buffer, id);
         if (newId != -1) {
             writeInt(application, buffer, newId);
@@ -56,8 +55,8 @@ public final class InternalPayloadUpdateTranslationEntry extends InternalPayload
     }
 
     @Override
-    void read(@NotNull ApplicationImpl application, @NotNull ConnectionImpl connection, @NotNull ByteBuf buffer)
-            throws CancelReadSignal {
+    void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+              @AssumeNotNull ByteBuf buffer) throws CancelReadSignal {
         final int id = readInt(application, buffer);
         if (application instanceof Server) {
             connection.getPacketIdTranslationCache().delete(id);
