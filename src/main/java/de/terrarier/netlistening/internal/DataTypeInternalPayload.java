@@ -54,13 +54,8 @@ public final class DataTypeInternalPayload extends DataType<InternalPayload> {
     }
 
     @Override
-    public void write0(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer,
-                       @AssumeNotNull InternalPayload data) {
-        // We use this sneaky hack which allows us to ignore the fact that we
-        // have to send the packet id of the packet containing the payload
-        // (0x0) when using InternalPayloads by sending it implicitly every
-        // time we write an InternalPayload.
-        InternalUtil.writeInt(application, buffer, 0x0);
+    public void write0(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+                       @AssumeNotNull ByteBuf buffer, @AssumeNotNull InternalPayload data) {
         write(application, buffer, data);
     }
 

@@ -20,7 +20,6 @@ import de.terrarier.netlistening.api.DataComponent;
 import de.terrarier.netlistening.api.DataContainer;
 import de.terrarier.netlistening.api.PacketCaching;
 import de.terrarier.netlistening.api.encryption.EncryptionSetting;
-import de.terrarier.netlistening.api.encryption.hash.HashUtil;
 import de.terrarier.netlistening.api.encryption.hash.HmacApplicationPolicy;
 import de.terrarier.netlistening.api.encryption.hash.HmacSetting;
 import de.terrarier.netlistening.api.type.DataType;
@@ -37,14 +36,10 @@ import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.MessageToByteEncoder;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import static de.terrarier.netlistening.internal.InternalUtil.writeInt;
-import static de.terrarier.netlistening.util.ByteBufUtilExtension.correctSize;
-import static de.terrarier.netlistening.util.ByteBufUtilExtension.getBytesAndRelease;
 
 /**
  * @author Terrarier2111
@@ -90,7 +85,7 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
         if (notifier[0]) {
             final InternalPayloadRegisterPacket register = new InternalPayloadRegisterPacket(packet.getId(), types);
             final ByteBuf registerBuffer = Unpooled.buffer(5 + dataSize);
-            DataType.getDTIP().write0(application, registerBuffer, register);
+            DataType.getDTIP().write(application, registerBuffer, register);
             buffer.writeBytes(registerBuffer);
             if (application.getCaching() == PacketCaching.GLOBAL) {
                 cache.broadcastRegister(application, register, connection, registerBuffer);
@@ -111,83 +106,62 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
             });
             return;
         }
-        final ByteBuf dstBuffer = serialize ? ctx.alloc().buffer() : buffer;
         final EncryptionSetting encryptionSetting = application.getEncryptionSetting();
         final boolean encrypted = data.isEncrypted();
         final HmacSetting hmacSetting;
 
-        try {
-            if (encryptionSetting == null ||
-                    (((hmacSetting = encryptionSetting.getHmacSetting()) == null ||
-                            hmacSetting.getApplicationPolicy() == HmacApplicationPolicy.ENCRYPTED) && !encrypted)) {
-                writeToBuffer(dstBuffer, data, packet.getId());
+        if (encryptionSetting == null ||
+                (((hmacSetting = encryptionSetting.getHmacSetting()) == null ||
+                        hmacSetting.getApplicationPolicy() == HmacApplicationPolicy.ENCRYPTED) && !encrypted)) {
+            final ByteBuf dstBuffer = serialize ? ctx.alloc().buffer() : buffer;
+            if (writeToBuffer(dstBuffer, data, packet.getId(), serialize)) {
+                // This is here in order to prevent packets from being sent which contain unserializable data.
                 if (serialize) {
                     buffer.writeBytes(dstBuffer);
                     dstBuffer.release();
                 }
-                return;
             }
+            return;
+        }
 
-            final boolean hmac = (encrypted || hmacSetting.getApplicationPolicy() == HmacApplicationPolicy.ALL) &&
-                    hmacSetting != null;
-            final ByteBuf hmacBuffer = hmac ? ctx.alloc().buffer() : dstBuffer;
-            final ByteBuf encryptionBuffer = encrypted ? ctx.alloc().buffer() : hmacBuffer;
-            writeToBuffer(encryptionBuffer, data, packet.getId());
-            if (encrypted) {
-                writeInt(application, hmacBuffer, 0x3);
-                final byte[] encryptedData = connection.getEncryptionContext().encrypt(
-                        getBytesAndRelease(encryptionBuffer));
-                final int size = encryptedData.length;
-                correctSize(hmacBuffer, 4 + size, application.getBuffer());
-                hmacBuffer.writeInt(size);
-                hmacBuffer.writeBytes(encryptedData);
-            }
-
-            if (serialize) {
-                buffer.writeBytes(dstBuffer);
-                dstBuffer.release();
-            }
-            if (hmac) {
-                appendHmac(hmacBuffer, buffer, connection);
-            }
-        } catch (CancelSignal ignored) {
+        final boolean hmac = (encrypted || hmacSetting.getApplicationPolicy() == HmacApplicationPolicy.ALL) &&
+                hmacSetting != null;
+        final boolean separateBuffer = serialize || hmac || encrypted;
+        final ByteBuf tmpBuffer = separateBuffer ? ctx.alloc().buffer() : buffer;
+        if (!writeToBuffer(tmpBuffer, data, packet.getId(), separateBuffer)) {
             // This is here in order to prevent packets from being sent which contain unserializable data.
-            if (serialize) { // TODO: Check if this check is needed!
-                dstBuffer.release();
-            }
+            return;
+        }
+
+        if (encrypted) {
+            DataType.getDTE().write0(application, connection, tmpBuffer, null);
+        }
+        if (hmac) {
+            DataType.getDTHMAC().write0(application, connection, buffer, tmpBuffer);
+        } else if (serialize) {
+            buffer.writeBytes(tmpBuffer);
+            tmpBuffer.release();
         }
     }
 
-    private void writeToBuffer(@AssumeNotNull ByteBuf buffer, @AssumeNotNull DataContainer data, int packetId)
-            throws CancelSignal {
+    private boolean writeToBuffer(@AssumeNotNull ByteBuf buffer, @AssumeNotNull DataContainer data, int packetId,
+                                  boolean releaseOnError) {
         writeInt(application, buffer, packetId);
         final List<DataComponent<?>> dataComponentList = data.getData();
         final int dataSize = dataComponentList.size();
         for (int i = 0; i < dataSize; i++) {
             final DataComponent<?> component = dataComponentList.get(i);
-            component.getType().writeUnchecked(application, buffer, component.getData());
+            try {
+                component.getType().writeUnchecked(application, connection, buffer, component.getData());
+            } catch (CancelSignal signal) {
+                // Releases data in order to prevent memory leaks in case of an error.
+                if (releaseOnError) {
+                    buffer.release();
+                }
+                return false;
+            }
         }
-    }
-
-    private void appendHmac(@AssumeNotNull ByteBuf src, @AssumeNotNull ByteBuf dst,
-                            @AssumeNotNull ConnectionImpl connection) {
-        final byte[] data = getBytesAndRelease(src);
-        final byte[] hash;
-        try {
-            hash = HashUtil.calculateHMAC(data, connection.getHmacKey(),
-                    application.getEncryptionSetting().getHmacSetting().getHashingAlgorithm());
-        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            application.getEventManager().handleExceptionThrown(e);
-            return;
-        }
-        final int dataLength = data.length;
-        final short hashLength = (short) hash.length;
-        writeInt(application, dst, 0x4);
-        correctSize(dst, 4 + 2 + dataLength + hashLength, application.getBuffer());
-        dst.writeInt(dataLength);
-        dst.writeShort(hashLength);
-        dst.writeBytes(data);
-        dst.writeBytes(hash);
+        return true;
     }
 
 }

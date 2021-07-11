@@ -26,6 +26,10 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
 
+import static de.terrarier.netlistening.internal.InternalUtil.writeInt;
+import static de.terrarier.netlistening.util.ByteBufUtilExtension.correctSize;
+import static de.terrarier.netlistening.util.ByteBufUtilExtension.getBytes;
+
 /**
  * @author Terrarier2111
  * @since 1.0
@@ -56,6 +60,19 @@ public final class DataTypeEncrypt extends DataType<Void> {
     }
 
     @Override
+    public void write0(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+                       @AssumeNotNull ByteBuf buffer, Void data) {
+        writeInt(application, buffer, 0x3);
+        final byte[] encryptedData = connection.getEncryptionContext().encrypt(
+                getBytes(buffer, buffer.readableBytes()));
+        buffer.resetWriterIndex();
+        final int size = encryptedData.length;
+        correctSize(buffer, 4 + size, application.getBuffer());
+        buffer.writeInt(size);
+        buffer.writeBytes(encryptedData);
+    }
+
+    @Override
     protected Void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                         @AssumeNotNull ByteBuf buffer) {
         return null;
@@ -63,7 +80,6 @@ public final class DataTypeEncrypt extends DataType<Void> {
 
     @Override
     protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, Void empty) {
-        // We won't ever need this, because the writing is performed in the PacketDataEncoder directly.
     }
 
 }

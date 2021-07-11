@@ -53,7 +53,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
         if (typesLength == 0) {
             throw new IllegalArgumentException("Tried to send an empty packet!");
         }
-        checkWriteable(application, buffer, getSize(application));
+        checkWriteable(buffer, getSize(application));
         InternalUtil.writeIntUnchecked(application, buffer, packetId);
         buffer.writeShort(typesLength);
 
@@ -84,7 +84,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
         try {
             packetId = InternalUtil.readInt(application, buffer);
         } catch (CancelReadSignal e) {
-            throw new CancelReadSignal(3 + e.size);
+            throw new CancelReadSignal(2 + 1 + e.size);
         }
         checkReadable(buffer, 2 + 1);
 
@@ -155,7 +155,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
             } else {
                 final ByteBuf registerBuffer = Unpooled.buffer(
                         InternalUtil.singleOctetIntSize(application) + 1 + getSize(application));
-                DataType.getDTIP().write0(application, registerBuffer, register);
+                DataType.getDTIP().write(application, registerBuffer, register);
             }
         }
         packet.register();

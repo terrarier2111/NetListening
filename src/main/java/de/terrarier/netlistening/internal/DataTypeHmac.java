@@ -26,22 +26,28 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
+
+import static de.terrarier.netlistening.internal.InternalUtil.writeInt;
+import static de.terrarier.netlistening.util.ByteBufUtilExtension.correctSize;
+import static de.terrarier.netlistening.util.ByteBufUtilExtension.getBytesAndRelease;
 
 /**
  * @author Terrarier2111
  * @since 1.0
  */
 @ApiStatus.Internal
-public final class DataTypeHmac extends DataType<Void> {
+public final class DataTypeHmac extends DataType<ByteBuf> {
 
     public DataTypeHmac() {
         super((byte) 0xE, (byte) (4 + 2), false);
     }
 
     @Override
-    public Void read0(@AssumeNotNull PacketDataDecoder.DecoderContext context, @AssumeNotNull List<Object> out,
+    public ByteBuf read0(@AssumeNotNull PacketDataDecoder.DecoderContext context, @AssumeNotNull List<Object> out,
                       @AssumeNotNull ByteBuf buffer) throws Exception {
         checkReadable(buffer, 4 + 2);
         final int size = buffer.readInt();
@@ -68,14 +74,35 @@ public final class DataTypeHmac extends DataType<Void> {
     }
 
     @Override
-    protected Void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+    public void write0(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+                       @AssumeNotNull ByteBuf buffer, @AssumeNotNull ByteBuf dataSrc) {
+        final byte[] data = getBytesAndRelease(dataSrc);
+        final byte[] hash;
+        try {
+            hash = HashUtil.calculateHMAC(data, connection.getHmacKey(),
+                    application.getEncryptionSetting().getHmacSetting().getHashingAlgorithm());
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            application.getEventManager().handleExceptionThrown(e);
+            return;
+        }
+        final int dataLength = data.length;
+        final short hashLength = (short) hash.length;
+        writeInt(application, buffer, 0x4);
+        correctSize(buffer, 4 + 2 + dataLength + hashLength, application.getBuffer());
+        buffer.writeInt(dataLength);
+        buffer.writeShort(hashLength);
+        buffer.writeBytes(data);
+        buffer.writeBytes(hash);
+    }
+
+    @Override
+    protected ByteBuf read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                         @AssumeNotNull ByteBuf buffer) {
         return null;
     }
 
     @Override
-    protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, Void empty) {
-        // We won't ever need this, because the writing is performed in the PacketDataEncoder directly.
+    protected void write(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, ByteBuf empty) {
     }
 
 }

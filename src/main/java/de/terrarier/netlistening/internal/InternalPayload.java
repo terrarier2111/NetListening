@@ -35,12 +35,25 @@ public abstract class InternalPayload {
     private static final InternalPayloadUpdateTranslationEntry UPDATE_TRANSLATION_ENTRY = new InternalPayloadUpdateTranslationEntry(-1);
 
     final byte id;
+    private final boolean writePacketId;
 
     InternalPayload(byte id) {
+        this(id, true);
+    }
+
+    InternalPayload(byte id, boolean writePacketId) {
         this.id = id;
+        this.writePacketId = writePacketId;
     }
 
     final void write0(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer) {
+        if(writePacketId) {
+            // We use this sneaky hack which allows us to ignore the fact that we
+            // have to send the packet id of the packet containing the payload
+            // (0x0) when using InternalPayloads by sending it implicitly every
+            // time we write an InternalPayload.
+            InternalUtil.writeInt(application, buffer, 0x0);
+        }
         checkWriteable(application, buffer, 1);
         buffer.writeByte(id);
         write(application, buffer);
@@ -79,6 +92,10 @@ public abstract class InternalPayload {
 
     static void checkWriteable(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, int length) {
         ByteBufUtilExtension.correctSize(buffer, length, application.getBuffer());
+    }
+
+    static void checkWriteable(@AssumeNotNull ByteBuf buffer, int length) {
+        ByteBufUtilExtension.correctSize(buffer, length, 0);
     }
 
 }

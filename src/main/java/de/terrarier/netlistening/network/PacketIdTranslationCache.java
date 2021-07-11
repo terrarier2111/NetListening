@@ -51,7 +51,7 @@ public final class PacketIdTranslationCache {
     public void insert(int foreign, int local) {
         translations.put(foreign, local);
         final ByteBuf buffer = Unpooled.buffer(initSize);
-        DataType.getDTIP().write0(application, buffer, new InternalPayloadUpdateTranslationEntry(foreign, local));
+        DataType.getDTIP().write(application, buffer, new InternalPayloadUpdateTranslationEntry(foreign, local));
         final Channel channel = connection.getChannel();
         channel.writeAndFlush(buffer, channel.voidPromise());
     }

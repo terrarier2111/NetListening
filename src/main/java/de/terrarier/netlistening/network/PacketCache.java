@@ -135,7 +135,7 @@ public final class PacketCache {
             if (buffer == null) {
                 registerBuffer = Unpooled.buffer(
                         1 + InternalUtil.singleOctetIntSize(application) + payload.getSize(application));
-                DataType.getDTIP().write0(application, registerBuffer, payload);
+                DataType.getDTIP().write(application, registerBuffer, payload);
             } else {
                 registerBuffer = buffer;
             }

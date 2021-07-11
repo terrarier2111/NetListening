@@ -48,8 +48,8 @@ public abstract class DataType<T> {
     public static final DataType<Float> FLOAT = new DataTypeFloat();
 
     private static final DataTypeInternalPayload INTERNAL_PAYLOAD = new DataTypeInternalPayload();
-    private static final DataType<Void> ENCRYPT = new DataTypeEncrypt();
-    private static final DataType<Void> HMAC = new DataTypeHmac();
+    private static final DataTypeEncrypt ENCRYPT = new DataTypeEncrypt();
+    private static final DataTypeHmac HMAC = new DataTypeHmac();
 
     private final byte id;
     private final byte minSize;
@@ -73,8 +73,8 @@ public abstract class DataType<T> {
                               @AssumeNotNull ByteBuf buffer) throws CancelSignal;
 
     @ApiStatus.Internal
-    public void write0(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buffer, T data)
-            throws CancelSignal {
+    public void write0(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
+                       @AssumeNotNull ByteBuf buffer, T data) throws CancelSignal {
         checkWriteable(application, buffer, minSize);
         write(application, buffer, data);
     }
@@ -104,9 +104,10 @@ public abstract class DataType<T> {
 
     @ApiStatus.Internal
     @SuppressWarnings("unchecked")
-    public final void writeUnchecked(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ByteBuf buf,
+    public final void writeUnchecked(@AssumeNotNull ApplicationImpl application,
+                                     @AssumeNotNull ConnectionImpl connection, @AssumeNotNull ByteBuf buf,
                                      @AssumeNotNull Object data) throws CancelSignal {
-        write0(application, buf, (T) data);
+        write0(application, connection, buf, (T) data);
     }
 
     @ApiStatus.Internal
@@ -164,13 +165,13 @@ public abstract class DataType<T> {
 
     @ApiStatus.Internal
     @AssumeNotNull
-    public static DataType<Void> getDTE() {
+    public static DataTypeEncrypt getDTE() {
         return ENCRYPT;
     }
 
     @ApiStatus.Internal
     @AssumeNotNull
-    public static DataType<Void> getDTHMAC() {
+    public static DataTypeHmac getDTHMAC() {
         return HMAC;
     }
 

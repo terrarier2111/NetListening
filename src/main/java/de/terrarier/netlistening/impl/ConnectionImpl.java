@@ -261,8 +261,8 @@ public final class ConnectionImpl implements Connection {
 
             final DataTypeInternalPayload dtip = DataType.getDTIP();
             final PacketCaching caching = application.getCaching();
-            final ByteBuf buffer;
             synchronized (this) {
+                final ByteBuf buffer;
                 if (connected) {
                     buffer = Unpooled.buffer();
                 } else {
@@ -279,7 +279,7 @@ public final class ConnectionImpl implements Connection {
                     if (packetsSize > 2) {
                         for (int id = 5; id < packetsSize + 3; id++) { // the number added here is calculated via: 5 - number of default packets
                             final DataType<?>[] data = packets.get(id).getData();
-                            dtip.write0(application, buffer, new InternalPayloadRegisterPacket(id, data));
+                            dtip.write(application, buffer, new InternalPayloadRegisterPacket(id, data));
                         }
                     }
                 }
@@ -380,7 +380,7 @@ public final class ConnectionImpl implements Connection {
 
         final int lowSize = InternalUtil.singleOctetIntSize(application);
         final ByteBuf buffer = Unpooled.buffer(lowSize + 1 + lowSize);
-        DataType.getDTIP().write0(application, buffer, InternalPayload.PUSH_REQUEST);
+        DataType.getDTIP().write(application, buffer, InternalPayload.PUSH_REQUEST);
         channel.writeAndFlush(buffer, voidPromise);
         // TODO: IMPORTANT: Check if we should write the preConnectBuffer first.
         synchronized (this) {

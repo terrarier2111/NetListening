@@ -42,7 +42,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public final class InternalPayloadHandshake extends InternalPayload {
 
     InternalPayloadHandshake() {
-        super((byte) 0x2);
+        super((byte) 0x2, false);
     }
 
     @Override
@@ -73,7 +73,7 @@ public final class InternalPayloadHandshake extends InternalPayload {
             final EncryptionOptions options = encryptionSetting.getAsymmetricSetting();
             final byte[] serverKey = encryptionSetting.getEncryptionData().getPublicKey().getEncoded();
             final int serverKeyLength = serverKey.length;
-            checkWriteable(application, buffer, 1 + 4 + 1 + 1 + 4 + serverKeyLength);
+            checkWriteable(buffer, 1 + 4 + 1 + 1 + 4 + serverKeyLength);
             buffer.writeByte(options.getType().ordinal());
             buffer.writeInt(options.getKeySize());
             buffer.writeByte(options.getMode().ordinal());
@@ -135,7 +135,7 @@ public final class InternalPayloadHandshake extends InternalPayload {
 
         if (encryptionSetting != null) {
             final ByteBuf initBuffer = Unpooled.buffer();
-            DataType.getDTIP().write0(application, initBuffer, ENCRYPTION_INIT);
+            DataType.getDTIP().write(application, initBuffer, ENCRYPTION_INIT);
             client.sendRawData(initBuffer);
         }
     }

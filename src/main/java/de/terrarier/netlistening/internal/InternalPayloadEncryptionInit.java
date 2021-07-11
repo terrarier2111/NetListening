@@ -83,8 +83,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
             }
             return;
         }
-        writeBytes(buffer, encryptionSetting.getEncryptionData().getPublicKey().getEncoded(),
-                application.getBuffer()); // TODO: Check if we should use 0 as buffer here!
+        writeBytes(buffer, encryptionSetting.getEncryptionData().getPublicKey().getEncoded(), 0);
     }
 
     @Override
@@ -123,7 +122,7 @@ public final class InternalPayloadEncryptionInit extends InternalPayload {
             }
             final ByteBuf initBuffer = Unpooled.buffer();
 
-            DataType.getDTIP().write0(application, initBuffer,
+            DataType.getDTIP().write(application, initBuffer,
                     new InternalPayloadEncryptionInit(
                             connection.getEncryptionContext().getEncryptionData(), publicKey,
                             connection.getHmacKey()));
