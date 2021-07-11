@@ -20,37 +20,6 @@ public class VoidPromise {
     private static final int ITERATIONS = 25000;
     private static final AtomicInteger PORT = new AtomicInteger(8839);
 
-    @State(Scope.Thread)
-    public static class ConnectionsState {
-
-        public Server server;
-        public ClientImpl client;
-
-        @Setup
-        public void doSetup() {
-            final int curr = PORT.getAndIncrement();
-            server = Server.builder(curr).build();
-            try {
-                Thread.sleep(50L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            client = (ClientImpl) Client.builder("localhost", curr).build();
-            try {
-                Thread.sleep(50L);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        @TearDown
-        public void doTearDown() {
-            server.stop();
-            client.stop();
-        }
-
-    }
-
     @Benchmark
     @BenchmarkMode(Mode.AverageTime)
     @OutputTimeUnit(TimeUnit.MILLISECONDS)
@@ -93,6 +62,37 @@ public class VoidPromise {
             buffer.retain();
             channel.writeAndFlush(buffer);
         }
+    }
+
+    @State(Scope.Thread)
+    public static class ConnectionsState {
+
+        public Server server;
+        public ClientImpl client;
+
+        @Setup
+        public void doSetup() {
+            final int curr = PORT.getAndIncrement();
+            server = Server.builder(curr).build();
+            try {
+                Thread.sleep(50L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            client = (ClientImpl) Client.builder("localhost", curr).build();
+            try {
+                Thread.sleep(50L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @TearDown
+        public void doTearDown() {
+            server.stop();
+            client.stop();
+        }
+
     }
 
 }

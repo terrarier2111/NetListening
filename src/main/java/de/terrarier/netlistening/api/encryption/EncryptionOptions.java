@@ -53,7 +53,7 @@ public final class EncryptionOptions {
     public EncryptionOptions keySize(int keySize) {
         checkModifiable();
         final int sanitizedKeySize = keySize & 0x7FFFFFF8; // This magic number is validating the key size such that it is a multiple of 8.
-        if(sanitizedKeySize < 8) {
+        if (sanitizedKeySize < 8) {
             throw new IllegalArgumentException("The key size may not be smaller than 8.");
         }
         this.keySize = sanitizedKeySize;

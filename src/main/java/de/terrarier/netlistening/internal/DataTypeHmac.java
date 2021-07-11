@@ -48,7 +48,7 @@ public final class DataTypeHmac extends DataType<ByteBuf> {
 
     @Override
     public ByteBuf read0(@AssumeNotNull PacketDataDecoder.DecoderContext context, @AssumeNotNull List<Object> out,
-                      @AssumeNotNull ByteBuf buffer) throws Exception {
+                         @AssumeNotNull ByteBuf buffer) throws Exception {
         checkReadable(buffer, 4 + 2);
         final int size = buffer.readInt();
         final short hashSize = buffer.readShort();
@@ -97,7 +97,7 @@ public final class DataTypeHmac extends DataType<ByteBuf> {
 
     @Override
     protected ByteBuf read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
-                        @AssumeNotNull ByteBuf buffer) {
+                           @AssumeNotNull ByteBuf buffer) {
         return null;
     }
 
