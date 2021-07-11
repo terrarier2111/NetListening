@@ -43,20 +43,12 @@ public final class SerializationTest {
                 writeBytes(buffer, input.toString().getBytes(StandardCharsets.UTF_8));
             }
 
-            @Override
-            protected boolean isTransformableFromBytes(ByteBuf input, int length) {
-                return true;
-            }
-
-            @Override
-            protected boolean isTransformableToBytes(Object obj) {
-                return true;
-            }
         });
         final Server server = Server.builder(55843).
                 serialization(serverSerializationProvider).compression().varIntCompression(false).nibbleCompression(true).build().build();
         final RegisterSerializationProvider clientSerializationProvider = new RegisterSerializationProvider();
         clientSerializationProvider.registerTransformer(new RegisterSerializationProvider.ByteBufTransformer<Object>() {
+
             @Override
             protected Object fromBytes(ByteBuf data, int length) {
                 return new String(readBytes(data, length));
@@ -67,15 +59,6 @@ public final class SerializationTest {
                 writeBytes(buffer, input.toString().getBytes(StandardCharsets.UTF_8));
             }
 
-            @Override
-            protected boolean isTransformableFromBytes(ByteBuf input, int length) {
-                return true;
-            }
-
-            @Override
-            protected boolean isTransformableToBytes(Object obj) {
-                return true;
-            }
         });
         final Client client = Client.builder("localhost", 55843).
                 serialization(clientSerializationProvider).build();
@@ -92,7 +75,7 @@ public final class SerializationTest {
         client.sendData("test0", new Object(), "test1", 46);
         client.sendData("test123");
         try {
-            Thread.sleep(10000L);
+            Thread.sleep(1000L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -117,7 +100,7 @@ public final class SerializationTest {
         // client.sendData("-3test00", new Object(), "test11", 46); // - this should lead to an error!
         client.sendData("test123");
         try {
-            Thread.sleep(10000L);
+            Thread.sleep(1000L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

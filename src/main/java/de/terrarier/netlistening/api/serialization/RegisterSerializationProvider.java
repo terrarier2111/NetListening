@@ -109,11 +109,6 @@ public class RegisterSerializationProvider extends SerializationProvider {
         Class<?> target;
         int id;
 
-        // TODO: Fallback if not transformable!
-        protected abstract boolean isTransformableFromBytes0(@AssumeNotNull ReadableByteAccumulation input);
-
-        protected abstract boolean isTransformableToBytes(@AssumeNotNull T obj);
-
         @AssumeNotNull
         protected abstract T fromBytes0(@AssumeNotNull ReadableByteAccumulation ba)
                 throws Exception;
@@ -129,14 +124,6 @@ public class RegisterSerializationProvider extends SerializationProvider {
 
     public static abstract class ByteArrayTransformer<T> extends Transformer<T> {
 
-        protected final boolean isTransformableFromBytes0(@AssumeNotNull ReadableByteAccumulation input) {
-            return isTransformableFromBytes(input.getArray());
-        }
-
-        protected boolean isTransformableFromBytes(@AssumeNotNull byte[] input) {
-            return true;
-        }
-
         @AssumeNotNull
         protected final T fromBytes0(@AssumeNotNull ReadableByteAccumulation ba) throws Exception {
             final byte[] array = ba.getArray();
@@ -148,11 +135,6 @@ public class RegisterSerializationProvider extends SerializationProvider {
 
         @AssumeNotNull
         protected abstract T fromBytes(@AssumeNotNull byte[] data) throws Exception;
-
-        @Override
-        protected boolean isTransformableToBytes(@AssumeNotNull T obj) {
-            return true;
-        }
 
         @Override
         protected final void toBytes0(@AssumeNotNull WritableByteAccumulation ba, @AssumeNotNull T input)
@@ -168,26 +150,12 @@ public class RegisterSerializationProvider extends SerializationProvider {
     public static abstract class ByteBufTransformer<T> extends Transformer<T> {
 
         @Override
-        protected final boolean isTransformableFromBytes0(@AssumeNotNull ReadableByteAccumulation input) {
-            return isTransformableFromBytes(input.getBuffer(), input.getLength() - 8);
-        }
-
-        protected boolean isTransformableFromBytes(@AssumeNotNull ByteBuf buffer, int length) {
-            return true;
-        }
-
-        @Override
         protected final T fromBytes0(@AssumeNotNull ReadableByteAccumulation ba) throws Exception {
             return fromBytes(ba.getBuffer(), ba.getLength() - 8);
         }
 
         @AssumeNotNull
         protected abstract T fromBytes(@AssumeNotNull ByteBuf data, int length) throws Exception;
-
-        @Override
-        protected boolean isTransformableToBytes(@AssumeNotNull T obj) {
-            return true;
-        }
 
         @Override
         protected final void toBytes0(@AssumeNotNull WritableByteAccumulation ba, @AssumeNotNull T input)
