@@ -34,7 +34,9 @@ public class RegisterTest {
                 .build().encryption().disableHmac().build().build();
         final Client client = Client.builder("localhost", 55843).build();
         try {
-            // TODO: Fix this!
+            // Note: It is logical that the client will throw an exception, just keep that in mind!
+            // This is because it doesn't know about the packet it allegedly sent, but which we faked
+            // in reality.
             final ByteBuf buffer = Unpooled.buffer();
             buffer.writeInt(0x0);
             buffer.writeByte(0x1);
@@ -52,7 +54,7 @@ public class RegisterTest {
             fakePacket.writeInt(0x1); // Byte array length
             fakePacket.writeByte(0xF); // Just a random number (Byte array content)
             channel.writeAndFlush(fakePacket);
-            Thread.sleep(9000L);
+            Thread.sleep(2000L);
         } catch (NoSuchFieldException | IllegalAccessException | InterruptedException e) {
             e.printStackTrace();
         }
