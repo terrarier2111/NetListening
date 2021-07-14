@@ -1,5 +1,5 @@
 /*
-Copyright 2021 Terrarier2111
+Copyright 2016-2019 Netflix, Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ import io.netty.buffer.ByteBuf;
 import org.jetbrains.annotations.ApiStatus;
 
 /**
- * @author Terrarier2111
  * @since 1.0
  */
+// Original source: https://github.com/Netflix/hollow/blob/master/hollow/src/main/java/com/netflix/hollow/core/memory/encoding/VarInt.java
 @ApiStatus.Internal
 public final class VarIntUtil {
 
@@ -32,7 +32,6 @@ public final class VarIntUtil {
     private static final CancelReadSignal THREE_BYTES = new CancelReadSignal(3);
     public static final CancelReadSignal FOUR_BYTES = new CancelReadSignal(4);
     private static final CancelReadSignal FIVE_BYTES = new CancelReadSignal(5);
-    // Original source: https://github.com/Netflix/hollow/blob/master/hollow/src/main/java/com/netflix/hollow/core/memory/encoding/VarInt.java
 
     private VarIntUtil() {
         throw new UnsupportedOperationException("This class may not be instantiated!");
