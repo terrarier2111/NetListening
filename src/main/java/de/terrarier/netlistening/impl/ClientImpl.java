@@ -53,7 +53,6 @@ import java.util.*;
  */
 public final class ClientImpl extends ApplicationImpl implements Client {
 
-    private static final PacketCaching CACHING = PacketCaching.NONE;
     private Channel channel;
     private ConnectionImpl connection;
     private volatile boolean receivedHandshake;
@@ -77,7 +76,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
                 .channelFactory(UDS.channelFactory(uds))
                 .handler(new ChannelInitializer<Channel>() {
                     @Override
-                    protected final void initChannel(@AssumeNotNull Channel channel) {
+                    protected void initChannel(@AssumeNotNull Channel channel) {
                         final ConnectionImpl connection = prepareConnectionInitially(channel, timeout, options, null,
                                 Integer.MAX_VALUE);
                         if (proxy != null) {
@@ -175,7 +174,7 @@ public final class ClientImpl extends ApplicationImpl implements Client {
     @AssumeNotNull
     @Override
     public PacketCaching getCaching() {
-        return CACHING;
+        return PacketCaching.NONE;
     }
 
     /**

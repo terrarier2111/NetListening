@@ -22,8 +22,9 @@ import de.terrarier.netlistening.api.event.ListenerType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ClientImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
-import de.terrarier.netlistening.util.ConversionUtil;
 import io.netty.buffer.ByteBuf;
+
+import static io.netty.util.internal.EmptyArrays.EMPTY_BYTES;
 
 /**
  * @author Terrarier2111
@@ -44,11 +45,9 @@ public final class InternalPayloadPushRequest extends InternalPayload {
     void read(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
               @AssumeNotNull ByteBuf buffer) {
         if (application instanceof Server) {
-            // TODO: We should probably cache this byte array.
-            final byte[] data = ConversionUtil.intToBytes(id);
 
             final InvalidDataEvent event = new InvalidDataEvent(connection,
-                    InvalidDataEvent.DataInvalidReason.MALICIOUS_ACTION, data);
+                    InvalidDataEvent.DataInvalidReason.MALICIOUS_ACTION, EMPTY_BYTES);
             if (application.getEventManager().callEvent(ListenerType.INVALID_DATA, EventManager.CancelAction.IGNORE,
                     event)) {
                 return;

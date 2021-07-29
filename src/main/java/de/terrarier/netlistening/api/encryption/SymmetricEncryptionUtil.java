@@ -18,12 +18,14 @@ package de.terrarier.netlistening.api.encryption;
 import de.terrarier.netlistening.internal.AssumeNotNull;
 import org.jetbrains.annotations.ApiStatus;
 
-import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+
+import static javax.crypto.Cipher.DECRYPT_MODE;
+import static javax.crypto.Cipher.ENCRYPT_MODE;
 
 /**
  * @author Terrarier2111
@@ -46,12 +48,12 @@ public final class SymmetricEncryptionUtil {
 
     @AssumeNotNull
     static byte[] encrypt(@AssumeNotNull byte[] input, @AssumeNotNull SymmetricEncryptionData encryptionData) {
-        return performCipher(input, encryptionData, Cipher.ENCRYPT_MODE);
+        return performCipher(input, encryptionData, ENCRYPT_MODE);
     }
 
     @AssumeNotNull
     static byte[] decrypt(@AssumeNotNull byte[] input, @AssumeNotNull SymmetricEncryptionData encryptionData) {
-        return performCipher(input, encryptionData, Cipher.DECRYPT_MODE);
+        return performCipher(input, encryptionData, DECRYPT_MODE);
     }
 
     @AssumeNotNull

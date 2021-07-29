@@ -21,7 +21,7 @@ import de.terrarier.netlistening.internal.AssumeNotNull;
  * @author Terrarier2111
  * @since 1.0
  */
-public abstract class EncryptionData {
+abstract class EncryptionData {
 
     private final EncryptionOptions options;
 
