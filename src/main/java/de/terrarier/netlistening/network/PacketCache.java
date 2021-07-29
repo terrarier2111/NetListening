@@ -16,6 +16,9 @@ limitations under the License.
 package de.terrarier.netlistening.network;
 
 import de.terrarier.netlistening.Connection;
+import de.terrarier.netlistening.api.encryption.hash.DefaultHashFingerprint64;
+import de.terrarier.netlistening.api.encryption.hash.FarmHashFingerprint64;
+import de.terrarier.netlistening.api.encryption.hash.HashFingerprint;
 import de.terrarier.netlistening.api.type.DataType;
 import de.terrarier.netlistening.impl.ApplicationImpl;
 import de.terrarier.netlistening.impl.ConnectionImpl;
@@ -25,6 +28,7 @@ import de.terrarier.netlistening.internal.InternalUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
+import io.netty.util.internal.SystemPropertyUtil;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Collection;
@@ -42,8 +46,20 @@ public final class PacketCache {
 
     private static final PacketSkeleton ENCRYPTION_PACKET_SKELETON = new PacketSkeleton(0x3, DataType.getDTE());
     private static final PacketSkeleton HMAC_PACKET_SKELETON = new PacketSkeleton(0x4, DataType.getDTHMAC());
+    private static final HashFingerprint FINGERPRINT;
+
+    static {
+
+        if (SystemPropertyUtil.get("de.terrarier.netlistening.Fingerprint", "default").equalsIgnoreCase("farm")) {
+            FINGERPRINT = new FarmHashFingerprint64();
+        } else {
+            FINGERPRINT = new DefaultHashFingerprint64();
+        }
+
+    }
+
     private final Map<Integer, PacketSkeleton> idPacketMapping = new ConcurrentHashMap<>();
-    private final Map<DataType<?>[], PacketSkeleton> dataTypePacketMapping = new ConcurrentHashMap<>();
+    private final Map<Long, PacketSkeleton> dataTypePacketMapping = new ConcurrentHashMap<>();
     private final Lock lock = new ReentrantLock(true);
     private volatile int id = 5;
 
@@ -60,25 +76,27 @@ public final class PacketCache {
     @AssumeNotNull
     public PacketSkeleton tryRegisterPacket(int id, @AssumeNotNull ConnectionImpl connection,
                                             @AssumeNotNull DataType<?>... data) {
+        final long dataHash = FINGERPRINT.fingerPrint(toBytes(data));
         lock.lock();
         try {
+            final PacketSkeleton packet = getPacket(dataHash);
+            if (packet != null) {
+                connection.getPacketIdTranslationCache().insert(id, packet.getId());
+                return packet;
+            }
             final int currId = this.id;
             final boolean valid = id == currId;
             if (!valid) {
-                final PacketSkeleton packet = getPacket(data);
-                if (packet != null) {
-                    connection.getPacketIdTranslationCache().insert(id, packet.getId());
-                    return packet;
-                }
                 connection.getPacketIdTranslationCache().insert(id, currId);
             }
-            return registerPacket(this.id++, data);
+            return registerPacket(this.id++, data, dataHash);
         } finally {
             lock.unlock();
         }
     }
 
     public void forceRegisterPacket(int id, @AssumeNotNull DataType<?>... data) {
+        final long dataHash = FINGERPRINT.fingerPrint(toBytes(data));
         lock.lock();
         try {
             final int curr = this.id;
@@ -88,34 +106,35 @@ public final class PacketCache {
                 this.id++;
             }
 
-            registerPacket(id, data);
+            registerPacket(id, data, dataHash);
         } finally {
             lock.unlock();
         }
     }
 
     @AssumeNotNull
-    private PacketSkeleton registerPacket(int id, @AssumeNotNull DataType<?>... data) {
+    private PacketSkeleton registerPacket(int id, @AssumeNotNull DataType<?>[] data, @AssumeNotNull long dataHash) {
         final PacketSkeleton packet = new PacketSkeleton(id, data);
         idPacketMapping.put(id, packet);
-        dataTypePacketMapping.put(data, packet);
+        dataTypePacketMapping.put(dataHash, packet);
         return packet;
     }
 
-    PacketSkeleton getPacket(@AssumeNotNull DataType<?>... data) {
-        return dataTypePacketMapping.get(data);
+    private PacketSkeleton getPacket(long dataHash) {
+        return dataTypePacketMapping.get(dataHash);
     }
 
     @AssumeNotNull
-    PacketSkeleton getOrRegisterPacket(@AssumeNotNull boolean[] notifier, @AssumeNotNull DataType<?>... data) {
+    PacketSkeleton getOrRegisterPacket(@AssumeNotNull boolean[] notifier, @AssumeNotNull DataType<?>[] data) {
+        final long dataHash = FINGERPRINT.fingerPrint(toBytes(data));
         lock.lock();
         try {
-            final PacketSkeleton packet = getPacket(data);
+            final PacketSkeleton packet = getPacket(dataHash);
             if (packet != null) {
                 return packet;
             }
             notifier[0] = true;
-            return registerPacket(id++, data);
+            return registerPacket(id++, data, dataHash);
         } finally {
             lock.unlock();
         }
@@ -170,6 +189,16 @@ public final class PacketCache {
     public void clear() {
         idPacketMapping.clear();
         dataTypePacketMapping.clear();
+    }
+
+    @AssumeNotNull
+    private static byte[] toBytes(@AssumeNotNull DataType<?>[] dataTypes) {
+        // TODO: Use nibble compression, to reduce the overall size of the output array and sanitize the data.
+        final byte[] ret = new byte[dataTypes.length];
+        for(int i = 0; i < dataTypes.length; i++) {
+            ret[i] = dataTypes[i].getId();
+        }
+        return ret;
     }
 
 }
