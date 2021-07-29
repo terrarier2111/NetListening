@@ -17,7 +17,7 @@ package de.terrarier.netlistening.util;
 
 import de.terrarier.netlistening.internal.AssumeNotNull;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFactory;
+import io.netty.bootstrap.ChannelFactory;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.ServerChannel;
 import io.netty.channel.epoll.Epoll;
@@ -59,6 +59,7 @@ public final class UDS {
     private static Class<? extends EventLoopGroup> KQUEUE_EVENT_LOOP_GROUP;
     private static Constructor<? extends SocketAddress> DOMAIN_SOCKET_ADDRESS_CONSTRUCTOR;
 
+    // Note: We have to use these deprecated imports in order to be able to support older versions of Netty!
     private static final ChannelFactory<? extends ServerChannel> SERVER_UDS_CHANNEL_FACTORY =
             (ChannelFactory<ServerChannel>) () -> serverChannel(true);
     private static final ChannelFactory<? extends ServerChannel> SERVER_CHANNEL_FACTORY =
