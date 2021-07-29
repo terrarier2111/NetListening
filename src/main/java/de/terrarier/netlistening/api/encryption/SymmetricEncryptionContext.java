@@ -34,21 +34,6 @@ public final class SymmetricEncryptionContext {
         this.symmetricEncryptionData = new SymmetricEncryptionData(symmetricEncryptionOptions, secretKey);
     }
 
-    @Deprecated
-    public SymmetricEncryptionContext(@AssumeNotNull SecretKey secretKey,
-                                      @AssumeNotNull EncryptionOptions symmetricEncryptionOptions) {
-        this(symmetricEncryptionOptions, secretKey);
-    }
-
-    /**
-     * @return the key which is used to en-/decrypt data.
-     */
-    @Deprecated
-    @AssumeNotNull
-    public SecretKey getSecretKey() {
-        return symmetricEncryptionData.getSecretKey();
-    }
-
     /**
      * @return the data contained in the context which is used to en-/decrypt data passed to the context.
      */

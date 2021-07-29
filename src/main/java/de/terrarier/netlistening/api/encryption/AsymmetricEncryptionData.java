@@ -92,13 +92,4 @@ public final class AsymmetricEncryptionData extends EncryptionData {
         return getBytesAndRelease(buffer);
     }
 
-    /**
-     * @deprecated use {@link AsymmetricEncryptionData#keysToBytes} instead!
-     */
-    @AssumeNotNull
-    @Deprecated
-    public byte[] keysToByteArray() {
-        return keysToBytes();
-    }
-
 }
