@@ -134,8 +134,7 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
             }
         }
 
-        final PacketCache cache = application.getCaching() != PacketCaching.INDIVIDUAL ? application.getCache() :
-                connection.getCache();
+        final PacketCache cache = connection.getCache();
         if (application instanceof Client) {
             cache.forceRegisterPacket(packetId, types);
             return;
@@ -158,7 +157,9 @@ public final class InternalPayloadRegisterPacket extends InternalPayload {
                 DataType.getDTIP().write(application, registerBuffer, register);
             }
         }
-        packet.register();
+        synchronized (packet) {
+            packet.register();
+        }
     }
 
     public int getSize(@AssumeNotNull ApplicationImpl application) {

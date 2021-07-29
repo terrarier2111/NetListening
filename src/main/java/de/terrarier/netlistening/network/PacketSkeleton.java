@@ -54,6 +54,7 @@ public final class PacketSkeleton {
 
     public void register() {
         registered = true;
+        notifyAll();
     }
 
     /**

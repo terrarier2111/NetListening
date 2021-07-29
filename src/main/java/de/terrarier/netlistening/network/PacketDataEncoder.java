@@ -83,16 +83,18 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
         final PacketSkeleton packet = cache.getOrRegisterPacket(notifier, types);
 
         if (notifier[0]) {
-            final InternalPayloadRegisterPacket register = new InternalPayloadRegisterPacket(packet.getId(), types);
-            final ByteBuf registerBuffer = Unpooled.buffer(5 + dataSize);
-            DataType.getDTIP().write(application, registerBuffer, register);
-            buffer.writeBytes(registerBuffer);
-            if (application.getCaching() == PacketCaching.GLOBAL) {
-                cache.broadcastRegister(application, register, connection, registerBuffer);
-            } else {
-                registerBuffer.release();
+            synchronized (packet) {
+                final InternalPayloadRegisterPacket register = new InternalPayloadRegisterPacket(packet.getId(), types);
+                final ByteBuf registerBuffer = Unpooled.buffer(4 + 1 + dataSize);
+                DataType.getDTIP().write(application, registerBuffer, register);
+                buffer.writeBytes(registerBuffer);
+                if (application.getCaching() == PacketCaching.GLOBAL) {
+                    cache.broadcastRegister(application, register, connection, registerBuffer);
+                } else {
+                    registerBuffer.release();
+                }
+                packet.register();
             }
-            packet.register();
         } else if (application instanceof Server && !packet.isRegistered()) {
             if (delayedExecutor.isShutdown()) {
                 return;
@@ -101,7 +103,13 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
             delayedExecutor.execute(() -> {
                 final Channel channel = ctx.channel();
                 final ChannelPromise voidPromise = channel.voidPromise();
-                while (!packet.isRegistered());
+                if (!packet.isRegistered()) {
+                    try {
+                        packet.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
                 channel.writeAndFlush(data, voidPromise);
             });
             return;
@@ -114,12 +122,10 @@ public final class PacketDataEncoder extends MessageToByteEncoder<DataContainer>
                 (((hmacSetting = encryptionSetting.getHmacSetting()) == null ||
                         hmacSetting.getApplicationPolicy() == HmacApplicationPolicy.ENCRYPTED) && !encrypted)) {
             final ByteBuf dstBuffer = serialize ? ctx.alloc().buffer() : buffer;
-            if (writeToBuffer(dstBuffer, data, packet.getId(), serialize)) {
+            if (writeToBuffer(dstBuffer, data, packet.getId(), serialize) && serialize) {
                 // This is here in order to prevent packets from being sent which contain unserializable data.
-                if (serialize) {
-                    buffer.writeBytes(dstBuffer);
-                    dstBuffer.release();
-                }
+                buffer.writeBytes(dstBuffer);
+                dstBuffer.release();
             }
             return;
         }
