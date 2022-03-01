@@ -29,6 +29,8 @@ public final class UDSTest {
 
     @Test
     public void test() {
+        final boolean[] serverRecv = {false};
+        final boolean[] clientRecv = {false};
         final String ioFilePath = PlatformDependent.tmpdir().getAbsolutePath() + "/nl_io";
         try {
             new File(ioFilePath).createNewFile();
@@ -41,6 +43,7 @@ public final class UDSTest {
             public void trigger(DecodeEvent value) {
                 final String message = value.getData().read();
                 System.out.println(message);
+                serverRecv[0] = true;
             }
         });
         final Client client = Client.builder(ioFilePath).build();
@@ -49,6 +52,7 @@ public final class UDSTest {
             public void trigger(DecodeEvent value) {
                 final String message = value.getData().read();
                 System.out.println(message);
+                clientRecv[0] = true;
             }
         });
         client.sendData("test");
@@ -64,6 +68,9 @@ public final class UDSTest {
             e.printStackTrace();
         }
         new File(ioFilePath).delete();
+        if (!serverRecv[0] || !clientRecv[0]) {
+            throw new Error();
+        }
     }
 
 }

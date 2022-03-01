@@ -62,10 +62,11 @@ public final class DataTypeEncrypt extends DataType<Void> {
     @Override
     public void write0(@AssumeNotNull ApplicationImpl application, @AssumeNotNull ConnectionImpl connection,
                        @AssumeNotNull ByteBuf buffer, Void data) {
-        writeInt(application, buffer, 0x3);
         final byte[] encryptedData = connection.getEncryptionContext().encrypt(
                 getBytes(buffer, buffer.readableBytes()));
+        // We reset the reader index because we want to reuse the old buffer space which is still filled with the unencrypted data
         buffer.resetWriterIndex();
+        writeInt(application, buffer, 0x3);
         final int size = encryptedData.length;
         correctSize(buffer, 4 + size, application.getBuffer());
         buffer.writeInt(size);
