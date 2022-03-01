@@ -94,7 +94,13 @@ public interface Application {
      * @param data the data which gets sent.
      */
     default void sendData(@NotNull Object... data) {
-        sendData(false, data);
+        if (data.length == 0) {
+            throw new IllegalArgumentException("Please pass the data which is to be sent, you may not send empty arrays.");
+        }
+
+        final DataContainer container = new DataContainer();
+        container.addAll(data);
+        sendData(container);
     }
 
     /**
@@ -103,7 +109,10 @@ public interface Application {
      * @param encrypted if the traffic is to be encrypted.
      * @param data      the data which gets sent.
      * @throws IllegalArgumentException if the passed object array is empty.
+     * @deprecated use data containers directly instead because this method is ambiguous most of the time,
+     * use {@link Application#sendDataEncrypted(Object...)) instead!
      */
+    @Deprecated
     default void sendData(boolean encrypted, @NotNull Object... data) {
         if (data.length == 0) {
             throw new IllegalArgumentException("Please pass the data which is to be sent, you may not send empty arrays.");
@@ -116,9 +125,26 @@ public interface Application {
     }
 
     /**
+     * Encrypts and sends data to all connections.
+     *
+     * @param data the data which gets encrypted and sent.
+     */
+    default void sendDataEncrypted(@NotNull Object... data) {
+        if (data.length == 0) {
+            throw new IllegalArgumentException("Please pass the data which is to be sent, you may not send empty arrays.");
+        }
+
+        final DataContainer container = new DataContainer();
+        container.addAll(data);
+        container.setEncrypted(true);
+        sendData(container);
+    }
+
+    /**
      * Sends data to all connection.
      *
      * @param data the data which gets sent.
+     * @deprecated use {@link Application#sendData(DataContainer)} directly instead!
      */
     @Deprecated
     default void sendData(@NotNull DataComponent<?> data) {
